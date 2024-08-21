@@ -1,19 +1,16 @@
-package com.example.firstgraduate.entities;
+package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Collection;
-import java.util.Objects;
 
 @Entity
-@Table(name = "color")
+@Table(name = "size")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Getter
-@Setter
-public class Color {
+@Getter @Setter
+public class Size {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false)

@@ -1,4 +1,4 @@
-package com.example.firstgraduate.entities;
+package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,9 +22,6 @@ public class Payment {
     @Basic
     @Column(name = "payment_method", nullable = true, length = 50)
     private String paymentMethod;
-    @Basic
-    @Column(name = "amount", nullable = true)
-    private Integer amount;
     @ManyToOne
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     private Orders orders;

@@ -1,13 +1,13 @@
-package com.example.firstgraduate;
+package com.example.demo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class FirstGraduateApplication {
+public class DatnApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(FirstGraduateApplication.class, args);
+        SpringApplication.run(DatnApplication.class, args);
     }
 
 }

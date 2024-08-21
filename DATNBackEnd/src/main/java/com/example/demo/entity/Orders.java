@@ -1,4 +1,4 @@
-package com.example.firstgraduate.entities;
+package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -37,7 +37,7 @@ public class Orders extends BaseEntity {
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     private Customer customer;
     @ManyToOne
-    @JoinColumn(name = "staff_id", referencedColumnName = "id")
-    private Staff staff;
+    @JoinColumn(name = "account_id", referencedColumnName = "id")
+    private Account account;
 
 }

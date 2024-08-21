@@ -1,16 +1,17 @@
-package com.example.firstgraduate.entities;
+package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 
 @Entity
-@Table(name = "brand")
+@Table(name = "color")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Getter @Setter
-public class Brand {
+@Getter
+@Setter
+public class Color {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false)
@@ -24,5 +25,5 @@ public class Brand {
     @Basic
     @Column(name = "status")
     private byte status;
-
 }
+

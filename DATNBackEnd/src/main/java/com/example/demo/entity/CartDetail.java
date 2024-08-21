@@ -1,9 +1,8 @@
-package com.example.firstgraduate.entities;
+package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Objects;
 
 @Entity
 @Table(name = "cart_detail")
@@ -26,13 +25,13 @@ public class CartDetail {
     @Column(name = "total_price", nullable = true, precision = 0)
     private Double totalPrice;
     @ManyToOne
-    @JoinColumn(name = "customer_id", referencedColumnName = "id")
-    private Customer customer;
+    @JoinColumn(name = "account_id", referencedColumnName = "id")
+    private Account account;
     @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;
     @ManyToOne
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     private Orders orders;
-
 }
+

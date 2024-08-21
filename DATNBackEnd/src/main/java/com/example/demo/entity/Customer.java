@@ -1,7 +1,10 @@
-package com.example.firstgraduate.entities;
+package com.example.demo.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "customer")
@@ -29,8 +32,4 @@ public class Customer extends BaseEntity {
     @Basic
     @Column(name = "address", nullable = true, length = 255)
     private String address;
-    @ManyToOne
-    @JoinColumn(name = "account_id", referencedColumnName = "id")
-    private Account account;
-
 }

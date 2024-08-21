@@ -1,4 +1,4 @@
-package com.example.firstgraduate.entities;
+package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,6 +20,9 @@ public class Product extends BaseEntity {
     @Basic
     @Column(name = "name", nullable = true, length = 255)
     private String name;
+    @Basic
+    @Column(name = "image", nullable = true, length = 255)
+    private String image;
     @Basic
     @Column(name = "price", nullable = true, precision = 0)
     private Double price;
