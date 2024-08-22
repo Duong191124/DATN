@@ -15,7 +15,7 @@ public class MessageReponse {
     private String message;
 
     @JsonProperty("status")
-    private HttpStatus status;
+    private int status;
 
     @JsonProperty("data")
     private Object data;
