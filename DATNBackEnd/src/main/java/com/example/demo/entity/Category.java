@@ -3,19 +3,22 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 
 @Entity
 @Table(name = "category")
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 @Getter @Setter
+@Builder
 public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false)
     private int id;
-    @Basic
-    @Column(name = "name", nullable = true, length = 255)
+
+    @Column(name = "name")
     private String name;
 }
