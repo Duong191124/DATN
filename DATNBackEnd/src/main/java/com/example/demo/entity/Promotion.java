@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 
 @Entity
@@ -38,4 +39,6 @@ public class Promotion extends BaseEntity {
     @Basic
     @Column(name = "status")
     private int status;
+    @ManyToMany(mappedBy = "promotions")
+    private Set<ProductDetail> productDetails;
 }

@@ -51,4 +51,6 @@ public class Account extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id")
     private Role role;
+    @OneToOne(mappedBy = "account")
+    private CartDetail cartDetail;
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.Set;
 
 
 @Entity
@@ -40,4 +41,6 @@ public class Voucher extends BaseEntity {
     @Basic
     @Column(name = "status")
     private int status;
+    @ManyToMany(mappedBy = "vouchers")
+    private Set<Customer> customers;
 }

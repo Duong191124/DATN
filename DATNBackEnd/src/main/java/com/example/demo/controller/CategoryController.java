@@ -4,14 +4,13 @@ import com.example.demo.dto.CategoryDTO;
 import com.example.demo.entity.Category;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.service.CategoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.*;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -41,7 +40,6 @@ public class CategoryController {
             return ResponseEntity.badRequest().body(MessageReponse.builder()
                     .message(errorMessage.toString())
                     .status(HttpStatus.BAD_REQUEST.value())
-                    .data(null)
                     .build());
         }
         Category newCategory = categoryService.add(category);
@@ -52,11 +50,23 @@ public class CategoryController {
                 .build());
     }
 
+    @PutMapping("{id}")
+    public ResponseEntity<?> update(
+            @PathVariable("id") Integer id,
+            @RequestBody CategoryDTO categoryDTO) throws Exception{
+        categoryService.update(id, categoryDTO);
+        return ResponseEntity.ok().body(MessageReponse.builder()
+                .message("Update Successfully")
+                .status(HttpStatus.OK.value())
+                .data(categoryDTO)
+                .build());
+    }
+
     @DeleteMapping("{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception{
         categoryService.deleteCategory(id);
         return ResponseEntity.ok().body(MessageReponse.builder()
-                .message("Delete category with id= " + id + " successfully")
+                .message("Delete category with id = " + id + " successfully")
                 .status(HttpStatus.OK.value())
                 .build());
     }

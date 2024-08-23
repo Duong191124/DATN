@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Entity
 @Table(name = "customer")
 @AllArgsConstructor
@@ -32,4 +34,11 @@ public class Customer extends BaseEntity {
     @Basic
     @Column(name = "address", nullable = true, length = 255)
     private String address;
+    @ManyToMany
+    @JoinTable(
+            name = "customer_voucher",
+            joinColumns = @JoinColumn(name = "account_id"),
+            inverseJoinColumns = @JoinColumn(name = "voucher_id")
+    )
+    private Set<Voucher> vouchers;
 }

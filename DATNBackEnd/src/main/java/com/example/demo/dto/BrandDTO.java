@@ -1,8 +1,6 @@
 package com.example.demo.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -10,7 +8,11 @@ import lombok.*;
 @Setter
 @Data
 @Builder
-public class CategoryDTO {
-    @NotBlank(message = "Name can't empty")
+public class BrandDTO {
+
+    private String code;
+
     private String name;
+
+    private byte status;
 }

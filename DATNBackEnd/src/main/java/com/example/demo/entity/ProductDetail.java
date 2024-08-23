@@ -3,6 +3,8 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Set;
+
 
 @Entity
 @Table(name = "product_detail")
@@ -36,4 +38,11 @@ public class ProductDetail extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "color_id", referencedColumnName = "id")
     private Color color;
+    @ManyToMany
+    @JoinTable(
+            name = "product_promotion",
+            joinColumns = @JoinColumn(name = "product_detail_id"),
+            inverseJoinColumns = @JoinColumn(name = "promotion_id")
+    )
+    private Set<Promotion> promotions;
 }
