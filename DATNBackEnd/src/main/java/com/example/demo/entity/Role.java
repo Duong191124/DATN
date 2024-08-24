@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Entity
@@ -9,6 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @Data
 @Getter @Setter
+@Builder
 public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -16,8 +18,9 @@ public class Role {
     private int id;
     @Basic
     @Column(name = "name", nullable = false, length = 255)
+    @NotBlank
     private String name;
     @Basic
     @Column(name = "status", nullable = false)
-    private byte status;
+    private int status;
 }
