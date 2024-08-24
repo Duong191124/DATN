@@ -1,37 +1,37 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.CategoryDTO;
-import com.example.demo.entity.Category;
+import com.example.demo.dto.SizeDTO;
+import com.example.demo.entity.Size;
 import com.example.demo.response.MessageReponse;
-import com.example.demo.service.CategoryService;
+import com.example.demo.service.SizeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.*;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("${api.prefix}/category")
+@RequestMapping("${api.prefix}/size")
 @RequiredArgsConstructor
-public class CategoryController {
-
-    private final CategoryService categoryService;
+public class SizeController {
+    private final SizeService sizeService;
 
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAll(){
-        List<Category> categoryList = categoryService.getAll();
-        return ResponseEntity.ok().body(MessageReponse.builder()
+        List<Size> sizeList = sizeService.getAll();
+        return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                 .message("Lay thong tin thanh cong")
                 .status(HttpStatus.OK.value())
-                .data(categoryList)
+                .data(sizeList)
                 .build());
     }
 
     @PostMapping("")
-    public ResponseEntity<MessageReponse> add(@Valid @RequestBody CategoryDTO category, BindingResult result){
+    public ResponseEntity<MessageReponse> add(@Valid @RequestBody SizeDTO sizeDTO, BindingResult result){
         if(result.hasErrors()){
             List<String> errorMessage = result.getFieldErrors()
                     .stream()
@@ -42,33 +42,32 @@ public class CategoryController {
                     .status(HttpStatus.BAD_REQUEST.value())
                     .build());
         }
-        Category newCategory = categoryService.add(category);
+        Size newSize = sizeService.add(sizeDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
-                .message("Create category successfully")
+                .message("Create size successfully")
                 .status(HttpStatus.CREATED.value())
-                .data(newCategory)
+                .data(newSize)
                 .build());
     }
 
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
-            @RequestBody CategoryDTO categoryDTO) throws Exception{
-        categoryService.update(id, categoryDTO);
-        return ResponseEntity.ok().body(MessageReponse.builder()
+            @RequestBody SizeDTO sizeDTO) throws Exception{
+        sizeService.update(id, sizeDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                 .message("Update Successfully")
                 .status(HttpStatus.OK.value())
-                .data(categoryDTO)
+                .data(sizeDTO)
                 .build());
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception{
-        categoryService.deleteCategory(id);
-        return ResponseEntity.ok().body(MessageReponse.builder()
-                .message("Delete category with id = " + id + " successfully")
+        sizeService.deleteSize(id);
+        return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
+                .message("Delete size with id = " + id + " successfully")
                 .status(HttpStatus.OK.value())
                 .build());
     }
-
 }
