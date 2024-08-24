@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 @Getter @Setter
 public class Size {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
