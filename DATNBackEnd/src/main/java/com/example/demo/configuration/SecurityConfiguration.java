@@ -1,5 +1,5 @@
 package com.example.demo.configuration;
-
+import com.example.demo.utility.CustomJwtGrantedAuthoritiesConverter;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
 import org.springframework.beans.factory.annotation.Value;
@@ -83,19 +83,6 @@ public class SecurityConfiguration {
         return NimbusJwtDecoder.withSecretKey(getSecretKey()).macAlgorithm(macAlgorithm).build();
     }
 
-    public class CustomJwtGrantedAuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
-        @Override
-        public Collection<GrantedAuthority> convert(Jwt jwt) {
-            // Lấy các quyền từ claim huudungdz.authorities
-            Map<String, Object> claims = jwt.getClaims();
-            Map<String, Object> huudungdz = (Map<String, Object>) claims.get("huudungdz");
-            List<Map<String, String>> authorities = (List<Map<String, String>>) huudungdz.get("authorities");
-
-            return authorities.stream()
-                    .map(authority -> new SimpleGrantedAuthority(authority.get("role")))
-                    .collect(Collectors.toList());
-        }
-    }
 }
 
