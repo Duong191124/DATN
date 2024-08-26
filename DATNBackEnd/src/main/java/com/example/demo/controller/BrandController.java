@@ -1,37 +1,38 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.CategoryDTO;
-import com.example.demo.entity.Category;
+import com.example.demo.dto.BrandDTO;
+import com.example.demo.entity.Brand;
 import com.example.demo.response.MessageReponse;
-import com.example.demo.service.CategoryService;
+import com.example.demo.service.BrandService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.*;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("${api.prefix}/category")
+@RequestMapping("${api.prefix}/brand")
 @RequiredArgsConstructor
-public class CategoryController {
+public class BrandController {
 
-    private final CategoryService categoryService;
+    private final BrandService brandService;
 
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAll(){
-        List<Category> categoryList = categoryService.getAll();
-        return ResponseEntity.ok().body(MessageReponse.builder()
+        List<Brand> brandList = brandService.getAll();
+        return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                 .message("Lay thong tin thanh cong")
                 .status(HttpStatus.OK.value())
-                .data(categoryList)
+                .data(brandList)
                 .build());
     }
 
     @PostMapping("")
-    public ResponseEntity<MessageReponse> add(@Valid @RequestBody CategoryDTO category, BindingResult result){
+    public ResponseEntity<MessageReponse> add(@Valid @RequestBody BrandDTO brandDTO, BindingResult result){
         if(result.hasErrors()){
             List<String> errorMessage = result.getFieldErrors()
                     .stream()
@@ -42,33 +43,32 @@ public class CategoryController {
                     .status(HttpStatus.BAD_REQUEST.value())
                     .build());
         }
-        Category newCategory = categoryService.add(category);
+        Brand newBrand = brandService.add(brandDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
-                .message("Create category successfully")
+                .message("Create brand successfully")
                 .status(HttpStatus.CREATED.value())
-                .data(newCategory)
+                .data(newBrand)
                 .build());
     }
 
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
-            @RequestBody CategoryDTO categoryDTO) throws Exception{
-        categoryService.update(id, categoryDTO);
-        return ResponseEntity.ok().body(MessageReponse.builder()
+            @RequestBody BrandDTO brandDTO) throws Exception{
+        brandService.update(id, brandDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                 .message("Update Successfully")
                 .status(HttpStatus.OK.value())
-                .data(categoryDTO)
+                .data(brandDTO)
                 .build());
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception{
-        categoryService.deleteCategory(id);
-        return ResponseEntity.ok().body(MessageReponse.builder()
-                .message("Delete category with id = " + id + " successfully")
+        brandService.deleteBrand(id);
+        return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
+                .message("Delete brand with id = " + id + " successfully")
                 .status(HttpStatus.OK.value())
                 .build());
     }
-
 }

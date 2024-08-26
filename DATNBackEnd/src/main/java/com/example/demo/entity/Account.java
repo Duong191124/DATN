@@ -1,18 +1,16 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Date;
 
 @Entity
-@Table(name = "accounts")
+@Table(name = "account")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter @Setter
+@Builder
 public class Account extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -35,7 +33,7 @@ public class Account extends BaseEntity {
     private String phoneNumber;
     @Basic
     @Column(name = "status")
-    private byte status;
+    private int status;
     @Basic
     @Column(name = "date_of_birth", nullable = true)
     private Date dateOfBirth;
@@ -47,10 +45,9 @@ public class Account extends BaseEntity {
     private String notes;
     @Basic
     @Column(name = "gender", nullable = true, length = 255)
-    private String gender;
+    private int gender;
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id")
     private Role role;
-    @OneToOne(mappedBy = "account")
-    private CartDetail cartDetail;
+
 }
