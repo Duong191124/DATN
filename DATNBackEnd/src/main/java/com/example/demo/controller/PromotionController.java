@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.PromotionDTO;
 import com.example.demo.entity.Promotion;
 import com.example.demo.response.MessageReponse;
+import com.example.demo.response.PromotionResponse;
 import com.example.demo.service.PromotionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +23,8 @@ public class PromotionController {
     private final PromotionService promotionService;
 
     @GetMapping("")
-    public ResponseEntity<MessageReponse> getAll(){
-        List<Promotion> promotionList = promotionService.getAll();
+    public ResponseEntity<?> getAll(){
+        List<PromotionResponse> promotionList = promotionService.getAll().stream().map(PromotionResponse::fromPromotionResponse).toList();
         return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                 .message("Lay thong tin thanh cong")
                 .status(HttpStatus.OK.value())
@@ -43,7 +44,7 @@ public class PromotionController {
                     .status(HttpStatus.BAD_REQUEST.value())
                     .build());
         }
-        Promotion newPromotion = promotionService.add(promotionDTO);
+        PromotionResponse newPromotion = promotionService.add(promotionDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
                 .message("Create promotion successfully")
                 .status(HttpStatus.CREATED.value())
@@ -54,12 +55,23 @@ public class PromotionController {
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
-            @RequestBody PromotionDTO promotionDTO) throws Exception{
-        promotionService.update(id, promotionDTO);
+            @RequestBody @Valid PromotionDTO promotionDTO,
+            BindingResult result) throws Exception{
+        if (result.hasErrors()) {
+            List<String> errorMessage = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(MessageReponse.builder()
+                    .message(errorMessage.toString())
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .build());
+        }
+        PromotionResponse updatePromotion = promotionService.update(id, promotionDTO);
         return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                 .message("Update Successfully")
                 .status(HttpStatus.OK.value())
-                .data(promotionDTO)
+                .data(updatePromotion)
                 .build());
     }
 

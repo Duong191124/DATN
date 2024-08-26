@@ -1,19 +1,25 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.PromotionDTO;
+import com.example.demo.entity.ProductDetail;
 import com.example.demo.entity.Promotion;
+import com.example.demo.repository.ProductDetailRepo;
 import com.example.demo.repository.PromotionRepo;
+import com.example.demo.response.PromotionResponse;
 import com.example.demo.service.impl.PromotionServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
 public class PromotionService implements PromotionServiceImpl {
 
     private final PromotionRepo promotionRepo;
+    private final ProductDetailRepo productDetailRepo;
 
     @Override
     public List<Promotion> getAll() {
@@ -21,7 +27,9 @@ public class PromotionService implements PromotionServiceImpl {
     }
 
     @Override
-    public Promotion add(PromotionDTO promotion) {
+    public PromotionResponse add(PromotionDTO promotion) {
+        ProductDetail productDetail = productDetailRepo.findById(promotion.getProductDetailsId())
+                .orElse(null);
         Promotion newPromotion = Promotion
                 .builder()
                 .name(promotion.getName())
@@ -31,13 +39,16 @@ public class PromotionService implements PromotionServiceImpl {
                 .startDate(promotion.getStartDate())
                 .endDate(promotion.getEndDate())
                 .status(promotion.getStatus())
-                .productDetails(promotion.getProductDetails())
+                .productDetails(productDetail != null ? Set.of(productDetail) : Set.of())
                 .build();
-        return promotionRepo.save(newPromotion);
+        Promotion addPromotion = promotionRepo.save(newPromotion);
+        return PromotionResponse.fromPromotionResponse(addPromotion);
     }
 
     @Override
-    public Promotion update(Integer id, PromotionDTO promotion) throws Exception {
+    public PromotionResponse update(Integer id, PromotionDTO promotion) throws Exception {
+        ProductDetail productDetail = productDetailRepo.findById(promotion.getProductDetailsId())
+                .orElseThrow(() -> new Exception(""));
         Promotion existingPromotion = getPromotionById(id);
         existingPromotion.setName(promotion.getName());
         existingPromotion.setDescription(promotion.getDescription());
@@ -46,8 +57,11 @@ public class PromotionService implements PromotionServiceImpl {
         existingPromotion.setStartDate(promotion.getStartDate());
         existingPromotion.setEndDate(promotion.getEndDate());
         existingPromotion.setStatus(promotion.getStatus());
-        existingPromotion.setProductDetails(promotion.getProductDetails());
-        return promotionRepo.save(existingPromotion);
+        Set<ProductDetail> productDetails = new HashSet<>();
+        productDetails.add(productDetail);
+        existingPromotion.setProductDetails(productDetails);
+        Promotion updatePromotion = promotionRepo.save(existingPromotion);
+        return PromotionResponse.fromPromotionResponse(updatePromotion);
     }
 
     @Override
