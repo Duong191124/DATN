@@ -12,6 +12,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter @Setter
+@Builder
 public class Voucher extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id

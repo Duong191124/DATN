@@ -28,7 +28,7 @@ public class CartDetail {
     @JoinColumn(name = "account_id", referencedColumnName = "id")
     private Account account;
     @ManyToOne
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
+    @JoinColumn(name = "product_detail_id", referencedColumnName = "id")
     private Product product;
     @ManyToOne
     @JoinColumn(name = "order_id", referencedColumnName = "id")

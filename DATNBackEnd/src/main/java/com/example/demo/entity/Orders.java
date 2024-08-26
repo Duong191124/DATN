@@ -12,6 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class Orders extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
