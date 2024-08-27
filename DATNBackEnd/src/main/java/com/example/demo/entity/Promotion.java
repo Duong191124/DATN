@@ -11,7 +11,7 @@ import java.util.Set;
 @Table(name = "promotion")
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Data
 @Getter @Setter
 public class Promotion extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)

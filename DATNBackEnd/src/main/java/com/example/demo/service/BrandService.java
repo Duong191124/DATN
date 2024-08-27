@@ -25,7 +25,6 @@ public class BrandService implements BrandServiceImpl {
         Brand newBrand = Brand.builder()
                 .name(brand.getName())
                 .code(brand.getCode())
-                .status(brand.getStatus())
                 .build();
         return brandRepo.save(newBrand);
     }
