@@ -15,4 +15,5 @@ public interface PromotionServiceImpl {
     Promotion getPromotionById(Integer id) throws Exception;
 
     void deletePromotion(Integer id) throws Exception;
+
 }
