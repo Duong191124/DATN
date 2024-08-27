@@ -30,7 +30,8 @@ public class PromotionDTO {
     private String discountAmount;
 
     private int status;
-    
-    private Set<ProductDetail> productDetails;
+
+    @NotNull(message = "ProductDetailsId can't null")
+    private Integer productDetailsId;
 
 }
