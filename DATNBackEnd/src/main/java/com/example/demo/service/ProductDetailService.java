@@ -36,8 +36,19 @@ public class ProductDetailService implements ProductDetailServiceImpl {
     }
 
     @Override
-    public ProductDetail add(ProductDetail pdd) {
-        return productDetailRepo.save(pdd);
+    public ProductDetail addProductDetail(ProductDetailDTO productDetailDTO) throws Exception {
+        ProductDetail newProductDetail = new ProductDetail();
+        newProductDetail.setCode(productDetailDTO.getCode());
+        newProductDetail.setQuantity(productDetailDTO.getQuantity());
+        newProductDetail.setPrice(productDetailDTO.getPrice());
+        newProductDetail.setImage(productDetailDTO.getImage());
+
+        // Liên kết với các entity khác
+        newProductDetail.setProduct(getProductById(productDetailDTO.getProductId()));
+        newProductDetail.setSize(getSizeById(productDetailDTO.getSizeId()));
+        newProductDetail.setColor(getColorById(productDetailDTO.getColorId()));
+
+        return productDetailRepo.save(newProductDetail);
     }
     public ProductDetail pdate(Integer id, ProductDetailDTO productDetailDTO) throws Exception {
         // Tìm kiếm productDetail dựa trên ID

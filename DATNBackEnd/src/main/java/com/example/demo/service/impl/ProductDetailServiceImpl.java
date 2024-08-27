@@ -8,7 +8,7 @@ import java.util.List;
 public interface ProductDetailServiceImpl {
     List<ProductDetail> getAll();
 
-    ProductDetail add(ProductDetail pdd);
+    ProductDetail addProductDetail(ProductDetailDTO productDetailDTO) throws Exception;
 
     ProductDetail pdate(Integer id, ProductDetailDTO pdd) throws  Exception;
 
