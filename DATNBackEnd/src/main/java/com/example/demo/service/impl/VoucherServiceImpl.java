@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface VoucherServiceImpl {
     List<Voucher> getAll();
-    Voucher add(Voucher voucher);
+    Voucher add(VoucherDTO voucherDTO);
     Voucher update(Integer id, VoucherDTO voucherDTO) throws Exception;
     Voucher getById(Integer id) throws Exception;
     void delete(Integer id) throws Exception;

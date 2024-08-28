@@ -1,9 +1,6 @@
 package com.example.demo.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ProductDetailDTO {
 
-    @NotNull(message = "Code is required")
+    @NotBlank(message = "Code is required")
     @Size(max = 255, message = "Code cannot exceed 255 characters")
     private String code;
 
