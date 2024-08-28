@@ -10,6 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @Data
 @Getter @Setter
+@Builder
 public class CartDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
