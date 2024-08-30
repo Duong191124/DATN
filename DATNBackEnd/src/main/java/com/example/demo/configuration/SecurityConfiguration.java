@@ -47,9 +47,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/v1/account/signin").permitAll()
-                        .requestMatchers("/api/v1/account/register").permitAll()
-                        .requestMatchers("/api/v1/account/getAll").hasRole("USER")
+                        .requestMatchers("/api/v1/role/**").permitAll()
                         .anyRequest().permitAll())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(this.jwtAuthenticationConverter()))
