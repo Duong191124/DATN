@@ -24,11 +24,9 @@ public class ProductDetailController {
         return new ResponseEntity<>(productDetails, HttpStatus.OK);
     }
 
-    // Thêm một ProductDetail mới
     @PostMapping("")
     public ResponseEntity<?> addProductDetail(@Valid @RequestBody ProductDetailDTO productDetailDTO, BindingResult result) {
         if (result.hasErrors()) {
-            // Trả về thông báo lỗi nếu có lỗi xác thực
             return new ResponseEntity<>(result.getFieldErrors(), HttpStatus.BAD_REQUEST);
         }
         try {
@@ -40,13 +38,11 @@ public class ProductDetailController {
     }
 
 
-    // Cập nhật một ProductDetail
     @PutMapping("{id}")
     public ResponseEntity<?> updateProductDetail(@PathVariable("id") Integer id,
                                                  @Valid @RequestBody ProductDetailDTO productDetailDTO,
                                                  BindingResult result) {
         if (result.hasErrors()) {
-            // Trả về thông báo lỗi nếu có lỗi xác thực
             return new ResponseEntity<>(result.getFieldErrors(), HttpStatus.BAD_REQUEST);
         }
         try {
@@ -57,7 +53,6 @@ public class ProductDetailController {
         }
     }
 
-    // Lấy một ProductDetail theo ID
     @GetMapping("detail/{id}")
     public ResponseEntity<ProductDetail> getProductDetailById(@PathVariable("id") Integer id) {
         try {
@@ -68,7 +63,6 @@ public class ProductDetailController {
         }
     }
 
-    // Xóa một ProductDetail theo ID
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteProductDetail(@PathVariable("id") Integer id) {
         try {

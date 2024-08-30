@@ -23,9 +23,17 @@ public class VoucherController {
     private VoucherServiceImpl voucherService;
 
     @GetMapping("")
-    public ResponseEntity<List<Voucher>> getAllVouchers() {
-        List<Voucher> vouchers = voucherService.getAll();
-        return new ResponseEntity<>(vouchers, HttpStatus.OK);
+    public ResponseEntity<MessageReponse> getAllVouchers() {
+        List<VoucherResponse> voucherList = voucherService.getAll()
+                .stream()
+                .map(VoucherResponse::fromVoucherResponse)
+                .toList();
+        return ResponseEntity.ok().body(MessageReponse.builder()
+                .message("lay thong tin thanh cong")
+                .status(HttpStatus.OK.value())
+                .data(voucherList)
+                .build()
+        );
     }
 
     @PostMapping("")
@@ -73,10 +81,15 @@ public class VoucherController {
 
 
     @GetMapping("detail/{id}")
-    public ResponseEntity<Voucher> getVoucherById(@PathVariable("id") Integer id) {
+    public ResponseEntity<MessageReponse> getVoucherById(@PathVariable("id") Integer id) {
         try {
             Voucher voucher = voucherService.getById(id);
-            return new ResponseEntity<>(voucher, HttpStatus.OK);
+            VoucherResponse voucherResponse = VoucherResponse.fromVoucherResponse(voucher);
+            return ResponseEntity.ok().body(MessageReponse.builder()
+                    .message("lay thong tin thanh cong")
+                    .status(HttpStatus.OK.value())
+                    .data(voucherResponse)
+                    .build());
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

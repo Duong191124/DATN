@@ -50,7 +50,7 @@ public class OderDetailController {
                 .build());
     }
 
-    @PutMapping
+    @PutMapping("{id}")
     public ResponseEntity<?> update(@PathVariable("id") Integer id ,@RequestBody OrderDetailDTO orderDetailDTO)throws Exception{
         orderDetailService.update(id, orderDetailDTO);
         return ResponseEntity.ok().body(MessageReponse.builder()
@@ -61,7 +61,7 @@ public class OderDetailController {
 
     }
 
-    @DeleteMapping
+    @DeleteMapping("{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Integer id)throws Exception{
         orderDetailService.delete(id);
         return ResponseEntity.ok().body(MessageReponse.builder()
