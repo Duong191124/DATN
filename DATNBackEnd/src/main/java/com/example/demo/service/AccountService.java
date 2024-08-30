@@ -1,8 +1,6 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.AccountDTO;
-import com.example.demo.entity.Account;
-import com.example.demo.entity.Role;
 import com.example.demo.repository.AccountsRepo;
 import com.example.demo.service.impl.AccountServiceIplm;
 import org.springframework.beans.factory.annotation.Autowired;

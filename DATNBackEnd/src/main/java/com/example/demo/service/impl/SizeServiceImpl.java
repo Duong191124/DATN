@@ -1,8 +1,6 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.dto.BrandDTO;
 import com.example.demo.dto.SizeDTO;
-import com.example.demo.entity.Size;
 
 import java.util.List;
 

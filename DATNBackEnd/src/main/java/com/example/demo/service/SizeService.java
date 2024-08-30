@@ -1,7 +1,6 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.SizeDTO;
-import com.example.demo.entity.Size;
 import com.example.demo.repository.SizeRepo;
 import com.example.demo.service.impl.SizeServiceImpl;
 import lombok.RequiredArgsConstructor;

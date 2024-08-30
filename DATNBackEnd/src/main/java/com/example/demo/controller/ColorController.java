@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.ColorDTO;
-import com.example.demo.entity.Color;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.service.ColorService;
 import jakarta.validation.Valid;

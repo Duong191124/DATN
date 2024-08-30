@@ -1,8 +1,5 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.entity.Role;
-import org.springframework.data.domain.Page;
-
 import java.util.List;
 
 public interface RoleServiceImpl {

@@ -1,7 +1,6 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.CategoryDTO;
-import com.example.demo.entity.Category;
 import com.example.demo.repository.CategoryRepo;
 import com.example.demo.service.impl.CategoryServiceImpl;
 import lombok.RequiredArgsConstructor;

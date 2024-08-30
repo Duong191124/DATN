@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Objects;
 
 @Entity
-public class Customer {
+public class Staff {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id")
@@ -49,15 +49,11 @@ public class Customer {
     @Basic
     @Column(name = "updated_at")
     private Timestamp updatedAt;
-    @OneToMany(mappedBy = "customerByCustomerId")
-    private Collection<CartDetail> cartDetailsById;
+    @OneToMany(mappedBy = "staffByStaffId")
+    private Collection<Orders> ordersById;
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id")
     private Role roleByRoleId;
-    @OneToMany(mappedBy = "customerByCustomerId")
-    private Collection<CustomerVoucher> customerVouchersById;
-    @OneToMany(mappedBy = "customerByCustomerId")
-    private Collection<Orders> ordersById;
 
     public int getId() {
         return id;
@@ -167,37 +163,13 @@ public class Customer {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Customer customer = (Customer) o;
-        return id == customer.id && Objects.equals(username, customer.username) && Objects.equals(password, customer.password) && Objects.equals(email, customer.email) && Objects.equals(address, customer.address) && Objects.equals(phoneNumber, customer.phoneNumber) && Objects.equals(status, customer.status) && Objects.equals(dateOfBirth, customer.dateOfBirth) && Objects.equals(name, customer.name) && Objects.equals(notes, customer.notes) && Objects.equals(gender, customer.gender) && Objects.equals(createdAt, customer.createdAt) && Objects.equals(updatedAt, customer.updatedAt);
+        Staff staff = (Staff) o;
+        return id == staff.id && Objects.equals(username, staff.username) && Objects.equals(password, staff.password) && Objects.equals(email, staff.email) && Objects.equals(address, staff.address) && Objects.equals(phoneNumber, staff.phoneNumber) && Objects.equals(status, staff.status) && Objects.equals(dateOfBirth, staff.dateOfBirth) && Objects.equals(name, staff.name) && Objects.equals(notes, staff.notes) && Objects.equals(gender, staff.gender) && Objects.equals(createdAt, staff.createdAt) && Objects.equals(updatedAt, staff.updatedAt);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, username, password, email, address, phoneNumber, status, dateOfBirth, name, notes, gender, createdAt, updatedAt);
-    }
-
-    public Collection<CartDetail> getCartDetailsById() {
-        return cartDetailsById;
-    }
-
-    public void setCartDetailsById(Collection<CartDetail> cartDetailsById) {
-        this.cartDetailsById = cartDetailsById;
-    }
-
-    public Role getRoleByRoleId() {
-        return roleByRoleId;
-    }
-
-    public void setRoleByRoleId(Role roleByRoleId) {
-        this.roleByRoleId = roleByRoleId;
-    }
-
-    public Collection<CustomerVoucher> getCustomerVouchersById() {
-        return customerVouchersById;
-    }
-
-    public void setCustomerVouchersById(Collection<CustomerVoucher> customerVouchersById) {
-        this.customerVouchersById = customerVouchersById;
     }
 
     public Collection<Orders> getOrdersById() {
@@ -206,5 +178,13 @@ public class Customer {
 
     public void setOrdersById(Collection<Orders> ordersById) {
         this.ordersById = ordersById;
+    }
+
+    public Role getRoleByRoleId() {
+        return roleByRoleId;
+    }
+
+    public void setRoleByRoleId(Role roleByRoleId) {
+        this.roleByRoleId = roleByRoleId;
     }
 }

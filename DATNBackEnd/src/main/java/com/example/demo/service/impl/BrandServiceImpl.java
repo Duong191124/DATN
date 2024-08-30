@@ -1,7 +1,6 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dto.BrandDTO;
-import com.example.demo.entity.Brand;
 
 import java.util.List;
 

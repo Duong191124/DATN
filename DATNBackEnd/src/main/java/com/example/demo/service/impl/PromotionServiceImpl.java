@@ -1,7 +1,6 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dto.PromotionDTO;
-import com.example.demo.entity.Promotion;
 import com.example.demo.response.PromotionResponse;
 
 import java.util.List;

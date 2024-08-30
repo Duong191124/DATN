@@ -1,7 +1,6 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.ColorDTO;
-import com.example.demo.entity.Color;
 import com.example.demo.repository.ColorRepo;
 import com.example.demo.service.impl.ColorServiceImpl;
 import lombok.RequiredArgsConstructor;

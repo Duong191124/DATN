@@ -1,8 +1,6 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.PromotionDTO;
-import com.example.demo.entity.ProductDetail;
-import com.example.demo.entity.Promotion;
 import com.example.demo.repository.ProductDetailRepo;
 import com.example.demo.repository.PromotionRepo;
 import com.example.demo.response.PromotionResponse;

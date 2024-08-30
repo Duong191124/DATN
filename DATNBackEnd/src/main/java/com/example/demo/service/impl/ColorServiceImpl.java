@@ -1,7 +1,6 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dto.ColorDTO;
-import com.example.demo.entity.Color;
 
 import java.util.List;
 

@@ -1,6 +1,5 @@
 package com.example.demo.controller;
 
-import com.example.demo.entity.Role;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.SizeDTO;
-import com.example.demo.entity.Size;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.service.SizeService;
 import jakarta.validation.Valid;

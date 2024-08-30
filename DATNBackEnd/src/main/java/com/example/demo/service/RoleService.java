@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.Role;
 import com.example.demo.repository.RoleRepo;
 import com.example.demo.service.impl.RoleServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

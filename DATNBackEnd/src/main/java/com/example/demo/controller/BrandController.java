@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.BrandDTO;
-import com.example.demo.entity.Brand;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.service.BrandService;
 import jakarta.validation.Valid;
