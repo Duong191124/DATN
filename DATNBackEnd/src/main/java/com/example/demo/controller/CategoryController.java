@@ -3,7 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.CategoryDTO;
 import com.example.demo.entity.Category;
 import com.example.demo.response.MessageReponse;
-import com.example.demo.service.CategoryService;
+import com.example.demo.service.impl.CategoryServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryController {
 
-    private final CategoryService categoryService;
+    private final CategoryServiceImpl categoryService;
 
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAll(){
@@ -70,5 +70,7 @@ public class CategoryController {
                 .status(HttpStatus.OK.value())
                 .build());
     }
+
+
 
 }

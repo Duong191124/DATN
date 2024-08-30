@@ -1,10 +1,9 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.PromotionDTO;
-import com.example.demo.entity.Promotion;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.PromotionResponse;
-import com.example.demo.service.PromotionService;
+import com.example.demo.service.impl.PromotionServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PromotionController {
 
-    private final PromotionService promotionService;
+    private final PromotionServiceImpl promotionService;
 
     @GetMapping("")
     public ResponseEntity<?> getAll(){

@@ -37,7 +37,7 @@ public class Orders extends BaseEntity {
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     private Customer customer;
     @ManyToOne
-    @JoinColumn(name = "account_id", referencedColumnName = "id")
-    private Account account;
+    @JoinColumn(name = "staff_id", referencedColumnName = "id")
+    private Staff staff;
 
 }

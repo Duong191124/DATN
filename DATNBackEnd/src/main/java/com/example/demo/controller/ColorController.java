@@ -3,7 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.ColorDTO;
 import com.example.demo.entity.Color;
 import com.example.demo.response.MessageReponse;
-import com.example.demo.service.ColorService;
+import com.example.demo.service.impl.ColorServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ColorController {
 
-    private final ColorService colorService;
+    private final ColorServiceImpl colorService;
 
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAll(){

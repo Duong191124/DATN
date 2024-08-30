@@ -24,5 +24,5 @@ public class Size {
     private String name;
     @Basic
     @Column(name = "status")
-    private byte status;
+    private int status;
 }
