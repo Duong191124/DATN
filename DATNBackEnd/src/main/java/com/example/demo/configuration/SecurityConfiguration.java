@@ -34,7 +34,11 @@ import java.util.stream.Collectors;
 @EnableMethodSecurity
 public class SecurityConfiguration {
 
+<<<<<<< HEAD
     @Value("${secret.key}")
+=======
+    @Value("${huudung.secret.key}")
+>>>>>>> 20be25b1403d69c969009ba98fdc54c3d8736ec4
     private String secretKey;
 
     public final MacAlgorithm macAlgorithm = MacAlgorithm.HS512;
@@ -47,8 +51,15 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authz -> authz
+<<<<<<< HEAD
                         .requestMatchers("/api/v1/role/**").permitAll()
                         .anyRequest().permitAll())
+=======
+                        .requestMatchers("/api/v1/account/signin").permitAll()
+                        .requestMatchers("/api/v1/account/register").permitAll()
+                        .requestMatchers("/api/v1/account/getAll").hasRole("USER")
+                        .anyRequest().authenticated())
+>>>>>>> 20be25b1403d69c969009ba98fdc54c3d8736ec4
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(this.jwtAuthenticationConverter()))
                 )

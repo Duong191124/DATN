@@ -14,10 +14,17 @@ public class CustomJwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 
     @Override
     public Collection<GrantedAuthority> convert(Jwt jwt) {
+<<<<<<< HEAD
         // Lấy các quyền từ claim claim.authorities
         Map<String, Object> claims = jwt.getClaims();
         Map<String, Object> claim = (Map<String, Object>) claims.get("claim");
         List<Map<String, String>> authorities = (List<Map<String, String>>) claim.get("authorities");
+=======
+        // Lấy các quyền từ claim huudungdz.authorities
+        Map<String, Object> claims = jwt.getClaims();
+        Map<String, Object> huudungdz = (Map<String, Object>) claims.get("huudungdz");
+        List<Map<String, String>> authorities = (List<Map<String, String>>) huudungdz.get("authorities");
+>>>>>>> 20be25b1403d69c969009ba98fdc54c3d8736ec4
 
         return authorities.stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.get("role")))

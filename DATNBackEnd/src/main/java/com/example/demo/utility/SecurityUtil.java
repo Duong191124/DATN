@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+<<<<<<< HEAD
 
 @Service
 public class SecurityUtil {
@@ -19,6 +20,14 @@ public class SecurityUtil {
     private String secretKey;
 
     @Value("${duration.date}")
+=======
+@Service
+public class SecurityUtil {
+    @Value("${huudung.secret.key}")
+    private String secretKey;
+
+    @Value("${huudung.duration.date}")
+>>>>>>> 20be25b1403d69c969009ba98fdc54c3d8736ec4
     private Long duration;
 
     @Autowired
@@ -40,7 +49,11 @@ public class SecurityUtil {
                 .issuedAt(now) //time start
                 .expiresAt(validity)//time end
                 .subject(authentication.getName())
+<<<<<<< HEAD
                 .claim("claim", authentication)
+=======
+                .claim("huudungdz", authentication)
+>>>>>>> 20be25b1403d69c969009ba98fdc54c3d8736ec4
                 .build();
 
         //return to token and build signature from header and payload
