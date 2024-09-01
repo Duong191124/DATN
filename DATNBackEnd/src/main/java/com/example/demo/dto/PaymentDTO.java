@@ -15,7 +15,7 @@ import java.util.Date;
 @Data
 @Builder
 public class PaymentDTO {
-    private int id;
+    private Integer id;
     @DateTimeFormat(pattern = "dd/MM/yyyy")
     @JsonFormat(pattern = "dd/MM/yyyy")
     @NotNull(message = "check payment date, please!")

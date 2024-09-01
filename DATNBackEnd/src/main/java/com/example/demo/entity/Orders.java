@@ -17,7 +17,7 @@ public class Orders extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false)
-    private int id;
+    private Integer id;
     @Basic
     @Column(name = "status", nullable = true, length = 255)
     @Enumerated(EnumType.STRING)
@@ -35,10 +35,10 @@ public class Orders extends BaseEntity {
     @JoinColumn(name = "voucher_id", referencedColumnName = "id")
     private Voucher voucher;
     @ManyToOne
-    @JoinColumn(name = "customer_id", referencedColumnName = "id")
+    @JoinColumn(name = "customer_id",referencedColumnName = "id")
     private Customer customer;
     @ManyToOne
-    @JoinColumn(name = "account_id", referencedColumnName = "id")
-    private Account account;
+    @JoinColumn(name = "staff_id", referencedColumnName = "id")
+    private Staff staff;
 
 }

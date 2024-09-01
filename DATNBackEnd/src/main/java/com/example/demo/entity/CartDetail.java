@@ -25,8 +25,8 @@ public class CartDetail {
     @Column(name = "total_price", nullable = true, precision = 0)
     private Double totalPrice;
     @OneToOne
-    @JoinColumn(name = "account_id", referencedColumnName = "id")
-    private Account account;
+    @JoinColumn(name = "staff_id", referencedColumnName = "id")
+    private Staff staff;
     @ManyToOne
     @JoinColumn(name = "product_detail_id", referencedColumnName = "id")
     private Product product;

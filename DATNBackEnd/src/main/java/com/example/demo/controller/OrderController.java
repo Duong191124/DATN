@@ -1,8 +1,8 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.OrderDTO;
-import com.example.demo.repository.OrderRepo;
 import com.example.demo.response.ApiResponse;
+import com.example.demo.response.MessageReponse;
 import com.example.demo.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,30 +18,30 @@ import java.util.List;
 public class OrderController {
     private final OrderService orderService;
     @GetMapping("/list")
-    public ResponseEntity<ApiResponse<List<OrderDTO>>> getAllOrders(){
+    public ResponseEntity<MessageReponse> getAllOrders(){
         List<OrderDTO> lstOrderDTO = orderService.getAll();
         if(lstOrderDTO.isEmpty()){
-            return ResponseEntity.ok(new ApiResponse<>(false,"failed",null));
+            return ResponseEntity.ok(new MessageReponse("failed",0,null));
         }
         else {
-            return ResponseEntity.ok(new ApiResponse<>(true,"success",lstOrderDTO));
+            return ResponseEntity.ok(new MessageReponse("success",1,lstOrderDTO));
         }
     }
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse<OrderDTO>> addOrder(@Valid @RequestBody OrderDTO orderDTO){
+    public ResponseEntity<MessageReponse> addOrder(@Valid @ModelAttribute OrderDTO orderDTO){
         if(orderDTO == null){
-            ResponseEntity.ok(new ApiResponse<>(false,"orderDto null",null));
+            ResponseEntity.ok(new MessageReponse("orderDto null",0,null));
         }
         OrderDTO orderDTOAdd = orderService.createdOrder(orderDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true,"order to added successfully",orderDTOAdd));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new MessageReponse("order to added successfully",1,orderDTOAdd));
     }
     @PutMapping("/update/{id}")
-    public ResponseEntity<ApiResponse<OrderDTO>> updateOrder(@PathVariable int id, @Valid @RequestBody OrderDTO orderDTO){
+    public ResponseEntity<MessageReponse> updateOrder(@PathVariable int id, @Valid @ModelAttribute OrderDTO orderDTO){
         if(orderDTO == null){
             ResponseEntity.ok(new ApiResponse<>(false,"orderDto null",null));
         }
         OrderDTO orderDTOUpdate = orderService.updatedOrder(id,orderDTO);
-        return ResponseEntity.ok(new ApiResponse<>(true,"updated to ordered successfully",orderDTOUpdate));
+        return ResponseEntity.ok(new MessageReponse("updated to ordered successfully",1,orderDTOUpdate));
     }
     @DeleteMapping("/delete")
     public ResponseEntity deleteOrder(@RequestParam int id){
@@ -51,16 +51,22 @@ public class OrderController {
         }
         else {
             orderService.deletedOrder(id);
-            return ResponseEntity.ok(new ApiResponse<>(true,"deleted to Ordered successfully",null));
+            return ResponseEntity.ok(new MessageReponse("deleted to Ordered successfully",1,null));
         }
     }
     @GetMapping("/find")
-    public ResponseEntity<ApiResponse<OrderDTO>> findByIdOrder(@RequestParam int id){
+    public ResponseEntity<MessageReponse> findByIdOrder(@RequestParam int id){
         try {
             OrderDTO orderDTOFind = orderService.findById(id);
-            return ResponseEntity.ok(new ApiResponse<>(true,"found success",orderDTOFind));
+            return ResponseEntity.ok(new MessageReponse("found success",1,orderDTOFind));
         }catch (Exception e){
-            return ResponseEntity.ok(new ApiResponse<>(false,"error:"+e.getMessage(),null));
+            return ResponseEntity.ok(new MessageReponse("error:"+e.getMessage(),0,null));
         }
     }
+
+
+
+
+
+    
 }

@@ -14,7 +14,7 @@ import lombok.Data;
 @Data
 @Builder
 public class ProductDTO {
-    private int id;
+    private Integer id;
     @NotBlank(message = "check code product, please!")
     private String code;
     @NotBlank (message = "check name product, please!")

@@ -35,7 +35,7 @@ public class Customer extends BaseEntity {
     @ManyToMany
     @JoinTable(
             name = "customer_voucher",
-            joinColumns = @JoinColumn(name = "account_id"),
+            joinColumns = @JoinColumn(name = "customer_id"),
             inverseJoinColumns = @JoinColumn(name = "voucher_id")
     )
     private Set<Voucher> vouchers;

@@ -1,11 +1,11 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dto.OrderDTO;
-import com.example.demo.entity.Account;
 import com.example.demo.entity.Customer;
 import com.example.demo.entity.Orders;
+import com.example.demo.entity.Staff;
 import com.example.demo.entity.Voucher;
-import com.example.demo.repository.AccountRepo;
+import com.example.demo.repository.StaffRepo;
 import com.example.demo.repository.CustomerRepo;
 import com.example.demo.repository.OrderRepo;
 import com.example.demo.repository.VoucherRepo;
@@ -24,7 +24,7 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     CustomerRepo customerRepo;
     @Autowired
-    AccountRepo accountRepo;
+    StaffRepo staffRepo;
     @Autowired
     VoucherRepo voucherRepo;
     @Override
@@ -38,20 +38,20 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO createdOrder(OrderDTO orderDTO) {
-       return OrderDTO.convertDTO(orderRepo.save(OrderDTO.convertOrder(orderDTO,customerRepo,voucherRepo,accountRepo)));
+       return OrderDTO.convertDTO(orderRepo.save(OrderDTO.convertOrder(orderDTO,customerRepo,voucherRepo,staffRepo)));
     }
 
     @Override
     public OrderDTO updatedOrder(int id,OrderDTO orderDTO) {
         Optional<Orders> ordersOptional = orderRepo.findById(id);
-        Account account = accountRepo.findByName(orderDTO.getAccountName()).orElse(Account.builder().name(orderDTO.getAccountName()).build());
+        Staff account = staffRepo.findByName(orderDTO.getStaffName()).orElse(Staff.builder().name(orderDTO.getStaffName()).build());
         Voucher voucher = voucherRepo.findByDiscountPercent(orderDTO.getVoucherDiscount()).orElse(Voucher.builder().discountPercent(orderDTO.getVoucherDiscount()).build());
         Customer customer = customerRepo.findByName(orderDTO.getCustomerName()).orElse(Customer.builder().name(orderDTO.getCustomerName()).build());
         if(!ordersOptional.isPresent()){
             throw new RuntimeException("not valid");
         }
         Orders orders = ordersOptional.get();
-        orders.setAccount(account);
+        orders.setStaff(account);
         orders.setStatus(orderDTO.getStatus());
         orders.setOrderDate(orderDTO.getOrderDate());
         orders.setDeliveryFee(orderDTO.getDeliveryFee());
