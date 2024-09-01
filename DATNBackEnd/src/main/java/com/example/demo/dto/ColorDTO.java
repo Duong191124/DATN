@@ -15,5 +15,5 @@ public class ColorDTO {
 
     private String name;
 
-    private byte status;
+    private int status;
 }

@@ -3,7 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.CategoryDTO;
 import com.example.demo.entity.Category;
 import com.example.demo.response.MessageReponse;
-import com.example.demo.service.CategoryService;
+import com.example.demo.service.impl.CategoryServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/category")
+@RequestMapping("${api.prefix}/category")
 @RequiredArgsConstructor
 public class CategoryController {
 
-    private final CategoryService categoryService;
+    private final CategoryServiceImpl categoryService;
 
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAll(){
@@ -70,5 +70,7 @@ public class CategoryController {
                 .status(HttpStatus.OK.value())
                 .build());
     }
+
+
 
 }

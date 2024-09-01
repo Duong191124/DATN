@@ -13,7 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter @Setter
 @Builder
-public class Voucher extends BaseEntity {
+public class  Voucher extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false)

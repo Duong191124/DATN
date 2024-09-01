@@ -10,14 +10,15 @@ import lombok.*;
 @NoArgsConstructor
 @Data
 @Getter @Setter
+@Builder
 public class CartDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false)
     private int id;
     @Basic
-    @Column(name = "quantity", nullable = true, length = 255)
-    private String quantity;
+    @Column(name = "quantity")
+    private int quantity;
     @Basic
     @Column(name = "price", nullable = true, precision = 0)
     private Double price;
@@ -25,11 +26,11 @@ public class CartDetail {
     @Column(name = "total_price", nullable = true, precision = 0)
     private Double totalPrice;
     @OneToOne
-    @JoinColumn(name = "staff_id", referencedColumnName = "id")
-    private Staff staff;
+    @JoinColumn(name = "customer_id", referencedColumnName = "id")
+    private Customer customer;
     @ManyToOne
     @JoinColumn(name = "product_detail_id", referencedColumnName = "id")
-    private Product product;
+    private ProductDetail productDetail
     @ManyToOne
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     private Orders orders;
