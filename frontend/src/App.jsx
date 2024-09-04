@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import Header from './component/layout/header'
+import { Outlet } from 'react-router-dom'
+import Footer from './component/layout/footer'
 
 
 function App() {
@@ -6,7 +9,9 @@ function App() {
 
   return (
     <>
-      hello world
+      <Header/>
+      <Outlet/>
+      <Footer/>
     </>
   )
 }
