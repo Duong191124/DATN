@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,19 +28,31 @@ public class PaymentController {
         return ResponseEntity.ok(new MessageReponse("success",1,paymentDTOList)) ;
     }
     @PostMapping("/add")
-    public ResponseEntity<MessageReponse> addPayment(@Valid @ModelAttribute PaymentDTO paymentDTO){
+    public ResponseEntity<?> addPayment(@Valid @ModelAttribute PaymentDTO paymentDTO, BindingResult result){
+        try {
+            if(result.hasErrors()){
+                List<String> message =result.getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+            }
         PaymentDTO paymentDTOAdd = paymentService.createdPayment(paymentDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageReponse("added successfully",1,paymentDTOAdd));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
     @PutMapping("/update/{id}")
-    public ResponseEntity<MessageReponse> updatePayment(@PathVariable int id,@Valid @ModelAttribute PaymentDTO paymentDTO){
-        PaymentDTO paymentDTOUpdate = paymentService.updatedPayment(id,paymentDTO);
-        return ResponseEntity.ok(new MessageReponse("updated successfully",1,paymentDTOUpdate));
-    }
-    @DeleteMapping("/delete")
-    public ResponseEntity deletePayment(@RequestParam int id){
-        paymentService.deletedPayment(id);
-        return ResponseEntity.ok(new MessageReponse("deleted successfully",1,null));
+    public ResponseEntity<?> updatePayment(@PathVariable int id,@Valid @ModelAttribute PaymentDTO paymentDTO,BindingResult result){
+
+        try {
+            if(result.hasErrors()){
+                List<String> message =result.getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+            }
+            PaymentDTO paymentDTOUpdate = paymentService.updatedPayment(id,paymentDTO);
+            return ResponseEntity.ok(new MessageReponse("updated successfully",1,paymentDTOUpdate));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
     @GetMapping("/findById")
     public ResponseEntity<MessageReponse> findById(@RequestParam int id){

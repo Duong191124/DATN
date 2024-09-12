@@ -64,12 +64,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deletedProduct(Integer id) {
-        for (ProductDTO productDTO: productRepo.findAll().stream().map(ProductDTO::convertDTO).toList()
-             ) {
-            if(productDTO.getId() == id){
-                productRepo.deleteById(id);
-            }
+        ProductDTO productDTO = productRepo.findById(id).map(ProductDTO::convertDTO).get();
+        if (productDTO==null){
+            throw new RuntimeException("not found product with id:"+id);
         }
+            productRepo.delete(ProductDTO.convertProduct(productDTO,categoryRepo,brandRepo));
     }
 
     @Override
