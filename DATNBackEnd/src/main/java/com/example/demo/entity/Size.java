@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 @Getter @Setter
 public class Size {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,5 +24,5 @@ public class Size {
     private String name;
     @Basic
     @Column(name = "status")
-    private byte status;
+    private int status;
 }

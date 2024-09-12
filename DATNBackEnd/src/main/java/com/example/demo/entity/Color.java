@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 @Getter
 @Setter
 public class Color {
@@ -24,6 +25,6 @@ public class Color {
     private String name;
     @Basic
     @Column(name = "status")
-    private byte status;
+    private int status;
 }
 

@@ -1,8 +1,10 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
 import java.util.Set;
 
 @Entity
@@ -15,23 +17,41 @@ import java.util.Set;
 public class Customer extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "id")
     private int id;
     @Basic
-    @Column(name = "name", nullable = true, length = 255)
+    @Column(name = "username")
+    private String username;
+    @Basic
+    @Column(name = "password")
+    private String password;
+    @Basic
+    @Column(name = "email")
+    private String email;
+    @Basic
+    @Column(name = "address")
+    private String address;
+    @Basic
+    @Column(name = "phone_number")
+    private String phoneNumber;
+    @Basic
+    @Column(name = "status")
+    private int status;
+    @Basic
+    @Column(name = "date_of_birth")
+    private Date dateOfBirth;
+    @Basic
+    @Column(name = "name")
     private String name;
     @Basic
-    @Column(name = "phone_number", nullable = true, length = 20)
-    private String phoneNumber;
+    @Column(name = "notes")
+    private String notes;
     @Basic
     @Column(name = "gender")
     private int gender;
-    @Basic
-    @Column(name = "email", nullable = true, length = 50)
-    private String email;
-    @Basic
-    @Column(name = "address", nullable = true, length = 255)
-    private String address;
+    @ManyToOne
+    @JoinColumn(name = "role_id", referencedColumnName = "id")
+    private Role role;
     @ManyToMany
     @JoinTable(
             name = "customer_voucher",

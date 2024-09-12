@@ -22,7 +22,7 @@ public class ProductDetail extends BaseEntity {
     private String code;
     @Basic
     @Column(name = "quantity", nullable = true, length = 255)
-    private String quantity;
+    private int quantity;
     @Basic
     @Column(name = "price", nullable = true, precision = 0)
     private Double price;
