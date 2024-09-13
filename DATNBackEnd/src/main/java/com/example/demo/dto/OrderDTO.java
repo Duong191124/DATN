@@ -47,10 +47,9 @@ public class OrderDTO {
                 .build();
     }
     public static Orders convertOrder(OrderDTO orderDTO, CustomerRepo customerRepo, VoucherRepo voucherRepo, StaffRepo accountRepo) {
-        Customer customer = customerRepo.findByName(orderDTO.getCustomerName())
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
-        Staff staff = accountRepo.findByName(orderDTO.getStaffName()).orElseThrow(() -> new RuntimeException("Staff not found"));
-        Voucher voucher = voucherRepo.findByDiscountPercent(orderDTO.getVoucherDiscount()).orElseThrow(() -> new RuntimeException("Voucher discount not found"));;
+        Customer customer = customerRepo.findByName(orderDTO.getCustomerName()).orElse(Customer.builder().name(orderDTO.getCustomerName()).build());
+        Staff staff = accountRepo.findByName(orderDTO.getStaffName()).orElse(Staff.builder().name(orderDTO.getStaffName()).build());
+        Voucher voucher = voucherRepo.findByDiscountPercent(orderDTO.getVoucherDiscount()).orElse(Voucher.builder().discountPercent(orderDTO.getVoucherDiscount()).build());
         return Orders.builder()
                 .id(orderDTO.getId())
                 .orderDate(orderDTO.getOrderDate())
