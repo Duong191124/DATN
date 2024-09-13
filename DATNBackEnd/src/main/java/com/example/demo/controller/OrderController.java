@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.OrderDTO;
-import com.example.demo.response.ApiResponse;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.service.OrderService;
 import jakarta.validation.Valid;
@@ -15,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
-public class OrderController {
+public class  OrderController {
     private final OrderService orderService;
     @GetMapping("/list")
     public ResponseEntity<MessageReponse> getAllOrders(){
@@ -38,7 +37,7 @@ public class OrderController {
     @PutMapping("/update/{id}")
     public ResponseEntity<MessageReponse> updateOrder(@PathVariable int id, @Valid @ModelAttribute OrderDTO orderDTO){
         if(orderDTO == null){
-            ResponseEntity.ok(new ApiResponse<>(false,"orderDto null",null));
+            ResponseEntity.ok(new MessageReponse("orderDto null",404,null));
         }
         OrderDTO orderDTOUpdate = orderService.updatedOrder(id,orderDTO);
         return ResponseEntity.ok(new MessageReponse("updated to ordered successfully",1,orderDTOUpdate));

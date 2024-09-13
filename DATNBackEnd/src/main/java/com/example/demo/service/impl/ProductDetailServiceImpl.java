@@ -13,6 +13,7 @@ import com.example.demo.service.ProductDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,6 +21,9 @@ import java.util.List;
 @Service
 public class ProductDetailServiceImpl implements ProductDetailService {
     private final ProductDetailRepo productDetailRepo;
+
+    @Autowired
+    private CloudinaryServiceImpl cloudinaryService;
 
     @Autowired
     private ProductRepo productRepo;
@@ -79,6 +83,21 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .orElseThrow(() -> new Exception("ProductDetail not found with id: " + id));
         productDetailRepo.delete(productDetail);
     }
+
+    @Override
+    public ProductDetail uploadImageWithColor(Integer ProductId, String colorName, MultipartFile file) throws Exception {
+        String imageUrl = cloudinaryService.uploadImage(file);
+
+        Color color = colorRepo.findByName(colorName)
+                .orElseThrow(() -> new Exception("Color not found"));
+
+        ProductDetail productDetail = productDetailRepo.findByProductIdAndColorName(ProductId, colorName)
+                .orElseThrow(() -> new Exception("Product detail not found"));
+
+        productDetail.setImage(imageUrl);
+        return productDetailRepo.save(productDetail);
+    }
+
     public Product getProductById(Integer id) throws Exception {
         return productRepo.findById(id)
                 .orElseThrow(() -> new Exception("Product not found with id: " + id));

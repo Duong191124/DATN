@@ -38,7 +38,7 @@ public class PaymentServiceIml implements PaymentService {
         payment.setPaymentDate(paymentDTO.getPaymentDate());
         payment.setPaymentMethod(paymentDTO.getPaymentMethod());
         Optional<Orders> orders = orderRepo.findById(paymentDTO.getOrders().getId());
-        if(!orders.isPresent()){
+        if(orders.isEmpty()){
             throw new RuntimeException("not found orderById");
         }
         payment.setOrders(orders.get());

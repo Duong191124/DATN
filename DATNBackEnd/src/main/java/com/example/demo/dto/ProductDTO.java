@@ -19,7 +19,7 @@ public class ProductDTO {
     private String code;
     @NotBlank (message = "check name product, please!")
     private String name;
-    @NotBlank (message = "check image product, please!")
+
     private String image;
     @Min(value = 0,message = "price not valid!")
     @NotNull(message = "check price product,please!")
@@ -49,6 +49,7 @@ public class ProductDTO {
     }
 
     public static Product convertProduct(ProductDTO productDTO, CategoryRepo categoryRepo, BrandRepo brandRepo) {
+        String imageUrl = "";
         Brand brand = brandRepo.findByName(productDTO.getBrandName())
                 .orElse(Brand.builder().name(productDTO.getBrandName()).build());
         Category category = categoryRepo.findByName(productDTO.getCategoryName())
@@ -57,7 +58,7 @@ public class ProductDTO {
                 .id(productDTO.getId())
                 .code(productDTO.getCode())
                 .name(productDTO.getName())
-                .image(productDTO.getImage())
+                .image(imageUrl)
                 .price(productDTO.getPrice())
                 .collar(productDTO.getCollar())
                 .sleeve(productDTO.getSleeve())

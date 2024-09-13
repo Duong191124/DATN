@@ -47,7 +47,7 @@ public class OrderServiceImpl implements OrderService {
         Staff account = staffRepo.findByName(orderDTO.getStaffName()).orElse(Staff.builder().name(orderDTO.getStaffName()).build());
         Voucher voucher = voucherRepo.findByDiscountPercent(orderDTO.getVoucherDiscount()).orElse(Voucher.builder().discountPercent(orderDTO.getVoucherDiscount()).build());
         Customer customer = customerRepo.findByName(orderDTO.getCustomerName()).orElse(Customer.builder().name(orderDTO.getCustomerName()).build());
-        if(!ordersOptional.isPresent()){
+        if(ordersOptional.isEmpty()){
             throw new RuntimeException("not valid");
         }
         Orders orders = ordersOptional.get();
@@ -65,7 +65,7 @@ public class OrderServiceImpl implements OrderService {
     public void deletedOrder(Integer id) {
         for (OrderDTO orderDTO: orderRepo.findAll().stream().map(OrderDTO::convertDTO).toList()
              ) {
-            if(orderDTO.getId() == id){
+            if(orderDTO.getId().equals(id)){
                 orderRepo.deleteById(orderDTO.getId());
             }
         }

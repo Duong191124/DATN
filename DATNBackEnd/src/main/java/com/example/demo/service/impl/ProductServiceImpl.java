@@ -4,12 +4,16 @@ import com.example.demo.dto.ProductDTO;
 import com.example.demo.entity.Brand;
 import com.example.demo.entity.Category;
 import com.example.demo.entity.Product;
+import com.example.demo.entity.ProductDetail;
 import com.example.demo.repository.BrandRepo;
 import com.example.demo.repository.CategoryRepo;
+import com.example.demo.repository.ProductDetailRepo;
 import com.example.demo.repository.ProductRepo;
 import com.example.demo.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +21,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
+    @Autowired
+    private CloudinaryServiceImpl cloudinaryService;
+    @Autowired
+    private ProductDetailRepo productDetailRepo;
     @Autowired
     ProductRepo productRepo;
     @Autowired
@@ -49,12 +57,12 @@ public class ProductServiceImpl implements ProductService {
         product.setSleeve(productDTO.getSleeve());
         product.setDescription(productDTO.getDescription());
         Optional<Brand> brand = brandRepo.findByName(productDTO.getBrandName());
-        if(!brand.isPresent()){
+        if(brand.isEmpty()){
             throw new RuntimeException("not found brand");
         }
         product.setBrand(brand.get());
         Optional<Category> category = categoryRepo.findByName(productDTO.getCategoryName());
-        if(!category.isPresent()){
+        if(category.isEmpty()){
             throw new RuntimeException("not found category");
         }
         product.setCategory(category.get());
@@ -63,10 +71,24 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Product uploadImageProduct(Integer id, MultipartFile file) throws Exception {
+        Optional<Product> existingProductOptional = productRepo.findById(id);
+        if (existingProductOptional.isEmpty()) {
+            throw new IllegalArgumentException("Product not found");
+        }
+
+        Product existingProduct = existingProductOptional.get();
+        String imageUrl = cloudinaryService.uploadImage(file);
+
+        existingProduct.setImage(imageUrl);
+        return productRepo.save(existingProduct);
+    }
+
+    @Override
     public void deletedProduct(Integer id) {
         for (ProductDTO productDTO: productRepo.findAll().stream().map(ProductDTO::convertDTO).toList()
              ) {
-            if(productDTO.getId() == id){
+            if(productDTO.getId().equals(id)){
                 productRepo.deleteById(id);
             }
         }
@@ -75,5 +97,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDTO findById(Integer id) {
         return productRepo.findById(id).map(ProductDTO::convertDTO).get();
+    }
+
+    @Override
+    public List<ProductDetail> getProductDetailsByProductId(Integer productId) {
+        return productDetailRepo.findByProductId(productId);
     }
 }
