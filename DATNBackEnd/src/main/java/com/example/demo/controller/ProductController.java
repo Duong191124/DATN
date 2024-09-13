@@ -91,6 +91,7 @@ public class ProductController {
         ProductDTO productDTOUpdate = productService.updatedProduct(id,productDTO);
         return ResponseEntity.ok(new MessageReponse("updated successfully",1,productDTOUpdate));
     }
+  
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable int id){
         productService.deletedProduct(id);
@@ -118,7 +119,5 @@ public class ProductController {
                             .build());
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-    }
 
 }
