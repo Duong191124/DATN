@@ -4,7 +4,6 @@ import com.example.demo.dto.OrderDTO;
 import com.example.demo.entity.Customer;
 import com.example.demo.entity.Orders;
 import com.example.demo.entity.Staff;
-import com.example.demo.entity.OrderStatus;
 import com.example.demo.entity.Voucher;
 import com.example.demo.repository.StaffRepo;
 import com.example.demo.repository.CustomerRepo;
@@ -49,7 +48,7 @@ public class OrderServiceImpl implements OrderService {
         Voucher voucher = voucherRepo.findByDiscountPercent(orderDTO.getVoucherDiscount()).orElse(Voucher.builder().discountPercent(orderDTO.getVoucherDiscount()).build());
         Customer customer = customerRepo.findByName(orderDTO.getCustomerName()).orElse(Customer.builder().name(orderDTO.getCustomerName()).build());
         if(!ordersOptional.isPresent()){
-            throw new RuntimeException("Can not find order with id:"+id);
+            throw new RuntimeException("not valid");
         }
         Orders orders = ordersOptional.get();
         orders.setStaff(account);
@@ -64,13 +63,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void deletedOrder(Integer id) {
-        Optional<Orders> ordersOptional = orderRepo.findById(id);
-        if (ordersOptional.isEmpty()) {
-            throw new RuntimeException("Cannot find order with id:"+id);
+        for (OrderDTO orderDTO: orderRepo.findAll().stream().map(OrderDTO::convertDTO).toList()
+             ) {
+            if(orderDTO.getId() == id){
+                orderRepo.deleteById(orderDTO.getId());
+            }
         }
-        Orders orders = ordersOptional.get();
-        orders.setStatus(OrderStatus.CANCELLED);
-        orderRepo.save(orders);
     }
 
     @Override

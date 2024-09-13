@@ -8,8 +8,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,35 +29,29 @@ public class OrderController {
     }
     @PostMapping("/add")
     public ResponseEntity<MessageReponse> addOrder(@Valid @ModelAttribute OrderDTO orderDTO){
-        try {
-            OrderDTO orderDTOAdd = orderService.createdOrder(orderDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new MessageReponse("order to added successfully",1,orderDTOAdd));
+        if(orderDTO == null){
+            ResponseEntity.ok(new MessageReponse("orderDto null",0,null));
         }
-        catch (Exception e){
-            return ResponseEntity.badRequest().body(new MessageReponse(e.getMessage(),0,null));
-        }
+        OrderDTO orderDTOAdd = orderService.createdOrder(orderDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new MessageReponse("order to added successfully",1,orderDTOAdd));
     }
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateOrder(@PathVariable int id, @Valid @ModelAttribute OrderDTO orderDTO, BindingResult result){
-        try {
-            if(result.hasErrors()){
-                List<String> message =result.getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
-            }
-            OrderDTO orderDTOUpdate = orderService.updatedOrder(id,orderDTO);
-            return ResponseEntity.ok(new MessageReponse("updated to ordered successfully",1,orderDTOUpdate));
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageReponse(e.getMessage(),0,null));
+    public ResponseEntity<MessageReponse> updateOrder(@PathVariable int id, @Valid @ModelAttribute OrderDTO orderDTO){
+        if(orderDTO == null){
+            ResponseEntity.ok(new ApiResponse<>(false,"orderDto null",null));
         }
+        OrderDTO orderDTOUpdate = orderService.updatedOrder(id,orderDTO);
+        return ResponseEntity.ok(new MessageReponse("updated to ordered successfully",1,orderDTOUpdate));
     }
     @DeleteMapping("/delete")
-    public ResponseEntity<MessageReponse> deleteOrder(@RequestParam Integer id){
-        try {
+    public ResponseEntity deleteOrder(@RequestParam int id){
+        OrderDTO orderDTO = orderService.findById(id);
+        if (id > orderDTO.getId()){
+            return ResponseEntity.ok("not valid");
+        }
+        else {
             orderService.deletedOrder(id);
             return ResponseEntity.ok(new MessageReponse("deleted to Ordered successfully",1,null));
-        }
-        catch (Exception e){
-            return ResponseEntity.ok(new MessageReponse(e.getMessage(),0,null));
         }
     }
     @GetMapping("/find")
@@ -76,5 +68,5 @@ public class OrderController {
 
 
 
-
+    
 }

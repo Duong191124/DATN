@@ -50,9 +50,9 @@ public class ProductDTO {
 
     public static Product convertProduct(ProductDTO productDTO, CategoryRepo categoryRepo, BrandRepo brandRepo) {
         Brand brand = brandRepo.findByName(productDTO.getBrandName())
-                .orElseThrow(() -> new RuntimeException("Brand not found"));
+                .orElse(Brand.builder().name(productDTO.getBrandName()).build());
         Category category = categoryRepo.findByName(productDTO.getCategoryName())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElse(Category.builder().name(productDTO.getCategoryName()).build());
         return Product.builder()
                 .id(productDTO.getId())
                 .code(productDTO.getCode())
