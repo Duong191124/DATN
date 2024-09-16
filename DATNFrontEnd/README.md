@@ -1,0 +1,6 @@
+- tải về lần đầu chạy npm i
+- các lần sai chạy npm run dev
+- test các api không cần token trước
+- folder page để tạo các trang. 
+- các thành phần của trang thì tạo trong component
+- service để viết các hàm tương tác với api
