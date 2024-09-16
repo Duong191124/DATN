@@ -4,7 +4,9 @@ import com.example.demo.dto.CustomerDTO;
 import com.example.demo.entity.Customer;
 import com.example.demo.entity.Role;
 import com.example.demo.entity.Voucher;
+import com.example.demo.exception.UsernameExisting;
 import com.example.demo.repository.CustomerRepo;
+import com.example.demo.repository.StaffRepo;
 import com.example.demo.repository.VoucherRepo;
 import com.example.demo.response.CustomerResponse;
 import com.example.demo.service.CustomerService;
@@ -21,6 +23,7 @@ import java.util.Set;
 public class CustomerServiceImpl implements CustomerService {
     private final VoucherRepo voucherRepo;
     private final CustomerRepo customerRepo;
+    private final StaffRepo staffRepo;
     @Override
     public List<Customer> getALl() {
         return customerRepo.findAll();
@@ -28,7 +31,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerResponse add(CustomerDTO customer) {
-        Voucher existingVoucher = voucherRepo.findById(customer.getVouchers()).orElse(null);
+        if(customerRepo.existsByUsername(customer.getUsername()) || staffRepo.existsByUsername(customer.getUsername())){
+            throw new UsernameExisting();
+        }
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         Customer newCustomer = Customer
                 .builder()
@@ -42,8 +47,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .notes(customer.getNotes())
                 .gender(customer.getGender())
                 .status(1)
-                .role(Role.builder().id(1).build())
-                .vouchers(existingVoucher != null ? Set.of(existingVoucher) : Set.of())
+                .role(Role.builder().id(2).build())
                 .build();
         Customer addCustomer = customerRepo.save(newCustomer);
         return CustomerResponse.fromCustomerResponse(addCustomer);
