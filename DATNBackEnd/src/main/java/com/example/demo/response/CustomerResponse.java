@@ -53,10 +53,6 @@ public class CustomerResponse {
                 .dateOfBirth(customer.getDateOfBirth())
                 .notes(customer.getNotes())
                 .roleId(roleId)
-                .vouchers(customer.getVouchers()
-                        .stream()
-                        .findFirst()
-                        .map(Voucher::getId).orElse(null))
                 .build();
     }
 }

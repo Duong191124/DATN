@@ -19,21 +19,21 @@ import java.util.List;
 public class CustomerController {
     private final CustomerServiceImpl customerService;
 
-    @GetMapping
+    @GetMapping("/getAll")
     public ResponseEntity<MessageReponse> getAll(){
         List<CustomerResponse> customerList = customerService.getALl()
                 .stream()
                 .map(CustomerResponse::fromCustomerResponse)
                 .toList();
         return ResponseEntity.ok().body(MessageReponse.builder()
-                .message("lay thong tin thanh cong")
+                .message("get info successfuly")
                 .status(HttpStatus.OK.value())
                 .data(customerList)
                 .build()
         );
     }
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<MessageReponse> add(
             @RequestBody CustomerDTO customer,
             BindingResult result
@@ -49,13 +49,21 @@ public class CustomerController {
                     .build()
             );
         }
-            CustomerResponse newCustomer =customerService.add(customer);
-            return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
-                    .message("them thanh cong")
-                    .status(HttpStatus.OK.value())
-                    .data(newCustomer)
-                    .build()
-            );
+            try{
+                CustomerResponse newCustomer =customerService.add(customer);
+                return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
+                        .message("them thanh cong")
+                        .status(HttpStatus.OK.value())
+                        .data(newCustomer)
+                        .build()
+                );
+            }catch (Exception e){
+                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(MessageReponse.builder()
+                                .data(null)
+                                .message(e.getMessage())
+                                .status(HttpStatus.NOT_ACCEPTABLE.value())
+                        .build());
+            }
 
     }
 
