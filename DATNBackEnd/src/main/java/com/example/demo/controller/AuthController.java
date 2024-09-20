@@ -1,6 +1,11 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.LoginDTO;
+import com.example.demo.entity.Customer;
+import com.example.demo.entity.Staff;
+import com.example.demo.repository.CustomerRepo;
+import com.example.demo.repository.StaffRepo;
+import com.example.demo.response.InformationResponse;
 import com.example.demo.response.LoginResponse;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.utils.SecurityUtil;
@@ -10,14 +15,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.InputMismatchException;
 import java.util.List;
 
 @RestController
@@ -28,6 +32,11 @@ public class AuthController {
 
     @Autowired
     SecurityUtil securityUtil;
+
+    @Autowired
+    CustomerRepo customerRepo;
+    @Autowired
+    StaffRepo staffRepo;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Validated @RequestBody LoginDTO loginDTO, BindingResult result) {
@@ -67,6 +76,48 @@ public class AuthController {
                             .message("Username or password is not valid")
                             .build()
             );
+        }
+    }
+
+    @GetMapping("/getInformation")
+    public ResponseEntity<?> getInfoUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+
+        if (customerRepo.existsByUsername(currentPrincipalName)) {
+            Customer customer = customerRepo.findByUsername(currentPrincipalName);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    MessageReponse.builder()
+                            .data(
+                                    InformationResponse.builder()
+                                            .id(customer.getId())
+                                            .name(customer.getName())
+                                            .email(customer.getEmail())
+                                            .role(customer.getRole().getName())
+                                            .build()
+                            )
+                            .status(HttpStatus.OK.value())
+                            .message("Get information sucssessfuly")
+                            .build());
+        } else if (staffRepo.existsByUsername(currentPrincipalName)) {
+            Staff staff = staffRepo.findByUsername(currentPrincipalName);
+
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    MessageReponse.builder()
+                            .data(
+                                    InformationResponse.builder()
+                                            .id(staff.getId())
+                                            .name(staff.getName())
+                                            .email(staff.getEmail())
+                                            .role(staff.getRole().getName())
+                                            .build()
+                            )
+                            .status(HttpStatus.OK.value())
+                            .message("Get information sucssessfuly")
+                            .build()
+            );
+        } else {
+            throw new InputMismatchException("Token is not valid");
         }
     }
 }
