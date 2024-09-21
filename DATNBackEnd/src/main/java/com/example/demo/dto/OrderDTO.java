@@ -31,24 +31,24 @@ public class OrderDTO {
     @NotNull(message = "check total amount, please!")
     private Double totalAmount;
     private String voucherDiscount;
-    private String customerName;
-    private String staffName;
+    private Integer customerId;
+    private Integer staffId;
 
     public static OrderDTO convertDTO(Orders orders){
         return OrderDTO.builder()
                 .id(orders.getId())
                 .status(orders.getStatus())
                 .orderDate(orders.getOrderDate())
-                .staffName(orders.getStaff().getName())
+                .staffId(orders.getStaff().getId())
                 .deliveryFee(orders.getDeliveryFee())
                 .totalAmount(orders.getTotalAmount())
                 .voucherDiscount(orders.getVoucher().getDiscountPercent())
-                .customerName(orders.getCustomer().getName())
+                .customerId(orders.getCustomer().getId())
                 .build();
     }
     public static Orders convertOrder(OrderDTO orderDTO, CustomerRepo customerRepo, VoucherRepo voucherRepo, StaffRepo accountRepo) {
-        Customer customer = customerRepo.findByName(orderDTO.getCustomerName()).orElse(Customer.builder().name(orderDTO.getCustomerName()).build());
-        Staff staff = accountRepo.findByName(orderDTO.getStaffName()).orElse(Staff.builder().name(orderDTO.getStaffName()).build());
+        Customer customer = customerRepo.findById(orderDTO.getCustomerId()).orElse(Customer.builder().id(orderDTO.getCustomerId()).build());
+        Staff staff = accountRepo.findById(orderDTO.getStaffId()).orElse(Staff.builder().id(orderDTO.getStaffId()).build());
         Voucher voucher = voucherRepo.findByDiscountPercent(orderDTO.getVoucherDiscount()).orElse(Voucher.builder().discountPercent(orderDTO.getVoucherDiscount()).build());
         return Orders.builder()
                 .id(orderDTO.getId())

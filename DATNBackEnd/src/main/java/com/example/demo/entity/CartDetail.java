@@ -30,7 +30,7 @@ public class CartDetail {
     private Customer customer;
     @ManyToOne
     @JoinColumn(name = "product_detail_id", referencedColumnName = "id")
-    private ProductDetail productDetail
+    private ProductDetail productDetail;
     @ManyToOne
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     private Orders orders;

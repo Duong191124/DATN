@@ -44,9 +44,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDTO updatedOrder(int id,OrderDTO orderDTO) {
         Optional<Orders> ordersOptional = orderRepo.findById(id);
-        Staff account = staffRepo.findByName(orderDTO.getStaffName()).orElse(Staff.builder().name(orderDTO.getStaffName()).build());
+        Staff account = staffRepo.findById(orderDTO.getStaffId()).orElse(Staff.builder().id(orderDTO.getStaffId()).build());
         Voucher voucher = voucherRepo.findByDiscountPercent(orderDTO.getVoucherDiscount()).orElse(Voucher.builder().discountPercent(orderDTO.getVoucherDiscount()).build());
-        Customer customer = customerRepo.findByName(orderDTO.getCustomerName()).orElse(Customer.builder().name(orderDTO.getCustomerName()).build());
+        Customer customer = customerRepo.findById(orderDTO.getCustomerId()).orElse(Customer.builder().id(orderDTO.getCustomerId()).build());
         if(ordersOptional.isEmpty()){
             throw new RuntimeException("not valid");
         }
