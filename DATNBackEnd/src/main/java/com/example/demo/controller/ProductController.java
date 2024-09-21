@@ -32,26 +32,25 @@ public class ProductController {
     private final ProductDetailServiceImpl productDetailService;
 
     @GetMapping("")
-    public ResponseEntity<MessageReponse> getAllProduct(){
+    public ResponseEntity<MessageReponse> getAllProduct() {
         List<ProductDTO> productDTOList = productService.getAll();
-        if(productDTOList.isEmpty()){
-            return ResponseEntity.ok(new MessageReponse("failed",0,null));
-        }
-        else{
-            return ResponseEntity.ok(new MessageReponse("success",1,productDTOList));
+        if (productDTOList.isEmpty()) {
+            return ResponseEntity.ok(new MessageReponse("failed", 0, null));
+        } else {
+            return ResponseEntity.ok(new MessageReponse("success", 1, productDTOList));
         }
     }
-    
+
     @PostMapping("")
-    public ResponseEntity<MessageReponse> addProduct(@Valid @ModelAttribute ProductDTO productDTO){
+    public ResponseEntity<MessageReponse> addProduct(@Valid @ModelAttribute ProductDTO productDTO) {
         ProductDTO createProductDTO = productService.createdProduct(productDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new MessageReponse("add successfully",1,createProductDTO));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new MessageReponse("add successfully", 1, createProductDTO));
     }
-    
+
     @PostMapping(value = "upload/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadImage(@PathVariable() int id, @ModelAttribute("file") MultipartFile file){
+    public ResponseEntity<?> uploadImage(@PathVariable() int id, @ModelAttribute("file") MultipartFile file) {
         try {
-            if(file.getSize() > MAX_FILE_SIZE){
+            if (file.getSize() > MAX_FILE_SIZE) {
                 return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("file is so large! Maximum size is 5MB");
             }
             Product newProduct = productService.uploadImageProduct(id, file);
@@ -61,15 +60,15 @@ public class ProductController {
                             .status(HttpStatus.OK.value())
                             .data(newProduct)
                             .build());
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-    
+
     @PostMapping(value = "uploadForProductDetail/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadImageForProductDetail(@PathVariable() int productId, @RequestParam("color") String colorName, @ModelAttribute("file") MultipartFile file){
+    public ResponseEntity<?> uploadImageForProductDetail(@PathVariable() int productId, @RequestParam("color") String colorName, @ModelAttribute("file") MultipartFile file) {
         try {
-            if(file.getSize() > MAX_FILE_SIZE){
+            if (file.getSize() > MAX_FILE_SIZE) {
                 return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("file is so large! Maximum size is 5MB");
             }
             ProductDetail newProductDetail = productDetailService.uploadImageWithColor(productId, colorName, file);
@@ -80,26 +79,26 @@ public class ProductController {
                             .status(HttpStatus.OK.value())
                             .data(productDetailResponse)
                             .build());
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
-    
+
     @PutMapping("/{id}")
-    public ResponseEntity<MessageReponse> updateProduct(@PathVariable int id,@Valid @ModelAttribute ProductDTO productDTO){
-        ProductDTO productDTOUpdate = productService.updatedProduct(id,productDTO);
-        return ResponseEntity.ok(new MessageReponse("updated successfully",1,productDTOUpdate));
+    public ResponseEntity<MessageReponse> updateProduct(@PathVariable int id, @Valid @ModelAttribute ProductDTO productDTO) {
+        ProductDTO productDTOUpdate = productService.updatedProduct(id, productDTO);
+        return ResponseEntity.ok(new MessageReponse("updated successfully", 1, productDTOUpdate));
     }
-  
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable int id){
+    public ResponseEntity<String> deleteProduct(@PathVariable int id) {
         productService.deletedProduct(id);
         return ResponseEntity.ok("deleted successfully");
     }
 
     @GetMapping("{productId}")
-    public ResponseEntity<?> getProductById(@PathVariable Integer productId){
+    public ResponseEntity<?> getProductById(@PathVariable Integer productId) {
         try {
             ProductDTO product = productService.findById(productId);
             List<ProductDetailResponse> productDetails = productService.getProductDetailsByProductId(productId)
@@ -120,4 +119,6 @@ public class ProductController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 
+        }
+    }
 }
