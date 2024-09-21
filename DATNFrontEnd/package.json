@@ -1,10 +1,18 @@
 {
+<<<<<<< HEAD
   "name": "datnfrontend",
+=======
+  "name": "frontend-sw",
+>>>>>>> 1e4f6982c143bab00787235b917bfd66aa4ecc0b
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+<<<<<<< HEAD
     "dev": "vite --port 3000",
+=======
+    "dev": "vite",
+>>>>>>> 1e4f6982c143bab00787235b917bfd66aa4ecc0b
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -12,9 +20,15 @@
   "dependencies": {
     "@ant-design/icons": "^5.4.0",
     "antd": "^5.20.6",
+<<<<<<< HEAD
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.2"
+=======
+    "axios": "^1.7.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+>>>>>>> 1e4f6982c143bab00787235b917bfd66aa4ecc0b
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

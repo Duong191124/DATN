@@ -20,7 +20,7 @@ import java.util.List;
 public class StaffController {
     private final StaffServiceImpl staffService;
 
-    @GetMapping
+    @GetMapping("/getAll")
     public ResponseEntity<MessageReponse> getAll(){
         List<StaffResponse> staffList = staffService.getAll()
                 .stream()
@@ -34,8 +34,8 @@ public class StaffController {
         );
     }
 
-    @PostMapping
-    public ResponseEntity<MessageReponse> add(
+    @PostMapping("/register")
+    public ResponseEntity<MessageReponse> createStaff(
             @RequestBody StaffDTO staffDTO,
             BindingResult result
     ){
@@ -50,13 +50,21 @@ public class StaffController {
                     .build()
             );
         }
-        Staff newStaff = staffService.save(staffDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
-                .message("them thanh cong")
-                .status(HttpStatus.OK.value())
-                .data(newStaff)
-                .build()
-        );
+        try{
+            Staff newStaff = staffService.save(staffDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
+                    .message("register succesfuly")
+                    .status(HttpStatus.OK.value())
+                    .data(newStaff)
+                    .build()
+            );
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(MessageReponse.builder()
+                    .data(null)
+                    .message(e.getMessage())
+                    .status(HttpStatus.NOT_ACCEPTABLE.value())
+                    .build());
+        }
 
     }
 
