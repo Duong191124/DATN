@@ -1,9 +1,9 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.CartDetailDTO;
-import com.example.demo.entity.CartDetail;
+import com.example.demo.response.CartDetailResponse;
 import com.example.demo.response.MessageReponse;
-import com.example.demo.service.CartDetailService;
+import com.example.demo.service.impl.CartDetailServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,14 +15,17 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/cartDetail")
+@RequestMapping("${api.prefix}/cartDetail")
 @RequiredArgsConstructor
 public class CartDetailController {
-    private final CartDetailService cartDetailService;
+    private final CartDetailServiceImpl cartDetailService;
 
-    @GetMapping
+    @GetMapping("")
     public ResponseEntity<MessageReponse> getAll(){
-        List<CartDetail> cartDetailList = cartDetailService.getAll();
+        List<CartDetailResponse> cartDetailList = cartDetailService.getAll()
+                .stream()
+                .map(CartDetailResponse::fromCartDetailResponse)
+                .toList();
         return ResponseEntity.ok().body(MessageReponse.builder()
                 .message("lay du lieu thanh cong")
                 .status(HttpStatus.OK.value())
@@ -30,10 +33,10 @@ public class CartDetailController {
                 .build());
     }
 
-    @PostMapping
+    @PostMapping("")
     public ResponseEntity<MessageReponse> add(
             @Valid @RequestBody CartDetailDTO cartDetailDTO,
-            BindingResult result){
+            BindingResult result) throws Exception {
         if (result.hasErrors()){
             List<String> errorMessage = result.getFieldErrors()
                     .stream()
@@ -44,7 +47,7 @@ public class CartDetailController {
                     .status(HttpStatus.BAD_REQUEST.value())
                     .build());
         }
-        CartDetail cartDetail = cartDetailService.add(cartDetailDTO);
+        CartDetailResponse cartDetail = cartDetailService.add(cartDetailDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
                 .message("them thanh cong")
                 .status(HttpStatus.CREATED.value())
@@ -53,20 +56,20 @@ public class CartDetailController {
 
     }
 
-    @PutMapping
+    @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
             @RequestBody CartDetailDTO cartDetailDTO
     )throws Exception{
-        cartDetailService.update(id,cartDetailDTO);
+        CartDetailResponse updateCartDetail =  cartDetailService.update(id,cartDetailDTO);
         return ResponseEntity.ok().body(MessageReponse.builder()
                 .message("sua thanh cong")
                 .status(HttpStatus.OK.value())
-                .data(cartDetailDTO)
+                .data(updateCartDetail)
                 .build());
     }
 
-    @DeleteMapping
+    @DeleteMapping("{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Integer id)throws Exception{
         cartDetailService.delete(id);
         return ResponseEntity.ok().body(MessageReponse.builder()

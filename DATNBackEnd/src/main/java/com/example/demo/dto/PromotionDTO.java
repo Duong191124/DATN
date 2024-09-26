@@ -1,13 +1,9 @@
 package com.example.demo.dto;
 
-import com.example.demo.entity.ProductDetail;
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.ManyToMany;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor

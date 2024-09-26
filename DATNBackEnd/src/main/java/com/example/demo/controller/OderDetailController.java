@@ -3,7 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.OrderDetailDTO;
 import com.example.demo.entity.OrderDetail;
 import com.example.demo.response.MessageReponse;
-import com.example.demo.service.OrderDetailService;
+import com.example.demo.service.impl.OrderDetailServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/orderDetail")
+@RequestMapping("${api.prefix}/orderDetail")
 @RequiredArgsConstructor
 public class OderDetailController {
-    private final OrderDetailService orderDetailService;
+    private final OrderDetailServiceImpl orderDetailService;
     @GetMapping
     public ResponseEntity<MessageReponse> getAll(){
         List<OrderDetail> orderDetailList = orderDetailService.getAll();
@@ -50,7 +50,7 @@ public class OderDetailController {
                 .build());
     }
 
-    @PutMapping
+    @PutMapping("{id}")
     public ResponseEntity<?> update(@PathVariable("id") Integer id ,@RequestBody OrderDetailDTO orderDetailDTO)throws Exception{
         orderDetailService.update(id, orderDetailDTO);
         return ResponseEntity.ok().body(MessageReponse.builder()
@@ -61,7 +61,7 @@ public class OderDetailController {
 
     }
 
-    @DeleteMapping
+    @DeleteMapping("{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Integer id)throws Exception{
         orderDetailService.delete(id);
         return ResponseEntity.ok().body(MessageReponse.builder()

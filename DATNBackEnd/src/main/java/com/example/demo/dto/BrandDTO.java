@@ -14,5 +14,5 @@ public class BrandDTO {
 
     private String name;
 
-    private byte status;
+    private int status;
 }

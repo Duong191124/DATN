@@ -2,7 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.Role;
 import com.example.demo.response.MessageReponse;
-import com.example.demo.service.RoleService;
+import com.example.demo.service.impl.RoleServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("${api.prefix}/role")
 public class RoleController {
     @Autowired
-    RoleService roleService;
+    RoleServiceImpl roleService;
 
-    @GetMapping("/getAllRoles")
+    @GetMapping("")
     public ResponseEntity<?> getAllRoles(){
         try {
             return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
@@ -31,7 +31,7 @@ public class RoleController {
         }
     }
 
-    @PostMapping("/create")
+    @PostMapping("")
     public ResponseEntity<?> addRole(@Validated @RequestBody Role role){
         try {
             Role newRole = roleService.save(role);
@@ -48,7 +48,7 @@ public class RoleController {
         }
     }
 
-    @PatchMapping("/update")
+    @PatchMapping("")
     public ResponseEntity<?> updateRole(@Validated @RequestBody Role role){
         try {
             roleService.save(role);
@@ -65,7 +65,7 @@ public class RoleController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<?> deleteRole(@PathVariable Integer id){
         try {
             roleService.deleteById(id);

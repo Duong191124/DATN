@@ -1,16 +1,33 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.entity.Role;
-import org.springframework.data.domain.Page;
+import com.example.demo.repository.RoleRepo;
+import com.example.demo.service.RoleService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
+@Service
+public class RoleServiceImpl implements RoleService {
+    @Autowired
+    RoleRepo roleRepol;
+    public List<Role> getAll() {
+        return roleRepol.findAll();
+    }
 
-public interface RoleServiceImpl {
-    List<Role> getAll();
+    @Override
+    public Role getById(int id) {
+        return roleRepol.findById(id).get();
+    }
 
-    Role getById(int id);
+    @Override
+    public Role save(Role role) {
+        role.setStatus(1);
+        return roleRepol.save(role);
+    }
 
-    Role save(Role role);
-
-    void deleteById(int id);
+    @Override
+    public void deleteById(int id) {
+        roleRepol.deleteById(id);
+    }
 }

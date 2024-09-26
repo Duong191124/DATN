@@ -1,9 +1,10 @@
 package com.example.demo.dto;
 
-import com.example.demo.entity.Voucher;
+
 import lombok.*;
 
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @Getter
@@ -12,15 +13,27 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 public class CustomerDTO {
-    private String name;
+    private String username;
 
-    private String phoneNumber;
-
-    private int gender;
+    private String password;
 
     private String email;
 
     private String address;
 
-    private Set<Voucher> vouchers;
+    private String phoneNumber;
+
+    private int status;
+
+    private LocalDateTime dateOfBirth;
+
+    private String name;
+
+    private String notes;
+
+    private int gender;
+
+    private Integer roleId;
+
+    private Integer vouchers;
 }

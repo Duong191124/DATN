@@ -8,6 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 @Getter @Setter
 public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,5 +20,5 @@ public class Role {
     private String name;
     @Basic
     @Column(name = "status", nullable = false)
-    private byte status;
+    private int status;
 }

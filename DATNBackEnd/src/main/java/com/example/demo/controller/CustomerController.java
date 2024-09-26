@@ -1,9 +1,9 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.CustomerDTO;
-import com.example.demo.entity.Customer;
+import com.example.demo.response.CustomerResponse;
 import com.example.demo.response.MessageReponse;
-import com.example.demo.service.CustomerService;
+import com.example.demo.service.impl.CustomerServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,23 +14,26 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/customer")
+@RequestMapping("${api.prefix}/customer")
 @RequiredArgsConstructor
 public class CustomerController {
-    private final CustomerService customerService;
+    private final CustomerServiceImpl customerService;
 
-    @GetMapping
+    @GetMapping("/getAll")
     public ResponseEntity<MessageReponse> getAll(){
-        List<Customer> customerList = customerService.getALl();
+        List<CustomerResponse> customerList = customerService.getALl()
+                .stream()
+                .map(CustomerResponse::fromCustomerResponse)
+                .toList();
         return ResponseEntity.ok().body(MessageReponse.builder()
-                .message("lay thong tin thanh cong")
+                .message("get info successfuly")
                 .status(HttpStatus.OK.value())
                 .data(customerList)
                 .build()
         );
     }
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<MessageReponse> add(
             @RequestBody CustomerDTO customer,
             BindingResult result
@@ -46,13 +49,21 @@ public class CustomerController {
                     .build()
             );
         }
-            Customer newCustomer =customerService.add(customer);
-            return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
-                    .message("them thanh cong")
-                    .status(HttpStatus.OK.value())
-                    .data(newCustomer)
-                    .build()
-            );
+            try{
+                CustomerResponse newCustomer =customerService.add(customer);
+                return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
+                        .message("them thanh cong")
+                        .status(HttpStatus.OK.value())
+                        .data(newCustomer)
+                        .build()
+                );
+            }catch (Exception e){
+                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(MessageReponse.builder()
+                                .data(null)
+                                .message(e.getMessage())
+                                .status(HttpStatus.NOT_ACCEPTABLE.value())
+                        .build());
+            }
 
     }
 
@@ -60,11 +71,11 @@ public class CustomerController {
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
             @RequestBody CustomerDTO customerDTO)throws Exception{
-        customerService.update(id,customerDTO);
+        CustomerResponse update = customerService.update(id,customerDTO);
         return ResponseEntity.ok().body(MessageReponse.builder()
                 .message("sua thanh cong")
                 .status(HttpStatus.OK.value())
-                .data(customerDTO)
+                .data(update)
                 .build()
         );
 

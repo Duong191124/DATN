@@ -2,67 +2,100 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.VoucherDTO;
 import com.example.demo.entity.Voucher;
-import com.example.demo.service.VoucherService;
+import com.example.demo.response.MessageReponse;
+import com.example.demo.response.VoucherResponse;
+import com.example.demo.service.impl.VoucherServiceImpl;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("voucher")
+@RequestMapping("${api.prefix}/voucher")
 public class VoucherController {
     @Autowired
-    private VoucherService voucherService;
+    private VoucherServiceImpl voucherService;
 
-    @GetMapping("hien-thi")
-    public ResponseEntity<List<Voucher>> getAllVouchers() {
-        List<Voucher> vouchers = voucherService.getAll();
-        return new ResponseEntity<>(vouchers, HttpStatus.OK);
+    @GetMapping("")
+    public ResponseEntity<MessageReponse> getAllVouchers() {
+        List<VoucherResponse> voucherList = voucherService.getAll()
+                .stream()
+                .map(VoucherResponse::fromVoucherResponse)
+                .toList();
+        return ResponseEntity.ok().body(MessageReponse.builder()
+                .message("lay thong tin thanh cong")
+                .status(HttpStatus.OK.value())
+                .data(voucherList)
+                .build()
+        );
     }
 
-    @PostMapping("add")
-    public ResponseEntity<Voucher> createVoucher(@Valid @RequestBody VoucherDTO voucherDTO) {
-        Voucher voucher = Voucher.builder()
-                .code(voucherDTO.getCode())
-                .discountAmount(voucherDTO.getDiscountAmount())
-                .discountPercent(voucherDTO.getDiscountPercent())
-                .expirationDate(voucherDTO.getExpirationDate())
-                .minPurchaseAmount(voucherDTO.getMinPurchaseAmount())
-                .maxDiscountAmount(voucherDTO.getMaxDiscountAmount())
-                .termsAndConditions(voucherDTO.getTermsAndConditions())
-                .status(voucherDTO.getStatus())
-                .build();
+    @PostMapping("")
+    public ResponseEntity<?> createVoucher(@Valid @RequestBody VoucherDTO voucherDTO, BindingResult result) {
+        if(result.hasErrors()){
+            List<String> errorMessages = result.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(MessageReponse.builder()
+                    .message(String.join(", ", errorMessages))
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .build());
+        }
 
-        Voucher createdVoucher = voucherService.add(voucher);
+        VoucherResponse createdVoucher = voucherService.add(voucherDTO);
         return new ResponseEntity<>(createdVoucher, HttpStatus.CREATED);
     }
 
-    @PutMapping("update/{id}")
-    public ResponseEntity<Voucher> updateVoucher(@PathVariable("id") Integer id,
-                                                 @Valid @RequestBody VoucherDTO voucherDTO) {
+    @PutMapping("{id}")
+    public ResponseEntity<?> updateVoucher(@PathVariable("id") Integer id,
+                                           @Valid @RequestBody VoucherDTO voucherDTO,
+                                           BindingResult result) {
+        if(result.hasErrors()){
+            List<String> errorMessages = result.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(MessageReponse.builder()
+                    .message(String.join(", ", errorMessages))
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .build());
+        }
+
         try {
-            Voucher updatedVoucher = voucherService.update(id, voucherDTO);
+            VoucherResponse updatedVoucher = voucherService.update(id, voucherDTO);
             return new ResponseEntity<>(updatedVoucher, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    MessageReponse.builder()
+                            .message(e.getMessage())
+                            .status(HttpStatus.NOT_FOUND.value())
+                            .build()
+            );
         }
     }
 
+
     @GetMapping("detail/{id}")
-    public ResponseEntity<Voucher> getVoucherById(@PathVariable("id") Integer id) {
+    public ResponseEntity<MessageReponse> getVoucherById(@PathVariable("id") Integer id) {
         try {
             Voucher voucher = voucherService.getById(id);
-            return new ResponseEntity<>(voucher, HttpStatus.OK);
+            VoucherResponse voucherResponse = VoucherResponse.fromVoucherResponse(voucher);
+            return ResponseEntity.ok().body(MessageReponse.builder()
+                    .message("lay thong tin thanh cong")
+                    .status(HttpStatus.OK.value())
+                    .data(voucherResponse)
+                    .build());
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteVoucher(@PathVariable("id") Integer id) {
         try {
             voucherService.delete(id);

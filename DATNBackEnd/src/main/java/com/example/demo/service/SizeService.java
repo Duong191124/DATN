@@ -2,51 +2,17 @@ package com.example.demo.service;
 
 import com.example.demo.dto.SizeDTO;
 import com.example.demo.entity.Size;
-import com.example.demo.repository.SizeRepo;
-import com.example.demo.service.impl.SizeServiceImpl;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@RequiredArgsConstructor
-@Service
-public class SizeService implements SizeServiceImpl {
+public interface SizeService {
+    List<Size> getAll();
 
-    private final SizeRepo sizeRepo;
+    Size add(SizeDTO size);
 
-    @Override
-    public List<Size> getAll() {
-        return sizeRepo.findAll();
-    }
+    Size update(Integer id, SizeDTO size) throws Exception;
 
-    @Override
-    public Size add(SizeDTO size) {
-        Size newColor = Size.builder()
-                .name(size.getName())
-                .code(size.getCode())
-                .status(size.getStatus())
-                .build();
-        return sizeRepo.save(newColor);
-    }
+    Size getSizeById(Integer id) throws Exception;
 
-    @Override
-    public Size update(Integer id, SizeDTO size) throws Exception {
-        Size existingSize = getSizeById(id);
-        existingSize.setName(size.getName());
-        existingSize.setCode(size.getCode());
-        existingSize.setStatus(size.getStatus());
-        return sizeRepo.save(existingSize);
-    }
-
-    @Override
-    public Size getSizeById(Integer id) throws Exception {
-        return sizeRepo.findById(id).orElseThrow(() -> new Exception(""));
-    }
-
-    @Override
-    public void deleteSize(Integer id) throws Exception {
-        Size existingSize = getSizeById(id);
-        sizeRepo.delete(existingSize);
-    }
+    void deleteSize(Integer id) throws Exception;
 }

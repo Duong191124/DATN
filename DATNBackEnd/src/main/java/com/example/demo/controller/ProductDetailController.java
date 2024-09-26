@@ -1,54 +1,51 @@
 package com.example.demo.controller;
 
+
 import com.example.demo.dto.ProductDetailDTO;
 import com.example.demo.entity.ProductDetail;
-import com.example.demo.repository.ProductDetailRepo;
-import com.example.demo.service.ProductDetailService;
+import com.example.demo.service.impl.ProductDetailServiceImpl;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("product-detail")
+@RequestMapping("${api.prefix}/productDetail")
 public class ProductDetailController {
     @Autowired
-    private ProductDetailService productDetailService;
+    private ProductDetailServiceImpl productDetailService;
 
-    @GetMapping("hien-thi")
+    @GetMapping("")
     public ResponseEntity<List<ProductDetail>> getAllProductDetails() {
         List<ProductDetail> productDetails = productDetailService.getAll();
         return new ResponseEntity<>(productDetails, HttpStatus.OK);
     }
 
-    // Thêm một ProductDetail mới
-    @PostMapping("add")
-    public ResponseEntity<ProductDetail> addProductDetail(@RequestBody ProductDetailDTO productDetailDTO) {
+    @PostMapping("")
+    public ResponseEntity<?> addProductDetail(@Valid @RequestBody ProductDetailDTO productDetailDTO, BindingResult result) {
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(result.getFieldErrors(), HttpStatus.BAD_REQUEST);
+        }
         try {
-            ProductDetail newProductDetail = new ProductDetail();
-            newProductDetail.setCode(productDetailDTO.getCode());
-            newProductDetail.setQuantity(productDetailDTO.getQuantity());
-            newProductDetail.setPrice(productDetailDTO.getPrice());
-            newProductDetail.setImage(productDetailDTO.getImage());
-
-            // Liên kết với các entity khác
-            newProductDetail.setProduct(productDetailService.getProductById(productDetailDTO.getProductId()));
-            newProductDetail.setSize(productDetailService.getSizeById(productDetailDTO.getSizeId()));
-            newProductDetail.setColor(productDetailService.getColorById(productDetailDTO.getColorId()));
-
-            ProductDetail savedProductDetail = productDetailService.add(newProductDetail);
+            ProductDetail savedProductDetail = productDetailService.addProductDetail(productDetailDTO);
             return new ResponseEntity<>(savedProductDetail, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
-    // Cập nhật một ProductDetail
-    @PutMapping("update/{id}")
-    public ResponseEntity<ProductDetail> updateProductDetail(@PathVariable("id") Integer id,
-                                                             @RequestBody ProductDetailDTO productDetailDTO) {
+
+    @PutMapping("{id}")
+    public ResponseEntity<?> updateProductDetail(@PathVariable("id") Integer id,
+                                                 @Valid @RequestBody ProductDetailDTO productDetailDTO,
+                                                 BindingResult result) {
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(result.getFieldErrors(), HttpStatus.BAD_REQUEST);
+        }
         try {
             ProductDetail updatedProductDetail = productDetailService.pdate(id, productDetailDTO);
             return new ResponseEntity<>(updatedProductDetail, HttpStatus.OK);
@@ -57,7 +54,6 @@ public class ProductDetailController {
         }
     }
 
-    // Lấy một ProductDetail theo ID
     @GetMapping("detail/{id}")
     public ResponseEntity<ProductDetail> getProductDetailById(@PathVariable("id") Integer id) {
         try {
@@ -68,8 +64,7 @@ public class ProductDetailController {
         }
     }
 
-    // Xóa một ProductDetail theo ID
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteProductDetail(@PathVariable("id") Integer id) {
         try {
             productDetailService.deletePD(id);

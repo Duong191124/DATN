@@ -3,7 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.SizeDTO;
 import com.example.demo.entity.Size;
 import com.example.demo.response.MessageReponse;
-import com.example.demo.service.SizeService;
+import com.example.demo.service.impl.SizeServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping("${api.prefix}/size")
 @RequiredArgsConstructor
 public class SizeController {
-    private final SizeService sizeService;
+    private final SizeServiceImpl sizeService;
 
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAll(){

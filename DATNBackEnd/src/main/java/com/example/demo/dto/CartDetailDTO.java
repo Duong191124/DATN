@@ -1,8 +1,5 @@
 package com.example.demo.dto;
 
-import com.example.demo.entity.Account;
-import com.example.demo.entity.Orders;
-import com.example.demo.entity.Product;
 import lombok.*;
 
 @AllArgsConstructor
@@ -12,15 +9,15 @@ import lombok.*;
 @Data
 @Builder
 public class CartDetailDTO {
-    private String quantity;
+    private int quantity;
 
     private Double price;
 
     private Double totalPrice;
 
-    private Account account;
+    private Integer customerId;
 
-    private Product product;
+    private Integer productDetailId;
 
-    private Orders orders;
+    private Integer ordersId;
 }
