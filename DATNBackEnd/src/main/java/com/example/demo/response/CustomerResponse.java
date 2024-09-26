@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Builder
@@ -26,7 +27,7 @@ public class CustomerResponse {
 
     private int status;
 
-    private Date dateOfBirth;
+    private LocalDateTime dateOfBirth;
 
     private String name;
 
@@ -53,10 +54,6 @@ public class CustomerResponse {
                 .dateOfBirth(customer.getDateOfBirth())
                 .notes(customer.getNotes())
                 .roleId(roleId)
-                .vouchers(customer.getVouchers()
-                        .stream()
-                        .findFirst()
-                        .map(Voucher::getId).orElse(null))
                 .build();
     }
 }

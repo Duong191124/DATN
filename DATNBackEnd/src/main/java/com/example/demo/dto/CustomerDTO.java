@@ -3,6 +3,7 @@ package com.example.demo.dto;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -24,7 +25,7 @@ public class CustomerDTO {
 
     private int status;
 
-    private Date dateOfBirth;
+    private LocalDateTime dateOfBirth;
 
     private String name;
 

@@ -8,12 +8,13 @@ import lombok.*;
 @Table(name = "product")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Getter @Setter
 public class Product extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "id", nullable = false)
-    private int id;
+    @Column(name = "id")
+    private Integer id;
     @Basic
     @Column(name = "code", nullable = true, length = 255)
     private String code;
