@@ -36,7 +36,7 @@ public class StaffResponse {
     private Integer roleId;
 
     public static StaffResponse fromStaffResponse(Staff staff){
-        Integer roleId = (staff.getRole() != null) ? staff.getRole().getId() : null;
+//        Integer roleId = (staff.getRole() != null) ? staff.getRole().getId() : null;
         return StaffResponse
                 .builder()
                 .id(staff.getId())
@@ -49,7 +49,7 @@ public class StaffResponse {
                 .status(staff.getStatus())
                 .dateOfBirth(staff.getDateOfBirth())
                 .notes(staff.getNotes())
-                .roleId(roleId)
+//                .roleId(roleId)
                 .build();
     }
 }

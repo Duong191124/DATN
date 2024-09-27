@@ -1,7 +1,7 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dto.StaffDTO;
-import com.example.demo.entity.Role;
+
 import com.example.demo.entity.Staff;
 import com.example.demo.exception.UsernameExisting;
 import com.example.demo.repository.CustomerRepo;
@@ -45,7 +45,7 @@ public class StaffServiceImpl implements StaffService {
                         .notes(staffDTO.getNotes())
                         .gender(staffDTO.getGender())
                         .status(1)
-                        .role(Role.builder().id(3).build())
+//                        .role(Role.builder().id(3).build())
                         .build());
     }
 

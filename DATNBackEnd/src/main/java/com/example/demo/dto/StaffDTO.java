@@ -31,5 +31,5 @@ public class StaffDTO {
 
     private int gender;
 
-    private Integer roleId;
+//    private Integer roleId;
 }

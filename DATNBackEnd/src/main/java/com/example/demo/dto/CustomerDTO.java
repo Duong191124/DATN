@@ -33,7 +33,7 @@ public class CustomerDTO {
 
     private int gender;
 
-    private Integer roleId;
+//    private Integer roleId;
 
     private Integer vouchers;
 }

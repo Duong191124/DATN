@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class ProductDetailDTO {
+    private int id;
 
     @NotBlank(message = "Code is required")
     @Size(max = 255, message = "Code cannot exceed 255 characters")
