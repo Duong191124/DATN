@@ -10,6 +10,11 @@ import HomePage from "./pages/home.jsx";
 import ProductPage from "./pages/product.jsx";
 import ProductDetail from "./pages/product_detail.jsx";
 
+import DarkMode from "./darkmode/App1.jsx";
+import { DarkModeProvider } from './darkmode/DarkModeContext.jsx'; // Import DarkModeProvider
+
+
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -35,7 +40,12 @@ const router = createBrowserRouter([
 
 
 createRoot(document.getElementById('root')).render(
+  <DarkModeProvider> 
   <AuthWrapper>
-    <RouterProvider router={router} />
+    <RouterProvider router={router} /> 
+    <DarkMode />
   </AuthWrapper>
+  </DarkModeProvider>
+
+   
 )
