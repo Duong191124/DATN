@@ -7,10 +7,10 @@ import LoginPage from "./pages/login";
 import RegisterPage from "./pages/register";
 import { AuthWrapper } from './component/context/auth.context.jsx';
 import HomePage from "./pages/home.jsx";
-import DarkMode from "./darkmode/App1.jsx";
-import { DarkModeProvider } from './darkmode/DarkModeContext.jsx'; // Import DarkModeProvider
 import ProductPage from "./pages/product.jsx";
 import ProductDetail from "./pages/product_detail.jsx";
+import DarkMode from "./darkmode/App1.jsx";
+import { DarkModeProvider } from './darkmode/DarkModeContext.jsx'; // Import DarkModeProvider
 
 
 const router = createBrowserRouter([
