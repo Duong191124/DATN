@@ -3,27 +3,25 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-
-@Entity
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
-@Data
+@AllArgsConstructor
 @Builder
-@Getter @Setter
-@Table(name = "brand")
-public class Brand {
-    @Id
+@Entity
+@Table(name = "collar")
+public class Collar {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     @Column(name = "id", nullable = false)
-    private Integer id;
+    private int id;
     @Basic
     @Column(name = "code", nullable = true, length = 255)
     private String code;
     @Basic
-    @Column(name = "name", nullable = true, length = 255)
+    @Column(name = "name", nullable = false, length = 255)
     private String name;
     @Basic
     @Column(name = "status")
     private int status;
-
 }
