@@ -7,6 +7,9 @@ import LoginPage from "./pages/login";
 import RegisterPage from "./pages/register";
 import { AuthWrapper } from './component/context/auth.context.jsx';
 import HomePage from "./pages/home.jsx";
+import DarkMode from "./darkmode/App1.jsx";
+import { DarkModeProvider } from './darkmode/DarkModeContext.jsx'; // Import DarkModeProvider
+
 
 const router = createBrowserRouter([
   {
@@ -25,7 +28,12 @@ const router = createBrowserRouter([
 
 
 createRoot(document.getElementById('root')).render(
+  <DarkModeProvider> 
   <AuthWrapper>
-    <RouterProvider router={router} />
+    <RouterProvider router={router} /> 
+    <DarkMode />
   </AuthWrapper>
+  </DarkModeProvider>
+
+   
 )

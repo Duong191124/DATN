@@ -1,0 +1,64 @@
+/* Light Mode */
+body {
+     background-color: #f9f9f9;
+     color: #333;
+   }
+   
+   /* Dark Mode */
+   body.dark-mode {
+     background-color: #121212;
+     color: #f1f1f1;
+   }
+   
+   button {
+     padding: 10px 20px;
+     border: none;
+     cursor: pointer;
+     background-color: #007bff;
+     color: white;
+     border-radius: 5px;
+   }
+   
+   button:hover {
+     background-color: #0056b3;
+   }
+   
+   .dark-mode button {
+     background-color: #f1f1f1;
+     color: #333;
+   }
+   
+   .dark-mode button:hover {
+     background-color: #e0e0e0;
+   }
+   /* Styling cho nút bật tắt */
+.toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  transition: transform 0.3s ease;
+}
+
+.toggle-btn:hover {
+  transform: scale(1.2);
+}
+
+/* Styling cho icon */
+.icon {
+  width: 24px;
+  height: 24px;
+  color: currentColor;
+  stroke-width: 2;
+  transition: color 0.3s ease;
+}
+
+/* Đổi màu icon khi ở chế độ dark-mode */
+body.dark-mode .icon {
+  color: red; /* Màu vàng nhạt cho sun icon */
+}
+
+body.light-mode .icon {
+  color: #2c3e50; /* Màu tối cho moon icon */
+}
+   
