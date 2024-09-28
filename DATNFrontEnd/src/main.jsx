@@ -44,6 +44,4 @@ createRoot(document.getElementById('root')).render(
     <DarkMode />
   </AuthWrapper>
   </DarkModeProvider>
-
-   
 )

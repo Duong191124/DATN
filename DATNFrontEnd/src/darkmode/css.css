@@ -1,37 +1,43 @@
 /* Light Mode */
-body {
-     background-color: #f9f9f9;
-     color: #333;
-   }
-   
-   /* Dark Mode */
-   body.dark-mode {
-     background-color: #121212;
-     color: #f1f1f1;
-   }
-   
-   button {
-     padding: 10px 20px;
-     border: none;
-     cursor: pointer;
-     background-color: #007bff;
-     color: white;
-     border-radius: 5px;
-   }
-   
-   button:hover {
-     background-color: #0056b3;
-   }
-   
-   .dark-mode button {
-     background-color: #f1f1f1;
-     color: #333;
-   }
-   
-   .dark-mode button:hover {
-     background-color: #e0e0e0;
-   }
-   /* Styling cho nút bật tắt */
+body.light-mode {
+  background-color: #f9f9f9;
+  color: #333;
+  font-family: Arial, sans-serif; /* Giữ font-family cho Light Mode */
+}
+
+/* Dark Mode */
+body.dark-mode {
+  background-color: #121212;
+  color: #f1f1f1;
+  font-family: Arial, sans-serif; /* Giữ font-family cho Dark Mode */
+}
+
+/* Đảm bảo font-family luôn là Arial trong cả hai chế độ */
+body.light-mode, body.dark-mode {
+  font-family: 'Arial, sans-serif';
+}
+button {
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  background-color: #007bff; /* Nền mặc định cho Light Mode */
+  color: white;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #0056b3; /* Nền khi hover cho Light Mode */
+}
+
+.dark-mode button {
+  background-color: #f1f1f1; /* Nền cho Dark Mode */
+  color: #333; /* Màu chữ cho Dark Mode */
+}
+
+.dark-mode button:hover {
+  background-color: #e0e0e0; /* Nền khi hover cho Dark Mode */
+}
+/* Styling cho nút bật tắt */
 .toggle-btn {
   background: none;
   border: none;
@@ -41,24 +47,27 @@ body {
 }
 
 .toggle-btn:hover {
-  transform: scale(1.2);
+  transform: scale(1.2); /* Phóng to nhẹ khi hover */
 }
 
 /* Styling cho icon */
 .icon {
   width: 24px;
   height: 24px;
-  color: currentColor;
+  color: currentColor; /* Thay đổi theo chế độ màu hiện tại */
   stroke-width: 2;
   transition: color 0.3s ease;
 }
 
 /* Đổi màu icon khi ở chế độ dark-mode */
 body.dark-mode .icon {
-  color: red; /* Màu vàng nhạt cho sun icon */
+  color: red; /* Màu đỏ cho icon trong Dark Mode */
 }
 
 body.light-mode .icon {
-  color: #2c3e50; /* Màu tối cho moon icon */
+  color: #2c3e50; /* Màu tối cho icon trong Light Mode */
 }
-   
+/* Đảm bảo các thành phần trong RegisterPage không bị ảnh hưởng */
+.ant-form-item {
+  font-family: 'Arial, sans-serif'; /* Giữ font chữ cho form */
+}
