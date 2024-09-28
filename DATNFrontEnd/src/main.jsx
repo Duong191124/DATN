@@ -9,12 +9,14 @@ import { AuthWrapper } from './component/context/auth.context.jsx';
 import HomePage from "./pages/home.jsx";
 import DarkMode from "./darkmode/App1.jsx";
 import { DarkModeProvider } from './darkmode/DarkModeContext.jsx'; // Import DarkModeProvider
+import ProductPage from "./pages/product.jsx";
+import ProductDetail from "./pages/product_detail.jsx";
 
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <HomePage/>
+    element: <HomePage />
   },
   {
     path: "/login",
@@ -23,6 +25,14 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <RegisterPage />
+  },
+  {
+    path: "/product",
+    element: <ProductPage />
+  },
+  {
+    path: "/product-detail",
+    element: <ProductDetail />
   }
 ]);
 
