@@ -27,12 +27,12 @@ public class Product extends BaseEntity {
     @Basic
     @Column(name = "price", nullable = true, precision = 0)
     private Double price;
-    @Basic
-    @Column(name = "collar", nullable = true, length = 255)
-    private String collar;
-    @Basic
-    @Column(name = "sleeve", nullable = true, length = 255)
-    private String sleeve;
+    @ManyToOne
+    @JoinColumn(name = "collar_id", referencedColumnName = "id")
+    private Collar collar;
+    @ManyToOne
+    @JoinColumn(name = "sleeve_id", referencedColumnName = "id")
+    private Sleeve sleeve;
     @Basic
     @Column(name = "description", nullable = true, length = 255)
     private String description;

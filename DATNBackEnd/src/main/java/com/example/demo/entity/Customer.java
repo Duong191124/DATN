@@ -52,9 +52,6 @@ public class Customer extends BaseEntity {
     @Basic
     @Column(name = "gender")
     private int gender;
-    @ManyToOne
-    @JoinColumn(name = "role_id", referencedColumnName = "id")
-    private Role role;
     @ManyToMany
     @JoinTable(
             name = "customer_voucher",

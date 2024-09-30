@@ -10,6 +10,8 @@ import com.example.demo.response.LoginResponse;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.utils.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,12 +25,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("${api.prefix}/auth")
 public class AuthController {
+
     @Autowired
-    AuthenticationManagerBuilder authenticationManagerBuilder;
+    private AuthenticationManagerBuilder authenticationManagerBuilder;
 
     @Autowired
     SecurityUtil securityUtil;
@@ -37,6 +41,8 @@ public class AuthController {
     CustomerRepo customerRepo;
     @Autowired
     StaffRepo staffRepo;
+    @Autowired
+    private MessageSource messageSource;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Validated @RequestBody LoginDTO loginDTO, BindingResult result) {
@@ -61,9 +67,10 @@ public class AuthController {
 
             //generate token
             String token = securityUtil.createToken(authentication);
+
             return ResponseEntity.status(HttpStatus.OK).body(
                     LoginResponse.builder()
-                            .message("Login successfuly")
+                            .message(messageSource.getMessage("auth.login.success", null, LocaleContextHolder.getLocale()))
                             .status(HttpStatus.OK.value())
                             .token(token)
                             .build()
@@ -73,7 +80,7 @@ public class AuthController {
                     LoginResponse.builder()
                             .token(null)
                             .status(HttpStatus.UNAUTHORIZED.value())
-                            .message("Username or password is not valid")
+                            .message(messageSource.getMessage("auth.login.invalid", null, LocaleContextHolder.getLocale()))
                             .build()
             );
         }
