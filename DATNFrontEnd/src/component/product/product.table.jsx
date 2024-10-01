@@ -1,24 +1,12 @@
 import { Table } from "antd";
 
-const ProductTable = () => {
-    const dataSource = [
-        {
-            key: '1',
-            name: 'Mike',
-            age: 32,
-            address: '10 Downing Street',
-        },
-        {
-            key: '2',
-            name: 'John',
-            age: 42,
-            address: '10 Downing Street',
-        },
-    ];
+
+const ProductTable = (props) => {
+    const { dataProduct } = props;
 
     const columns = [
         {
-            title: 'id',
+            title: 'ID',
             dataIndex: 'id'
         },
         {
@@ -35,19 +23,19 @@ const ProductTable = () => {
         },
         {
             title: 'Collar',
-            dataIndex: 'collar_id'
+            dataIndex: 'collar_name'
         },
         {
             title: 'Sleeve',
-            dataIndex: 'sleeve_id'
+            dataIndex: 'sleeveName'
         },
         {
             title: 'Category',
-            dataIndex: 'category_id'
+            dataIndex: 'categoryName'
         },
         {
             title: 'Brand',
-            dataIndex: 'brand_id'
+            dataIndex: 'brandName'
         },
         {
             title: 'Description',
@@ -56,7 +44,10 @@ const ProductTable = () => {
     ];
 
     return (
-        < Table dataSource={dataSource} columns={columns} />
+        < Table
+            dataSource={dataProduct}
+            columns={columns}
+            rowKey={"id"} />
     )
 }
 export default ProductTable

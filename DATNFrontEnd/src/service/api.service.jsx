@@ -22,4 +22,58 @@ const loginCustomerAPI = (username, password) => {
     return axios.post(URL_BACKEND, data)
 }
 
-export {registerCustomerAPI, loginCustomerAPI}
+
+const createProductAPI = (code, name, description, price, sleeveName, categoryName, brandName, collarName) => {
+    const URL_BACKEND = "/api/v1/products";
+    const data = {
+        code: code,
+        name: name,
+        price: price,
+        description: description,
+        sleeveName: sleeveName,
+        categoryName: categoryName,
+        brandName: brandName,
+        collarName: collarName,
+    }
+    return axios.post(URL_BACKEND, data)
+}
+
+
+
+const fetchAllProduct = () => {
+    const URL_BACKEND = "/api/v1/products/getAll"
+    return axios.get(URL_BACKEND)
+}
+
+const fetchDataSleeve = () => {
+    const URL_BACKEND = "/api/v1/sleeves"
+    return axios.get(URL_BACKEND)
+}
+
+const fetchDataCategory = () => {
+    const URL_BACKEND = "api/v1/category"
+    return axios.get(URL_BACKEND)
+}
+
+const fetchDataCollar = () => {
+    const URL_BACKEND = "/api/v1/collar"
+    return axios.get(URL_BACKEND)
+}
+
+const fetchDataBrand = () => {
+    const URL_BACKEND = "api/v1/brand"
+    return axios.get(URL_BACKEND)
+}
+
+
+
+export {
+    registerCustomerAPI,
+    loginCustomerAPI,
+    createProductAPI,
+    fetchAllProduct,
+    fetchDataSleeve,
+    fetchDataCategory,
+    fetchDataCollar,
+    fetchDataBrand
+}
