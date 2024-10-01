@@ -7,17 +7,17 @@ const ProductForm = (props) => {
     const [name, setName] = useState("");
     const [price, setPrice] = useState("");
     const [description, setDescription] = useState("");
-    const [brand, setSelectedBrand] = useState("");
-    const [sleeve, setSleeve] = useState("");
-    const [category, setCategory] = useState("");
-    const [collar, setCollar] = useState("");
+    const [dataBrand, setDataBrand] = useState("");
+    const [dataSleeve, setDataSleeve] = useState("");
+    const [dataCategory, setDataCategory] = useState("");
+    const [dataCollar, setDataCollar] = useState("");
 
     const [isModalOpen, setIsModalOpen] = useState(false)
 
     const { loadProduct } = props
 
     const handleSubmit = async () => {
-        const res = await createProductAPI(code, name, description, price, sleeve?.name, category?.name, brand?.name, collar?.name);
+        const res = await createProductAPI(code, name, description, price, dataSleeve?.name, dataCategory?.name, dataBrand?.name, dataCollar?.name);
         if (res.data) {
             notification.success({
                 message: "Create product",
@@ -37,30 +37,30 @@ const ProductForm = (props) => {
 
 
     useEffect(() => {
-        loadBrand();
-        loadSleeve();
-        loadCategory();
-        loadCollar();
+        loadDataBrand();
+        loadDataSleeve();
+        loadDataCategory();
+        loadDataCollar();
     }, []);
 
-    const loadBrand = async () => {
+    const loadDataBrand = async () => {
         const res = await fetchDataBrand();
-        setSelectedBrand(res.data);
+        setDataBrand(res.data);
     };
 
-    const loadSleeve = async () => {
+    const loadDataSleeve = async () => {
         const res = await fetchDataSleeve();
-        setSleeve(res.data);
+        setDataSleeve(res.data);
     };
 
-    const loadCategory = async () => {
+    const loadDataCategory = async () => {
         const res = await fetchDataCategory();
-        setCategory(res.data);
+        setDataCategory(res.data);
     };
 
-    const loadCollar = async () => {
+    const loadDataCollar = async () => {
         const res = await fetchDataCollar();
-        setCollar(res.data);
+        setDataCollar(res.data);
     };
 
 
@@ -70,10 +70,10 @@ const ProductForm = (props) => {
         setName("")
         setPrice("")
         setDescription("")
-        setSelectedBrand("")
-        setSleeve("")
-        setCategory("")
-        setCollar("")
+        setDataBrand("")
+        setDataSleeve("")
+        setDataCategory("")
+        setDataCollar("")
 
     }
 
@@ -119,66 +119,66 @@ const ProductForm = (props) => {
                     </div>
 
                     <div>
-                        <span>Collar</span>
+                        <span>dataCollar</span>
                         <Select
 
                             style={{ width: "100%" }}
                             showSearch
-                            placeholder="Select a Collar"
+                            placeholder="Select a dataCollar"
                             filterOption={(input, option) =>
                                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                             }
-                            options={collar}
+                            options={dataCollar}
                             fieldNames={{ label: "name", value: "id" }}
-                            onChange={(value) => setCollar(collar.find(c => c.id === value))}// Chỉ lấy đối tượng collar đã chọn
+                            onChange={(value) => setDataCollar(dataCollar.find(c => c.id === value))}// Chỉ lấy đối tượng dataCollar đã chọn
                         />
                     </div>
 
                     <div>
-                        <span>Sleeve</span>
+                        <span>dataSleeve</span>
                         <Select
 
                             style={{ width: "100%" }}
                             showSearch
-                            placeholder="Select a Sleeve"
+                            placeholder="Select a dataSleeve"
                             filterOption={(input, option) =>
                                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                             }
-                            options={sleeve}
+                            options={dataSleeve}
                             fieldNames={{ label: "name", value: "id" }}
-                            onChange={(value) => setSleeve(sleeve.find(s => s.id === value))}
+                            onChange={(value) => setDataSleeve(dataSleeve.find(s => s.id === value))}
                         />
                     </div>
 
                     <div>
-                        <span>Category</span>
+                        <span>dataCategory</span>
                         <Select
 
                             style={{ width: "100%" }}
                             showSearch
-                            placeholder="Select a Category"
+                            placeholder="Select a dataCategory"
                             filterOption={(input, option) =>
                                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                             }
-                            options={category}
+                            options={dataCategory}
                             fieldNames={{ label: "name", value: "id" }}
-                            onChange={(value) => setCategory(category.find(c => c.id === value))}
+                            onChange={(value) => setDataCategory(dataCategory.find(c => c.id === value))}
                         />
                     </div>
 
                     <div>
-                        <span>Brand</span>
+                        <span>dataBrand</span>
                         <Select
 
                             style={{ width: "100%" }}
                             showSearch
-                            placeholder="Select a Brand"
+                            placeholder="Select a dataBrand"
                             filterOption={(input, option) =>
                                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                             }
-                            options={brand}
+                            options={dataBrand}
                             fieldNames={{ label: "name", value: "id" }}
-                            onChange={(value) => setSelectedBrand(brand.find(b => b.id === value))}
+                            onChange={(value) => setDataBrand(dataBrand.find(b => b.id === value))}
                         />
                     </div>
 

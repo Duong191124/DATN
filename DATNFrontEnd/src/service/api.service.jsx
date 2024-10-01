@@ -37,6 +37,21 @@ const createProductAPI = (code, name, description, price, sleeveName, categoryNa
     }
     return axios.post(URL_BACKEND, data)
 }
+const updateProductAPI = (id, code, name, description, price, sleeveName, categoryName, brandName, collarName) => {
+    const URL_BACKEND = "/api/v1/products";
+    const data = {
+        id: id,
+        code: code,
+        name: name,
+        price: price,
+        description: description,
+        sleeveName: sleeveName,
+        categoryName: categoryName,
+        brandName: brandName,
+        collarName: collarName,
+    }
+    return axios.put(URL_BACKEND, data)
+}
 
 
 
@@ -75,5 +90,6 @@ export {
     fetchDataSleeve,
     fetchDataCategory,
     fetchDataCollar,
-    fetchDataBrand
+    fetchDataBrand,
+    updateProductAPI
 }
