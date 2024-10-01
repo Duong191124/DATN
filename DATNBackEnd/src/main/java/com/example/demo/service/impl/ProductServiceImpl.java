@@ -35,7 +35,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse createdProduct(ProductDTO productDTO) {
       try {
-          Product product = productRepo.save(ProductDTO.convertProduct(productDTO,categoryRepo,brandRepo,collarRepo,sleeveRepo));
+
+          Product product = productRepo.save(ProductDTO.convertProduct(productDTO,categoryRepo,sleeveRepo,collarRepo,brandRepo));
           return ProductResponse.convertResponse(product);
       }catch (Exception e){
           throw new RuntimeException("Failed to add product"+e.getMessage());
@@ -45,8 +46,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse updatedProduct(int id,ProductDTO productDTO) {
         Product product = productRepo.findById(id).orElseThrow(()->new RuntimeException("product not found"));
-        Collar collar = collarRepo.findByName(productDTO.getCollarName()).orElseThrow(()->new RuntimeException("not found collar's name:"+productDTO.getCollarName()));
-        Sleeve sleeve = sleeveRepo.findByName(productDTO.getCollarName()).orElseThrow(()->new RuntimeException("not found sleeve's name:"+productDTO.getSleeveName()));
+        Collar collar = collarRepo.findById(productDTO.getCollarId()).orElseThrow(()->new RuntimeException("not found collar's id:"+productDTO.getCollarId()));
+        Sleeve sleeve = sleeveRepo.findById(productDTO.getSleeveId()).orElseThrow(()->new RuntimeException("not found sleeve's id:"+productDTO.getSleeveId()));
         product.setCode(productDTO.getCode());
         product.setName(productDTO.getName());
         product.setImage(productDTO.getImage());
@@ -54,14 +55,14 @@ public class ProductServiceImpl implements ProductService {
         product.setCollar(collar);
         product.setSleeve(sleeve);
         product.setDescription(productDTO.getDescription());
-        Optional<Brand> brand = brandRepo.findByName(productDTO.getBrandName());
+        Optional<Brand> brand = brandRepo.findById(productDTO.getBrandId());
         if(brand.isEmpty()){
-            throw new RuntimeException("not found brand");
+            throw new RuntimeException("not found brand's id:"+productDTO.getBrandId());
         }
         product.setBrand(brand.get());
-        Optional<Category> category = categoryRepo.findByName(productDTO.getCategoryName());
+        Optional<Category> category = categoryRepo.findById(productDTO.getCategoryId());
         if(category.isEmpty()){
-            throw new RuntimeException("not found category");
+            throw new RuntimeException("not found category's id:"+productDTO.getCategoryId());
         }
         product.setCategory(category.get());
         Product pr = productRepo.save(product);

@@ -77,7 +77,7 @@ public class ProductController {
                 .build());
     }
     @PostMapping("")
-    public ResponseEntity<?> addProduct(@Valid @ModelAttribute ProductDTO productDTO, BindingResult result) {
+    public ResponseEntity<?> addProduct(@Valid @RequestBody ProductDTO productDTO, BindingResult result) {
         try {
             if(result.hasErrors()){
                 List<String> errorMessage = result.getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
@@ -129,7 +129,7 @@ public class ProductController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable int id, @Valid @ModelAttribute ProductDTO productDTO,BindingResult result) {
+    public ResponseEntity<?> updateProduct(@PathVariable Integer id, @Valid @RequestBody ProductDTO productDTO,BindingResult result) {
 
             try {
                 if(result.hasErrors()){
@@ -153,7 +153,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping("{productId}")
+    @GetMapping("/{productId}")
     public ResponseEntity<?> getProductById(@PathVariable Integer productId) {
         try {
             ProductResponse product = productService.findById(productId);

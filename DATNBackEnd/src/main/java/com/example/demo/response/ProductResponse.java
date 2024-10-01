@@ -1,7 +1,6 @@
 package com.example.demo.response;
 
 import com.example.demo.entity.Product;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Getter
@@ -15,7 +14,6 @@ public class ProductResponse {
     private String name;
     private String image;
     private Double price;
-    @JsonProperty("collar_name")
     private String collarName;
     private String sleeveName;
     private String description;

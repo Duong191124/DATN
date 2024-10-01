@@ -1,11 +1,11 @@
 package com.example.demo.dto;
 
 import com.example.demo.entity.*;
-
 import com.example.demo.repository.BrandRepo;
 import com.example.demo.repository.CategoryRepo;
 import com.example.demo.repository.CollarRepo;
 import com.example.demo.repository.SleeveRepo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,28 +27,24 @@ public class ProductDTO {
     @Min(value = 0,message = "price not valid!")
     @NotNull(message = "check the product price,please!")
     private Double price;
-    @NotBlank(message = "check the product collar name, please!")
-    private String collarName;
-    @NotBlank(message = "check the product sleeve name, please!")
-    private String sleeveName;
+    @JsonProperty("collar_id")
+    private Integer collarId;
+    @JsonProperty("sleeve_id")
+    private Integer sleeveId;
     @NotBlank(message = "check the product description , please!")
     private String description;
-    @NotBlank(message = "check the product category name, please!")
-    private String categoryName;
-    @NotBlank(message = "check the product brand name, please!")
-    private String brandName;
+    @JsonProperty("category_id")
+    private Integer categoryId;
+    @JsonProperty("brand_id")
+    private Integer brandId;
 
 
-    public static Product convertProduct(ProductDTO productDTO, CategoryRepo categoryRepo, BrandRepo brandRepo, CollarRepo collarRepo, SleeveRepo sleeveRepo) {
+    public static Product convertProduct(ProductDTO productDTO, CategoryRepo categoryRepo, SleeveRepo sleeveRepo, CollarRepo collarRepo, BrandRepo brandRepo) {
         String imageUrl = "";
-        Brand brand = brandRepo.findByName(productDTO.getBrandName())
-                .orElseThrow(()->new RuntimeException("Not found brand with name"+productDTO.getBrandName()));
-        Category category = categoryRepo.findByName(productDTO.getCategoryName())
-                .orElseThrow(()->new RuntimeException("Not found category with name"+productDTO.getCategoryName()));
-        Collar collar = collarRepo.findByName(productDTO.getCollarName())
-                .orElseThrow(()->new RuntimeException("Not found collar with name"+productDTO.getCollarName()));
-        Sleeve sleeve = sleeveRepo.findByName(productDTO.getSleeveName())
-                .orElseThrow(()->new RuntimeException("Not found sleeve with name"+productDTO.getSleeveName()));
+        Collar collar = collarRepo.findById(productDTO.getCollarId()).orElseThrow(()->new RuntimeException("not found collar's id:"+productDTO.getCollarId()));
+        Sleeve sleeve = sleeveRepo.findById(productDTO.getSleeveId()).orElseThrow(()->new RuntimeException("not found sleeve's id:"+productDTO.getSleeveId()));
+        Category category = categoryRepo.findById(productDTO.getCategoryId()).orElseThrow(()->new RuntimeException("not found category's id:"+productDTO.getCategoryId()));
+        Brand brand = brandRepo.findById(productDTO.getBrandId()).orElseThrow(()->new RuntimeException("not found brand's id:"+productDTO.getBrandId()));
         return Product.builder()
                 .id(productDTO.getId())
                 .code(productDTO.getCode())
