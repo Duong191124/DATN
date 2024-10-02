@@ -22,6 +22,7 @@ const router = createBrowserRouter([
         element: <ProductDetail />,
       },
     ],
+    element: <HomePage />
   },
   {
     path: "/login",
@@ -33,8 +34,8 @@ const router = createBrowserRouter([
   },
 ]);
 
-createRoot(document.getElementById("root")).render(
+createRoot(document.getElementById('root')).render(
   <AuthWrapper>
-    <RouterProvider router={router} />
+    <RouterProvider router={router} /> 
   </AuthWrapper>
-);
+)
