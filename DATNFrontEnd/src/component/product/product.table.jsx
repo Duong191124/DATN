@@ -1,12 +1,32 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Table } from "antd";
+import { notification, Popconfirm, Table } from "antd";
 import UpdateProduct from "./update.product";
 import { useState } from "react";
+import { deleteProductAPI } from "../../service/api.service";
 
 
 
 const ProductTable = (props) => {
-    const { dataProduct } = props;
+    const handleDeleteProduct = async (id) => {
+        const res = await deleteProductAPI(id)
+        if (res.data) {
+            notification.success({
+                message: "delete product",
+                description: "Delete product successfully"
+            })
+            await loadProduct()
+        } else {
+            notification.error({
+                message: "delete product",
+                description: JSON.stringify(res.message)
+            })
+        }
+    }
+
+
+
+
+    const { dataProduct, loadProduct } = props;
 
 
     const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false)
@@ -32,7 +52,7 @@ const ProductTable = (props) => {
         },
         {
             title: 'Collar',
-            dataIndex: 'collar_name'
+            dataIndex: 'collarName'
         },
         {
             title: 'Sleeve',
@@ -63,12 +83,22 @@ const ProductTable = (props) => {
                                 setDataUpdate(record)
                             }}
                         />
-                        <DeleteOutlined style={{ cursor: "pointer", color: "red" }} />
+                        <Popconfirm
+                            title="Xoá sản phẩm"
+                            description="bạn có chắc chắn muốn xoá sản phẩm này không ?"
+                            onConfirm={() => { handleDeleteProduct(record.id) }}
+                            okText="yes"
+                            cancelText="no"
+                            placement="left"
+                        >
+                            <DeleteOutlined style={{ cursor: "pointer", color: "red" }} />
+                        </Popconfirm>
                     </div>
                 )
             }
         }
     ];
+
     return (
         <>
             < Table
@@ -76,6 +106,7 @@ const ProductTable = (props) => {
                 columns={columns}
                 rowKey={"id"} />
             <UpdateProduct
+                loadProduct={loadProduct}
                 isModalUpdateOpen={isModalUpdateOpen}
                 setIsModalUpdateOpen={setIsModalUpdateOpen}
                 dataUpdate={dataUpdate}

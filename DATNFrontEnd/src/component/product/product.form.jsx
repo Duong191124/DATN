@@ -7,17 +7,35 @@ const ProductForm = (props) => {
     const [name, setName] = useState("");
     const [price, setPrice] = useState("");
     const [description, setDescription] = useState("");
-    const [dataBrand, setDataBrand] = useState("");
-    const [dataSleeve, setDataSleeve] = useState("");
-    const [dataCategory, setDataCategory] = useState("");
-    const [dataCollar, setDataCollar] = useState("");
+    const [brands, setBrands] = useState([]);
+    const [selectedBrand, setSelectedBrand] = useState(null);
+
+    const [sleeves, setSleeves] = useState([]);
+    const [selectedSleeve, setSelectedSleeve] = useState(null);
+
+    const [categories, setCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+
+    const [collars, setCollars] = useState([]);
+    const [selectedCollar, setSelectedCollar] = useState(null);
+
 
     const [isModalOpen, setIsModalOpen] = useState(false)
 
     const { loadProduct } = props
 
     const handleSubmit = async () => {
-        const res = await createProductAPI(code, name, description, price, dataSleeve?.name, dataCategory?.name, dataBrand?.name, dataCollar?.name);
+        console.log(selectedCollar)
+        const res = await createProductAPI(
+            code,
+            name,
+            description,
+            price,
+            selectedSleeve,
+            selectedCategory,
+            selectedBrand,
+            selectedCollar
+        );
         if (res.data) {
             notification.success({
                 message: "Create product",
@@ -45,22 +63,22 @@ const ProductForm = (props) => {
 
     const loadDataBrand = async () => {
         const res = await fetchDataBrand();
-        setDataBrand(res.data);
+        setBrands(res.data);
     };
 
     const loadDataSleeve = async () => {
         const res = await fetchDataSleeve();
-        setDataSleeve(res.data);
+        setSleeves(res.data);
     };
 
     const loadDataCategory = async () => {
         const res = await fetchDataCategory();
-        setDataCategory(res.data);
+        setCategories(res.data);
     };
 
     const loadDataCollar = async () => {
         const res = await fetchDataCollar();
-        setDataCollar(res.data);
+        setCollars(res.data);
     };
 
 
@@ -70,10 +88,10 @@ const ProductForm = (props) => {
         setName("")
         setPrice("")
         setDescription("")
-        setDataBrand("")
-        setDataSleeve("")
-        setDataCategory("")
-        setDataCollar("")
+        setBrands("")
+        setSleeves("")
+        setCategories("")
+        setCollars("")
 
     }
 
@@ -128,9 +146,10 @@ const ProductForm = (props) => {
                             filterOption={(input, option) =>
                                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                             }
-                            options={dataCollar}
+                            options={collars}
                             fieldNames={{ label: "name", value: "id" }}
-                            onChange={(value) => setDataCollar(dataCollar.find(c => c.id === value))}// Chỉ lấy đối tượng dataCollar đã chọn
+                            onChange={(value) => setSelectedCollar(value)}// Chỉ lấy đối tượng dataCollar đã chọn
+                            value={selectedCollar}
                         />
                     </div>
 
@@ -144,9 +163,10 @@ const ProductForm = (props) => {
                             filterOption={(input, option) =>
                                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                             }
-                            options={dataSleeve}
+                            options={sleeves}
                             fieldNames={{ label: "name", value: "id" }}
-                            onChange={(value) => setDataSleeve(dataSleeve.find(s => s.id === value))}
+                            onChange={(value) => setSelectedSleeve(value)}
+                            value={selectedSleeve}
                         />
                     </div>
 
@@ -160,9 +180,10 @@ const ProductForm = (props) => {
                             filterOption={(input, option) =>
                                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                             }
-                            options={dataCategory}
+                            options={categories}
                             fieldNames={{ label: "name", value: "id" }}
-                            onChange={(value) => setDataCategory(dataCategory.find(c => c.id === value))}
+                            onChange={(value) => setSelectedCategory(value)}
+                            value={selectedCategory}
                         />
                     </div>
 
@@ -176,9 +197,10 @@ const ProductForm = (props) => {
                             filterOption={(input, option) =>
                                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                             }
-                            options={dataBrand}
+                            options={brands}
                             fieldNames={{ label: "name", value: "id" }}
-                            onChange={(value) => setDataBrand(dataBrand.find(b => b.id === value))}
+                            onChange={(value) => setSelectedBrand(value)}
+                            value={selectedBrand}
                         />
                     </div>
 

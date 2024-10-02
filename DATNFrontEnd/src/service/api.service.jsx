@@ -23,36 +23,42 @@ const loginCustomerAPI = (username, password) => {
 }
 
 
-const createProductAPI = (code, name, description, price, sleeveName, categoryName, brandName, collarName) => {
+const createProductAPI = (code, name, description, price, selectedSleeve, selectedCategory, selectedBrand, selectedCollar) => {
     const URL_BACKEND = "/api/v1/products";
     const data = {
         code: code,
         name: name,
         price: price,
         description: description,
-        sleeveName: sleeveName,
-        categoryName: categoryName,
-        brandName: brandName,
-        collarName: collarName,
+        sleeve_id: selectedSleeve,
+        category_id: selectedCategory,
+        brand_id: selectedBrand,
+        collar_id: selectedCollar,
     }
+
     return axios.post(URL_BACKEND, data)
 }
-const updateProductAPI = (id, code, name, description, price, sleeveName, categoryName, brandName, collarName) => {
-    const URL_BACKEND = "/api/v1/products";
+const updateProductAPI = (id, code, name, description, price, selectValueSleeve, selectedValueBrand, selectedValueCategory, selectedValueCollar) => {
+    const URL_BACKEND = `/api/v1/products/${id}`;
     const data = {
         id: id,
         code: code,
         name: name,
         price: price,
         description: description,
-        sleeveName: sleeveName,
-        categoryName: categoryName,
-        brandName: brandName,
-        collarName: collarName,
+        sleeve_id: selectValueSleeve,
+        category_id: selectedValueBrand,
+        brand_id: selectedValueCategory,
+        collar_id: selectedValueCollar,
     }
     return axios.put(URL_BACKEND, data)
 }
 
+
+const deleteProductAPI = (id) => {
+    const URL_BACKEND = `/api/v1/products/${id}`;
+    return axios.delete(URL_BACKEND)
+}
 
 
 const fetchAllProduct = () => {
@@ -91,5 +97,6 @@ export {
     fetchDataCategory,
     fetchDataCollar,
     fetchDataBrand,
-    updateProductAPI
+    updateProductAPI,
+    deleteProductAPI
 }

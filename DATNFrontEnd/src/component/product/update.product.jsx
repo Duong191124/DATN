@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { fetchDataBrand, fetchDataCategory, fetchDataCollar, fetchDataSleeve, updateProductAPI, } from "../../service/api.service";
+import {
+    fetchDataBrand,
+    fetchDataCategory,
+    fetchDataCollar,
+    fetchDataSleeve,
+    updateProductAPI,
+} from "../../service/api.service";
 import { Input, Modal, notification, Select } from "antd";
 
 const UpdateProduct = (props) => {
@@ -11,198 +17,203 @@ const UpdateProduct = (props) => {
     const [dataSleeve, setDataSleeve] = useState([]);
     const [dataCategory, setDataCategory] = useState([]);
     const [dataCollar, setDataCollar] = useState([]);
-    const [selectedValueCollar, setSelectedValueCollar] = useState();
-    const [selectedValueBrand, setSelectedValueBrand] = useState();
-    const [selectedValueCategory, setSelectedValueCategory] = useState();
-    const [selectValueSleeve, setSelectValueSleeve] = useState();
-    const [id, setId] = useState("")
+    const [selectedValueCollar, setSelectedValueCollar] = useState(null); // id của Collar
+    const [selectedValueBrand, setSelectedValueBrand] = useState(null);   // id của Brand
+    const [selectedValueCategory, setSelectedValueCategory] = useState(null); // id của Category
+    const [selectValueSleeve, setSelectValueSleeve] = useState(null);  // id của Sleeve
+    const [id, setId] = useState("");
 
-    const { isModalUpdateOpen, setIsModalUpdateOpen, dataUpdate, setDataUpdate } = props
+    const { isModalUpdateOpen, setIsModalUpdateOpen, dataUpdate, setDataUpdate, loadProduct } = props;
 
     useEffect(() => {
-        console.log(dataUpdate)
         if (dataUpdate) {
-            setId(dataUpdate.id)
-            setCode(dataUpdate.code)
-            setName(dataUpdate.name)
-            setPrice(dataUpdate.price)
-            setDescription(dataUpdate.description)
-            setSelectedValueCollar(dataUpdate.collar_name)
-            setSelectedValueBrand(dataUpdate.brandName)
-            setSelectedValueCategory(dataUpdate.categoryName)
-            setSelectValueSleeve(dataUpdate.sleeveName)
+            setId(dataUpdate.id);
+            setCode(dataUpdate.code);
+            setName(dataUpdate.name);
+            setPrice(dataUpdate.price);
+            setDescription(dataUpdate.description);
 
+            // Dùng tên để hiển thị
+            const collar = dataCollar.find((item) => item.name === dataUpdate.collarName);
+            const brand = dataBrand.find((item) => item.name === dataUpdate.brandName);
+            const category = dataCategory.find((item) => item.name === dataUpdate.categoryName);
+            const sleeve = dataSleeve.find((item) => item.name === dataUpdate.sleeveName);
+
+            // Lưu `id để submit
+            setSelectedValueCollar(collar ? collar.id : null);
+            setSelectedValueBrand(brand ? brand.id : null);
+            setSelectedValueCategory(category ? category.id : null);
+            setSelectValueSleeve(sleeve ? sleeve.id : null);
         }
-    }, [dataUpdate])
-
+    }, [dataUpdate, dataBrand, dataCollar, dataCategory, dataSleeve]);
 
     const handleSubmit = async () => {
-        const res = await updateProductAPI(id, code, name, description, price, dataSleeve?.name, dataCategory?.name, dataBrand?.name, dataCollar?.name);
+        const res = await updateProductAPI(
+            id,
+            code,
+            name,
+            description,
+            price,
+            selectValueSleeve,
+            selectedValueBrand,
+            selectedValueCategory,
+            selectedValueCollar
+        );
         if (res.data) {
             notification.success({
                 message: "Update product",
-                description: "Update product success"
+                description: "Update product success",
             });
             resetCloseModal();
-            // await loadProduct();
+            loadProduct()
         } else {
             notification.error({
                 message: "Update product",
-                description: JSON.stringify(res.message)
+                description: JSON.stringify(res.message),
             });
         }
-
-
     };
-
 
     useEffect(() => {
         loadDataBrand();
         loadDataSleeve();
         loadDataCategory();
         loadDataCollar();
-    }, [dataUpdate]);
+    }, []);
 
     const loadDataBrand = async () => {
         const res = await fetchDataBrand();
-        setDataBrand(res.data);
+        if (res.data) {
+            setDataBrand(res.data);
+        }
     };
 
     const loadDataSleeve = async () => {
         const res = await fetchDataSleeve();
-        setDataSleeve(res.data);
+        if (res.data) {
+            setDataSleeve(res.data);
+        }
     };
 
     const loadDataCategory = async () => {
         const res = await fetchDataCategory();
-        setDataCategory(res.data);
+        if (res.data) {
+            setDataCategory(res.data);
+        }
     };
 
     const loadDataCollar = async () => {
         const res = await fetchDataCollar();
-        setDataCollar(res.data);
+        if (res.data) {
+            setDataCollar(res.data);
+        }
     };
 
-
     const resetCloseModal = () => {
-        setIsModalUpdateOpen(false)
-        setCode("")
-        setName("")
-        setPrice("")
-        setDescription("")
-        setDataBrand("")
-        setDataSleeve("")
-        setDataCategory("")
-        setDataCollar("")
-        setDataUpdate(null)
-    }
+        setIsModalUpdateOpen(false);
+        setCode("");
+        setName("");
+        setPrice("");
+        setDescription("");
+        setDataBrand([]);
+        setDataSleeve([]);
+        setDataCategory([]);
+        setDataCollar([]);
+        setDataUpdate(null);
+    };
 
     return (
         <Modal
             title="Update Product"
             open={isModalUpdateOpen}
-            onOk={() => handleSubmit()}
-            onCancel={() => resetCloseModal()}
+            onOk={handleSubmit}
+            onCancel={resetCloseModal}
             okText="SAVE"
-
         >
-
             <div style={{ display: "flex", gap: "20px", flexDirection: "column" }}>
                 <div>
                     <span>ID</span>
-                    <Input
-                        value={id}
-                        onChange={(event) => setId(event.target.value)}
-                        disabled />
-
+                    <Input value={id} onChange={(event) => setId(event.target.value)} disabled />
                 </div>
 
                 <div>
                     <span>Code</span>
-                    <Input
-                        value={code}
-                        onChange={(event) => setCode(event.target.value)} />
+                    <Input value={code} onChange={(event) => setCode(event.target.value)} />
                 </div>
 
                 <div>
                     <span>Name</span>
-                    <Input
-                        value={name}
-                        onChange={(event) => setName(event.target.value)} />
+                    <Input value={name} onChange={(event) => setName(event.target.value)} />
                 </div>
 
                 <div>
                     <span>Price</span>
-                    <Input
-                        value={price}
-                        onChange={(event) => setPrice(event.target.value)} />
+                    <Input value={price} onChange={(event) => setPrice(event.target.value)} />
                 </div>
 
                 <div>
-                    <span>Collar </span>
+                    <span>Collar</span>
                     <Select
-
                         style={{ width: "100%" }}
                         showSearch
-                        placeholder="Select a dataCollar"
+                        placeholder="Select a collar"
                         filterOption={(input, option) =>
-                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
                         }
                         options={dataCollar}
-                        fieldNames={{ label: "name", value: "name" }}
+                        fieldNames={{ label: "name", value: "id" }}
+                        onChange={(value) => setSelectedValueCollar(value)}// Chỉ lấy đối tượng dataCollar đã chọn
                         value={selectedValueCollar}
-                        onChange={(value) => { setSelectedValueCollar(value) }}// Chỉ lấy đối tượng dataCollar đã chọn
                     />
                 </div>
 
                 <div>
                     <span>Sleeve</span>
                     <Select
-
                         style={{ width: "100%" }}
                         showSearch
-                        placeholder="Select a dataSleeve"
+                        placeholder="Select a sleeve"
                         filterOption={(input, option) =>
-                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
                         }
+
                         options={dataSleeve}
                         fieldNames={{ label: "name", value: "id" }}
+                        onChange={(value) => setSelectValueSleeve(value)}// Chỉ lấy đối tượng dataCollar đã chọn
                         value={selectValueSleeve}
-                        onChange={(value) => setSelectValueSleeve(value)}
                     />
                 </div>
 
                 <div>
                     <span>Category</span>
                     <Select
-
                         style={{ width: "100%" }}
                         showSearch
-                        placeholder="Select a dataCategory"
+                        placeholder="Select a category"
                         filterOption={(input, option) =>
-                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
                         }
+
                         options={dataCategory}
                         fieldNames={{ label: "name", value: "id" }}
+                        onChange={(value) => setSelectedValueCategory(value)}// Chỉ lấy đối tượng dataCollar đã chọn
                         value={selectedValueCategory}
-                        onChange={(value) => setSelectedValueCategory(value)}
                     />
                 </div>
 
                 <div>
                     <span>Brand</span>
                     <Select
-
                         style={{ width: "100%" }}
                         showSearch
-                        placeholder="Select a dataBrand"
+                        placeholder="Select a brand"
                         filterOption={(input, option) =>
-                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
                         }
                         options={dataBrand}
                         fieldNames={{ label: "name", value: "id" }}
+                        onChange={(value) => setSelectedValueBrand(value)}// Chỉ lấy đối tượng dataCollar đã chọn
                         value={selectedValueBrand}
-                        onChange={(value) => setSelectedValueBrand(value)}
                     />
                 </div>
 
@@ -210,12 +221,12 @@ const UpdateProduct = (props) => {
                     <span>Description</span>
                     <Input
                         value={description}
-                        onChange={(event) => setDescription(event.target.value)} />
+                        onChange={(event) => setDescription(event.target.value)}
+                    />
                 </div>
-
-
             </div>
         </Modal>
-    )
-}
-export default UpdateProduct
+    );
+};
+
+export default UpdateProduct;

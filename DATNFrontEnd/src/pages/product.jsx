@@ -21,7 +21,7 @@ const ProductPage = () => {
         <>
             <div style={{ margin: "20px" }}>
                 <ProductForm loadProduct={loadProduct} />
-                <ProductTable dataProduct={dataProduct} />
+                <ProductTable loadProduct={loadProduct} dataProduct={dataProduct} />
             </div>
         </>
     )
