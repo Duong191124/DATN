@@ -21,7 +21,7 @@ import lombok.*;
 @Builder
 public class ProductDTO {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer  id;
     @NotBlank(message = "check the product code, please!")
     private String code;
     @NotBlank (message = "check the product name, please!")
