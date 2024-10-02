@@ -4,15 +4,22 @@ import com.example.demo.dto.ProductDTO;
 import com.example.demo.entity.Product;
 import com.example.demo.entity.ProductDetail;
 import com.example.demo.response.MessageReponse;
+import com.example.demo.response.PageProductResponse;
 import com.example.demo.response.ProductDetailResponse;
+import com.example.demo.response.ProductResponse;
 import com.example.demo.service.ProductService;
-import com.example.demo.service.impl.CloudinaryServiceImpl;
 import com.example.demo.service.impl.ProductDetailServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,20 +38,56 @@ public class ProductController {
 
     private final ProductDetailServiceImpl productDetailService;
 
-    @GetMapping("")
+    @GetMapping("/getAll")
     public ResponseEntity<MessageReponse> getAllProduct() {
-        List<ProductDTO> productDTOList = productService.getAll();
-        if (productDTOList.isEmpty()) {
+        List<ProductResponse> productResponseList = productService.getAll();
+        if (productResponseList.isEmpty()) {
             return ResponseEntity.ok(new MessageReponse("failed", 0, null));
         } else {
-            return ResponseEntity.ok(new MessageReponse("success", 1, productDTOList));
+            return ResponseEntity.ok(new MessageReponse("success", 1, productResponseList));
         }
     }
+    @GetMapping("")
+    public ResponseEntity<PageProductResponse> pageAllProduct(
+            @RequestParam(defaultValue = "", value = "category_id") Integer categoryId,
+            @RequestParam(defaultValue = "",value = "name") String productName,
+            @RequestParam(defaultValue = "", value = "sleeve_id") Integer sleeveId,
+            @RequestParam(defaultValue = "", value = "collar_id") Integer collarId,
+            @RequestParam(defaultValue = "", value = "brand_id") Integer brandId,
+            @RequestParam(defaultValue = "") Double price,
+            @RequestParam(defaultValue = "") String description,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int pageSize) {
 
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("id").ascending());
+
+        Page<ProductResponse> productResponsePage = productService.pageAllProducts(
+                categoryId, productName, sleeveId, collarId, brandId, price, description, pageable);
+
+        int pageCurrent = productResponsePage.getNumber();
+        int pageSizeCurrent = productResponsePage.getSize();
+        int totalPages = productResponsePage.getTotalPages();
+        List<ProductResponse> productResponseList = productResponsePage.getContent();
+
+        return ResponseEntity.ok(PageProductResponse.builder()
+                .productResponseList(productResponseList)
+                .page(pageCurrent)
+                .pageSize(pageSizeCurrent)
+                .totalPages(totalPages)
+                .build());
+    }
     @PostMapping("")
-    public ResponseEntity<MessageReponse> addProduct(@Valid @ModelAttribute ProductDTO productDTO) {
-        ProductDTO createProductDTO = productService.createdProduct(productDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new MessageReponse("add successfully", 1, createProductDTO));
+    public ResponseEntity<?> addProduct(@Valid @RequestBody ProductDTO productDTO, BindingResult result) {
+        try {
+            if(result.hasErrors()){
+                List<String> errorMessage = result.getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
+                return ResponseEntity.badRequest().body(errorMessage);
+            }
+            ProductResponse createProductResponse = productService.createdProduct(productDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(new MessageReponse("add successfully", 1, createProductResponse));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping(value = "upload/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -86,21 +129,34 @@ public class ProductController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<MessageReponse> updateProduct(@PathVariable int id, @Valid @ModelAttribute ProductDTO productDTO) {
-        ProductDTO productDTOUpdate = productService.updatedProduct(id, productDTO);
-        return ResponseEntity.ok(new MessageReponse("updated successfully", 1, productDTOUpdate));
+    public ResponseEntity<?> updateProduct(@PathVariable Integer id, @Valid @RequestBody ProductDTO productDTO,BindingResult result) {
+
+            try {
+                if(result.hasErrors()){
+                    List<String> errorMessage = result.getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
+                    return ResponseEntity.badRequest().body(errorMessage);
+                }
+                ProductResponse productResponse = productService.updatedProduct(id, productDTO);
+                return ResponseEntity.ok(new MessageReponse("updated successfully", 1, productResponse));
+            }catch (Exception e) {
+                return ResponseEntity.badRequest().body(e.getMessage());
+            }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable int id) {
-        productService.deletedProduct(id);
-        return ResponseEntity.ok("deleted successfully");
+        try {
+            productService.deletedProduct(id);
+            return ResponseEntity.ok("deleted successfully");
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    @GetMapping("{productId}")
+    @GetMapping("/{productId}")
     public ResponseEntity<?> getProductById(@PathVariable Integer productId) {
         try {
-            ProductDTO product = productService.findById(productId);
+            ProductResponse product = productService.findById(productId);
             List<ProductDetailResponse> productDetails = productService.getProductDetailsByProductId(productId)
                     .stream()
                     .map(ProductDetailResponse::fromProductDetailResponse)
@@ -118,7 +174,6 @@ public class ProductController {
                             .build());
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-
         }
     }
 }
