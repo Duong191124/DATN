@@ -6,6 +6,8 @@ import com.example.demo.repository.CategoryRepo;
 import com.example.demo.repository.CollarRepo;
 import com.example.demo.repository.SleeveRepo;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,7 +20,8 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ProductDTO {
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer  id;
     @NotBlank(message = "check the product code, please!")
     private String code;
     @NotBlank (message = "check the product name, please!")
