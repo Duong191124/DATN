@@ -75,12 +75,14 @@ const Header = () => {
               <Badge count={99}>
                 <Button
                   type="text"
+                  className="icon-right-btn"
                   icon={<ShoppingCartOutlined style={{ fontSize: "32px" }} />}
                 />
               </Badge>
               <Dropdown overlay={userMenu} placement="bottomLeft">
                 <Button
                   type="text"
+                  className="icon-right-btn"
                   icon={<UserOutlined style={{ fontSize: "32px" }} />}
                 />
               </Dropdown>

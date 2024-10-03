@@ -7,6 +7,7 @@ import {
 } from "@ant-design/icons";
 import { NavLink } from "react-router-dom";
 import "./home.css";
+import ChatBox from "../chat/chat";
 
 const Home = () => {
   const slideRef = useRef(null);
@@ -200,7 +201,6 @@ const Home = () => {
           </button>
         </div>
       </div>
-
       <div className="product-container">
         <div className="product-card">
           <div className="product-header">
@@ -228,6 +228,7 @@ const Home = () => {
           </div>
         </div>
       </div>
+      <ChatBox /> {}
     </>
   );
 };
