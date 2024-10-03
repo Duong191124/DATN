@@ -29,4 +29,78 @@ const loginCustomerAPI = (username, password) => {
   return axios.post(URL_BACKEND, data);
 };
 
-export { registerCustomerAPI, loginCustomerAPI };
+const createProductAPI = (code, name, description, price, selectedSleeve, selectedCategory, selectedBrand, selectedCollar) => {
+    const URL_BACKEND = "/api/v1/products";
+    const data = {
+        code: code,
+        name: name,
+        price: price,
+        description: description,
+        sleeve_id: selectedSleeve,
+        category_id: selectedCategory,
+        brand_id: selectedBrand,
+        collar_id: selectedCollar,
+    }
+
+    return axios.post(URL_BACKEND, data)
+}
+const updateProductAPI = (id, code, name, description, price, selectValueSleeve, selectedValueBrand, selectedValueCategory, selectedValueCollar) => {
+    const URL_BACKEND = `/api/v1/products/${id}`;
+    const data = {
+        id: id,
+        code: code,
+        name: name,
+        price: price,
+        description: description,
+        sleeve_id: selectValueSleeve,
+        category_id: selectedValueBrand,
+        brand_id: selectedValueCategory,
+        collar_id: selectedValueCollar,
+    }
+    return axios.put(URL_BACKEND, data)
+}
+
+
+const deleteProductAPI = (id) => {
+    const URL_BACKEND = `/api/v1/products/${id}`;
+    return axios.delete(URL_BACKEND)
+}
+
+
+const fetchAllProduct = () => {
+    const URL_BACKEND = "/api/v1/products/getAll"
+    return axios.get(URL_BACKEND)
+}
+
+const fetchDataSleeve = () => {
+    const URL_BACKEND = "/api/v1/sleeves"
+    return axios.get(URL_BACKEND)
+}
+
+const fetchDataCategory = () => {
+    const URL_BACKEND = "api/v1/category"
+    return axios.get(URL_BACKEND)
+}
+
+const fetchDataCollar = () => {
+    const URL_BACKEND = "/api/v1/collar"
+    return axios.get(URL_BACKEND)
+}
+
+const fetchDataBrand = () => {
+    const URL_BACKEND = "api/v1/brand"
+    return axios.get(URL_BACKEND)
+}
+
+export {
+    registerCustomerAPI,
+    loginCustomerAPI,
+    createProductAPI,
+    fetchAllProduct,
+    fetchDataSleeve,
+    fetchDataCategory,
+    fetchDataCollar,
+    fetchDataBrand,
+    updateProductAPI,
+    deleteProductAPI
+}

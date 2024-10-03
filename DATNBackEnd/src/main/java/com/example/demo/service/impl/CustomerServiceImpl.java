@@ -2,7 +2,6 @@ package com.example.demo.service.impl;
 
 import com.example.demo.dto.CustomerDTO;
 import com.example.demo.entity.Customer;
-import com.example.demo.entity.Role;
 import com.example.demo.entity.Voucher;
 import com.example.demo.exception.UsernameExisting;
 import com.example.demo.repository.CustomerRepo;
@@ -47,7 +46,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .notes(customer.getNotes())
                 .gender(customer.getGender())
                 .status(1)
-                .role(Role.builder().id(2).build())
+//                .role(Role.builder().id(2).build())
                 .build();
         Customer addCustomer = customerRepo.save(newCustomer);
         return CustomerResponse.fromCustomerResponse(addCustomer);
