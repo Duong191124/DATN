@@ -1,27 +1,33 @@
-import axios from './axios.custom'
+import axios from "./axios.custom";
 
-const registerCustomerAPI = (username, password, confirm_password, phone, email, dateOfBirth) => {
-    const URL_BACKEND = "/api/v1/customer/register";
-    const data = {
-        username: username,
-        password: password,
-        confirm_password: confirm_password,
-        phone: phone,
-        email: email,
-        dateOfBirth: dateOfBirth
-    }
-    return axios.post(URL_BACKEND, data);
-}
+const registerCustomerAPI = (
+  username,
+  password,
+  confirm_password,
+  phone,
+  email,
+  dateOfBirth
+) => {
+  const URL_BACKEND = "/api/v1/customer/register";
+  const data = {
+    username: username,
+    password: password,
+    confirm_password: confirm_password,
+    phone: phone,
+    email: email,
+    dateOfBirth: dateOfBirth,
+  };
+  return axios.post(URL_BACKEND, data);
+};
 
 const loginCustomerAPI = (username, password) => {
-    const URL_BACKEND = "/api/v1/auth/login";
-    const data = {
-        username: username,
-        password: password
-    }
-    return axios.post(URL_BACKEND, data)
-}
-
+  const URL_BACKEND = "/api/v1/auth/login";
+  const data = {
+    username: username,
+    password: password,
+  };
+  return axios.post(URL_BACKEND, data);
+};
 
 const createProductAPI = (code, name, description, price, selectedSleeve, selectedCategory, selectedBrand, selectedCollar) => {
     const URL_BACKEND = "/api/v1/products";
@@ -86,11 +92,7 @@ const fetchDataBrand = () => {
     return axios.get(URL_BACKEND)
 }
 
-
-
-
 //API product-detail
-
 const fetchDataProductDetail = () => {
     const URL_BACKEND = "/api/v1/productDetail"
     return axios.get(URL_BACKEND)
@@ -140,12 +142,9 @@ const deleteProductDetailAPI = (id) => {
     return axios.delete(URL_BACKEND)
 }
 
-
 export {
     registerCustomerAPI,
     loginCustomerAPI,
-
-    //API product
     createProductAPI,
     fetchAllProduct,
     fetchDataSleeve,
@@ -154,8 +153,6 @@ export {
     fetchDataBrand,
     updateProductAPI,
     deleteProductAPI,
-
-    //API product-detail
     fetchDataProductDetail,
     fetchDataColorAPI,
     fetchDataSize,
@@ -163,3 +160,4 @@ export {
     updateProductDetailAPi,
     deleteProductDetailAPI
 }
+
