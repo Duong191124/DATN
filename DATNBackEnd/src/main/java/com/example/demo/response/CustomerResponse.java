@@ -40,7 +40,6 @@ public class CustomerResponse {
     private Integer vouchers;
 
     public static CustomerResponse fromCustomerResponse(Customer customer){
-        Integer roleId = (customer.getRole() != null) ? customer.getRole().getId() : null;
         return CustomerResponse
                 .builder()
                 .id(customer.getId())
@@ -53,7 +52,6 @@ public class CustomerResponse {
                 .status(customer.getStatus())
                 .dateOfBirth(customer.getDateOfBirth())
                 .notes(customer.getNotes())
-                .roleId(roleId)
                 .build();
     }
 }

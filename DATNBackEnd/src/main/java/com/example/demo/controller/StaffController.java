@@ -1,11 +1,14 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.StaffDTO;
+import com.example.demo.entity.Permission;
 import com.example.demo.entity.Staff;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.StaffResponse;
 import com.example.demo.service.impl.StaffServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -21,8 +24,12 @@ public class StaffController {
     private final StaffServiceImpl staffService;
 
     @GetMapping("/getAll")
-    public ResponseEntity<MessageReponse> getAll(){
-        List<StaffResponse> staffList = staffService.getAll()
+    public ResponseEntity<MessageReponse> getAll(
+            @RequestParam(name = "page", defaultValue = "1")int page,
+            @RequestParam(name = "size", defaultValue = "10")int size
+    ){
+        Pageable pageable = PageRequest.of(page-1, size);
+        List<StaffResponse> staffList = staffService.getAll(pageable)
                 .stream()
                 .map(StaffResponse::fromStaffResponse)
                 .toList();
@@ -36,7 +43,7 @@ public class StaffController {
 
     @PostMapping("/register")
     public ResponseEntity<MessageReponse> createStaff(
-            @RequestBody StaffDTO staffDTO,
+            @RequestBody Staff staffDTO,
             BindingResult result
     ){
         if(result.hasErrors()){
@@ -75,6 +82,49 @@ public class StaffController {
                 .message("xoa staff voi id = " + id +"thanh cong")
                 .status(HttpStatus.OK.value())
                 .build());
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<MessageReponse> getById(@PathVariable("id")int id){
+        try{
+            return ResponseEntity.ok().body(
+                    MessageReponse.builder()
+                            .data(staffService.getById(id))
+                            .status(HttpStatus.OK.value())
+                            .message("get staff by id successfully")
+                            .build()
+            );
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    MessageReponse.builder()
+                            .status(HttpStatus.BAD_REQUEST.value())
+                            .message(e.getMessage())
+                            .data(null)
+                            .build()
+            );
+        }
+    }
 
+    @PutMapping("/update-permission/{id}")
+    public ResponseEntity<MessageReponse> updateStaff(
+            @PathVariable("id")int id,
+            @RequestBody List<Permission> permissions
+    ){
+        try{
+        Staff staff = staffService.savePermission(id, permissions);
+            return ResponseEntity.ok().body(
+                    MessageReponse.builder()
+                            .data(staff)
+                            .message("update sucessfully")
+                            .build()
+            );
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    MessageReponse.builder()
+                            .status(HttpStatus.BAD_REQUEST.value())
+                            .message(e.getMessage())
+                            .data(null)
+                            .build()
+            );
+        }
     }
 }

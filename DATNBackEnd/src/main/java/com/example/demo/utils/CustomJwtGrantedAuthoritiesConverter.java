@@ -17,10 +17,14 @@ public class CustomJwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
         // Lấy các quyền từ claim huudungdz.authorities
         Map<String, Object> claims = jwt.getClaims();
         Map<String, Object> huudungdz = (Map<String, Object>) claims.get("huudungdz");
-        List<Map<String, String>> authorities = (List<Map<String, String>>) huudungdz.get("authorities");
 
+        // Lấy danh sách authorities từ huudungdz
+        List<Map<String, Object>> authorities = (List<Map<String, Object>>) huudungdz.get("authorities");
+
+        // Chuyển đổi danh sách authorities thành danh sách GrantedAuthority
         return authorities.stream()
-                .map(authority -> new SimpleGrantedAuthority(authority.get("role")))
+                .map(authority -> (Map<String, Object>) authority.get("arg$1")) // Lấy đối tượng quyền
+                .map(arg -> new SimpleGrantedAuthority((String) arg.get("name"))) // Lấy tên quyền
                 .collect(Collectors.toList());
     }
 }
