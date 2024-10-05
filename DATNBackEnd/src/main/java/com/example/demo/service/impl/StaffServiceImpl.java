@@ -7,6 +7,8 @@ import com.example.demo.repository.CustomerRepo;
 import com.example.demo.repository.StaffRepo;
 import com.example.demo.service.StaffService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +23,8 @@ public class StaffServiceImpl implements StaffService {
     private final CustomerRepo customerRepo;
 
     @Override
-    public List<Staff> getAll() {
-        return staffRepo.findAll();
+    public Page<Staff> getAll(Pageable pageable) {
+        return staffRepo.findAll(pageable);
     }
 
     @Override
@@ -44,7 +46,6 @@ public class StaffServiceImpl implements StaffService {
                         .notes(staffDTO.getNotes())
                         .gender(staffDTO.getGender())
                         .status(1)
-//                        .role(Role.builder().id(3).build())
                         .build());
     }
 
