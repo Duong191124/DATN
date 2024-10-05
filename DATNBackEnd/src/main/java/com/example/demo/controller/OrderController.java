@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/orders")
+@RequestMapping("${api.prefix}/orders")
 @RequiredArgsConstructor
 public class  OrderController {
     private final OrderService orderService;
@@ -62,10 +62,4 @@ public class  OrderController {
             return ResponseEntity.ok(new MessageReponse("error:"+e.getMessage(),0,null));
         }
     }
-
-
-
-
-
-    
 }

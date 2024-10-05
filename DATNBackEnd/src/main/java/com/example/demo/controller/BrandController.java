@@ -3,7 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.BrandDTO;
 import com.example.demo.entity.Brand;
 import com.example.demo.response.MessageReponse;
-import com.example.demo.service.impl.BrandServiceImpl;
+import com.example.demo.service.BrandService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -21,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BrandController {
 
-    private final BrandServiceImpl brandService;
+    private final BrandService brandService;
 
     private final MessageSource messageSource;
 

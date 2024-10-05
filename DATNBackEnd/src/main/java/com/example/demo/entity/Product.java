@@ -4,12 +4,13 @@ import jakarta.persistence.*;
 import lombok.*;
 
 
-@Entity
-@Table(name = "product")
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Getter @Setter
+@Entity
+@Table(name = "product")
 public class Product extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -28,10 +29,17 @@ public class Product extends BaseEntity {
     @Column(name = "price", nullable = true, precision = 0)
     private Double price;
     @ManyToOne
+<<<<<<< HEAD
     @JoinColumn(name = "collar_id", referencedColumnName = "id")
     private Collar collar;
     @ManyToOne
     @JoinColumn(name = "sleeve_id", referencedColumnName = "id")
+=======
+    @JoinColumn(name = "collar_id",referencedColumnName = "id")
+    private Collar collar;
+    @ManyToOne
+    @JoinColumn(name = "sleeve_id",referencedColumnName = "id")
+>>>>>>> 2737feb9f6b602c7b2f4ffe0782eb9372e6c60e0
     private Sleeve sleeve;
     @Basic
     @Column(name = "description", nullable = true, length = 255)

@@ -4,12 +4,13 @@ import jakarta.persistence.*;
 import lombok.*;
 
 
-@Entity
-@Table(name = "category")
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter @Setter
 @Builder
+@Entity
+@Table(name = "category")
 public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id

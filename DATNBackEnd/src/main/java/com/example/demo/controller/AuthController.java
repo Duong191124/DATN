@@ -100,7 +100,7 @@ public class AuthController {
                                             .id(customer.getId())
                                             .name(customer.getName())
                                             .email(customer.getEmail())
-                                            .role(customer.getRole().getName())
+//                                            .role(customer.getRole().getName())
                                             .build()
                             )
                             .status(HttpStatus.OK.value())

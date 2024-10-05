@@ -5,17 +5,17 @@ import lombok.*;
 
 
 @Entity
-@Table(name = "brand")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
 @Getter @Setter
+@Table(name = "brand")
 public class Brand {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private int id;
+    private Integer id;
     @Basic
     @Column(name = "code", nullable = true, length = 255)
     private String code;
