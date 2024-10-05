@@ -109,7 +109,6 @@ public class AuthController {
                                             .id(staff.getId())
                                             .name(staff.getName())
                                             .email(staff.getEmail())
-                                            .role(staff.getRole().getName())
                                             .build()
                             )
                             .status(HttpStatus.OK.value())
