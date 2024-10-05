@@ -39,7 +39,7 @@ const UpdateProduct = (props) => {
             const category = dataCategory.find((item) => item.name === dataUpdate.categoryName);
             const sleeve = dataSleeve.find((item) => item.name === dataUpdate.sleeveName);
 
-            // Lưu `id để submit
+            // Lưu id để submit
             setSelectedValueCollar(collar ? collar.id : null);
             setSelectedValueBrand(brand ? brand.id : null);
             setSelectedValueCategory(category ? category.id : null);

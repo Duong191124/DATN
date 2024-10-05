@@ -60,7 +60,7 @@ const updateProductAPI = (id, code, name, description, price, selectValueSleeve,
     return axios.put(URL_BACKEND, data)
 }
 
-
+//API product
 const deleteProductAPI = (id) => {
     const URL_BACKEND = `/api/v1/products/${id}`;
     return axios.delete(URL_BACKEND)
@@ -92,6 +92,56 @@ const fetchDataBrand = () => {
     return axios.get(URL_BACKEND)
 }
 
+//API product-detail
+const fetchDataProductDetail = () => {
+    const URL_BACKEND = "/api/v1/productDetail"
+    return axios.get(URL_BACKEND)
+}
+
+const fetchDataColorAPI = () => {
+    const URL_BACKEND = "/api/v1/color"
+    return axios.get(URL_BACKEND)
+}
+
+const fetchDataSize = () => {
+    const URL_BACKEND = "/api/v1/size"
+    return axios.get(URL_BACKEND)
+}
+
+
+const createProductDetailAPi = (code, quantity, price, productId, sizeId, colorId) => {
+    const URL_BACKEND = "/api/v1/productDetail"
+    const data = {
+        code: code,
+        quantity: quantity,
+        price: price,
+        productId: productId,
+        sizeId: sizeId,
+        colorId: colorId
+    }
+    return axios.post(URL_BACKEND, data)
+}
+
+const updateProductDetailAPi = (id, code, quantity, price, selectedProduct, selectedSize, selectedColor) => {
+    const URL_BACKEND = `/api/v1/productDetail/${id}`
+    const data = {
+        id: id,
+        code: code,
+        quantity: quantity,
+        price: price,
+        productId: selectedProduct,
+        sizeId: selectedSize,
+        colorId: selectedColor
+    }
+    return axios.put(URL_BACKEND, data)
+}
+
+
+const deleteProductDetailAPI = (id) => {
+    const URL_BACKEND = `/api/v1/productDetail/${id}`
+    return axios.delete(URL_BACKEND)
+}
+
 export {
     registerCustomerAPI,
     loginCustomerAPI,
@@ -102,5 +152,12 @@ export {
     fetchDataCollar,
     fetchDataBrand,
     updateProductAPI,
-    deleteProductAPI
+    deleteProductAPI,
+    fetchDataProductDetail,
+    fetchDataColorAPI,
+    fetchDataSize,
+    createProductDetailAPi,
+    updateProductDetailAPi,
+    deleteProductDetailAPI
 }
+
