@@ -1,16 +1,16 @@
 package com.example.demo.controller;
-
 import com.example.demo.dto.CustomerDTO;
 import com.example.demo.response.CustomerResponse;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.service.impl.CustomerServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -20,8 +20,12 @@ public class CustomerController {
     private final CustomerServiceImpl customerService;
 
     @GetMapping("/getAll")
-    public ResponseEntity<MessageReponse> getAll(){
-        List<CustomerResponse> customerList = customerService.getALl()
+    public ResponseEntity<MessageReponse> getAll(
+            @RequestParam(name = "page", defaultValue = "1")int page,
+            @RequestParam(name = "size", defaultValue = "10")int size
+    ){
+        Pageable pageable = PageRequest.of(page-1, size);
+        List<CustomerResponse> customerList = customerService.getALl(pageable)
                 .stream()
                 .map(CustomerResponse::fromCustomerResponse)
                 .toList();
@@ -87,7 +91,6 @@ public class CustomerController {
                 .message("xoa khach hang voi id = " + id +"thanh cong")
                 .status(HttpStatus.OK.value())
                 .build());
-
     }
 
 

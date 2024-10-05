@@ -1,5 +1,6 @@
 package com.example.demo.response;
 
+import com.example.demo.entity.Permission;
 import com.example.demo.entity.Staff;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Builder
 @Data
@@ -33,10 +35,9 @@ public class StaffResponse {
 
     private int gender;
 
-    private Integer roleId;
+    private List<Permission> permissions;
 
     public static StaffResponse fromStaffResponse(Staff staff){
-        Integer roleId = (staff.getRole() != null) ? staff.getRole().getId() : null;
         return StaffResponse
                 .builder()
                 .id(staff.getId())
@@ -49,7 +50,7 @@ public class StaffResponse {
                 .status(staff.getStatus())
                 .dateOfBirth(staff.getDateOfBirth())
                 .notes(staff.getNotes())
-                .roleId(roleId)
+                .permissions(staff.getPermission())
                 .build();
     }
 }

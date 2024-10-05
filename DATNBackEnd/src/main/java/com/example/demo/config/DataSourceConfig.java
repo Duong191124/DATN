@@ -13,7 +13,7 @@ public class DataSourceConfig {
         return DataSourceBuilder.create()
                 .url("jdbc:mysql://localhost:3306/datn")
                 .username("root")
-                .password("1234")
+                .password("12345678")
                 .driverClassName("com.mysql.cj.jdbc.Driver")
                 .build();
     }
