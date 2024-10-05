@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.StaffDTO;
+import com.example.demo.entity.Permission;
 import com.example.demo.entity.Staff;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.StaffResponse;
@@ -42,7 +43,7 @@ public class StaffController {
 
     @PostMapping("/register")
     public ResponseEntity<MessageReponse> createStaff(
-            @RequestBody StaffDTO staffDTO,
+            @RequestBody Staff staffDTO,
             BindingResult result
     ){
         if(result.hasErrors()){
@@ -90,6 +91,30 @@ public class StaffController {
                             .data(staffService.getById(id))
                             .status(HttpStatus.OK.value())
                             .message("get staff by id successfully")
+                            .build()
+            );
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    MessageReponse.builder()
+                            .status(HttpStatus.BAD_REQUEST.value())
+                            .message(e.getMessage())
+                            .data(null)
+                            .build()
+            );
+        }
+    }
+
+    @PutMapping("/update-permission/{id}")
+    public ResponseEntity<MessageReponse> updateStaff(
+            @PathVariable("id")int id,
+            @RequestBody List<Permission> permissions
+    ){
+        try{
+        Staff staff = staffService.savePermission(id, permissions);
+            return ResponseEntity.ok().body(
+                    MessageReponse.builder()
+                            .data(staff)
+                            .message("update sucessfully")
                             .build()
             );
         }catch (Exception e){
