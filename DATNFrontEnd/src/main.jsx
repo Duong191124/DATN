@@ -7,6 +7,7 @@ import App from "./App.jsx";
 import Home from "./component/layout/content/home/home.jsx";
 // import ProductDetail from "./component/layout/content/product-detail/product-detail.jsx";
 import ProductPage from "./pages/product.jsx";
+import PermissionPage from "./pages/permission.jsx";
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
   {
     path: "/products",
     element: <ProductPage />,
+  },
+  {
+    path: "/permission",
+    element: <PermissionPage />,
   },
 ]);
 
