@@ -8,9 +8,9 @@ import java.util.List;
 public interface SleeveService {
     List<Sleeve> getAll();
 
-    Sleeve add(SleeveDTO sleeveDTO);
-
     Sleeve update(Integer id, SleeveDTO sleeveDTO);
+
+    Sleeve add(SleeveDTO sleeveDTO);
 
     Sleeve getSleeveById(Integer id);
 

@@ -7,6 +7,7 @@ import App from "./App.jsx";
 import Home from "./component/layout/content/home/home.jsx";
 import ProductPage from "./pages/product.jsx";
 import ProductDetail from "./pages/product.detail.jsx";
+import StaffManagement from "./pages/staff.jsx";
 
 const router = createBrowserRouter([
   {
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
   {
     path: "/products",
     element: <ProductPage />,
+  },
+  {
+    path: "/staff",
+    element: <StaffManagement />
   },
 ]);
 

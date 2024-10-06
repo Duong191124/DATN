@@ -9,8 +9,12 @@ import java.util.List;
 
 public interface PermissionService {
     Page<Permission> getAll(Pageable pageable);
+
+    List<Permission> all();
+
     Permission getById(int id) throws NotFound;
 
     void deleteById(int id);
+
     Permission save(Permission permission);
 }

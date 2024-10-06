@@ -12,12 +12,16 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("${api.prefix}/permission")
 public class PermissionController {
+
     @Autowired
     PermissionService permissionService;
+
     @GetMapping("/getAll")
     public ResponseEntity<MessageReponse> getAllPermition(
             @RequestParam(name = "page", defaultValue = "1")int page,
@@ -42,6 +46,13 @@ public class PermissionController {
             );
         }
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllPermitions() {
+        List<Permission> permissionList = permissionService.all();
+        return ResponseEntity.ok(permissionList);
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<MessageReponse> getById(@PathVariable("id")int id){

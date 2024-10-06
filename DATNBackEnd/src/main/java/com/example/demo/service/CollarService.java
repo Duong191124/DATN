@@ -8,9 +8,9 @@ import java.util.List;
 public interface CollarService {
     List<Collar> getAll();
 
-    Collar add(CollarDTO collarDTO);
-
     Collar update(Integer id, CollarDTO collarDTO);
+
+    Collar add(CollarDTO collarDTO);
 
     Collar getCollarById(Integer id);
 
