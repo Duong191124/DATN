@@ -1,19 +1,5 @@
 package com.example.demo.dto;
 
-<<<<<<< HEAD
-import lombok.Builder;
-import lombok.Data;
-
-@Data
-@Builder
-public class SleeveDTO {
-
-    private String code;
-
-    private String name;
-
-    private int status;
-=======
 import com.example.demo.entity.Sleeve;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
@@ -40,5 +26,4 @@ public class SleeveDTO {
                 .status(sleeveDTO.getStatus())
                 .build();
     }
->>>>>>> 2737feb9f6b602c7b2f4ffe0782eb9372e6c60e0
 }

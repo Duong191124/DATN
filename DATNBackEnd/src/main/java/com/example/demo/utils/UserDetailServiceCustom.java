@@ -31,11 +31,7 @@ public class UserDetailServiceCustom implements UserDetailsService {
             User userAutho = new User(
                     customer.getUsername(),
                     customer.getPassword(),
-<<<<<<< HEAD
-                    Collections.singleton(new SimpleGrantedAuthority("ROLE_" + customer.getUsername().toUpperCase()))
-=======
                     Collections.singleton(new SimpleGrantedAuthority("ROLE_CUSTOMER"))
->>>>>>> deac4cb8498948e08132fb1b64201d994b80e6e0
             );
             return userAutho;
         } else if (staffRepo.existsByUsername(username)) {

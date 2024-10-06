@@ -1,8 +1,5 @@
 package com.example.demo.controller;
 
-<<<<<<< HEAD
-public class CollarController {
-=======
 import com.example.demo.dto.CollarDTO;
 import com.example.demo.entity.Collar;
 import com.example.demo.response.MessageReponse;
@@ -80,5 +77,4 @@ public class CollarController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
->>>>>>> 2737feb9f6b602c7b2f4ffe0782eb9372e6c60e0
 }

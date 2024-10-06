@@ -21,9 +21,6 @@ const registerCustomerAPI = (
 };
 
 const loginCustomerAPI = (username, password) => {
-<<<<<<< HEAD
-    const URL_BACKEND = "/user/login";
-=======
   const URL_BACKEND = "/api/v1/auth/login";
   const data = {
     username: username,
@@ -32,9 +29,11 @@ const loginCustomerAPI = (username, password) => {
   return axios.post(URL_BACKEND, data);
 };
 
+/*
+    API product
+*/
 const createProductAPI = (code, name, description, price, selectedSleeve, selectedCategory, selectedBrand, selectedCollar) => {
     const URL_BACKEND = "/api/v1/products";
->>>>>>> 2737feb9f6b602c7b2f4ffe0782eb9372e6c60e0
     const data = {
         code: code,
         name: name,
@@ -63,56 +62,47 @@ const updateProductAPI = (id, code, name, description, price, selectValueSleeve,
     }
     return axios.put(URL_BACKEND, data)
 }
-
-//API product
 const deleteProductAPI = (id) => {
     const URL_BACKEND = `/api/v1/products/${id}`;
     return axios.delete(URL_BACKEND)
 }
 
-
 const fetchAllProduct = () => {
     const URL_BACKEND = "/api/v1/products/getAll"
     return axios.get(URL_BACKEND)
 }
-
 const fetchDataSleeve = () => {
     const URL_BACKEND = "/api/v1/sleeves"
     return axios.get(URL_BACKEND)
 }
-
 const fetchDataCategory = () => {
     const URL_BACKEND = "api/v1/category"
     return axios.get(URL_BACKEND)
 }
-
 const fetchDataCollar = () => {
     const URL_BACKEND = "/api/v1/collar"
     return axios.get(URL_BACKEND)
 }
-
 const fetchDataBrand = () => {
     const URL_BACKEND = "api/v1/brand"
     return axios.get(URL_BACKEND)
 }
 
-//API product-detail
+/*
+    API productDetail
+*/
 const fetchDataProductDetail = () => {
     const URL_BACKEND = "/api/v1/productDetail"
     return axios.get(URL_BACKEND)
 }
-
 const fetchDataColorAPI = () => {
     const URL_BACKEND = "/api/v1/color"
     return axios.get(URL_BACKEND)
 }
-
 const fetchDataSize = () => {
     const URL_BACKEND = "/api/v1/size"
     return axios.get(URL_BACKEND)
 }
-
-
 const createProductDetailAPi = (code, quantity, price, productId, sizeId, colorId) => {
     const URL_BACKEND = "/api/v1/productDetail"
     const data = {
@@ -125,15 +115,6 @@ const createProductDetailAPi = (code, quantity, price, productId, sizeId, colorI
     }
     return axios.post(URL_BACKEND, data)
 }
-
-<<<<<<< HEAD
-const getAllPermission = () =>{
-    const URL_BACKEND = "permittion/all";
-    return axios.get(URL_BACKEND);
-}
-
-export {registerCustomerAPI, loginCustomerAPI, getAllPermission}
-=======
 const updateProductDetailAPi = (id, code, quantity, price, selectedProduct, selectedSize, selectedColor) => {
     const URL_BACKEND = `/api/v1/productDetail/${id}`
     const data = {
@@ -147,14 +128,41 @@ const updateProductDetailAPi = (id, code, quantity, price, selectedProduct, sele
     }
     return axios.put(URL_BACKEND, data)
 }
-
-
 const deleteProductDetailAPI = (id) => {
     const URL_BACKEND = `/api/v1/productDetail/${id}`
     return axios.delete(URL_BACKEND)
 }
 
+/*
+    API permission
+*/
+const getAllPermission = () =>{
+    const URL_BACKEND = "/api/v1/permission/all";
+    return axios.get(URL_BACKEND);
+}
+
+/*
+API staff
+*/
+const getAllStaff = () =>{
+    const URL_BACKEND = "/api/v1/staff/getAll";
+    return axios.get(URL_BACKEND);
+}
+const getStaffPermissions = (id) => {
+    const URL_BACKEND = `/api/v1/staff/${id}`;
+    return axios.get(URL_BACKEND);
+};
+const updateStaffPermissions = (id, payload) =>{
+    const URL_BACKEND = `/api/v1/staff/update-permission/${id}`;
+    return axios.put(URL_BACKEND, payload);
+};
+
+
 export {
+    getAllPermission,
+    getAllStaff,
+    getStaffPermissions,
+    updateStaffPermissions,
     registerCustomerAPI,
     loginCustomerAPI,
     createProductAPI,
@@ -173,4 +181,3 @@ export {
     deleteProductDetailAPI
 }
 
->>>>>>> 2737feb9f6b602c7b2f4ffe0782eb9372e6c60e0

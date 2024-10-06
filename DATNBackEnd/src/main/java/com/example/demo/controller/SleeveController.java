@@ -1,8 +1,5 @@
 package com.example.demo.controller;
 
-<<<<<<< HEAD
-public class SleeveController {
-=======
 import com.example.demo.dto.SleeveDTO;
 import com.example.demo.entity.Sleeve;
 import com.example.demo.response.MessageReponse;
@@ -84,5 +81,4 @@ public class SleeveController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
->>>>>>> 2737feb9f6b602c7b2f4ffe0782eb9372e6c60e0
 }

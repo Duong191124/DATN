@@ -9,10 +9,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
-public class PermissionIplm implements PermissionService {
+public class PermissionServiceIplm implements PermissionService {
+
     @Autowired
     PermissionRepo permissionRepo;
+
     @Override
     public Page<Permission> getAll(Pageable pageable) {
         try {
@@ -20,6 +24,11 @@ public class PermissionIplm implements PermissionService {
         }catch (Exception e){
             throw new RuntimeException();
         }
+    }
+
+    @Override
+    public List<Permission> all() {
+        return permissionRepo.findAll();
     }
 
     @Override
