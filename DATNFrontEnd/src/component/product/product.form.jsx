@@ -88,10 +88,10 @@ const ProductForm = (props) => {
         setName("")
         setPrice("")
         setDescription("")
-        setBrands("")
-        setSleeves("")
-        setCategories("")
-        setCollars("")
+        setBrands(null)
+        setSleeves(null)
+        setCategories(null)
+        setCollars(null)
 
     }
 

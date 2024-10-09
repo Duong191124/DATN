@@ -22,7 +22,13 @@ const ProductDetailTable = (props) => {
                 description: "Delete product successfully"
             })
             await loadProductDetail()
+        } else {
+            notification.error({
+                message: "delete product",
+                description: JSON.stringify(res.message)
+            })
         }
+
     }
 
 
@@ -41,17 +47,17 @@ const ProductDetailTable = (props) => {
         },
         {
             title: 'Product',
-            dataIndex: 'productName',
+            dataIndex: 'productId',
 
         },
         {
             title: 'Size',
-            dataIndex: 'sizeName',
+            dataIndex: 'sizeId',
 
         },
         {
             title: 'Color',
-            dataIndex: 'colorName',
+            dataIndex: 'colorId',
 
         },
         {
@@ -84,7 +90,7 @@ const ProductDetailTable = (props) => {
             }
         }
     ];
-    console.log(dataUpdate)
+
     return (
 
         <>
@@ -94,6 +100,7 @@ const ProductDetailTable = (props) => {
                 setIsModalUpdateOpen={setIsModalUpdateOpen}
                 dataUpdate={dataUpdate}
                 setDataUpdate={setDataUpdate}
+                loadProductDetail={loadProductDetail}
             />
         </>
     )

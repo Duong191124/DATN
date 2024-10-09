@@ -1,24 +1,24 @@
 import { Button, Input, Modal, notification } from "antd"
 import { useState } from "react"
-import { createColorAPI } from "../../service/api.service"
+import { createSizeAPI } from "../../service/api.service"
 
 
-const ColorForm = (props) => {
+const SizeForm = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [code, setCode] = useState("")
     const [name, setName] = useState("")
     const [status, setStatus] = useState("")
 
-    const { loadColor } = props
+    const { loadSize } = props
 
     const handleSubmit = async () => {
-        const res = await createColorAPI(code, name, status)
+        const res = await createSizeAPI(code, name, status)
         if (res.data) {
             notification.success({
-                message: "create color",
-                description: "create color successfully"
+                message: "create Size",
+                description: "create size successfully"
             })
-            await loadColor()
+            await loadSize()
             resetModal()
         }
     }
@@ -31,14 +31,14 @@ const ColorForm = (props) => {
     return (
         <>
             <Button type="primary" onClick={() => setIsModalOpen(true)}>
-                Create color
+                Create Size
             </Button>
             <Modal
-                title="Create color"
+                title="Create Size"
                 open={isModalOpen}
                 onOk={handleSubmit}
                 onCancel={() => resetModal()}
-                okText={"save"}
+                okText="save"
             >
                 <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                     <div>
@@ -61,4 +61,4 @@ const ColorForm = (props) => {
     )
 
 }
-export default ColorForm
+export default SizeForm

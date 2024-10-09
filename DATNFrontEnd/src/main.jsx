@@ -7,7 +7,13 @@ import App from "./App.jsx";
 import Home from "./component/layout/content/home/home.jsx";
 import ProductPage from "./pages/product.jsx";
 import ProductDetail from "./pages/product.detail.jsx";
-import StaffManagement from "./pages/staff.jsx";
+import ColorPage from "./pages/color.jsx";
+import SizePage from "./pages/size.jsx";
+import CollarPage from "./pages/collar.jsx";
+import BrandPage from "./pages/brand.jsx";
+import CategoryPage from "./pages/category.jsx";
+import SleevePage from "./pages/sleeve.jsx";
+// import StaffManagement from "./pages/staff.jsx";
 
 const router = createBrowserRouter([
   {
@@ -41,9 +47,33 @@ const router = createBrowserRouter([
     element: <ProductPage />,
   },
   {
-    path: "/staff",
-    element: <StaffManagement />
+    path: "/colors",
+    element: <ColorPage />,
   },
+  {
+    path: "/sizes",
+    element: <SizePage />,
+  },
+  {
+    path: "/collars",
+    element: <CollarPage />,
+  },
+  {
+    path: "/brands",
+    element: <BrandPage />,
+  },
+  {
+    path: "/categories",
+    element: <CategoryPage />,
+  },
+  {
+    path: "/sleeves",
+    element: <SleevePage />,
+  },
+  // {
+  //   path: "/staff",
+  //   element: <StaffManagement />
+  // },
 ]);
 
 createRoot(document.getElementById('root')).render(

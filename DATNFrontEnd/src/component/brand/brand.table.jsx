@@ -1,23 +1,23 @@
 import { notification, Popconfirm, Table } from "antd";
-import { deleteColorAPI } from "../../service/api.service";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useState } from "react";
-import ColorUpdate from "./color.update";
+import ColorUpdate from "./brand.update";
+import { deleteBrandAPI } from "../../service/api.service";
 
 
-const ColorTable = (props) => {
-    const { dataColor, loadColor } = props
+const BrandTable = (props) => {
+    const { dataBrand, loadBrand } = props
     const [idModalUpdateOpen, setIsModalUpdateOpen] = useState(false)
     const [dataUpdate, setDataUpdate] = useState("")
 
-    const deleteColor = async (id) => {
-        const res = await deleteColorAPI(id);
+    const deleteBrand = async (id) => {
+        const res = await deleteBrandAPI(id);
         if (res.data) {
             notification.success({
-                message: "create color",
-                description: "create color successfully"
+                message: "delete brand",
+                description: "delete brand successfully"
             })
-            await loadColor()
+            await loadBrand()
         }
     }
     const columns = [
@@ -56,7 +56,7 @@ const ColorTable = (props) => {
                         <Popconfirm
                             title="Xoá sản phẩm"
                             description="bạn có chắc chắn muốn xoá sản phẩm này không ?"
-                            onConfirm={() => { deleteColor(record.id) }}
+                            onConfirm={() => { deleteBrand(record.id) }}
                             okText="yes"
                             cancelText="no"
                             placement="left"
@@ -70,15 +70,15 @@ const ColorTable = (props) => {
     ];
     return (
         <>
-            <Table dataSource={dataColor} columns={columns} />
+            <Table dataSource={dataBrand} columns={columns} />
             <ColorUpdate
                 idModalUpdateOpen={idModalUpdateOpen}
                 setIsModalUpdateOpen={setIsModalUpdateOpen}
                 dataUpdate={dataUpdate}
                 setDataUpdate={setDataUpdate}
-                loadColor={loadColor}
+                loadBrand={loadBrand}
             />
         </>
     )
 }
-export default ColorTable
+export default BrandTable
