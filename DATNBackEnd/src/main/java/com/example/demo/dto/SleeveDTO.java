@@ -23,7 +23,7 @@ public class SleeveDTO {
         return Sleeve.builder()
                 .code(sleeveDTO.getCode())
                 .name(sleeveDTO.getName())
-                .status(sleeveDTO.getStatus())
+                .status(1)
                 .build();
     }
 }

@@ -25,7 +25,7 @@ public class ColorServiceImpl implements ColorService {
         Color newColor = Color.builder()
                 .name(color.getName())
                 .code(color.getCode())
-                .status(color.getStatus())
+                .status(1)
                 .build();
         return colorRepo.save(newColor);
     }

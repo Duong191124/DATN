@@ -25,7 +25,7 @@ public class SizeServiceImpl implements SizeService {
         Size newColor = Size.builder()
                 .name(size.getName())
                 .code(size.getCode())
-                .status(size.getStatus())
+                .status(1)
                 .build();
         return sizeRepo.save(newColor);
     }

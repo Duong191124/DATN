@@ -24,7 +24,7 @@ public class CollarDTO {
         return Collar.builder()
                 .code(collarDTO.getCode())
                 .name(collarDTO.getName())
-                .status(collarDTO.getStatus())
+                .status(1)
                 .build();
     }
 }
