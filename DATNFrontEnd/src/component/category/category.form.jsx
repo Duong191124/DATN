@@ -1,53 +1,42 @@
 import { Button, Input, Modal, notification } from "antd"
 import { useState } from "react"
-import { createColorAPI } from "../../service/api.service"
+import { createCategoryAPI } from "../../service/api.service"
 
 
-const ColorForm = (props) => {
+const CategoryForm = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [code, setCode] = useState("")
     const [name, setName] = useState("")
-    const [status, setStatus] = useState("")
 
-    const { loadColor } = props
+    const { loadCategory } = props
 
     const handleSubmit = async () => {
-        const res = await createColorAPI(code, name, status)
+        const res = await createCategoryAPI(name)
         if (res.data) {
             notification.success({
-                message: "create color",
-                description: "create color successfully"
+                message: "create category",
+                description: "create category successfully"
             })
-            await loadColor()
+            await loadCategory()
             resetModal()
         }
     }
     const resetModal = () => {
-        setCode("")
         setName("")
-        setStatus("")
         setIsModalOpen(false)
     }
     return (
         <>
             <Button type="primary" onClick={() => setIsModalOpen(true)}>
-                Create color
+                Create category
             </Button>
             <Modal
-                title="Create color"
+                title="Create category"
                 open={isModalOpen}
                 onOk={handleSubmit}
                 onCancel={() => resetModal()}
                 okText={"save"}
             >
                 <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                    <div>
-                        <span>Code</span>
-                        <Input
-                            onChange={(event) => { setCode(event.target.value) }}
-                        />
-                    </div>
-
                     <div>
                         <span>Name</span>
                         <Input
@@ -61,4 +50,4 @@ const ColorForm = (props) => {
     )
 
 }
-export default ColorForm
+export default CategoryForm

@@ -49,7 +49,7 @@ public class BrandController {
         }
         Brand newBrand = brandService.add(brandDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
-                .message(messageSource.getMessage("brand.create.success", null, LocaleContextHolder.getLocale()))
+                .message("create category success")
                 .status(HttpStatus.CREATED.value())
                 .data(newBrand)
                 .build());
@@ -61,7 +61,7 @@ public class BrandController {
             @RequestBody BrandDTO brandDTO) throws Exception{
         brandService.update(id, brandDTO);
         return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
-                .message(messageSource.getMessage("brand.update.success", null, LocaleContextHolder.getLocale()))
+                .message("update brand success")
                 .status(HttpStatus.OK.value())
                 .data(brandDTO)
                 .build());
@@ -71,7 +71,7 @@ public class BrandController {
     public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception{
         brandService.deleteBrand(id);
         return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
-                .message(messageSource.getMessage("brand.delete.success", null, LocaleContextHolder.getLocale()))
+                .message("delete brand success")
                 .status(HttpStatus.OK.value())
                 .build());
     }

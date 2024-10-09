@@ -1,23 +1,24 @@
 import { notification, Popconfirm, Table } from "antd";
-import { deleteColorAPI } from "../../service/api.service";
+import { deleteSleeveAPI } from "../../service/api.service";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useState } from "react";
-import ColorUpdate from "./color.update";
+
+import SizeUpdate from "./sleeve.update";
 
 
-const ColorTable = (props) => {
-    const { dataColor, loadColor } = props
+const SleeveTable = (props) => {
+    const { dataSleeve, loadSleeve } = props
     const [idModalUpdateOpen, setIsModalUpdateOpen] = useState(false)
     const [dataUpdate, setDataUpdate] = useState("")
 
-    const deleteColor = async (id) => {
-        const res = await deleteColorAPI(id);
+    const deleteSleeve = async (id) => {
+        const res = await deleteSleeveAPI(id);
         if (res.data) {
             notification.success({
-                message: "create color",
-                description: "create color successfully"
+                message: "delete sleeve",
+                description: "delete sleeve successfully"
             })
-            await loadColor()
+            await loadSleeve()
         }
     }
     const columns = [
@@ -37,8 +38,9 @@ const ColorTable = (props) => {
             title: 'Status',
             dataIndex: 'status',
             render: (status) => {
-                return status === 1 ? 'Đang hoạt động' : 'Ngưng hoạt động';
-            },
+                return status === 1 ? 'Đang hoạt động' : 'Ngừng hoạt động'
+            }
+
         },
         {
             title: 'Action',
@@ -56,7 +58,7 @@ const ColorTable = (props) => {
                         <Popconfirm
                             title="Xoá sản phẩm"
                             description="bạn có chắc chắn muốn xoá sản phẩm này không ?"
-                            onConfirm={() => { deleteColor(record.id) }}
+                            onConfirm={() => { deleteSleeve(record.id) }}
                             okText="yes"
                             cancelText="no"
                             placement="left"
@@ -70,15 +72,15 @@ const ColorTable = (props) => {
     ];
     return (
         <>
-            <Table dataSource={dataColor} columns={columns} />
-            <ColorUpdate
+            <Table dataSource={dataSleeve} columns={columns} />
+            <SizeUpdate
                 idModalUpdateOpen={idModalUpdateOpen}
                 setIsModalUpdateOpen={setIsModalUpdateOpen}
                 dataUpdate={dataUpdate}
                 setDataUpdate={setDataUpdate}
-                loadColor={loadColor}
+                loadSleeve={loadSleeve}
             />
         </>
     )
 }
-export default ColorTable
+export default SleeveTable

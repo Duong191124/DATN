@@ -1,6 +1,6 @@
 import { Button, Input, Modal, notification, Select } from "antd"
 import { useEffect, useState } from "react"
-import { createProductDetailAPi, fetchAllProduct, fetchDataColorAPI, fetchDataSize } from "../../service/api.service";
+import { createProductDetailAPi, fetchDataColorAPI, fetchDataProductAPI, fetchDataSize } from "../../service/api.service";
 
 const ProDuctDetailForm = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -27,12 +27,13 @@ const ProDuctDetailForm = (props) => {
                 Descriptions: "Create ProductDetail Success"
             })
             await loadProductDetail()
+            resetCloseModal()
         }
 
 
     }
     const loadDataProduct = async () => {
-        const res = await fetchAllProduct()
+        const res = await fetchDataProductAPI()
         setProductId(res.data)
     }
 
@@ -54,12 +55,11 @@ const ProDuctDetailForm = (props) => {
     const resetCloseModal = () => {
         setCode("")
         setQuantity("")
-        setProductId("")
-        setSizeId("")
-        setColorId("")
+        setProductId(null)
+        setSizeId(null)
+        setColorId(null)
         setIsModalOpen(false)
     }
-    console.log("check data", code, quantity, price, selectedProduct, selectedSize, selectedColor)
     return (
         <>
             <div>

@@ -48,7 +48,7 @@ public class CategoryController {
         }
         Category newCategory = categoryService.add(category);
         return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
-                .message(messageSource.getMessage("category.create.success", null, LocaleContextHolder.getLocale()))
+                .message("create category success")
                 .status(HttpStatus.CREATED.value())
                 .data(newCategory)
                 .build());
@@ -60,7 +60,7 @@ public class CategoryController {
             @RequestBody CategoryDTO categoryDTO) throws Exception{
         categoryService.update(id, categoryDTO);
         return ResponseEntity.ok().body(MessageReponse.builder()
-                .message(messageSource.getMessage("category.update.success", null, LocaleContextHolder.getLocale()))
+                .message("update category success")
                 .status(HttpStatus.OK.value())
                 .data(categoryDTO)
                 .build());
@@ -70,7 +70,7 @@ public class CategoryController {
     public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception{
         categoryService.deleteCategory(id);
         return ResponseEntity.ok().body(MessageReponse.builder()
-                .message(messageSource.getMessage("category.delete.success", null, LocaleContextHolder.getLocale()))
+                .message("delete category success")
                 .status(HttpStatus.OK.value())
                 .build());
     }

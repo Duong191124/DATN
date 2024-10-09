@@ -1,23 +1,23 @@
 import { notification, Popconfirm, Table } from "antd";
-import { deleteColorAPI } from "../../service/api.service";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useState } from "react";
-import ColorUpdate from "./color.update";
+import ColorUpdate from "./collar.update";
+import { deleteCollarAPI } from "../../service/api.service";
 
 
-const ColorTable = (props) => {
-    const { dataColor, loadColor } = props
+const CollarTable = (props) => {
+    const { dataCollar, loadCollar } = props
     const [idModalUpdateOpen, setIsModalUpdateOpen] = useState(false)
     const [dataUpdate, setDataUpdate] = useState("")
 
-    const deleteColor = async (id) => {
-        const res = await deleteColorAPI(id);
+    const deleteCollar = async (id) => {
+        const res = await deleteCollarAPI(id);
         if (res.data) {
             notification.success({
-                message: "create color",
-                description: "create color successfully"
+                message: "delete collar",
+                description: "delete collar successfully"
             })
-            await loadColor()
+            await loadCollar()
         }
     }
     const columns = [
@@ -56,7 +56,7 @@ const ColorTable = (props) => {
                         <Popconfirm
                             title="Xoá sản phẩm"
                             description="bạn có chắc chắn muốn xoá sản phẩm này không ?"
-                            onConfirm={() => { deleteColor(record.id) }}
+                            onConfirm={() => { deleteCollar(record.id) }}
                             okText="yes"
                             cancelText="no"
                             placement="left"
@@ -70,15 +70,15 @@ const ColorTable = (props) => {
     ];
     return (
         <>
-            <Table dataSource={dataColor} columns={columns} />
+            <Table dataSource={dataCollar} columns={columns} />
             <ColorUpdate
                 idModalUpdateOpen={idModalUpdateOpen}
                 setIsModalUpdateOpen={setIsModalUpdateOpen}
                 dataUpdate={dataUpdate}
                 setDataUpdate={setDataUpdate}
-                loadColor={loadColor}
+                loadCollar={loadCollar}
             />
         </>
     )
 }
-export default ColorTable
+export default CollarTable

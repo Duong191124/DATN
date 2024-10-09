@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchAllProduct, fetchDataColorAPI, fetchDataSize, updateProductDetailAPi } from "../../service/api.service";
+import { fetchDataColorAPI, fetchDataProductAPI, fetchDataSize, updateProductDetailAPi } from "../../service/api.service";
 import { Input, Modal, notification, Select } from "antd";
 
 const ProductDetailUpdate = (props) => {
@@ -26,9 +26,9 @@ const ProductDetailUpdate = (props) => {
 
 
             // Dùng tên để hiển thị
-            const product = dataProduct.find((item) => item.name === dataUpdate.dataProduct);
-            const color = dataColor.find((item) => item.name === dataUpdate.dataColor);
-            const size = dataSize.find((item) => item.name === dataUpdate.dataSize);
+            const product = dataProduct.find((item) => item.name === dataUpdate.productId);
+            const color = dataColor.find((item) => item.name === dataUpdate.colorId);
+            const size = dataSize.find((item) => item.name === dataUpdate.sizeId);
 
             // Lưu id để submit
             setSelectedProduct(product ? product.id : null);
@@ -47,7 +47,7 @@ const ProductDetailUpdate = (props) => {
                 description: "Update product success",
             });
             resetCloseModal();
-            loadProductDetail()
+            await loadProductDetail()
         } else {
             notification.error({
                 message: "Update product",
@@ -57,13 +57,13 @@ const ProductDetailUpdate = (props) => {
     };
 
     useEffect(() => {
-        loadDataBrandProduct();
+        loadDataProduct();
         loadDataColor();
         loadDataSize();
     }, []);
 
-    const loadDataBrandProduct = async () => {
-        const res = await fetchAllProduct();
+    const loadDataProduct = async () => {
+        const res = await fetchDataProductAPI();
         if (res.data) {
             setDataProduct(res.data);
         }
@@ -88,9 +88,9 @@ const ProductDetailUpdate = (props) => {
     const resetCloseModal = () => {
         setCode("")
         setQuantity("")
-        setDataProduct("")
-        setDataSize("")
-        setDataColor("")
+        setDataProduct(null)
+        setDataSize(null)
+        setDataColor(null)
         setIsModalUpdateOpen(false)
         setDataUpdate(null)
     };

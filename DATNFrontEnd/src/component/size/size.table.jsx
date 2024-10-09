@@ -1,23 +1,25 @@
 import { notification, Popconfirm, Table } from "antd";
-import { deleteColorAPI } from "../../service/api.service";
+import { deleteSizeAPI } from "../../service/api.service";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useState } from "react";
-import ColorUpdate from "./color.update";
+
+import SizeUpdate from "./size.update";
+import { render } from "react-dom";
 
 
-const ColorTable = (props) => {
-    const { dataColor, loadColor } = props
+const SizeTable = (props) => {
+    const { dataSize, loadSize } = props
     const [idModalUpdateOpen, setIsModalUpdateOpen] = useState(false)
     const [dataUpdate, setDataUpdate] = useState("")
 
-    const deleteColor = async (id) => {
-        const res = await deleteColorAPI(id);
+    const deleteSize = async (id) => {
+        const res = await deleteSizeAPI(id);
         if (res.data) {
             notification.success({
-                message: "create color",
-                description: "create color successfully"
+                message: "create size",
+                description: "create size successfully"
             })
-            await loadColor()
+            await loadSize()
         }
     }
     const columns = [
@@ -37,8 +39,9 @@ const ColorTable = (props) => {
             title: 'Status',
             dataIndex: 'status',
             render: (status) => {
-                return status === 1 ? 'Đang hoạt động' : 'Ngưng hoạt động';
-            },
+                return status === 1 ? 'Đang hoạt động' : 'Ngừng hoạt động'
+            }
+
         },
         {
             title: 'Action',
@@ -56,7 +59,7 @@ const ColorTable = (props) => {
                         <Popconfirm
                             title="Xoá sản phẩm"
                             description="bạn có chắc chắn muốn xoá sản phẩm này không ?"
-                            onConfirm={() => { deleteColor(record.id) }}
+                            onConfirm={() => { deleteSize(record.id) }}
                             okText="yes"
                             cancelText="no"
                             placement="left"
@@ -70,15 +73,15 @@ const ColorTable = (props) => {
     ];
     return (
         <>
-            <Table dataSource={dataColor} columns={columns} />
-            <ColorUpdate
+            <Table dataSource={dataSize} columns={columns} />
+            <SizeUpdate
                 idModalUpdateOpen={idModalUpdateOpen}
                 setIsModalUpdateOpen={setIsModalUpdateOpen}
                 dataUpdate={dataUpdate}
                 setDataUpdate={setDataUpdate}
-                loadColor={loadColor}
+                loadSize={loadSize}
             />
         </>
     )
 }
-export default ColorTable
+export default SizeTable

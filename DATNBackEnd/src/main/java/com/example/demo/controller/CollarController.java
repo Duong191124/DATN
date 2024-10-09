@@ -27,7 +27,7 @@ public class CollarController {
     }
 
     // Thêm một cổ áo mới
-    @PostMapping("/add")
+    @PostMapping()
     public ResponseEntity<?> addCollar(@Valid @RequestBody CollarDTO collarDTO, BindingResult result) {
         try {
             if(result.hasErrors()){

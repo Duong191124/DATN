@@ -19,11 +19,11 @@ public class ProductDetailResponse {
 
     private String image;
 
-    private int productId;
+    private String productId;
 
-    private int sizeId;
+    private String sizeId;
 
-    private int colorId;
+    private String colorId;
 
     public static ProductDetailResponse fromProductDetailResponse(ProductDetail productDetail){
         return ProductDetailResponse.builder()
@@ -32,9 +32,9 @@ public class ProductDetailResponse {
                 .quantity(productDetail.getQuantity())
                 .price(productDetail.getPrice())
                 .image(productDetail.getImage())
-                .productId(productDetail.getProduct().getId())
-                .sizeId(productDetail.getSize().getId())
-                .colorId(productDetail.getColor().getId())
+                .productId(productDetail.getProduct().getName())
+                .sizeId(productDetail.getSize().getName())
+                .colorId(productDetail.getColor().getName())
                 .build();
     }
 }
