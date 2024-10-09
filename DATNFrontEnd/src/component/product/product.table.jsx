@@ -1,24 +1,43 @@
-import { Table } from "antd";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { notification, Popconfirm, Table } from "antd";
+import UpdateProduct from "./update.product";
+import { useState } from "react";
+import { deleteProductAPI } from "../../service/api.service";
 
-const ProductTable = () => {
-    const dataSource = [
-        {
-            key: '1',
-            name: 'Mike',
-            age: 32,
-            address: '10 Downing Street',
-        },
-        {
-            key: '2',
-            name: 'John',
-            age: 42,
-            address: '10 Downing Street',
-        },
-    ];
+
+
+const ProductTable = (props) => {
+    const handleDeleteProduct = async (id) => {
+        const res = await deleteProductAPI(id)
+        if (res.data) {
+            notification.success({
+                message: "delete product",
+                description: "Delete product successfully"
+            })
+            await loadProduct()
+        } else {
+            notification.error({
+                message: "delete product",
+                description: JSON.stringify(res.message)
+            })
+        }
+
+    }
+
+
+
+
+    const { dataProduct, loadProduct, page, pageSize, total, setPage, setPageSize } = props;
+
+
+    const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false)
+
+
+    const [dataUpdate, setDataUpdate] = useState("")
 
     const columns = [
         {
-            title: 'id',
+            title: 'ID',
             dataIndex: 'id'
         },
         {
@@ -35,28 +54,91 @@ const ProductTable = () => {
         },
         {
             title: 'Collar',
-            dataIndex: 'collar_id'
+            dataIndex: 'collarName'
         },
         {
             title: 'Sleeve',
-            dataIndex: 'sleeve_id'
+            dataIndex: 'sleeveName'
         },
         {
             title: 'Category',
-            dataIndex: 'category_id'
+            dataIndex: 'categoryName'
         },
         {
             title: 'Brand',
-            dataIndex: 'brand_id'
+            dataIndex: 'brandName'
         },
         {
             title: 'Description',
             dataIndex: 'description'
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (_, record) => {
+                return (
+                    <div style={{ display: "flex", gap: "20px" }}>
+                        <EditOutlined
+                            style={{ cursor: "pointer", color: "orange" }}
+                            onClick={() => {
+                                setIsModalUpdateOpen(true)
+                                setDataUpdate(record)
+                            }}
+                        />
+                        <Popconfirm
+                            title="Xoá sản phẩm"
+                            description="bạn có chắc chắn muốn xoá sản phẩm này không ?"
+                            onConfirm={() => { handleDeleteProduct(record.id) }}
+                            okText="yes"
+                            cancelText="no"
+                            placement="left"
+                        >
+                            <DeleteOutlined style={{ cursor: "pointer", color: "red" }} />
+                        </Popconfirm>
+                    </div>
+                )
+            }
         }
     ];
+    const onChange = (pagination, filters, sorter, extra) => {
+        if (pagination && pagination.current) {
+            if (+pagination.current !== + page) {
+                setPage(+pagination.current)
+            }
+        }
+
+        if (pagination && pagination.pageSize) {
+            if (+pagination.pageSize !== +pageSize) {
+                setPageSize(+pagination.pageSize)
+            }
+        }
+    };
 
     return (
-        < Table dataSource={dataSource} columns={columns} />
+        <>
+            < Table
+                dataSource={dataProduct}
+                columns={columns}
+                rowKey={"id"}
+                pagination={
+                    {
+                        current: page,
+                        pageSize: pageSize,
+                        showSizeChanger: true,
+                        total: total,
+                        showTotal: (total, range) => { return (<div> {range[0]}-{range[1]} trên {total} rows</div>) }
+                    }}
+                onChange={onChange}
+
+            />
+            <UpdateProduct
+                loadProduct={loadProduct}
+                isModalUpdateOpen={isModalUpdateOpen}
+                setIsModalUpdateOpen={setIsModalUpdateOpen}
+                dataUpdate={dataUpdate}
+                setDataUpdate={setDataUpdate}
+            />
+        </>
     )
 }
 export default ProductTable

@@ -2,7 +2,6 @@ package com.example.demo.service.impl;
 
 import com.example.demo.dto.CustomerDTO;
 import com.example.demo.entity.Customer;
-import com.example.demo.entity.Role;
 import com.example.demo.entity.Voucher;
 import com.example.demo.exception.UsernameExisting;
 import com.example.demo.repository.CustomerRepo;
@@ -11,11 +10,12 @@ import com.example.demo.repository.VoucherRepo;
 import com.example.demo.response.CustomerResponse;
 import com.example.demo.service.CustomerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -25,8 +25,8 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepo customerRepo;
     private final StaffRepo staffRepo;
     @Override
-    public List<Customer> getALl() {
-        return customerRepo.findAll();
+    public Page<Customer> getALl(Pageable pageable) {
+        return customerRepo.findAll(pageable);
     }
 
     @Override
@@ -47,7 +47,6 @@ public class CustomerServiceImpl implements CustomerService {
                 .notes(customer.getNotes())
                 .gender(customer.getGender())
                 .status(1)
-                .role(Role.builder().id(2).build())
                 .build();
         Customer addCustomer = customerRepo.save(newCustomer);
         return CustomerResponse.fromCustomerResponse(addCustomer);

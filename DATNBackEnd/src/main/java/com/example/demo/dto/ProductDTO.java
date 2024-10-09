@@ -1,67 +1,61 @@
 package com.example.demo.dto;
 
-import com.example.demo.entity.Brand;
-import com.example.demo.entity.Category;
-import com.example.demo.entity.Product;
+import com.example.demo.entity.*;
 import com.example.demo.repository.BrandRepo;
 import com.example.demo.repository.CategoryRepo;
+import com.example.demo.repository.CollarRepo;
+import com.example.demo.repository.SleeveRepo;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 @Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class ProductDTO {
-    private Integer id;
-    @NotBlank(message = "check code product, please!")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer  id;
+    @NotBlank(message = "check the product code, please!")
     private String code;
-    @NotBlank (message = "check name product, please!")
+    @NotBlank (message = "check the product name, please!")
     private String name;
-
     private String image;
     @Min(value = 0,message = "price not valid!")
-    @NotNull(message = "check price product,please!")
+    @NotNull(message = "check the product price,please!")
     private Double price;
-    @NotBlank(message = "check collar product, please!")
-    private String collar;
-    @NotBlank(message = "check sleeve product, please!")
-    private String sleeve;
-    @NotBlank(message = "check description product, please!")
+    @JsonProperty("collar_id")
+    private Integer collarId;
+    @JsonProperty("sleeve_id")
+    private Integer sleeveId;
+    @NotBlank(message = "check the product description , please!")
     private String description;
-    private String categoryName;
-    private String brandName;
+    @JsonProperty("category_id")
+    private Integer categoryId;
+    @JsonProperty("brand_id")
+    private Integer brandId;
 
-    public static ProductDTO convertDTO(Product product){
-        return ProductDTO.builder()
-                .id(product.getId())
-                .code(product.getCode())
-                .name(product.getName())
-                .image(product.getImage())
-                .price(product.getPrice())
-                .collar(product.getCollar())
-                .sleeve(product.getSleeve())
-                .description(product.getDescription())
-                .categoryName(product.getCategory().getName())
-                .brandName(product.getBrand().getName())
-                .build();
-    }
 
-    public static Product convertProduct(ProductDTO productDTO, CategoryRepo categoryRepo, BrandRepo brandRepo) {
+    public static Product convertProduct(ProductDTO productDTO, CategoryRepo categoryRepo, SleeveRepo sleeveRepo, CollarRepo collarRepo, BrandRepo brandRepo) {
         String imageUrl = "";
-        Brand brand = brandRepo.findByName(productDTO.getBrandName())
-                .orElse(Brand.builder().name(productDTO.getBrandName()).build());
-        Category category = categoryRepo.findByName(productDTO.getCategoryName())
-                .orElse(Category.builder().name(productDTO.getCategoryName()).build());
+        Collar collar = collarRepo.findById(productDTO.getCollarId()).orElseThrow(()->new RuntimeException("not found collar's id:"+productDTO.getCollarId()));
+        Sleeve sleeve = sleeveRepo.findById(productDTO.getSleeveId()).orElseThrow(()->new RuntimeException("not found sleeve's id:"+productDTO.getSleeveId()));
+        Category category = categoryRepo.findById(productDTO.getCategoryId()).orElseThrow(()->new RuntimeException("not found category's id:"+productDTO.getCategoryId()));
+        Brand brand = brandRepo.findById(productDTO.getBrandId()).orElseThrow(()->new RuntimeException("not found brand's id:"+productDTO.getBrandId()));
         return Product.builder()
                 .id(productDTO.getId())
                 .code(productDTO.getCode())
                 .name(productDTO.getName())
                 .image(imageUrl)
                 .price(productDTO.getPrice())
-                .collar(productDTO.getCollar())
-                .sleeve(productDTO.getSleeve())
+                .collar(collar)
+                .sleeve(sleeve)
                 .description(productDTO.getDescription())
                 .category(category)
                 .brand(brand)

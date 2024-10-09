@@ -1,47 +1,83 @@
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
-import { createRoot } from 'react-dom/client'
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createRoot } from "react-dom/client";
 import LoginPage from "./pages/login";
 import RegisterPage from "./pages/register";
-import { AuthWrapper } from './component/context/auth.context.jsx';
-import HomePage from "./pages/home.jsx";
+import { AuthWrapper } from "./component/context/auth.context.jsx";
+import App from "./App.jsx";
+import Home from "./component/layout/content/home/home.jsx";
 import ProductPage from "./pages/product.jsx";
-import ProductDetail from "./pages/product_detail.jsx";
-import DarkMode from "./darkmode/App1.jsx";
-import { DarkModeProvider } from './darkmode/DarkModeContext.jsx'; // Import DarkModeProvider
-
+import ProductDetail from "./pages/product.detail.jsx";
+import ColorPage from "./pages/color.jsx";
+import SizePage from "./pages/size.jsx";
+import CollarPage from "./pages/collar.jsx";
+import BrandPage from "./pages/brand.jsx";
+import CategoryPage from "./pages/category.jsx";
+import SleevePage from "./pages/sleeve.jsx";
+// import StaffManagement from "./pages/staff.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <HomePage />
-  },
-  {
-    path: "/login",
-    element: <LoginPage />
-  },
-  {
-    path: "/register",
-    element: <RegisterPage />
-  },
-  {
-    path: "/product",
-    element: <ProductPage />
+    element: <App />,
+    children: [
+      {
+        index: true,
+        element: <Home />,
+      },
+
+    ],
+    // element: <HomePage />
   },
   {
     path: "/product-detail",
-    element: <ProductDetail />
-  }
+    index: true,
+    element: <ProductDetail />,
+  },
+  {
+    path: "/login",
+    element: <LoginPage />,
+  },
+
+  {
+    path: "/register",
+    element: <RegisterPage />,
+  },
+  {
+    path: "/products",
+    element: <ProductPage />,
+  },
+  {
+    path: "/colors",
+    element: <ColorPage />,
+  },
+  {
+    path: "/sizes",
+    element: <SizePage />,
+  },
+  {
+    path: "/collars",
+    element: <CollarPage />,
+  },
+  {
+    path: "/brands",
+    element: <BrandPage />,
+  },
+  {
+    path: "/categories",
+    element: <CategoryPage />,
+  },
+  {
+    path: "/sleeves",
+    element: <SleevePage />,
+  },
+  // {
+  //   path: "/staff",
+  //   element: <StaffManagement />
+  // },
 ]);
 
-
 createRoot(document.getElementById('root')).render(
-  <DarkModeProvider> 
   <AuthWrapper>
-    <RouterProvider router={router} /> 
-    <DarkMode />
+    <RouterProvider router={router} />
   </AuthWrapper>
-  </DarkModeProvider>
 )

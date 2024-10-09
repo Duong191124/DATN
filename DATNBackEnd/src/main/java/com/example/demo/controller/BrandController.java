@@ -3,9 +3,11 @@ package com.example.demo.controller;
 import com.example.demo.dto.BrandDTO;
 import com.example.demo.entity.Brand;
 import com.example.demo.response.MessageReponse;
-import com.example.demo.service.impl.BrandServiceImpl;
+import com.example.demo.service.BrandService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -19,7 +21,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BrandController {
 
-    private final BrandServiceImpl brandService;
+    private final BrandService brandService;
+
+    private final MessageSource messageSource;
 
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAll(){
@@ -45,7 +49,7 @@ public class BrandController {
         }
         Brand newBrand = brandService.add(brandDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
-                .message("Create brand successfully")
+                .message("create category success")
                 .status(HttpStatus.CREATED.value())
                 .data(newBrand)
                 .build());
@@ -57,7 +61,7 @@ public class BrandController {
             @RequestBody BrandDTO brandDTO) throws Exception{
         brandService.update(id, brandDTO);
         return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
-                .message("Update Successfully")
+                .message("update brand success")
                 .status(HttpStatus.OK.value())
                 .data(brandDTO)
                 .build());
@@ -67,7 +71,7 @@ public class BrandController {
     public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception{
         brandService.deleteBrand(id);
         return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
-                .message("Delete brand with id = " + id + " successfully")
+                .message("delete brand success")
                 .status(HttpStatus.OK.value())
                 .build());
     }
