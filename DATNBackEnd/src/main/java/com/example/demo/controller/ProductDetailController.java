@@ -3,6 +3,8 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.ProductDetailDTO;
 import com.example.demo.entity.ProductDetail;
+import com.example.demo.response.MessageReponse;
+import com.example.demo.response.ProductDetailResponse;
 import com.example.demo.service.impl.ProductDetailServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +21,22 @@ public class ProductDetailController {
     @Autowired
     private ProductDetailServiceImpl productDetailService;
 
-    @GetMapping("")
-    public ResponseEntity<List<ProductDetail>> getAllProductDetails() {
-        List<ProductDetail> productDetails = productDetailService.getAll();
-        return new ResponseEntity<>(productDetails, HttpStatus.OK);
+
+
+    @GetMapping("/getAllProductDetail")
+    public ResponseEntity<MessageReponse> getAll(){
+        List<ProductDetailResponse> productDetailList = productDetailService.getAll()
+                .stream()
+                .map(ProductDetailResponse::fromProductDetailResponse)
+                .toList();
+        return ResponseEntity.ok().body(MessageReponse.builder()
+                .message("get info successfuly")
+                .status(HttpStatus.OK.value())
+                .data(productDetailList)
+                .build()
+        );
     }
+
 
     @PostMapping("")
     public ResponseEntity<?> addProductDetail(@Valid @RequestBody ProductDetailDTO productDetailDTO, BindingResult result) {
