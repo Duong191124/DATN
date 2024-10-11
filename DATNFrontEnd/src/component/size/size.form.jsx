@@ -1,33 +1,53 @@
-import { Button, Input, Modal, notification } from "antd"
+import { Button, Form, Input, Modal, notification } from "antd"
 import { useState } from "react"
-import { createSizeAPI } from "../../service/api.service"
-
+import { createSizeAPI, checkDuplicateSizeAPI } from "../../service/api.service"
 
 const SizeForm = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [code, setCode] = useState("")
-    const [name, setName] = useState("")
-    const [status, setStatus] = useState("")
-
     const { loadSize } = props
+    const [form] = Form.useForm();
 
-    const handleSubmit = async () => {
-        const res = await createSizeAPI(code, name, status)
+    const handleSubmit = async (values) => {
+        const res = await createSizeAPI(values.code, values.name, values.status)
         if (res.data) {
             notification.success({
-                message: "create Size",
-                description: "create size successfully"
+                message: "Create Size",
+                description: "Create size successfully"
             })
             await loadSize()
             resetModal()
         }
     }
+
     const resetModal = () => {
-        setCode("")
-        setName("")
-        setStatus("")
+        form.resetFields()
         setIsModalOpen(false)
     }
+
+    const checkDuplicateCode = async (rules, value) => {
+        try {
+            const res = await checkDuplicateSizeAPI('code', value)
+            if (res.data.exists) {
+                return Promise.reject(new Error('Code already exists'))
+            }
+            return Promise.resolve()
+        } catch (error) {
+            return Promise.reject(new Error('Failed to validate code'))
+        }
+    }
+
+    const checkDuplicateName = async (rules, value) => {
+        try {
+            const res = await checkDuplicateSizeAPI('name', value)
+            if (res.data.exists) {
+                return Promise.reject(new Error('Name already exists'))
+            }
+            return Promise.resolve()
+        } catch (error) {
+            return Promise.reject(new Error('Failed to validate name'))
+        }
+    }
+
     return (
         <>
             <Button type="primary" onClick={() => setIsModalOpen(true)}>
@@ -36,29 +56,50 @@ const SizeForm = (props) => {
             <Modal
                 title="Create Size"
                 open={isModalOpen}
-                onOk={handleSubmit}
+                onOk={() => { form.submit() }}
                 onCancel={() => resetModal()}
-                okText="save"
+                okText="Save"
             >
-                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                    <div>
-                        <span>Code</span>
-                        <Input
-                            onChange={(event) => { setCode(event.target.value) }}
-                        />
-                    </div>
+                <Form
+                    layout="vertical"
+                    onFinish={handleSubmit}
+                    form={form}
+                >
+                    <Form.Item
+                        label="Code"
+                        name="code"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Code cannot be empty',
+                            },
+                            {
+                                validator: checkDuplicateCode
+                            }
+                        ]}
+                    >
+                        <Input />
+                    </Form.Item>
 
-                    <div>
-                        <span>Name</span>
-                        <Input
-                            onChange={(event) => { setName(event.target.value) }}
-                        />
-                    </div>
-                </div>
+                    <Form.Item
+                        label="Name"
+                        name="name"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Name cannot be empty',
+                            },
+                            {
+                                validator: checkDuplicateName
+                            }
+                        ]}
+                    >
+                        <Input />
+                    </Form.Item>
+                </Form>
             </Modal>
         </>
-
     )
-
 }
+
 export default SizeForm

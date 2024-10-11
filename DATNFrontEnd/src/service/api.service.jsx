@@ -161,6 +161,16 @@ const createColorAPI = (code, name, status) => {
     }
     return axios.post(URL_BACKEND, data)
 }
+const checkCodeExistsAPI = (code, name, status) => {
+    const URL_BACKEND = "/api/v1/color"
+    const data = {
+        code: code,
+        name: name,
+        status: status
+    }
+    return axios.post(URL_BACKEND, data)
+}
+
 
 const deleteColorAPI = (id) => {
     const URL_BACKEND = `/api/v1/color/${id}`
@@ -301,7 +311,7 @@ const updateCategoryAPI = (id, name) => {
 }
 
 const deleteCategoryAPI = (id) => {
-    const URL_BACKEND = `/api/v1/sleeves/${id}`
+    const URL_BACKEND = `/api/v1/category/${id}`
     return axios.delete(URL_BACKEND)
 }
 
@@ -311,18 +321,20 @@ const fetchDataSleeveAPI = () => {
     return axios.get(URL_BACKEND)
 }
 
-const createSleeveAPI = (name) => {
+const createSleeveAPI = (code, name) => {
     const URL_BACKEND = "/api/v1/sleeves"
     const data = {
+        code: code,
         name: name,
     }
     return axios.post(URL_BACKEND, data)
 }
 
-const updateSleeveAPI = (id, name) => {
+const updateSleeveAPI = (id, code, name) => {
     const URL_BACKEND = `/api/v1/sleeves/${id}`
     const data = {
         id: id,
+        code,
         name: name
     }
     return axios.put(URL_BACKEND, data)
@@ -333,7 +345,9 @@ const deleteSleeveAPI = (id) => {
     return axios.delete(URL_BACKEND)
 }
 
-
+export const checkDuplicateSizeAPI = async (type, value) => {
+    return await axios.post(`/api/v1/size/check-duplicate`, { type, value });
+}
 
 export {
     registerCustomerAPI,
@@ -393,5 +407,8 @@ export {
     fetchDataSleeveAPI,
     createSleeveAPI,
     updateSleeveAPI,
-    deleteSleeveAPI
+    deleteSleeveAPI,
+
+
+
 }

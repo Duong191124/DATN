@@ -1,18 +1,18 @@
 
 import { useEffect, useState } from "react";
 import { fetchDataCategoryAPI } from "../service/api.service";
-import CollarForm from "../component/collar/collar.form";
-import CollarTable from "../component/collar/collar.table";
 import CategoryForm from "../component/category/category.form";
 import CategoryTable from "../component/category/category.table";
 
 const CategoryPage = () => {
+    const [listName, setListName] = useState([])
 
     const [dataCategory, setDataCategory] = useState("")
 
     const loadCategory = async () => {
         const res = await fetchDataCategoryAPI()
         setDataCategory(res.data)
+        setListName(res.data.map(category => category.name))
 
     }
 
@@ -23,6 +23,7 @@ const CategoryPage = () => {
         <div style={{ margin: "20px" }}>
             <CategoryForm
                 loadCategory={loadCategory}
+                listName={listName}
             />
             <CategoryTable
                 loadCategory={loadCategory}

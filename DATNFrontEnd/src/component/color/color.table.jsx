@@ -14,8 +14,8 @@ const ColorTable = (props) => {
         const res = await deleteColorAPI(id);
         if (res.data) {
             notification.success({
-                message: "create color",
-                description: "create color successfully"
+                message: "delete color",
+                description: "delete color successfully"
             })
             await loadColor()
         }
