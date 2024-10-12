@@ -13,7 +13,7 @@ import CollarPage from "./pages/collar.jsx";
 import BrandPage from "./pages/brand.jsx";
 import CategoryPage from "./pages/category.jsx";
 import SleevePage from "./pages/sleeve.jsx";
-// import StaffManagement from "./pages/staff.jsx";
+import StaffManagement from "./pages/staff.jsx";
 
 const router = createBrowserRouter([
   {
@@ -21,30 +21,30 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        index: true,
+        index: false, 
         element: <Home />,
       },
-
+      {
+        path: "products", 
+        element: <ProductPage />,
+      },
+      {
+        path: "products/:id", 
+        element: <ProductDetail />,
+      },
+      {
+        path: "staff",
+        element: <StaffManagement />,
+      },
     ],
-    // element: <HomePage />
-  },
-  {
-    path: "/product-detail",
-    index: true,
-    element: <ProductDetail />,
   },
   {
     path: "/login",
     element: <LoginPage />,
   },
-
   {
     path: "/register",
     element: <RegisterPage />,
-  },
-  {
-    path: "/products",
-    element: <ProductPage />,
   },
   {
     path: "/colors",
@@ -70,10 +70,6 @@ const router = createBrowserRouter([
     path: "/sleeves",
     element: <SleevePage />,
   },
-  // {
-  //   path: "/staff",
-  //   element: <StaffManagement />
-  // },
 ]);
 
 createRoot(document.getElementById('root')).render(

@@ -333,13 +333,39 @@ const deleteSleeveAPI = (id) => {
     return axios.delete(URL_BACKEND)
 }
 
+/*
+    API permission
+*/
 
+const getAllPermission = () =>{
+    const URL_BACKEND = "/api/v1/permission/all";
+    return axios.get(URL_BACKEND);
+}
+
+/*
+    API staff
+*/
+
+const getAllStaff = () =>{
+    const URL_BACKEND = "/api/v1/staff/getAll";
+    return axios.get(URL_BACKEND);
+}
+const getStaffPermissions = (id) => {
+    const URL_BACKEND = `/api/v1/staff/${id}`;
+    return axios.get(URL_BACKEND);
+};
+const updateStaffPermissions = (id, payload) =>{
+    const URL_BACKEND = `/api/v1/staff/update-permission/${id}`;
+    return axios.put(URL_BACKEND, payload);
+};
 
 export {
+    getAllPermission,
+    getAllStaff,
+    getStaffPermissions,
+    updateStaffPermissions,
     registerCustomerAPI,
     loginCustomerAPI,
-
-    //API product
     createProductAPI,
     fetchAllProduct,
     fetchDataSleeve,
@@ -349,47 +375,32 @@ export {
     updateProductAPI,
     deleteProductAPI,
     fetchDataProductAPI,
-
-    //API product-detail
     fetchDataProductDetail,
     fetchDataColorAPI,
     fetchDataSize,
     createProductDetailAPi,
     updateProductDetailAPi,
     deleteProductDetailAPI,
-
-
-    //API color
     fetchDataColor,
     createColorAPI,
     deleteColorAPI,
     updateColorAPI,
-
-    //API size
     fetchDataSizeAPI,
     createSizeAPI,
     updateSizeAPI,
     deleteSizeAPI,
-
-    //API collar
     fetchDataCollarAPI,
     createCollarAPI,
     updateCollarAPI,
     deleteCollarAPI,
-
-    //API Brand
     fetchDataBrandAPI,
     createBrandAPI,
     updateBrandAPI,
     deleteBrandAPI,
-
-    //API category
     fetchDataCategoryAPI,
     createCategoryAPI,
     updateCategoryAPI,
     deleteCategoryAPI,
-
-    //API Sleeve
     fetchDataSleeveAPI,
     createSleeveAPI,
     updateSleeveAPI,
