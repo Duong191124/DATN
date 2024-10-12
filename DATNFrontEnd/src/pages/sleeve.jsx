@@ -6,12 +6,15 @@ import SleeveTable from "../component/sleeve/sleeve.table";
 
 
 const SleevePage = () => {
-
+    const [listSleeveName, setListSleeveName] = useState([])
+    const [listSleeveCode, setListSleeveCode] = useState([])
     const [dataSleeve, setDataSleeve] = useState("")
 
     const loadSleeve = async () => {
         const res = await fetchDataSleeveAPI()
         setDataSleeve(res.data)
+        setListSleeveCode(res.data.map(sleeve => sleeve.code))
+        setListSleeveName(res.data.map(sleeve => sleeve.name))
 
     }
 
@@ -22,6 +25,8 @@ const SleevePage = () => {
         <div style={{ margin: "20px" }}>
             <SleeveForm
                 loadSleeve={loadSleeve}
+                listSleeveName={listSleeveName}
+                listSleeveCode={listSleeveCode}
             />
             <SleeveTable
                 loadSleeve={loadSleeve}

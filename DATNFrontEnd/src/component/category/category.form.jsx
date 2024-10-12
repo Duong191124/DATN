@@ -1,16 +1,16 @@
-import { Button, Input, Modal, notification } from "antd"
+import { Button, Form, Input, Modal, notification } from "antd"
 import { useState } from "react"
 import { createCategoryAPI } from "../../service/api.service"
 
 
 const CategoryForm = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [name, setName] = useState("")
+    const [form] = Form.useForm()
 
-    const { loadCategory } = props
+    const { loadCategory, listName } = props
 
-    const handleSubmit = async () => {
-        const res = await createCategoryAPI(name)
+    const handleSubmit = async (values) => {
+        const res = await createCategoryAPI(values.name)
         if (res.data) {
             notification.success({
                 message: "create category",
@@ -21,8 +21,14 @@ const CategoryForm = (props) => {
         }
     }
     const resetModal = () => {
-        setName("")
         setIsModalOpen(false)
+        form.resetFields
+    }
+    const checkDuplicateName = (rules, value) => {
+        if (listName.includes(value)) {
+            return Promise.reject(new Error('Name already exists'))
+        }
+        return Promise.resolve();
     }
     return (
         <>
@@ -32,18 +38,31 @@ const CategoryForm = (props) => {
             <Modal
                 title="Create category"
                 open={isModalOpen}
-                onOk={handleSubmit}
+                onOk={() => { form.submit() }}
                 onCancel={() => resetModal()}
                 okText={"save"}
             >
-                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                    <div>
-                        <span>Name</span>
-                        <Input
-                            onChange={(event) => { setName(event.target.value) }}
-                        />
-                    </div>
-                </div>
+                <Form
+                    onFinish={handleSubmit}
+                    layout="vertical"
+                    form={form}
+                >
+                    <Form.Item
+                        label="Name"
+                        name="name"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please input your username!',
+                            },
+                            {
+                                validator: checkDuplicateName
+                            }
+                        ]}
+                    >
+                        <Input />
+                    </Form.Item>
+                </Form>
             </Modal>
         </>
 

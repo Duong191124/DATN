@@ -7,10 +7,15 @@ import CollarTable from "../component/collar/collar.table";
 const CollarPage = () => {
 
     const [dataCollar, setDataCollar] = useState("")
+    const [listCollarName, setListCollarName] = useState([])
+    const [listCollarCode, setListCollarCode] = useState([])
+
 
     const loadCollar = async () => {
         const res = await fetchDataCollarAPI()
         setDataCollar(res.data)
+        setListCollarCode(res.data.map(collar => collar.code))
+        setListCollarName(res.data.map(collar => collar.name))
 
     }
 
@@ -21,6 +26,8 @@ const CollarPage = () => {
         <div style={{ margin: "20px" }}>
             <CollarForm
                 loadCollar={loadCollar}
+                listCollarName={listCollarName}
+                listCollarCode={listCollarCode}
             />
             <CollarTable
                 loadCollar={loadCollar}

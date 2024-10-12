@@ -1,26 +1,25 @@
-import { Input, Modal, notification } from "antd"
-import { useEffect, useState } from "react"
+import { Form, Input, Modal, notification } from "antd"
+import { useEffect } from "react"
 import { updateBrandAPI } from "../../service/api.service"
 
 
 const ColorUpdate = (props) => {
-    const [id, setId] = useState("")
-    const [code, setCode] = useState("")
-    const [name, setName] = useState("")
-    const [status, setStatus] = useState("")
-
     const { loadBrand, idModalUpdateOpen, setIsModalUpdateOpen, dataUpdate, setDataUpdate } = props
+    const [form] = Form.useForm();
     useEffect(() => {
         if (dataUpdate) {
-            setId(dataUpdate.id)
-            setCode(dataUpdate.code)
-            setName(dataUpdate.name)
-            setStatus(dataUpdate.status)
-        }
-    }, [dataUpdate])
+            form.setFieldsValue({
+                id: dataUpdate.id,
+                code: dataUpdate.code,
+                name: dataUpdate.name,
+                status: dataUpdate.status
+            })
 
-    const handleSubmit = async () => {
-        const res = await updateBrandAPI(id, code, name, status)
+        }
+    }, [dataUpdate, form])
+
+    const handleSubmit = async (values) => {
+        const res = await updateBrandAPI(values.id, values.code, values.name, values.status)
         if (res.data) {
             notification.success({
                 message: "update collar",
@@ -40,45 +39,67 @@ const ColorUpdate = (props) => {
             <Modal
                 title="Basic Modal"
                 open={idModalUpdateOpen}
-                onOk={handleSubmit}
+                onOk={() => { form.submit() }}
                 onCancel={() => resetModal()}>
 
 
-                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                <Form
 
-                    <div>
-                        <span>ID</span>
-                        <Input
-                            value={id}
-                            disabled
-                            onChange={(event) => { setId(event.target.value) }}
-                        />
-                    </div>
+                    onFinish={handleSubmit}
+                    layout="vertical"
+                    form={form}
+                >
+                    <Form.Item
+                        label="ID"
+                        name="id"
 
-                    <div>
-                        <span>Code</span>
-                        <Input
-                            value={code}
-                            onChange={(event) => { setCode(event.target.value) }}
-                        />
-                    </div>
+                    >
+                        <Input disabled />
+                    </Form.Item>
 
-                    <div>
-                        <span>Name</span>
-                        <Input
-                            value={name}
-                            onChange={(event) => { setName(event.target.value) }}
-                        />
-                    </div>
+                    <Form.Item
+                        label="Code"
+                        name="code"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Code cannot be empty',
+                            },
+                        ]}
+                    >
+                        <Input />
+                    </Form.Item>
 
-                    <div>
-                        <span>Status</span>
-                        <Input
-                            value={status}
-                            onChange={(event) => { setStatus(event.target.value) }}
-                        />
-                    </div>
-                </div>
+
+                    <Form.Item
+                        label="Name"
+                        name="name"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Name cannot be empty',
+                            },
+                        ]}
+                    >
+                        <Input />
+                    </Form.Item>
+
+
+                    <Form.Item
+                        label="Status"
+                        name="status"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Status cannot be empty',
+                            },
+                        ]}
+                    >
+                        <Input />
+                    </Form.Item>
+
+
+                </Form>
             </Modal>
         </>
 
