@@ -11,6 +11,7 @@
 //     const [selectedUserId, setSelectedUserId] = useState(null);
         
 
+<<<<<<< Updated upstream
 //     const columns = [
 //         {
 //             title: 'Id',
@@ -35,6 +36,52 @@
 //             ),
 //         }
 //     ];
+=======
+    const columns = [
+        {
+            title: 'Id',
+            dataIndex: 'id',
+        },
+        {
+            title: 'Username',
+            dataIndex: 'username',
+        },
+        {
+            title: 'Phone number',
+            dataIndex: 'phone_number'
+        },
+        {
+            title: 'Email',
+            dataIndex: 'email',
+        },
+        {
+            title: 'Update at',
+            dataIndex: 'updated_at',
+        },
+        {
+            title: 'Created at',
+            dataIndex: 'created_at',
+        },
+        {
+            title: 'Status',
+            dataIndex: 'status',
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (_, record) => (
+                <div style={{ display: "flex", gap: "20px" }}>
+                    <KeyOutlined
+                        onClick={() => {
+                            setSelectedUserId(record.id);
+                            setIsModalOpen(true);
+                        }}
+                    />
+                </div>
+            ),
+        }
+    ];
+>>>>>>> Stashed changes
 
 
 //     return (

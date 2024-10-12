@@ -19,3 +19,35 @@ h5,
 h6 {
   font-family: "Roboto", sans-serif;
 }
+
+/* app.css */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+}
+
+.sidebar {
+  width: 256px;
+  background-color: #fff;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 1);
+  border-right: 1px solid black;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.breadcrumb {
+  color: black;
+  margin: 16px 0;
+}
+
+

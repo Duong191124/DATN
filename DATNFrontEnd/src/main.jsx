@@ -20,18 +20,24 @@ const router = createBrowserRouter([
     path: "/",
     element: <App />,
     children: [
+      // {
+      //   index: false,
+      //   element: <Home />,
+      // },
       {
-        index: true,
-        element: <Home />,
+        path: "/products",
+        element: <ProductPage />,
+      },
+      {
+        path: "products/:id",
+        element: <ProductDetail />,
+      },
+      {
+        path: "/staff",
+        element: <StaffManagement />
       },
 
     ],
-    // element: <HomePage />
-  },
-  {
-    path: "/product-detail",
-    index: true,
-    element: <ProductDetail />,
   },
   {
     path: "/login",
@@ -42,6 +48,7 @@ const router = createBrowserRouter([
     path: "/register",
     element: <RegisterPage />,
   },
+<<<<<<< Updated upstream
   {
     path: "/products",
     element: <ProductPage />,
@@ -74,6 +81,8 @@ const router = createBrowserRouter([
   //   path: "/staff",
   //   element: <StaffManagement />
   // },
+=======
+>>>>>>> Stashed changes
 ]);
 
 createRoot(document.getElementById('root')).render(
