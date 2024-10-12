@@ -8,20 +8,19 @@ const registerCustomerAPI = (username, password, confirm_password, phone, email,
         confirm_password: confirm_password,
         phone: phone,
         email: email,
-        dateOfBirth: dateOfBirth
-    }
+        dateOfBirth: dateOfBirth,
+    };
     return axios.post(URL_BACKEND, data);
-}
+};
 
 const loginCustomerAPI = (username, password) => {
     const URL_BACKEND = "/api/v1/auth/login";
     const data = {
         username: username,
-        password: password
-    }
-    return axios.post(URL_BACKEND, data)
-}
-
+        password: password,
+    };
+    return axios.post(URL_BACKEND, data);
+};
 
 const createProductAPI = (code, name, description, price, selectedSleeve, selectedCategory, selectedBrand, selectedCollar) => {
     const URL_BACKEND = "/api/v1/products";
@@ -91,8 +90,29 @@ const fetchDataBrand = () => {
     return axios.get(URL_BACKEND)
 }
 
+//api of permission
+const getAllPermission = (page, size) => {
+    const URL_BACKEND = `/api/v1/permission/getAll?page=${page}&size=${size}`
+    return axios.get(URL_BACKEND)
+}
 
+const createNewPermission = (name) => {
+    const URL_BACKEND = "/api/v1/permission/";
+    const data = {
+        name: name
+    }
+    return axios.post(URL_BACKEND, data)
+}    
+      
+const deletePermissionById = (id) => {
+    const URL_BACKEND = `/api/v1/permission/${id}`
+    return axios.delete(URL_BACKEND)
+}
 
+const updatePermissionById = (id, name) => {
+    const URL_BACKEND = `/api/v1/permission/${id}`
+    return axios.put(URL_BACKEND, { name })
+}      
 
 //API product-detail
 
@@ -350,6 +370,7 @@ export const checkDuplicateSizeAPI = async (type, value) => {
 }
 
 export {
+    updatePermissionById,
     registerCustomerAPI,
     loginCustomerAPI,
 
@@ -362,6 +383,9 @@ export {
     fetchDataBrand,
     updateProductAPI,
     deleteProductAPI,
+    getAllPermission,
+    createNewPermission,
+    deletePermissionById
     fetchDataProductAPI,
 
     //API product-detail
@@ -408,7 +432,4 @@ export {
     createSleeveAPI,
     updateSleeveAPI,
     deleteSleeveAPI,
-
-
-
 }
