@@ -14,8 +14,8 @@ const CategoryTable = (props) => {
         const res = await deleteCategoryAPI(id);
         if (res.data) {
             notification.success({
-                message: "delete collar",
-                description: "delete collar successfully"
+                message: "delete category",
+                description: "delete collar category"
             })
             await loadCategory()
         }

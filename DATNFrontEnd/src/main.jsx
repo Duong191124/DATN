@@ -6,6 +6,7 @@ import { AuthWrapper } from "./component/context/auth.context.jsx";
 import App from "./App.jsx";
 import Home from "./component/layout/content/home/home.jsx";
 import ProductPage from "./pages/product.jsx";
+import PermissionPage from "./pages/permission.jsx";
 import ProductDetail from "./pages/product.detail.jsx";
 import ColorPage from "./pages/color.jsx";
 import SizePage from "./pages/size.jsx";
@@ -47,6 +48,9 @@ const router = createBrowserRouter([
     element: <RegisterPage />,
   },
   {
+    path: "/permission",
+    element: <PermissionPage />,
+  },
     path: "/colors",
     element: <ColorPage />,
   },
