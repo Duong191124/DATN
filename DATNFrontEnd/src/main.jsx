@@ -13,45 +13,38 @@ import CollarPage from "./pages/collar.jsx";
 import BrandPage from "./pages/brand.jsx";
 import CategoryPage from "./pages/category.jsx";
 import SleevePage from "./pages/sleeve.jsx";
-// import StaffManagement from "./pages/staff.jsx";
+import StaffManagement from "./pages/staff.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
-      // {
-      //   index: false,
-      //   element: <Home />,
-      // },
       {
-        path: "/products",
+        index: false, 
+        element: <Home />,
+      },
+      {
+        path: "products", 
         element: <ProductPage />,
       },
       {
-        path: "products/:id",
+        path: "products/:id", 
         element: <ProductDetail />,
       },
       {
-        path: "/staff",
-        element: <StaffManagement />
+        path: "staff",
+        element: <StaffManagement />,
       },
-
     ],
   },
   {
     path: "/login",
     element: <LoginPage />,
   },
-
   {
     path: "/register",
     element: <RegisterPage />,
-  },
-<<<<<<< Updated upstream
-  {
-    path: "/products",
-    element: <ProductPage />,
   },
   {
     path: "/colors",
@@ -77,12 +70,6 @@ const router = createBrowserRouter([
     path: "/sleeves",
     element: <SleevePage />,
   },
-  // {
-  //   path: "/staff",
-  //   element: <StaffManagement />
-  // },
-=======
->>>>>>> Stashed changes
 ]);
 
 createRoot(document.getElementById('root')).render(
