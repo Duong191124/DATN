@@ -353,7 +353,7 @@ const getAllPermission = () =>{
     return axios.get(URL_BACKEND);
 }
 
-const getAllPermission = (page, size) => {
+const getAllPermissionPagination = (page, size) => {
     const URL_BACKEND = `/api/v1/permission/getAll?page=${page}&size=${size}`
     return axios.get(URL_BACKEND)
 }
@@ -394,6 +394,7 @@ const updateStaffPermissions = (id, payload) =>{
 };
 
 export {
+    getAllPermissionPagination,
     updatePermissionById,
     getAllPermission,
     getAllStaff,
@@ -411,7 +412,7 @@ export {
     deleteProductAPI,
     getAllPermission,
     createNewPermission,
-    deletePermissionById
+    deletePermissionById,
     fetchDataProductAPI,
     fetchDataProductDetail,
     fetchDataColorAPI,
