@@ -1,10 +1,8 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.dto.StaffDTO;
 import com.example.demo.dto.UserPermissionDTO;
 import com.example.demo.entity.Permission;
 import com.example.demo.entity.Staff;
-import com.example.demo.exception.UsernameExisting;
 import com.example.demo.repository.CustomerRepo;
 import com.example.demo.repository.PermissionRepo;
 import com.example.demo.repository.StaffRepo;
@@ -12,7 +10,6 @@ import com.example.demo.service.StaffService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,9 +20,6 @@ import java.util.Optional;
 public class StaffServiceImpl implements StaffService {
 
     private final StaffRepo staffRepo;
-
-    private final CustomerRepo customerRepo;
-
     private final PermissionRepo permissionRepo;
 
     @Override
