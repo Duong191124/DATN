@@ -1,4 +1,4 @@
-import { Modal } from "antd"
+import { message, Modal } from "antd"
 import React, { useState } from "react"
 import { Button, Checkbox, Form, Input } from 'antd';
 import { useForm } from "antd/es/form/Form";
@@ -21,6 +21,7 @@ const PermissionModal = ({ isModalOpen, setIsModalOpen, loadData }) => {
         await createNewPermission(values.name);
         myForm.resetFields();
         loadData();
+        message.success("create success")
     };
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);

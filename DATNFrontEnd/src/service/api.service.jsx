@@ -93,8 +93,8 @@ const fetchDataBrand = () => {
 }
 
 //api of permission
-const getAllPermission = () => {
-    const URL_BACKEND = "/api/v1/permission/getAll"
+const getAllPermission = (page, size) => {
+    const URL_BACKEND = `/api/v1/permission/getAll?page=${page}&size=${size}`
     return axios.get(URL_BACKEND)
 }
 
