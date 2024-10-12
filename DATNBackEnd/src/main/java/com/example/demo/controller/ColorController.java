@@ -1,11 +1,15 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.ColorDTO;
+import com.example.demo.dto.SizeDTO;
 import com.example.demo.entity.Color;
+import com.example.demo.entity.Size;
 import com.example.demo.response.MessageReponse;
+import com.example.demo.service.ColorService;
 import com.example.demo.service.impl.ColorServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -31,6 +35,27 @@ public class ColorController {
                 .build());
     }
 
+//    @PostMapping("")
+//    public ResponseEntity<MessageReponse> add(@Valid @RequestBody ColorDTO colorDTO, BindingResult result){
+//        if(result.hasErrors()){
+//            List<String> errorMessage = result.getFieldErrors()
+//                    .stream()
+//                    .map(FieldError::getDefaultMessage)
+//                    .toList();
+//            return ResponseEntity.badRequest().body(MessageReponse.builder()
+//                    .message(errorMessage.toString())
+//                    .status(HttpStatus.BAD_REQUEST.value())
+//                    .build());
+//        }
+//        Color newColor = colorService.add(colorDTO);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
+//                .message("Create color successfully")
+//                .status(HttpStatus.CREATED.value())
+//                .data(newColor)
+//                .build());
+//    }
+
+
     @PostMapping("")
     public ResponseEntity<MessageReponse> add(@Valid @RequestBody ColorDTO colorDTO, BindingResult result){
         if(result.hasErrors()){
@@ -45,7 +70,7 @@ public class ColorController {
         }
         Color newColor = colorService.add(colorDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
-                .message("Create color successfully")
+                .message("Create size successfully")
                 .status(HttpStatus.CREATED.value())
                 .data(newColor)
                 .build());

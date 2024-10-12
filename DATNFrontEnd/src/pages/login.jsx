@@ -14,6 +14,7 @@ const LoginPage = () => {
     const onFinish = async (values) => {
         setLoading(true)
         const res = await loginCustomerAPI(values.username, values.password);
+        console.log(res);
         if (res.data) {
             message.success("Đăng nhập thành công");
             localStorage.setItem("access_token", res.data.token);

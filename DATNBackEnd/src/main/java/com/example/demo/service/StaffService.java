@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.StaffDTO;
+import com.example.demo.dto.UserPermissionDTO;
 import com.example.demo.entity.Permission;
 import com.example.demo.entity.Staff;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,6 @@ public interface StaffService {
 
     Staff getById(int id);
 
-    Staff savePermission(int id , List<Permission> permissions);
+    Staff updatePermissions(Integer staffId, UserPermissionDTO permissionDTO);
 
 }

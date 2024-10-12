@@ -16,7 +16,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -48,7 +47,6 @@ public class CustomerServiceImpl implements CustomerService {
                 .notes(customer.getNotes())
                 .gender(customer.getGender())
                 .status(1)
-//                .role(Role.builder().id(2).build())
                 .build();
         Customer addCustomer = customerRepo.save(newCustomer);
         return CustomerResponse.fromCustomerResponse(addCustomer);

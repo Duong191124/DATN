@@ -6,6 +6,8 @@ import com.example.demo.response.MessageReponse;
 import com.example.demo.service.impl.CategoryServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.*;
@@ -19,6 +21,8 @@ import java.util.List;
 public class CategoryController {
 
     private final CategoryServiceImpl categoryService;
+
+    private final MessageSource messageSource;
 
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAll(){
@@ -44,7 +48,7 @@ public class CategoryController {
         }
         Category newCategory = categoryService.add(category);
         return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
-                .message("Create category successfully")
+                .message("create category success")
                 .status(HttpStatus.CREATED.value())
                 .data(newCategory)
                 .build());
@@ -56,7 +60,7 @@ public class CategoryController {
             @RequestBody CategoryDTO categoryDTO) throws Exception{
         categoryService.update(id, categoryDTO);
         return ResponseEntity.ok().body(MessageReponse.builder()
-                .message("Update Successfully")
+                .message("update category success")
                 .status(HttpStatus.OK.value())
                 .data(categoryDTO)
                 .build());
@@ -66,7 +70,7 @@ public class CategoryController {
     public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception{
         categoryService.deleteCategory(id);
         return ResponseEntity.ok().body(MessageReponse.builder()
-                .message("Delete category with id = " + id + " successfully")
+                .message("delete category success")
                 .status(HttpStatus.OK.value())
                 .build());
     }

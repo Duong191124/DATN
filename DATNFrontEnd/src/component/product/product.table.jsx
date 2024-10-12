@@ -21,15 +21,17 @@ const ProductTable = (props) => {
                 description: JSON.stringify(res.message)
             })
         }
+
     }
 
 
 
 
-    const { dataProduct, loadProduct } = props;
+    const { dataProduct, loadProduct, page, pageSize, total, setPage, setPageSize } = props;
 
 
     const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false)
+
 
     const [dataUpdate, setDataUpdate] = useState("")
 
@@ -98,13 +100,37 @@ const ProductTable = (props) => {
             }
         }
     ];
+    const onChange = (pagination, filters, sorter, extra) => {
+        if (pagination && pagination.current) {
+            if (+pagination.current !== + page) {
+                setPage(+pagination.current)
+            }
+        }
+
+        if (pagination && pagination.pageSize) {
+            if (+pagination.pageSize !== +pageSize) {
+                setPageSize(+pagination.pageSize)
+            }
+        }
+    };
 
     return (
         <>
             < Table
                 dataSource={dataProduct}
                 columns={columns}
-                rowKey={"id"} />
+                rowKey={"id"}
+                pagination={
+                    {
+                        current: page,
+                        pageSize: pageSize,
+                        showSizeChanger: true,
+                        total: total,
+                        showTotal: (total, range) => { return (<div> {range[0]}-{range[1]} trên {total} rows</div>) }
+                    }}
+                onChange={onChange}
+
+            />
             <UpdateProduct
                 loadProduct={loadProduct}
                 isModalUpdateOpen={isModalUpdateOpen}

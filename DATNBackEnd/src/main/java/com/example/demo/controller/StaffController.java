@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.StaffDTO;
+import com.example.demo.dto.UserPermissionDTO;
 import com.example.demo.entity.Permission;
 import com.example.demo.entity.Staff;
 import com.example.demo.response.MessageReponse;
@@ -83,12 +84,13 @@ public class StaffController {
                 .status(HttpStatus.OK.value())
                 .build());
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<MessageReponse> getById(@PathVariable("id")int id){
         try{
             return ResponseEntity.ok().body(
                     MessageReponse.builder()
-                            .data(staffService.getById(id))
+                            .data(staffService.getById(id).getPermission())
                             .status(HttpStatus.OK.value())
                             .message("get staff by id successfully")
                             .build()
@@ -107,10 +109,10 @@ public class StaffController {
     @PutMapping("/update-permission/{id}")
     public ResponseEntity<MessageReponse> updateStaff(
             @PathVariable("id")int id,
-            @RequestBody List<Permission> permissions
+            @RequestBody UserPermissionDTO permissionDTO
     ){
         try{
-        Staff staff = staffService.savePermission(id, permissions);
+        Staff staff = staffService.updatePermissions(id, permissionDTO);
             return ResponseEntity.ok().body(
                     MessageReponse.builder()
                             .data(staff)

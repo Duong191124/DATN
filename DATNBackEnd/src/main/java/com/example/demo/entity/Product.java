@@ -29,7 +29,7 @@ public class Product extends BaseEntity {
     @Column(name = "price", nullable = true, precision = 0)
     private Double price;
     @ManyToOne
-    @JoinColumn(name = "collar_id",referencedColumnName = "id")
+    @JoinColumn(name = "collar_id", referencedColumnName = "id")
     private Collar collar;
     @ManyToOne
     @JoinColumn(name = "sleeve_id",referencedColumnName = "id")

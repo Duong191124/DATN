@@ -13,9 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 @Data
 @Builder
 public class SleeveDTO {
-    @NotBlank(message = "Collar code is not blank")
+    @NotBlank(message = "Sleeve code is not blank")
     private String code;
-    @NotBlank(message = "Collar name is not blank")
+    @NotBlank(message = "Sleeve name is not blank")
     private String name;
     @Value("1")
     private int status;
@@ -23,7 +23,7 @@ public class SleeveDTO {
         return Sleeve.builder()
                 .code(sleeveDTO.getCode())
                 .name(sleeveDTO.getName())
-                .status(sleeveDTO.getStatus())
+                .status(1)
                 .build();
     }
 }

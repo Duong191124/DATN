@@ -5,9 +5,16 @@ import RegisterPage from "./pages/register";
 import { AuthWrapper } from "./component/context/auth.context.jsx";
 import App from "./App.jsx";
 import Home from "./component/layout/content/home/home.jsx";
-// import ProductDetail from "./component/layout/content/product-detail/product-detail.jsx";
 import ProductPage from "./pages/product.jsx";
 import PermissionPage from "./pages/permission.jsx";
+import ProductDetail from "./pages/product.detail.jsx";
+import ColorPage from "./pages/color.jsx";
+import SizePage from "./pages/size.jsx";
+import CollarPage from "./pages/collar.jsx";
+import BrandPage from "./pages/brand.jsx";
+import CategoryPage from "./pages/category.jsx";
+import SleevePage from "./pages/sleeve.jsx";
+// import StaffManagement from "./pages/staff.jsx";
 
 const router = createBrowserRouter([
   {
@@ -18,18 +25,20 @@ const router = createBrowserRouter([
         index: true,
         element: <Home />,
       },
-      // {
-      //   path: "/product-detail",
-      //   index: true,
-      //   element: <ProductDetail />,
-      // },
+
     ],
     // element: <HomePage />
+  },
+  {
+    path: "/product-detail",
+    index: true,
+    element: <ProductDetail />,
   },
   {
     path: "/login",
     element: <LoginPage />,
   },
+
   {
     path: "/register",
     element: <RegisterPage />,
@@ -42,6 +51,33 @@ const router = createBrowserRouter([
     path: "/permission",
     element: <PermissionPage />,
   },
+    path: "/colors",
+    element: <ColorPage />,
+  },
+  {
+    path: "/sizes",
+    element: <SizePage />,
+  },
+  {
+    path: "/collars",
+    element: <CollarPage />,
+  },
+  {
+    path: "/brands",
+    element: <BrandPage />,
+  },
+  {
+    path: "/categories",
+    element: <CategoryPage />,
+  },
+  {
+    path: "/sleeves",
+    element: <SleevePage />,
+  },
+  // {
+  //   path: "/staff",
+  //   element: <StaffManagement />
+  // },
 ]);
 
 createRoot(document.getElementById('root')).render(

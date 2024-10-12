@@ -19,7 +19,7 @@ public class Collar {
     @Column(name = "code", nullable = true, length = 255)
     private String code;
     @Basic
-    @Column(name = "name", nullable = false, length = 255)
+    @Column(name = "name", nullable = true, length = 255)
     private String name;
     @Basic
     @Column(name = "status")

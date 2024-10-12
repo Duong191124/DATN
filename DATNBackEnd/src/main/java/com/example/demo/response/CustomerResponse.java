@@ -35,8 +35,6 @@ public class CustomerResponse {
 
     private int gender;
 
-    private Integer roleId;
-
     private Integer vouchers;
 
     public static CustomerResponse fromCustomerResponse(Customer customer){
