@@ -380,8 +380,8 @@ const updatePermissionById = (id, name) => {
     API staff
 */
 
-const getAllStaff = () =>{
-    const URL_BACKEND = "/api/v1/staff/getAll";
+const getAllStaff = (page, size) =>{
+    const URL_BACKEND = `/api/v1/staff/getAll?page=${page}&size=${size}`;
     return axios.get(URL_BACKEND);
 }
 const getStaffPermissions = (id) => {
@@ -392,8 +392,28 @@ const updateStaffPermissions = (id, payload) =>{
     const URL_BACKEND = `/api/v1/staff/update-permission/${id}`;
     return axios.put(URL_BACKEND, payload);
 };
+const createNewStaff = (username, password, phoneNumber, email, address, name, gender, dateOfBirth) => {
+    const URL_BACKEND = "/api/v1/staff/register";
+    const data = {
+        username,
+        password,
+        phoneNumber,
+        email,
+        address,
+        name,
+        gender,
+        dateOfBirth,
+    };
+    return axios.post(URL_BACKEND, data, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+    });
+};
 
 export {
+    createNewStaff,
     getAllPermissionPagination,
     updatePermissionById,
     getAllPermission,
@@ -410,7 +430,6 @@ export {
     fetchDataBrand,
     updateProductAPI,
     deleteProductAPI,
-    getAllPermission,
     createNewPermission,
     deletePermissionById,
     fetchDataProductAPI,

@@ -3,10 +3,12 @@ package com.example.demo.controller;
 import com.example.demo.dto.StaffDTO;
 import com.example.demo.dto.UserPermissionDTO;
 import com.example.demo.entity.Permission;
+import com.example.demo.entity.Sleeve;
 import com.example.demo.entity.Staff;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.StaffResponse;
 import com.example.demo.service.impl.StaffServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,21 +32,17 @@ public class StaffController {
             @RequestParam(name = "size", defaultValue = "10")int size
     ){
         Pageable pageable = PageRequest.of(page-1, size);
-        List<StaffResponse> staffList = staffService.getAll(pageable)
-                .stream()
-                .map(StaffResponse::fromStaffResponse)
-                .toList();
         return ResponseEntity.ok().body(MessageReponse.builder()
                 .message("lay thong tin thanh cong")
                 .status(HttpStatus.OK.value())
-                .data(staffList)
+                .data(staffService.getAll(pageable))
                 .build()
         );
     }
 
     @PostMapping("/register")
     public ResponseEntity<MessageReponse> createStaff(
-            @RequestBody Staff staffDTO,
+            @RequestBody StaffDTO staffDTO,
             BindingResult result
     ){
         if(result.hasErrors()){
