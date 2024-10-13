@@ -88,7 +88,7 @@ const fetchDataCollar = () => {
 const fetchDataBrand = () => {
     const URL_BACKEND = "api/v1/brand"
     return axios.get(URL_BACKEND)
-}      
+}
 //API product-detail
 
 const fetchDataProductDetail = () => {
@@ -348,7 +348,7 @@ export const checkDuplicateSizeAPI = async (type, value) => {
     API permission
 */
 
-const getAllPermission = () =>{
+const getAllPermission = () => {
     const URL_BACKEND = "/api/v1/permission/all";
     return axios.get(URL_BACKEND);
 }
@@ -364,8 +364,8 @@ const createNewPermission = (name) => {
         name: name
     }
     return axios.post(URL_BACKEND, data)
-}    
-      
+}
+
 const deletePermissionById = (id) => {
     const URL_BACKEND = `/api/v1/permission/${id}`
     return axios.delete(URL_BACKEND)
@@ -380,7 +380,7 @@ const updatePermissionById = (id, name) => {
     API staff
 */
 
-const getAllStaff = () =>{
+const getAllStaff = () => {
     const URL_BACKEND = "/api/v1/staff/getAll";
     return axios.get(URL_BACKEND);
 }
@@ -388,7 +388,7 @@ const getStaffPermissions = (id) => {
     const URL_BACKEND = `/api/v1/staff/${id}`;
     return axios.get(URL_BACKEND);
 };
-const updateStaffPermissions = (id, payload) =>{
+const updateStaffPermissions = (id, payload) => {
     const URL_BACKEND = `/api/v1/staff/update-permission/${id}`;
     return axios.put(URL_BACKEND, payload);
 };

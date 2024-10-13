@@ -22,15 +22,15 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        index: false, 
+        index: false,
         element: <Home />,
       },
       {
-        path: "products", 
+        path: "products",
         element: <ProductPage />,
       },
       {
-        path: "products/:id", 
+        path: "products/:id",
         element: <ProductDetail />,
       },
       {
@@ -51,6 +51,7 @@ const router = createBrowserRouter([
     path: "/permission",
     element: <PermissionPage />,
   },
+  {
     path: "/colors",
     element: <ColorPage />,
   },
