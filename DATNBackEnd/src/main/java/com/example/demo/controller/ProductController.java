@@ -152,7 +152,20 @@ public class ProductController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
+    @GetMapping("productId/{id}")
+    public ResponseEntity<?> getById(@PathVariable Integer id){
+        try {
+            ProductResponse product = productService.findById(id);
+            return ResponseEntity.ok()
+                    .body(MessageReponse.builder()
+                            .message("Lay thong tin thanh cong")
+                            .status(HttpStatus.OK.value())
+                            .data(product)
+                            .build());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
     @GetMapping("/{productId}")
     public ResponseEntity<?> getProductById(@PathVariable Integer productId) {
         try {

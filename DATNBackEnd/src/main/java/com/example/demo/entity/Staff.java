@@ -48,6 +48,6 @@ public class Staff extends BaseEntity {
     @Column(name = "gender")
     private int gender;
     @ManyToOne
-    @JoinColumn(name = "role_id", referencedColumnName = "id")
-    private Role role;
+    @JoinColumn(name = "permission_id", referencedColumnName = "id")
+    private Permission permission;
 }

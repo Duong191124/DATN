@@ -1,63 +1,61 @@
 package com.example.demo.dto;
 
-import com.example.demo.entity.*;
+import com.example.demo.entity.OrderStatus;
+import com.example.demo.entity.Orders;
+import com.example.demo.entity.Staff;
+import com.example.demo.entity.Voucher;
 import com.example.demo.repository.StaffRepo;
-import com.example.demo.repository.CustomerRepo;
 import com.example.demo.repository.VoucherRepo;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.*;
+import com.example.demo.request.OrderDetailRequest;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
+import java.util.List;
 
 @Data
 @Builder
 public class OrderDTO {
-    private Integer id;
+    @NotBlank(message = "check code, please!")
+    private String code;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
-    @JsonFormat(pattern = "dd/MM/yyyy")
-    @NotNull(message = "check order date, please!")
-    private Date orderDate;
     @NotNull(message = "check delivery fee, please!")
     @Min(value = 0,message = "delivery fee is not valid")
+    @JsonProperty("delivery_fee")
     private Double deliveryFee;
     @Min(value = 0,message = "total amount is not valid!")
     @NotNull(message = "check total amount, please!")
+    @JsonProperty("total_amount")
     private Double totalAmount;
-    private String voucherDiscount;
-    private Integer customerId;
+    @Min(value = 0,message = "total amount is not valid!")
+    @JsonProperty("money_received")
+    private Double moneyReceived;
+    @JsonProperty("voucher_id")
+    private Integer voucherId;
+    @JsonProperty("staff_id")
     private Integer staffId;
+    private List<OrderDetailRequest> orderDetailRequests;
 
-    public static OrderDTO convertDTO(Orders orders){
-        return OrderDTO.builder()
-                .id(orders.getId())
-                .status(orders.getStatus())
-                .orderDate(orders.getOrderDate())
-                .staffId(orders.getStaff().getId())
-                .deliveryFee(orders.getDeliveryFee())
-                .totalAmount(orders.getTotalAmount())
-                .voucherDiscount(orders.getVoucher().getDiscountPercent())
-                .customerId(orders.getCustomer().getId())
-                .build();
-    }
-    public static Orders convertOrder(OrderDTO orderDTO, CustomerRepo customerRepo, VoucherRepo voucherRepo, StaffRepo accountRepo) {
-        Customer customer = customerRepo.findById(orderDTO.getCustomerId()).orElse(Customer.builder().id(orderDTO.getCustomerId()).build());
-        Staff staff = accountRepo.findById(orderDTO.getStaffId()).orElse(Staff.builder().id(orderDTO.getStaffId()).build());
-        Voucher voucher = voucherRepo.findByDiscountPercent(orderDTO.getVoucherDiscount()).orElse(Voucher.builder().discountPercent(orderDTO.getVoucherDiscount()).build());
+
+    public static Orders convertOrder(OrderDTO orderDTO, VoucherRepo voucherRepo, StaffRepo accountRepo) {
+        Staff staff = accountRepo.findById(orderDTO.getStaffId()).orElseThrow(()->new RuntimeException("not found staff with id:"+orderDTO.getStaffId()));
+        Voucher voucher = null;
+        if(voucher != null){
+             voucher = voucherRepo.findById(orderDTO.getVoucherId()).orElseThrow(()->new RuntimeException("not found voucher with id:"+orderDTO.getVoucherId()));
+        }
         return Orders.builder()
-                .id(orderDTO.getId())
-                .orderDate(orderDTO.getOrderDate())
+                .code(orderDTO.getCode())
                 .status(orderDTO.getStatus())
                 .staff(staff)
-                .customer(customer)
                 .deliveryFee(orderDTO.getDeliveryFee())
                 .totalAmount(orderDTO.getTotalAmount())
+                .moneyReceived(orderDTO.moneyReceived)
                 .voucher(voucher)
                 .build();
     }

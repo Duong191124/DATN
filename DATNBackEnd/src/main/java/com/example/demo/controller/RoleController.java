@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.entity.Role;
+import com.example.demo.entity.Permission;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.service.impl.RoleServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +32,13 @@ public class RoleController {
     }
 
     @PostMapping("")
-    public ResponseEntity<?> addRole(@Validated @RequestBody Role role){
+    public ResponseEntity<?> addRole(@Validated @RequestBody Permission permission){
         try {
-            Role newRole = roleService.save(role);
+            Permission newPermission = roleService.save(permission);
             return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
                     .message("Add role successfully")
                     .status(HttpStatus.CREATED.value())
-                    .data(newRole)
+                    .data(newPermission)
                     .build());
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(MessageReponse.builder()
@@ -49,13 +49,13 @@ public class RoleController {
     }
 
     @PatchMapping("")
-    public ResponseEntity<?> updateRole(@Validated @RequestBody Role role){
+    public ResponseEntity<?> updateRole(@Validated @RequestBody Permission permission){
         try {
-            roleService.save(role);
+            roleService.save(permission);
             return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                     .message("Update role successfully")
                     .status(HttpStatus.OK.value())
-                    .data(role)
+                    .data(permission)
                     .build());
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(MessageReponse.builder()
@@ -84,11 +84,11 @@ public class RoleController {
     @GetMapping("/getRoleById/{id}")
     public ResponseEntity<?> getRoleById(@PathVariable Integer id){
         try {
-            Role role = roleService.getById(id);
+            Permission permission = roleService.getById(id);
             return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                     .message("Get role with id = " + id + " successfully")
                     .status(HttpStatus.OK.value())
-                    .data(role)
+                    .data(permission)
                     .build());
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(MessageReponse.builder()

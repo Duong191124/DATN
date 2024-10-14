@@ -71,4 +71,13 @@ public class ColorController {
                 .status(HttpStatus.OK.value())
                 .build());
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<?> sizeFindById(@PathVariable Integer id){
+        try {
+            Color color = colorService.findById(id);
+            return ResponseEntity.ok(new MessageReponse("find color success",200,color));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

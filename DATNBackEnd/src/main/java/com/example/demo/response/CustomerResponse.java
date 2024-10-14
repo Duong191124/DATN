@@ -1,14 +1,12 @@
 package com.example.demo.response;
 
 import com.example.demo.entity.Customer;
-import com.example.demo.entity.Voucher;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Builder
 @Data
@@ -34,13 +32,9 @@ public class CustomerResponse {
     private String notes;
 
     private int gender;
-
-    private Integer roleId;
-
     private Integer vouchers;
 
     public static CustomerResponse fromCustomerResponse(Customer customer){
-        Integer roleId = (customer.getRole() != null) ? customer.getRole().getId() : null;
         return CustomerResponse
                 .builder()
                 .id(customer.getId())
@@ -53,7 +47,6 @@ public class CustomerResponse {
                 .status(customer.getStatus())
                 .dateOfBirth(customer.getDateOfBirth())
                 .notes(customer.getNotes())
-                .roleId(roleId)
                 .build();
     }
 }

@@ -7,6 +7,9 @@ import App from "./App.jsx";
 import Home from "./component/layout/content/home/home.jsx";
 // import ProductDetail from "./component/layout/content/product-detail/product-detail.jsx";
 import ProductPage from "./pages/product.jsx";
+import OrderTable from "./component/layout/admin/order/order.table.jsx";
+import OrderPage from "./pages/order.jsx";
+import CounterSales from "./pages/counter_sales.jsx";
 
 const router = createBrowserRouter([
   {
@@ -26,6 +29,14 @@ const router = createBrowserRouter([
     // element: <HomePage />
   },
   {
+    path: "/counter-sales",
+    element: <CounterSales />,
+  },
+  {
+    path: "/order",
+    element: <OrderPage />,
+  },
+  {
     path: "/login",
     element: <LoginPage />,
   },
@@ -39,8 +50,8 @@ const router = createBrowserRouter([
   },
 ]);
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById("root")).render(
   <AuthWrapper>
     <RouterProvider router={router} />
   </AuthWrapper>
-)
+);

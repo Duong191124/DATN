@@ -49,4 +49,9 @@ public class ColorServiceImpl implements ColorService {
         Color existingColor = getColorById(id);
         colorRepo.delete(existingColor);
     }
+
+    @Override
+    public Color findById(Integer id) {
+        return colorRepo.findById(id).orElseThrow(()->new RuntimeException("not found color with id:"+id));
+    }
 }

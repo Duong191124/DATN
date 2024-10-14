@@ -77,4 +77,13 @@ public class StaffController {
                 .build());
 
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<?> findStaffById(@PathVariable Integer id){
+        try {
+            Staff staff = staffService.getById(id);
+            return ResponseEntity.ok(new MessageReponse("find staff with id: "+id+" successfully",200,StaffResponse.fromStaffResponse(staff)));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

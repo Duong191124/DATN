@@ -1,16 +1,15 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.Role;
-import org.springframework.data.domain.Page;
+import com.example.demo.entity.Permission;
 
 import java.util.List;
 
 public interface RoleService {
-    List<Role> getAll();
+    List<Permission> getAll();
 
-    Role getById(int id);
+    Permission getById(int id);
 
-    Role save(Role role);
+    Permission save(Permission permission);
 
     void deleteById(int id);
 }

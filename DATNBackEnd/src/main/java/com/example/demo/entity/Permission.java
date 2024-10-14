@@ -4,13 +4,13 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "role")
+@Table(name = "permission")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
 @Getter @Setter
-public class Role {
+public class Permission {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false)
@@ -21,4 +21,7 @@ public class Role {
     @Basic
     @Column(name = "status", nullable = false)
     private int status;
+//    @ManyToOne
+//    @JoinColumn(name = "entity_id",referencedColumnName = "id")
+//    private Entity entity;
 }

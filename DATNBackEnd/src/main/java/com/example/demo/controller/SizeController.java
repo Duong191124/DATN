@@ -70,4 +70,13 @@ public class SizeController {
                 .status(HttpStatus.OK.value())
                 .build());
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<?> sizeFindById(@PathVariable Integer id){
+        try {
+            Size size = sizeService.findById(id);
+            return ResponseEntity.ok(new MessageReponse("find size success",200,size));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

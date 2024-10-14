@@ -1,29 +1,29 @@
 package com.example.demo.response;
 
+import com.example.demo.entity.Color;
 import com.example.demo.entity.ProductDetail;
-import jakarta.validation.constraints.*;
-import lombok.Builder;
-import lombok.Data;
+import com.example.demo.entity.Size;
+import lombok.*;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class ProductDetailResponse {
-
-    private int id;
-
+    private Integer id;
     private String code;
-
     private int quantity;
-
-    private double price;
-
+    private Double price;
     private String image;
-
-    private int productId;
-
-    private int sizeId;
-
-    private int colorId;
+    private ProductResponse productResponse;
+    private Size size;
+    private Color color;
+    private Set<PromotionResponse> promotionResponses;
 
     public static ProductDetailResponse fromProductDetailResponse(ProductDetail productDetail){
         return ProductDetailResponse.builder()
@@ -32,9 +32,15 @@ public class ProductDetailResponse {
                 .quantity(productDetail.getQuantity())
                 .price(productDetail.getPrice())
                 .image(productDetail.getImage())
-                .productId(productDetail.getProduct().getId())
-                .sizeId(productDetail.getSize().getId())
-                .colorId(productDetail.getColor().getId())
+                .productResponse(ProductResponse.convertResponse(productDetail.getProduct()))
+                .size(productDetail.getSize())
+                .color(productDetail.getColor())
+                .promotionResponses(
+                        productDetail.getPromotions()
+                                .stream()
+                                .map(PromotionResponse::fromPromotionResponse)
+                                .collect(Collectors.toSet())
+                )
                 .build();
     }
 }

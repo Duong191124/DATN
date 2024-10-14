@@ -1,12 +1,10 @@
 package com.example.demo.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Set;
 
 @Entity
@@ -52,9 +50,6 @@ public class Customer extends BaseEntity {
     @Basic
     @Column(name = "gender")
     private int gender;
-    @ManyToOne
-    @JoinColumn(name = "role_id", referencedColumnName = "id")
-    private Role role;
     @ManyToMany
     @JoinTable(
             name = "customer_voucher",

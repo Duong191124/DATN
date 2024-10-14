@@ -49,4 +49,9 @@ public class SizeServiceImpl implements SizeService {
         Size existingSize = getSizeById(id);
         sizeRepo.delete(existingSize);
     }
+
+    @Override
+    public Size findById(Integer id) {
+        return sizeRepo.findById(id).orElseThrow(()->new RuntimeException("not found size with id:"+id));
+    }
 }

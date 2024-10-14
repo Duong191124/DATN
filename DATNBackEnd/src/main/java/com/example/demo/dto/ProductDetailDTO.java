@@ -1,14 +1,14 @@
 package com.example.demo.dto;
 
+import com.example.demo.entity.ProductDetail;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Builder
 public class ProductDetailDTO {
 
@@ -36,4 +36,15 @@ public class ProductDetailDTO {
     @NotNull(message = "Color is required")
     private int colorId;
 
+    public static ProductDetailDTO convertProductDetailDTO(ProductDetail productDetail){
+        return ProductDetailDTO.builder()
+                .code(productDetail.getCode())
+                .price(productDetail.getPrice())
+                .quantity(productDetail.getQuantity())
+                .image(productDetail.getImage())
+                .productId(productDetail.getProduct().getId())
+                .colorId(productDetail.getColor().getId())
+                .sizeId(productDetail.getSize().getId())
+                .build();
+    }
 }

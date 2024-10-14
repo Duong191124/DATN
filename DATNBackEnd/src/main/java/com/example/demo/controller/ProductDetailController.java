@@ -3,7 +3,8 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.ProductDetailDTO;
 import com.example.demo.entity.ProductDetail;
-import com.example.demo.service.impl.ProductDetailServiceImpl;
+import com.example.demo.response.ProductDetailResponse;
+import com.example.demo.service.ProductDetailService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,12 +18,12 @@ import java.util.List;
 @RequestMapping("${api.prefix}/productDetail")
 public class ProductDetailController {
     @Autowired
-    private ProductDetailServiceImpl productDetailService;
+    private ProductDetailService productDetailService;
 
     @GetMapping("")
-    public ResponseEntity<List<ProductDetail>> getAllProductDetails() {
-        List<ProductDetail> productDetails = productDetailService.getAll();
-        return new ResponseEntity<>(productDetails, HttpStatus.OK);
+    public ResponseEntity<?> getAllProductDetails() {
+        List<ProductDetailResponse> productDetailResponses = productDetailService.getAll();
+        return new ResponseEntity<>(productDetailResponses, HttpStatus.OK);
     }
 
     @PostMapping("")
