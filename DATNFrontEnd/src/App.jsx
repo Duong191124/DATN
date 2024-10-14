@@ -16,7 +16,6 @@ function App() {
             <Outlet />
           </div>
         </div>
-        <FooterAdmin />
       </div>
     </>
   );

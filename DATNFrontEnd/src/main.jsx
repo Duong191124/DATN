@@ -51,6 +51,7 @@ const router = createBrowserRouter([
     path: "/permission",
     element: <PermissionPage />,
   },
+  {
     path: "/colors",
     element: <ColorPage />,
   },
@@ -75,6 +76,7 @@ const router = createBrowserRouter([
     element: <SleevePage />,
   },
 ]);
+
 
 createRoot(document.getElementById('root')).render(
   <AuthWrapper>
