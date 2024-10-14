@@ -3,9 +3,9 @@ import { Modal, Table, Checkbox } from 'antd';
 import { getAllPermission, getStaffPermissions, updateStaffPermissions } from '../../service/api.service';
 
 const PermissionModal = React.memo(({ id, open, onClose }) => {
-    const [permissions, setPermissions] = useState([]); 
-    const [staffPermissions, setStaffPermission] = useState([]); 
-    const [initialized, setInitialized] = useState(false); 
+    const [permissions, setPermissions] = useState([]);
+    const [staffPermissions, setStaffPermission] = useState([]);
+    const [initialized, setInitialized] = useState(false);
     const allPermissionsRef = useRef([]); // Lưu tất cả quyền để không cần gọi lại API
 
     useEffect(() => {
@@ -24,11 +24,11 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
             const allPermissions = allPermissionsRes.data.map(item => ({
                 id: item.id,
                 action: item.name,
-                staff: false, 
+                staff: false,
             }));
-            setPermissions(allPermissions);  
+            setPermissions(allPermissions);
             allPermissionsRef.current = allPermissions;
-            setInitialized(true); 
+            setInitialized(true);
         } catch (error) {
             console.error("Failed to load all permissions:", error);
         }
@@ -38,15 +38,15 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
         try {
             const staffPermissionRes = await getStaffPermissions(id);
             const staffPermission = staffPermissionRes.data.map(item => item.name);
-            
+
             // Update trạng thái checked cho các quyền dựa trên staffPermission
             const updatedPermissions = allPermissionsRef.current.map(permission => ({
                 ...permission,
-                staff: staffPermission.includes(permission.action), 
+                staff: staffPermission.includes(permission.action),
             }));
 
-            setPermissions(updatedPermissions);  
-            setStaffPermission(staffPermissions); 
+            setPermissions(updatedPermissions);
+            setStaffPermission(staffPermissions);
         } catch (error) {
             console.error("Failed to load user permissions:", error);
         }
@@ -66,7 +66,7 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
             .map(permission => permission.id);
 
         const permissionsToRemove = staffPermissions
-            .filter(staffPermission => 
+            .filter(staffPermission =>
                 !permissions.find(p => p.action === staffPermission && p.staff)
             )
             .map(staffPermission => {
