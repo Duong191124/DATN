@@ -46,7 +46,7 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
             }));
 
             setPermissions(updatedPermissions);
-            setStaffPermission(staffPermissions);
+            setStaffPermission(staffPermission);
         } catch (error) {
             console.error("Failed to load user permissions:", error);
         }
@@ -75,6 +75,8 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
             })
             .filter(id => id !== null && id !== undefined);
 
+        console.log("Permissions:", permissions);
+        console.log("Staff Permissions:", staffPermissions);
         const payload = {};
         if (permissionsToAdd.length > 0) {
             payload.permissionToAdd = permissionsToAdd;
