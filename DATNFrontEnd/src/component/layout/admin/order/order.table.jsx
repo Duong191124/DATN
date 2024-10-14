@@ -504,7 +504,7 @@ const OrderTable = (props) => {
               <div style={{ marginTop: 20 }}>
                 <div className="order_detail">
                   <div className="col-4">
-                    <p>Mã hóa đơn: HD-{orderDetails.id}</p>
+                    <p>Mã hóa đơn: {orderDetails.code}</p>
                     <p>
                       Ngày mua:
                       <DatePicker

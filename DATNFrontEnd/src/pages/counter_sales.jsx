@@ -37,13 +37,9 @@ const CounterSales = () => {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [customerPaid, setCustomerPaid] = useState(0);
   const [staffList, setStaffList] = useState([]);
-
   useEffect(() => {
     loadProductDetail();
     loadStaffList();
-  }, []);
-
-  useEffect(() => {
     calculateTotalAmount();
   }, [selectedBill, cartItemsByBill, discountAmount]);
 
@@ -128,7 +124,10 @@ const CounterSales = () => {
     );
     updateCart(updatedItems);
   };
-
+  const generateInvoiceCode = () => {
+    const randomCode = Math.floor(10000 + Math.random() * 90000);
+    return randomCode;
+  };
   const handleCreateBillWaiting = () => {
     if (!selectedStaff) {
       notification.error({ message: "Chưa chọn nhân viên!" });
@@ -142,10 +141,10 @@ const CounterSales = () => {
       });
       return;
     }
-
+    const randomCode = generateInvoiceCode();
     const now = new Date();
     const newBill = {
-      billId: `HD${Date.now()}`,
+      billId: `HD-${randomCode}`,
       staff: selectedStaff,
       time: now.toLocaleString(),
       orderDate: now.toISOString(),
