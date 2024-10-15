@@ -1,7 +1,7 @@
 import { ShoppingCartOutlined, UserOutlined } from "@ant-design/icons";
 import { Badge, Button, Dropdown, Input, Menu } from "antd";
 import "./header.css";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 const items = [
   {
     key: "1",
@@ -40,7 +40,9 @@ const Header = () => {
         <div className="header-container">
           <div className="logo-menu">
             <div className="logo">
-              <img src="/image/logo.jpg" className="logo-image" />
+              <Link to="/">
+                <img src="/image/logo.jpg" className="logo-image" />
+              </Link>
             </div>
             <div className="menu">
               <ul>

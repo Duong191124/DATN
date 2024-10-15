@@ -101,11 +101,11 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
     // Grouping dữ liệu để hiển thị lên table
     const groupData = [
         {
-            key: 'permitionGroup',
+            key: 'permissionGroup',
             action: 'Permissions',
             staff: null,
         },
-        ...permissions.filter(item => item.action.includes('PERMITION')),
+        ...permissions.filter(item => item.action.includes('PERMISSION')),
         {
             key: 'userGroup',
             action: 'Users',

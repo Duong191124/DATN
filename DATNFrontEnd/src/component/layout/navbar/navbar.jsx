@@ -26,7 +26,7 @@ const items = [
   {
     key: "4",
     icon: <TeamOutlined />,
-    label: <Link to="/staff">Staff Management</Link>,
+    label: <Link to={"staff"}>Staff Management</Link>,
   },
   {
     key: "5",
@@ -67,6 +67,21 @@ const items = [
     key: "11",
     icon: <SettingOutlined />,
     label: "Navigation Three",
+  },
+  {
+    key: '4',
+    icon: <SettingOutlined />,
+    label: 'Navigation Three',
+  },
+  {
+    key: '5',
+    icon: <SettingOutlined />,
+    label: 'Navigation Three',
+  },
+  {
+    key: '6',
+    icon: <SettingOutlined />,
+    label: 'Navigation Three',
   },
 ];
 const getLevelKeys = (items1) => {

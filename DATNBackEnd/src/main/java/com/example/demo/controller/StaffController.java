@@ -70,7 +70,7 @@ public class StaffController {
         try{
             Staff newStaff = staffService.save(staffDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
-                    .message("register succesfuly")
+                    .message("register successfully")
                     .status(HttpStatus.OK.value())
                     .data(newStaff)
                     .build()

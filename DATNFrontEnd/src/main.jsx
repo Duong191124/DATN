@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import LoginPage from "./pages/login";
 import RegisterPage from "./pages/register";
 import { AuthWrapper } from "./component/context/auth.context.jsx";
-import App from "./App.jsx";
+import AppAdmin from "./AppAdmin.jsx";
 import Home from "./component/layout/content/home/home.jsx";
 import ProductPage from "./pages/product.jsx";
 import OrderTable from "./component/layout/admin/order/order.table.jsx";
@@ -18,11 +18,18 @@ import BrandPage from "./pages/brand.jsx";
 import CategoryPage from "./pages/category.jsx";
 import SleevePage from "./pages/sleeve.jsx";
 import StaffManagement from "./pages/staff.jsx";
+import PrivateRoute from "./pages/private.route.jsx";
+import App from "./App.jsx";
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <App />,
+    path: "/admin",
+    element:(
+      // <PrivateRoute>
+      //   <AppAdmin />
+      // </PrivateRoute>
+      <AppAdmin />
+    ),
     children: [
       {
         index: false,

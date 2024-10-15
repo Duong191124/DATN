@@ -537,7 +537,13 @@ const createNewStaff = (
     },
   });
 };
+
+const deleteStaff = (id) => {
+    const URL_BACKEND = `/api/v1/staff/${id}`;
+    return axios.delete(URL_BACKEND);
+}
 export {
+  deleteStaff,
   registerCustomerAPI,
   loginCustomerAPI,
   sizeFindById,
