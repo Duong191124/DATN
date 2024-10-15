@@ -5,11 +5,19 @@ import RegisterPage from "./pages/register";
 import { AuthWrapper } from "./component/context/auth.context.jsx";
 import App from "./App.jsx";
 import Home from "./component/layout/content/home/home.jsx";
-// import ProductDetail from "./component/layout/content/product-detail/product-detail.jsx";
 import ProductPage from "./pages/product.jsx";
 import OrderTable from "./component/layout/admin/order/order.table.jsx";
 import OrderPage from "./pages/order.jsx";
 import CounterSales from "./pages/counter_sales.jsx";
+import PermissionPage from "./pages/permission.jsx";
+import ProductDetail from "./pages/product.detail.jsx";
+import ColorPage from "./pages/color.jsx";
+import SizePage from "./pages/size.jsx";
+import CollarPage from "./pages/collar.jsx";
+import BrandPage from "./pages/brand.jsx";
+import CategoryPage from "./pages/category.jsx";
+import SleevePage from "./pages/sleeve.jsx";
+import StaffManagement from "./pages/staff.jsx";
 
 const router = createBrowserRouter([
   {
@@ -17,16 +25,22 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        index: true,
+        index: false,
         element: <Home />,
       },
-      // {
-      //   path: "/product-detail",
-      //   index: true,
-      //   element: <ProductDetail />,
-      // },
+      {
+        path: "products",
+        element: <ProductPage />,
+      },
+      {
+        path: "products/:id",
+        element: <ProductDetail />,
+      },
+      {
+        path: "staff",
+        element: <StaffManagement />,
+      },
     ],
-    // element: <HomePage />
   },
   {
     path: "/counter-sales",
@@ -45,11 +59,34 @@ const router = createBrowserRouter([
     element: <RegisterPage />,
   },
   {
-    path: "/products",
-    element: <ProductPage />,
+    path: "/permission",
+    element: <PermissionPage />,
+  },
+  {
+    path: "/colors",
+    element: <ColorPage />,
+  },
+  {
+    path: "/sizes",
+    element: <SizePage />,
+  },
+  {
+    path: "/collars",
+    element: <CollarPage />,
+  },
+  {
+    path: "/brands",
+    element: <BrandPage />,
+  },
+  {
+    path: "/categories",
+    element: <CategoryPage />,
+  },
+  {
+    path: "/sleeves",
+    element: <SleevePage />,
   },
 ]);
-
 createRoot(document.getElementById("root")).render(
   <AuthWrapper>
     <RouterProvider router={router} />

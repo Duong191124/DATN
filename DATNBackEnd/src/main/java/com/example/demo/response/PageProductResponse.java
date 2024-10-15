@@ -12,5 +12,5 @@ public class PageProductResponse {
     private List<ProductResponse> productResponseList;
     private int page;
     private int pageSize;
-    private int totalPages;
+    private long totalElement;
 }

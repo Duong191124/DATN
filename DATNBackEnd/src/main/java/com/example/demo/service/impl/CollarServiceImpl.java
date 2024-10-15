@@ -17,18 +17,18 @@ public class CollarServiceImpl implements CollarService {
         return collarRepo.findAll();
     }
 
-    @Override
     public Collar add(CollarDTO collarDTO) {
         return collarRepo.save(CollarDTO.convertCollar(collarDTO));
     }
 
     @Override
     public Collar update(Integer id, CollarDTO collarDTO) {
-        Collar collar = collarRepo.findById(id).orElseThrow(()->new RuntimeException("Not found collar with id:"+id));
-        collar.setCode(collarDTO.getCode());
-        collar.setName(collarDTO.getName());
-        collar.setStatus(collarDTO.getStatus());
-        return collarRepo.save(collar);
+        Collar existingCollar = collarRepo.findById(id).orElse(null);
+
+        existingCollar.setCode(collarDTO.getCode());
+        existingCollar.setName(collarDTO.getName());
+        existingCollar.setStatus(collarDTO.getStatus());
+        return collarRepo.save(existingCollar);
     }
 
     @Override

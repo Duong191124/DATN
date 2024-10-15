@@ -12,7 +12,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("${api.prefix}/size")
@@ -28,6 +30,18 @@ public class SizeController {
                 .status(HttpStatus.OK.value())
                 .data(sizeList)
                 .build());
+    }
+
+
+    @PostMapping("/check-duplicate")
+    public ResponseEntity<Map<String, Boolean>> checkDuplicateSize(@RequestBody Map<String, String> request) {
+        String type = request.get("type");
+        String value = request.get("value");
+
+        boolean exists = sizeService.isDuplicate(type, value);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", exists);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("")

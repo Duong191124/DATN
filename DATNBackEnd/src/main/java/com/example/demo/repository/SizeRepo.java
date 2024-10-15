@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SizeRepo extends JpaRepository<Size, Integer> {
+    boolean existsByCode(String code);
+    boolean existsByName(String name);
 }

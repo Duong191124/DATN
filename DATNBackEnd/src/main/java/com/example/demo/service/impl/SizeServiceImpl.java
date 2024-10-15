@@ -5,6 +5,7 @@ import com.example.demo.entity.Size;
 import com.example.demo.repository.SizeRepo;
 import com.example.demo.service.SizeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,6 +29,16 @@ public class SizeServiceImpl implements SizeService {
                 .status(1)
                 .build();
         return sizeRepo.save(newColor);
+    }
+
+
+    public boolean isDuplicate(String type, String value) {
+        if ("code".equals(type)) {
+            return sizeRepo.existsByCode(value);
+        } else if ("name".equals(type)) {
+            return sizeRepo.existsByName(value);
+        }
+        return false;
     }
 
     @Override

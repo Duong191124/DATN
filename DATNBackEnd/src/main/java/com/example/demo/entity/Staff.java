@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "staff")
@@ -50,4 +51,11 @@ public class Staff extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "permission_id", referencedColumnName = "id")
     private Permission permission;
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "staff_permission", // Tên bảng trung gian
+            joinColumns = @JoinColumn(name = "staff_id"), // Khóa ngoại tới bảng User
+            inverseJoinColumns = @JoinColumn(name = "permission_id") // Khóa ngoại tới bảng Permition
+    )
+    private List<Permission> permissions;
 }

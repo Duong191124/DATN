@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
+
 @Getter
 @Setter
 @Data
@@ -23,7 +24,7 @@ public class CollarDTO {
         return Collar.builder()
                 .code(collarDTO.getCode())
                 .name(collarDTO.getName())
-                .status(collarDTO.getStatus())
+                .status(1)
                 .build();
     }
 }

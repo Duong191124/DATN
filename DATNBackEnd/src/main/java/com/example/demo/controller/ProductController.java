@@ -35,10 +35,9 @@ public class ProductController {
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
 
     private final ProductService productService;
-
     private final ProductDetailServiceImpl productDetailService;
 
-    @GetMapping("/getAll")
+    @GetMapping("/getAllProduct")
     public ResponseEntity<MessageReponse> getAllProduct() {
         List<ProductResponse> productResponseList = productService.getAll();
         if (productResponseList.isEmpty()) {
@@ -47,46 +46,52 @@ public class ProductController {
             return ResponseEntity.ok(new MessageReponse("success", 1, productResponseList));
         }
     }
+
+
     @GetMapping("")
     public ResponseEntity<PageProductResponse> pageAllProduct(
             @RequestParam(defaultValue = "", value = "category_id") Integer categoryId,
-            @RequestParam(defaultValue = "",value = "name") String productName,
+            @RequestParam(defaultValue = "", value = "name") String productName,
             @RequestParam(defaultValue = "", value = "sleeve_id") Integer sleeveId,
             @RequestParam(defaultValue = "", value = "collar_id") Integer collarId,
             @RequestParam(defaultValue = "", value = "brand_id") Integer brandId,
             @RequestParam(defaultValue = "") Double price,
             @RequestParam(defaultValue = "") String description,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int pageSize) {
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "3") int pageSize) {
 
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("id").ascending());
+        // Đảm bảo page không nhỏ hơn 1
+        page = Math.max(1, page);
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("id").ascending());
 
         Page<ProductResponse> productResponsePage = productService.pageAllProducts(
                 categoryId, productName, sleeveId, collarId, brandId, price, description, pageable);
 
-        int pageCurrent = productResponsePage.getNumber();
+        int pageCurrent = productResponsePage.getNumber() + 1; // Cộng thêm 1 để trả về trang bắt đầu từ 1
         int pageSizeCurrent = productResponsePage.getSize();
-        int totalPages = productResponsePage.getTotalPages();
+        long totalElement = productResponsePage.getTotalElements();
         List<ProductResponse> productResponseList = productResponsePage.getContent();
 
         return ResponseEntity.ok(PageProductResponse.builder()
                 .productResponseList(productResponseList)
                 .page(pageCurrent)
                 .pageSize(pageSizeCurrent)
-                .totalPages(totalPages)
+                .totalElement(totalElement)
                 .build());
     }
+
     @PostMapping("")
     public ResponseEntity<?> addProduct(@Valid @RequestBody ProductDTO productDTO, BindingResult result) {
+        if (result.hasErrors()) {
+            List<String> errorMessage = result.getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
+            return ResponseEntity.badRequest().body(errorMessage);
+        }
         try {
-            if(result.hasErrors()){
-                List<String> errorMessage = result.getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
-                return ResponseEntity.badRequest().body(errorMessage);
-            }
             ProductResponse createProductResponse = productService.createdProduct(productDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new MessageReponse("add successfully", 1, createProductResponse));
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new MessageReponse("add successfully", 1, createProductResponse));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
@@ -94,62 +99,54 @@ public class ProductController {
     public ResponseEntity<?> uploadImage(@PathVariable() int id, @ModelAttribute("file") MultipartFile file) {
         try {
             if (file.getSize() > MAX_FILE_SIZE) {
-                return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("file is so large! Maximum size is 5MB");
+                return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("File is too large! Maximum size is 5MB");
             }
             Product newProduct = productService.uploadImageProduct(id, file);
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(MessageReponse.builder()
-                            .message("Upload image product successfully")
-                            .status(HttpStatus.OK.value())
-                            .data(newProduct)
-                            .build());
+                    .body(new MessageReponse("Upload image product successfully", HttpStatus.OK.value(), newProduct));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
     @PostMapping(value = "uploadForProductDetail/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadImageForProductDetail(@PathVariable() int productId, @RequestParam("color") String colorName, @ModelAttribute("file") MultipartFile file) {
+    public ResponseEntity<?> uploadImageForProductDetail(@PathVariable() int productId,
+                                                         @RequestParam("color") String colorName,
+                                                         @ModelAttribute("file") MultipartFile file) {
         try {
             if (file.getSize() > MAX_FILE_SIZE) {
-                return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("file is so large! Maximum size is 5MB");
+                return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("File is too large! Maximum size is 5MB");
             }
             ProductDetail newProductDetail = productDetailService.uploadImageWithColor(productId, colorName, file);
             ProductDetailResponse productDetailResponse = ProductDetailResponse.fromProductDetailResponse(newProductDetail);
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(MessageReponse.builder()
-                            .message("Upload image productDetail successfully")
-                            .status(HttpStatus.OK.value())
-                            .data(productDetailResponse)
-                            .build());
+                    .body(new MessageReponse("Upload image productDetail successfully", HttpStatus.OK.value(), productDetailResponse));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
-
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable Integer id, @Valid @RequestBody ProductDTO productDTO,BindingResult result) {
-
-            try {
-                if(result.hasErrors()){
-                    List<String> errorMessage = result.getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
-                    return ResponseEntity.badRequest().body(errorMessage);
-                }
-                ProductResponse productResponse = productService.updatedProduct(id, productDTO);
-                return ResponseEntity.ok(new MessageReponse("updated successfully", 1, productResponse));
-            }catch (Exception e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
-            }
+    public ResponseEntity<?> updateProduct(@PathVariable Integer id, @Valid @RequestBody ProductDTO productDTO, BindingResult result) {
+        if (result.hasErrors()) {
+            List<String> errorMessage = result.getFieldErrors().stream().map(FieldError::getDefaultMessage).toList();
+            return ResponseEntity.badRequest().body(errorMessage);
+        }
+        try {
+            ProductResponse productResponse = productService.updatedProduct(id, productDTO);
+            return ResponseEntity.ok(new MessageReponse("Updated successfully", 1, productResponse));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable int id) {
         try {
             productService.deletedProduct(id);
-            return ResponseEntity.ok("deleted successfully");
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.ok("Deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
     @GetMapping("productId/{id}")
@@ -179,14 +176,9 @@ public class ProductController {
             response.put("product", product);
             response.put("details", productDetails);
 
-            return ResponseEntity.ok()
-                    .body(MessageReponse.builder()
-                            .message("Lay thong tin thanh cong")
-                            .status(HttpStatus.OK.value())
-                            .data(response)
-                            .build());
+            return ResponseEntity.ok(new MessageReponse("Lay thong tin thanh cong", HttpStatus.OK.value(), response));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
         }
     }
 }

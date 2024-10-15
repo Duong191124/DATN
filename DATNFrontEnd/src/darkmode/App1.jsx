@@ -20,20 +20,10 @@ const App = () => {
   return (
     <div className={darkMode ? 'dark-mode' : 'light-mode'}>
       <header>
-        <h1>My Website</h1>
         <button onClick={toggleDarkMode} style={{ fontSize: '24px', padding: '10px', cursor: 'pointer' }}>
           {darkMode ? sunIcon : moonIcon}
         </button>
       </header>
-
-      <main>
-        <h2>Welcome to My Website</h2>
-        <p>This is an example of how to implement dark mode in React with an icon.</p>
-      </main>
-
-      <footer>
-        <p>&copy; 2024 My Website. All rights reserved.</p>
-      </footer>
     </div>
   );
 };

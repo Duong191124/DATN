@@ -25,6 +25,12 @@ public class ProductDetailResponse {
     private Color color;
     private Set<PromotionResponse> promotionResponses;
 
+    private String productId;
+
+    private String sizeId;
+
+    private String colorId;
+
     public static ProductDetailResponse fromProductDetailResponse(ProductDetail productDetail){
         return ProductDetailResponse.builder()
                 .id(productDetail.getId())
@@ -41,6 +47,9 @@ public class ProductDetailResponse {
                                 .map(PromotionResponse::fromPromotionResponse)
                                 .collect(Collectors.toSet())
                 )
+                .productId(productDetail.getProduct().getName())
+                .sizeId(productDetail.getSize().getName())
+                .colorId(productDetail.getColor().getName())
                 .build();
     }
 }

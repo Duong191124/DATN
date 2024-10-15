@@ -15,7 +15,7 @@ public class Sleeve {
     @Column(name = "id", nullable = false)
     private int id;
     @Basic
-    @Column(name = "code", nullable = false, length = 255)
+    @Column(name = "code", nullable = true, length = 255)
     private String code;
     @Basic
     @Column(name = "name", nullable = false, length = 255)
