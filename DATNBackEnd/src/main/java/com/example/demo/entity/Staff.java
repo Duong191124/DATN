@@ -48,7 +48,6 @@ public class Staff extends BaseEntity {
     @Basic
     @Column(name = "gender")
     private int gender;
-
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "staff_permission", // Tên bảng trung gian

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import {
-    fetchDataBrand,
-    fetchDataCategory,
-    fetchDataCollar,
-    fetchDataSleeve,
-    updateProductAPI,
+  fetchDataBrand,
+  fetchDataCategory,
+  fetchDataCollar,
+  fetchDataSleeve,
+  updateProductAPI,
 } from "../../service/api.service";
 import { Form, Input, Modal, notification, Select } from "antd";
 

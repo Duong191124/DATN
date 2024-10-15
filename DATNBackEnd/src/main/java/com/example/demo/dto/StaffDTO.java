@@ -32,4 +32,6 @@ public class StaffDTO {
     private String notes;
 
     private int gender;
+
+    private Integer permissionId;
 }

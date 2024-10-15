@@ -59,7 +59,6 @@ public class ProductController {
             @RequestParam(defaultValue = "") String description,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "3") int pageSize) {
-
         // Đảm bảo page không nhỏ hơn 1
         page = Math.max(1, page);
         Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("id").ascending());
@@ -149,7 +148,20 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-
+    @GetMapping("productId/{id}")
+    public ResponseEntity<?> getById(@PathVariable Integer id){
+        try {
+            ProductResponse product = productService.findById(id);
+            return ResponseEntity.ok()
+                    .body(MessageReponse.builder()
+                            .message("Lay thong tin thanh cong")
+                            .status(HttpStatus.OK.value())
+                            .data(product)
+                            .build());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
     @GetMapping("/{productId}")
     public ResponseEntity<?> getProductById(@PathVariable Integer productId) {
         try {

@@ -1,8 +1,9 @@
 import { Outlet } from "react-router-dom";
 import "./global.css";
-import HeaderAdmin from "./component/layout/header/header.admin";
+import Header from "./component/layout/user/header/header";
+import Footer from "./component/layout/user/footer/footer";
+import HeaderAdmin from "./component/layout/user/header/header.admin";
 import NavbarAdmin from "./component/layout/navbar/navbar";
-import FooterAdmin from "./component/layout/footer/footer.admin";
 function App() {
   return (
     <>

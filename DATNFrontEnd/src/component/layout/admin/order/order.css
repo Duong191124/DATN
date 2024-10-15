@@ -1,0 +1,63 @@
+.bill {
+  display: flex;
+  margin: 0 28px;
+  justify-content: space-between;
+}
+.filter-bill {
+  width: 18%;
+}
+.filter-bill .bill-date {
+  background-color: #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  width: 100%;
+}
+.bill-date p {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.filter-bill .bill-status {
+  margin-top: 20px;
+  background-color: #ddd;
+  border-radius: 10px;
+  padding: 20px;
+}
+.bill-status p {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.filter-bill .bill-staff {
+  margin-top: 20px;
+  background-color: #ddd;
+  border-radius: 10px;
+  padding: 20px;
+}
+.bill-staff p {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.table-bill {
+  width: 80%;
+}
+.result_order_detail {
+  display: flex;
+  justify-content: space-between;
+}
+.result_order_detail span {
+  font-size: 16px;
+  font-weight: 500;
+}
+.order_detail {
+  display: flex;
+}
+.order_detail .col-4 {
+  width: 33%;
+  margin-right: 28px;
+}
+.col-4 p {
+  padding: 15px 0;
+  border-bottom: 1px solid #ddd;
+}

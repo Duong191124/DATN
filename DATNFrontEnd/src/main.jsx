@@ -6,7 +6,10 @@ import { AuthWrapper } from "./component/context/auth.context.jsx";
 import App from "./App.jsx";
 import Home from "./component/layout/content/home/home.jsx";
 import ProductPage from "./pages/product.jsx";
-// import PermissionPage from "./pages/permission.jsx";
+import OrderTable from "./component/layout/admin/order/order.table.jsx";
+import OrderPage from "./pages/order.jsx";
+import CounterSales from "./pages/counter_sales.jsx";
+import PermissionPage from "./pages/permission.jsx";
 import ProductDetail from "./pages/product.detail.jsx";
 import ColorPage from "./pages/color.jsx";
 import SizePage from "./pages/size.jsx";
@@ -37,6 +40,42 @@ const router = createBrowserRouter([
         path: "staff",
         element: <StaffManagement />,
       },
+      {
+        path: "/counter-sales",
+        element: <CounterSales />,
+      },
+      {
+        path: "/order",
+        element: <OrderPage />,
+      },
+      {
+        path: "/colors",
+        element: <ColorPage />,
+      },
+      {
+        path: "/sizes",
+        element: <SizePage />,
+      },
+      {
+        path: "/collars",
+        element: <CollarPage />,
+      },
+      {
+        path: "/brands",
+        element: <BrandPage />,
+      },
+      {
+        path: "/categories",
+        element: <CategoryPage />,
+      },
+      {
+        path: "/sleeves",
+        element: <SleevePage />,
+      },
+      {
+        path: "/permission",
+        element: <PermissionPage />,
+      },
     ],
   },
   {
@@ -47,39 +86,9 @@ const router = createBrowserRouter([
     path: "/register",
     element: <RegisterPage />,
   },
-  // {
-  //   path: "/permission",
-  //   element: <PermissionPage />,
-  // },
-  {
-    path: "/colors",
-    element: <ColorPage />,
-  },
-  {
-    path: "/sizes",
-    element: <SizePage />,
-  },
-  {
-    path: "/collars",
-    element: <CollarPage />,
-  },
-  {
-    path: "/brands",
-    element: <BrandPage />,
-  },
-  {
-    path: "/categories",
-    element: <CategoryPage />,
-  },
-  {
-    path: "/sleeves",
-    element: <SleevePage />,
-  },
 ]);
-
-
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById("root")).render(
   <AuthWrapper>
     <RouterProvider router={router} />
   </AuthWrapper>
-)
+);
