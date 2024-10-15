@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { fetchDataBrandAPI } from "../service/api.service";
 import BrandForm from "../component/brand/brand.form";
 import BrandTable from "../component/brand/brand.table";
+import { Button } from "antd";
+import { Link } from "react-router-dom";
 
 const BrandPage = () => {
   const [dataBrand, setDataBrand] = useState("");
@@ -14,7 +16,7 @@ const BrandPage = () => {
     setListCode(res.data.map((brand) => brand.code));
     setListName(res.data.map((brand) => brand.name));
   };
-
+  
   useEffect(() => {
     loadBrand();
   }, []);
