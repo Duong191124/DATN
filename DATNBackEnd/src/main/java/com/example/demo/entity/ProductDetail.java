@@ -16,7 +16,7 @@ public class ProductDetail extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false)
-    private int id;
+    private Integer id;
     @Basic
     @Column(name = "code", nullable = true, length = 255)
     private String code;
