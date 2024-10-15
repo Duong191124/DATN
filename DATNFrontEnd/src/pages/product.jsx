@@ -8,7 +8,6 @@ const ProductPage = () => {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(5);
     const [total, setTotal] = useState(0);
-    // const [listProductCode, setListProductCode] = useState([]);
     const [allProductCodes, setAllProductCodes] = useState([]); // Danh sách tất cả mã sản phẩm
 
     useEffect(() => {
@@ -24,7 +23,6 @@ const ProductPage = () => {
             setTotal(res.data.totalElement);
 
             const currentProductCodes = res.data.productResponseList.map(value => value.code);
-            // setListProductCode(currentProductCodes);
             setAllProductCodes(prevCodes => [
                 ...new Set([...prevCodes, ...currentProductCodes]) // Kết hợp và loại bỏ trùng lặp
             ]);
@@ -38,7 +36,6 @@ const ProductPage = () => {
             <div style={{ margin: "20px" }}>
                 <ProductForm
                     allProductCodes={allProductCodes}
-                    // setListProductCode={setListProductCode}
                     loadProduct={loadProduct}
                 />
                 <ProductTable

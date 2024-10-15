@@ -1,6 +1,6 @@
 import { Button, Input, Modal, notification, Select, Form } from "antd";
 import { useEffect, useState } from "react";
-import { createProductAPI, fetchDataBrand, fetchDataCategory, fetchDataCollar, fetchDataSleeve } from "../../service/api.service";
+import { checkDuplicateProductAPI, createProductAPI, fetchDataBrand, fetchDataCategory, fetchDataCollar, fetchDataSleeve } from "../../service/api.service";
 
 const ProductForm = (props) => {
     const [form] = Form.useForm();
@@ -71,18 +71,20 @@ const ProductForm = (props) => {
         setIsModalOpen(false);
         form.resetFields(); // Đặt lại các trường trong form
     };
-
-    const checkDuplicateCode = (rules, value) => {
-        if (allProductCodes.includes(value)) {
-            return Promise.reject(new Error('code already exists'))
+    const checkDuplicateCode = async (rules, value) => {
+        const res = await checkDuplicateProductAPI('code', value)
+        if (res.data.exists) {
+            return Promise.reject(new Error('Code already exists'))
         }
         return Promise.resolve()
+
     }
+
 
     return (
         <>
             <div>
-                <Button onClick={() => setIsModalOpen(true)} type="primary">Create User</Button>
+                <Button onClick={() => setIsModalOpen(true)} type="primary">Create Product</Button>
             </div>
 
             <Modal
