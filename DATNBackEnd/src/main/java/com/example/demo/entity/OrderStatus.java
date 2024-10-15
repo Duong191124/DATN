@@ -1,5 +1,5 @@
 package com.example.demo.entity;
 
 public enum OrderStatus {
-    process, delivery, shipped, cancelled
+    process, delivery, shipped, cancelled,pending
 }

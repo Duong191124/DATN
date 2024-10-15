@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.InputMismatchException;
 import java.util.List;
-import java.util.Locale;
 
 @RestController
 @RequestMapping("${api.prefix}/auth")
