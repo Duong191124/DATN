@@ -19,8 +19,7 @@ const CounterSalesProductDetail = ({
       title: "Tên sản phẩm",
       dataIndex: "productResponse",
       render: (text, record) => {
-        console.log("record", record.productResponse.name);
-        return record.productResponse.name;
+        return record.productResponse?.name || "Chưa có tên sản phẩm";
       },
     },
     {
@@ -30,20 +29,20 @@ const CounterSalesProductDetail = ({
     {
       title: "Giá",
       dataIndex: "price",
-      render: (text) => `${text.toLocaleString()} VNĐ`,
+      render: (text) => `${text?.toLocaleString()} VNĐ` || "Chưa có giá",
     },
     {
       title: "Size",
       dataIndex: "sizeId",
       render: (text, record) => {
-        return record.size.name;
+        return record.size?.name || "Chưa có size";
       },
     },
     {
       title: "Màu",
       dataIndex: "color",
       render: (text, record) => {
-        return record.color.name;
+        return record.color?.name || "Chưa có màu";
       },
     },
     {

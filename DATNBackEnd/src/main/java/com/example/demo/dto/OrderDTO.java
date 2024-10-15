@@ -15,7 +15,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -29,6 +31,8 @@ public class OrderDTO {
     @Min(value = 0,message = "delivery fee is not valid")
     @JsonProperty("delivery_fee")
     private Double deliveryFee;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate orderDate;
     @Min(value = 0,message = "total amount is not valid!")
     @NotNull(message = "check total amount, please!")
     @JsonProperty("total_amount")

@@ -2,7 +2,6 @@ package com.example.demo.service.impl;
 
 import com.example.demo.dto.StaffDTO;
 import com.example.demo.dto.UserPermissionDTO;
-import com.example.demo.entity.Customer;
 import com.example.demo.entity.Permission;
 import com.example.demo.entity.Staff;
 import com.example.demo.exception.UsernameExisting;

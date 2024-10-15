@@ -8,6 +8,7 @@ import CounterSaleStaff from "../component/layout/admin/counter.sale/order.sale.
 import {
   createOrder,
   createPayment,
+  getAllStaff,
   orderProductDetail,
   orderStaff,
 } from "../service/api.service";
@@ -37,11 +38,14 @@ const CounterSales = () => {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [customerPaid, setCustomerPaid] = useState(0);
   const [staffList, setStaffList] = useState([]);
+  const [total, setTotal] = useState(0); // Tổng số nhân viên
+  const [page, setPage] = useState(1); // Trang hiện tại
+  const [size] = useState(10);
   useEffect(() => {
     loadProductDetail();
-    loadStaffList();
     calculateTotalAmount();
-  }, [selectedBill, cartItemsByBill, discountAmount]);
+    loadStaffList(page, size);
+  }, [selectedBill, cartItemsByBill, discountAmount, page, size]);
 
   const loadProductDetail = async () => {
     try {
@@ -63,11 +67,12 @@ const CounterSales = () => {
       console.error("Error updating product details", error);
     }
   };
-  const loadStaffList = async () => {
+  const loadStaffList = async (page = 1, size = 10) => {
     try {
-      const response = await orderStaff();
+      const response = await getAllStaff(page, size);
       if (response.data?.data) {
-        setStaffList(response.data.data);
+        setStaffList(response.data.data); // Lưu danh sách nhân viên vào state
+        setTotal(response.data.total); // Lưu tổng số nhân viên (để phân trang)
       }
     } catch (error) {
       console.error("Error loading staff list", error);
@@ -86,14 +91,12 @@ const CounterSales = () => {
     );
     setTotalAmount(total);
   };
-
   const updateCart = (updatedItems) => {
     const newCart = { ...cartItemsByBill, [selectedBill]: updatedItems };
     setCartItemsByBill(newCart);
     localStorage.setItem("cartItemsByBill", JSON.stringify(newCart));
     calculateTotalAmount();
   };
-
   const addToCart = (productDetailId, quantity) => {
     if (!selectedBill) {
       notification.error({ message: "Vui lòng chọn hóa đơn để mua hàng!" });
@@ -110,14 +113,12 @@ const CounterSales = () => {
     }
     updateCart(updatedItems);
   };
-
   const onUpdateQuantity = (productDetailId, newQuantity) => {
     const updatedItems = cartItemsByBill[selectedBill].map((item) =>
       item.id === productDetailId ? { ...item, quantity: newQuantity } : item
     );
     updateCart(updatedItems);
   };
-
   const handleRemoveFromCart = (productDetailId) => {
     const updatedItems = cartItemsByBill[selectedBill].filter(
       (item) => item.id !== productDetailId
@@ -163,7 +164,6 @@ const CounterSales = () => {
       description: `Hóa đơn chờ đã được tạo bởi nhân viên ${selectedStaff.name}.`,
     });
   };
-
   const handleBillSelect = (billId) => {
     setSelectedBill((prevSelectedBill) =>
       prevSelectedBill === billId ? null : billId
@@ -200,11 +200,24 @@ const CounterSales = () => {
     }
     const excessAmount = customerPaid - totalAmountWithDiscount;
     // Chuẩn bị dữ liệu gửi lên backend
+    const isoString = billCode.orderDate; // Giả sử đây là chuỗi ISO từ backend
+    const orderDate = new Date(isoString);
+
+    // Hàm để chuyển đổi ngày thành chuỗi định dạng yyyy-MM-dd
+    const formatDateToYMD = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    };
+
+    const formattedOrderDate = formatDateToYMD(orderDate);
     const orderDTO = {
       code: billCode.billId,
       deliveryFee: 0,
       totalAmount: totalAmountWithDiscount,
       moneyReceived: customerPaid,
+      orderDate: formattedOrderDate,
       voucherId: null,
       staffId: billCode.staff.id,
       orderDetailRequests: cartItems.map((item) => ({
@@ -216,6 +229,7 @@ const CounterSales = () => {
       setLoading(true);
       const orderResponse = await createOrder(
         orderDTO.code,
+        orderDTO.orderDate,
         orderDTO.deliveryFee,
         orderDTO.totalAmount,
         orderDTO.moneyReceived,
@@ -312,12 +326,14 @@ const CounterSales = () => {
             selectedBill={selectedBill}
           />
         </div>
-        <div style={{ width: "48%" }}>
+        <div style={{ width: "48%", display: "flex", flexDirection: "column" }}>
           <CounterSaleStaff
-            onStaffSelect={(staffId) =>
-              setSelectedStaff(staffList.find((staff) => staff.id === staffId))
-            }
+            onStaffSelect={(staff) => setSelectedStaff(staff)}
             staffList={staffList}
+            page={page}
+            total={total}
+            size={size}
+            setPage={setPage}
           />
           <Button
             type="primary"

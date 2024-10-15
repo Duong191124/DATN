@@ -5,9 +5,10 @@ import com.example.demo.entity.Orders;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 @Data
 @Getter
@@ -20,7 +21,8 @@ public class OrderResponse {
     private String code;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-    private Date orderDate;
+    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    private LocalDate orderDate;
     private Double deliveryFee;
     private Double totalAmount;
     private Double moneyReceived;

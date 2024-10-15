@@ -31,7 +31,15 @@ const OrderTable = (props) => {
   const { Search } = Input;
   const { RangePicker } = DatePicker;
   const { TabPane } = Tabs;
-  const { dataOrder, loadOrder } = props;
+  const {
+    dataOrder,
+    loadOrder,
+    handlePageChange,
+    pageSize,
+    currentPage,
+    totalOrders,
+    loading,
+  } = props;
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
@@ -239,7 +247,10 @@ const OrderTable = (props) => {
   const columns = [
     {
       title: "STT",
-      render: (_, record, index) => <>{index + 1}</>,
+      render: (_, record, index) => {
+        // console.log(">>>> index:", pageSize);
+        return <>{index + 1 + (currentPage - 1) * pageSize}</>;
+      },
     },
     {
       title: "Mã Đơn Hàng",
@@ -641,60 +652,24 @@ const OrderTable = (props) => {
   };
 
   return (
-    <div className="bill">
-      <div className="filter-bill">
-        <div className="bill-date">
-          <p>Thời gian</p>
-          <RangePicker />
-        </div>
-        <div className="bill-status">
-          <p>Trạng thái</p>
-          <Radio.Group
-            style={{
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <Radio value={1} style={{ marginBottom: "15px" }}>
-              Chờ xử lý
-            </Radio>
-            <Radio value={2} style={{ marginBottom: "15px" }}>
-              Đang xử lý
-            </Radio>
-            <Radio value={3} style={{ marginBottom: "15px" }}>
-              Đang giao
-            </Radio>
-            <Radio value={4} style={{ marginBottom: "15px" }}>
-              Đã giao
-            </Radio>
-            <Radio value={5} style={{ marginBottom: "15px" }}>
-              Đã hủy
-            </Radio>
-          </Radio.Group>
-        </div>
-        <div className="bill-staff">
-          <p>Nhân viên</p>
-          <Search
-            placeholder="Nhập tên nhân viên ..."
-            onSearch={"null"}
-            enterButton
-          />
-        </div>
-      </div>
-      <div className="table-bill">
-        <Table
-          style={{ border: "1px solid #ddd" }}
-          columns={columns}
-          dataSource={dataOrder}
-          rowKey="id"
-          onRow={(record) => ({
-            onClick: () => handleRowExpand(record),
-          })}
-          expandedRowRender={(record) => expandedRowRender(record)}
-          expandedRowKeys={expandedRowKey ? [expandedRowKey] : []}
-        />
-      </div>
-    </div>
+    <Table
+      style={{ border: "1px solid #ddd" }}
+      columns={columns}
+      dataSource={dataOrder}
+      rowKey="id"
+      onRow={(record) => ({
+        onClick: () => handleRowExpand(record),
+      })}
+      expandedRowRender={(record) => expandedRowRender(record)}
+      expandedRowKeys={expandedRowKey ? [expandedRowKey] : []}
+      pagination={{
+        current: currentPage,
+        pageSize: pageSize,
+        total: totalOrders,
+        onChange: handlePageChange,
+      }}
+      loading={loading}
+    />
   );
 };
 

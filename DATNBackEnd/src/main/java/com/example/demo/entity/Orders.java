@@ -2,9 +2,10 @@ package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 
@@ -29,7 +30,8 @@ public class Orders extends BaseEntity {
     private OrderStatus status;
     @Basic
     @Column(name = "order_date", nullable = true)
-    private Date orderDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate orderDate;
     @Basic
     @Column(name = "delivery_fee", nullable = true, precision = 0)
     private Double deliveryFee;

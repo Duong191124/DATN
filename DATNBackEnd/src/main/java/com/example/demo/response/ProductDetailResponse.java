@@ -5,9 +5,6 @@ import com.example.demo.entity.ProductDetail;
 import com.example.demo.entity.Size;
 import lombok.*;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Builder
 @Getter
 @Setter
@@ -23,13 +20,6 @@ public class ProductDetailResponse {
     private ProductResponse productResponse;
     private Size size;
     private Color color;
-    private Set<PromotionResponse> promotionResponses;
-
-    private String productId;
-
-    private String sizeId;
-
-    private String colorId;
 
     public static ProductDetailResponse fromProductDetailResponse(ProductDetail productDetail){
         return ProductDetailResponse.builder()
@@ -41,15 +31,6 @@ public class ProductDetailResponse {
                 .productResponse(ProductResponse.convertResponse(productDetail.getProduct()))
                 .size(productDetail.getSize())
                 .color(productDetail.getColor())
-                .promotionResponses(
-                        productDetail.getPromotions()
-                                .stream()
-                                .map(PromotionResponse::fromPromotionResponse)
-                                .collect(Collectors.toSet())
-                )
-                .productId(productDetail.getProduct().getName())
-                .sizeId(productDetail.getSize().getName())
-                .colorId(productDetail.getColor().getName())
                 .build();
     }
 }

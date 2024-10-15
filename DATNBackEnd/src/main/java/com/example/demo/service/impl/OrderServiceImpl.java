@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -39,7 +40,7 @@ public class OrderServiceImpl implements OrderService {
         Staff staff = staffRepo.findById(orderDTO.getStaffId()).orElseThrow(()->new RuntimeException("not found staff with id:"+orderDTO.getStaffId()));
         Orders order = new Orders();
         order.setCode(orderDTO.getCode());
-        order.setOrderDate(new Date());
+        order.setOrderDate(orderDTO.getOrderDate());
         order.setStaff(staff);
         order.setMoneyReceived(orderDTO.getMoneyReceived());
         if (orderDTO.getVoucherId() != null) {
@@ -162,8 +163,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<OrderResponse> pageAll(String staffName, Date startDate, Date endDate, Pageable pageable) {
-        Page<Orders> ordersPage = orderRepo.pageAll(staffName,startDate,endDate,pageable);
+    public Page<OrderResponse> pageAll(String staffName, LocalDate  startDate, LocalDate endDate, OrderStatus orderStatus, String orderCode, Pageable pageable) {
+        Page<Orders> ordersPage = orderRepo.pageAll(staffName,startDate,endDate,orderStatus,orderCode,pageable);
         return ordersPage.map(OrderResponse::convertOrderResponse);
     }
 }

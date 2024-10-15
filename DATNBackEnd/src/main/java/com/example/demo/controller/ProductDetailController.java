@@ -6,8 +6,6 @@ import com.example.demo.entity.ProductDetail;
 import com.example.demo.response.ProductDetailResponse;
 import com.example.demo.service.ProductDetailService;
 import com.example.demo.response.MessageReponse;
-import com.example.demo.response.ProductDetailResponse;
-import com.example.demo.service.impl.ProductDetailServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,10 +29,7 @@ public class ProductDetailController {
 
     @GetMapping("/getAllProductDetail")
     public ResponseEntity<MessageReponse> getAll(){
-        List<ProductDetailResponse> productDetailList = productDetailService.getAll()
-                .stream()
-                .map(ProductDetailResponse::fromProductDetailResponse)
-                .toList();
+        List<ProductDetailResponse> productDetailList = productDetailService.getAll();
         return ResponseEntity.ok().body(MessageReponse.builder()
                 .message("get info successfuly")
                 .status(HttpStatus.OK.value())

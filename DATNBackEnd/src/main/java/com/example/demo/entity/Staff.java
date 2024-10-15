@@ -48,14 +48,11 @@ public class Staff extends BaseEntity {
     @Basic
     @Column(name = "gender")
     private int gender;
-    @ManyToOne
-    @JoinColumn(name = "permission_id", referencedColumnName = "id")
-    private Permission permission;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "staff_permission", // Tên bảng trung gian
             joinColumns = @JoinColumn(name = "staff_id"), // Khóa ngoại tới bảng User
             inverseJoinColumns = @JoinColumn(name = "permission_id") // Khóa ngoại tới bảng Permition
     )
-    private List<Permission> permissions;
+    private List<Permission> permission;
 }

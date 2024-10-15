@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.InputMismatchException;
 import java.util.List;
-import java.util.Locale;
 
 @RestController
 @RequestMapping("${api.prefix}/auth")
@@ -115,7 +114,6 @@ public class AuthController {
                                             .id(staff.getId())
                                             .name(staff.getName())
                                             .email(staff.getEmail())
-                                            .role(staff.getPermission().getName())
                                             .build()
                             )
                             .status(HttpStatus.OK.value())

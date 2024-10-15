@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.OrderDTO;
+import com.example.demo.entity.OrderStatus;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.OrderPageResponse;
 import com.example.demo.response.OrderResponse;
@@ -18,9 +19,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
 
 @RestController
 @RequestMapping("${api.prefix}/orders")
@@ -39,17 +39,21 @@ public class  OrderController {
     }
     @GetMapping("/get-page")
     public ResponseEntity<OrderPageResponse> getOrdersByKeyword(
-            @RequestParam(defaultValue = "",required = false) String staffName,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date  endDate,
-            @RequestParam(defaultValue = "0",required = false) int page,
-            @RequestParam(defaultValue = "10",required = false) int limit){
-        Pageable pageable = PageRequest.of(page,limit, Sort.by("orderDate").descending());
-        Page<OrderResponse> orders = orderService.pageAll(staffName,startDate,endDate,pageable);
+            @RequestParam(required = false) String staffName,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+            @RequestParam(required = false) OrderStatus orderStatus,
+            @RequestParam(defaultValue = "", required = false) String orderCode,
+            @RequestParam(defaultValue = "0", required = false) int page,
+            @RequestParam(defaultValue = "10", required = false) int limit
+    ) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("orderDate").descending());
+        Page<OrderResponse> orders = orderService.pageAll(staffName, startDate, endDate, orderStatus, orderCode, pageable);
         List<OrderResponse> orderResponses = orders.getContent();
         int totalPage = orders.getTotalPages();
         int pageCurrent = orders.getNumber();
         int pageSizeCurrent = orders.getSize();
+
         return ResponseEntity.ok(OrderPageResponse.builder()
                 .orderResponseList(orderResponses)
                 .page(pageCurrent)
@@ -57,7 +61,9 @@ public class  OrderController {
                 .totalPage(totalPage)
                 .build());
     }
-        @PostMapping("/add")
+
+
+    @PostMapping("/add")
         public ResponseEntity<?> addOrder(@Valid @RequestBody OrderDTO orderDTO, BindingResult result){
             try {
                 if(result.hasErrors()){

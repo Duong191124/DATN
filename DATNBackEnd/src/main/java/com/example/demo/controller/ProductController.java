@@ -59,7 +59,6 @@ public class ProductController {
             @RequestParam(defaultValue = "") String description,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "3") int pageSize) {
-
         // Đảm bảo page không nhỏ hơn 1
         page = Math.max(1, page);
         Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("id").ascending());

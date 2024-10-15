@@ -40,15 +40,43 @@ const router = createBrowserRouter([
         path: "staff",
         element: <StaffManagement />,
       },
+      {
+        path: "/counter-sales",
+        element: <CounterSales />,
+      },
+      {
+        path: "/order",
+        element: <OrderPage />,
+      },
+      {
+        path: "/colors",
+        element: <ColorPage />,
+      },
+      {
+        path: "/sizes",
+        element: <SizePage />,
+      },
+      {
+        path: "/collars",
+        element: <CollarPage />,
+      },
+      {
+        path: "/brands",
+        element: <BrandPage />,
+      },
+      {
+        path: "/categories",
+        element: <CategoryPage />,
+      },
+      {
+        path: "/sleeves",
+        element: <SleevePage />,
+      },
+      {
+        path: "/permission",
+        element: <PermissionPage />,
+      },
     ],
-  },
-  {
-    path: "/counter-sales",
-    element: <CounterSales />,
-  },
-  {
-    path: "/order",
-    element: <OrderPage />,
   },
   {
     path: "/login",
@@ -57,34 +85,6 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <RegisterPage />,
-  },
-  {
-    path: "/permission",
-    element: <PermissionPage />,
-  },
-  {
-    path: "/colors",
-    element: <ColorPage />,
-  },
-  {
-    path: "/sizes",
-    element: <SizePage />,
-  },
-  {
-    path: "/collars",
-    element: <CollarPage />,
-  },
-  {
-    path: "/brands",
-    element: <BrandPage />,
-  },
-  {
-    path: "/categories",
-    element: <CategoryPage />,
-  },
-  {
-    path: "/sleeves",
-    element: <SleevePage />,
   },
 ]);
 createRoot(document.getElementById("root")).render(

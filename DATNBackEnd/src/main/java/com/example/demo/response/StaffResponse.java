@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -39,7 +38,6 @@ public class StaffResponse {
     private List<Permission> permissions;
 
     public static StaffResponse fromStaffResponse(Staff staff){
-        Integer roleId = (staff.getPermission() != null) ? staff.getPermission().getId() : null;
         return StaffResponse
                 .builder()
                 .id(staff.getId())
@@ -52,7 +50,7 @@ public class StaffResponse {
                 .status(staff.getStatus())
                 .dateOfBirth(staff.getDateOfBirth())
                 .notes(staff.getNotes())
-                .permissions(staff.getPermissions())
+                .permissions(staff.getPermission())
                 .build();
     }
 }

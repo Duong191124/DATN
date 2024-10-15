@@ -6,8 +6,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 @Data
 @Getter
@@ -19,7 +19,7 @@ public class OrderDataPaymentResponse {
     private Integer id;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-    private Date orderDate;
+    private LocalDate orderDate;
     private Double deliveryFee;
     private Double totalAmount;
     private Double moneyReceived;

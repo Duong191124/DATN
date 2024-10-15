@@ -3,11 +3,12 @@ package com.example.demo.service;
 
 
 import com.example.demo.dto.OrderDTO;
+import com.example.demo.entity.OrderStatus;
 import com.example.demo.response.OrderResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface OrderService {
@@ -17,5 +18,5 @@ public interface OrderService {
     OrderResponse updateStatusOrder(Integer id, String status);
     void deletedOrder(Integer id);
     OrderResponse findById(Integer id);
-    Page<OrderResponse> pageAll(String staffName, Date startDate, Date endDate, Pageable pageable);
+    Page<OrderResponse> pageAll(String staffName, LocalDate startDate, LocalDate  endDate, OrderStatus orderStatus, String orderCode, Pageable pageable);
 }
