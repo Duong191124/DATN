@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { fetchDataBrandAPI } from "../service/api.service";
 import BrandForm from "../component/brand/brand.form";
 import BrandTable from "../component/brand/brand.table";
+import { Button } from "antd";
+import { Link } from "react-router-dom";
 
 const BrandPage = () => {
 
@@ -31,6 +33,7 @@ const BrandPage = () => {
                 loadBrand={loadBrand}
                 dataBrand={dataBrand}
             />
+            <Button type="primary"><Link to="/products">Go to product</Link></Button>
         </div>
     )
 }

@@ -2,6 +2,8 @@ import ColorForm from "../component/color/color.form";
 import ColorTable from "../component/color/color.table";
 import { useEffect, useState } from "react";
 import { fetchDataColor } from "../service/api.service";
+import { Button } from "antd";
+import { Link } from "react-router-dom";
 
 const ColorPage = () => {
     const [dataColor, setDataColor] = useState([]);
@@ -29,6 +31,7 @@ const ColorPage = () => {
                 loadColor={loadColor}
                 dataColor={dataColor}
             />
+            <Button type="primary"><Link to="/products">Go to product</Link></Button>
         </div>
     );
 };

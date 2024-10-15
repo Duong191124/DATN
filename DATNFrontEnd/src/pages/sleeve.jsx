@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { fetchDataSleeveAPI } from "../service/api.service";
 import SleeveForm from "../component/sleeve/sleeve.form";
 import SleeveTable from "../component/sleeve/sleeve.table";
+import { Button } from "antd";
+import { Link } from "react-router-dom";
 
 
 const SleevePage = () => {
@@ -32,6 +34,7 @@ const SleevePage = () => {
                 loadSleeve={loadSleeve}
                 dataSleeve={dataSleeve}
             />
+            <Button type="primary"><Link to="/products">Go to product</Link></Button>
         </div>
     )
 }

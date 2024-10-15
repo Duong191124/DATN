@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { fetchDataSizeAPI } from "../service/api.service";
 import SizeForm from "../component/size/size.form";
 import SizeTable from "../component/size/size.table";
+import { Button } from "antd";
+import { Link } from "react-router-dom";
 
 
 const SizePage = () => {
@@ -32,6 +34,7 @@ const SizePage = () => {
                 loadSize={loadSize}
                 dataSize={dataSize}
             />
+            <Button type="primary"><Link to="/products">Go to product</Link></Button>
         </div>
     )
 }

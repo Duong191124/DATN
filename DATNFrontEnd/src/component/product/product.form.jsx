@@ -1,11 +1,12 @@
 import { Button, Input, Modal, notification, Select, Form } from "antd";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { debounce } from "lodash"; // Import lodash debounce
 import { checkDuplicateProductAPI, createProductAPI, fetchDataBrand, fetchDataCategory, fetchDataCollar, fetchDataSleeve } from "../../service/api.service";
 
 const ProductForm = (props) => {
     const [form] = Form.useForm();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { loadProduct, allProductCodes } = props;
+    const { loadProduct } = props;
 
     const [brands, setBrands] = useState([]);
     const [sleeves, setSleeves] = useState([]);
@@ -71,15 +72,35 @@ const ProductForm = (props) => {
         setIsModalOpen(false);
         form.resetFields(); // Đặt lại các trường trong form
     };
-    const checkDuplicateCode = async (rules, value) => {
-        const res = await checkDuplicateProductAPI('code', value)
-        if (res.data.exists) {
-            return Promise.reject(new Error('Code already exists'))
-        }
-        return Promise.resolve()
 
-    }
 
+    const debounceCheckDuplicateCode = useCallback(
+        debounce(async (value, callback) => {
+            const res = await checkDuplicateProductAPI('code', value);
+            if (res.data.exists) {
+                callback(new Error('Code already exists'));
+            } else {
+                callback();
+            }
+        }, 1000), []
+    );
+
+    // Sử dụng hàm validator với debounce
+    const checkDuplicateCode = (rule, value) => {
+        return new Promise((resolve, reject) => {
+            if (!value) {
+                resolve(); // Nếu không có giá trị thì không kiểm tra
+            } else {
+                debounceCheckDuplicateCode(value, (error) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve();
+                    }
+                });
+            }
+        });
+    };
 
     return (
         <>
@@ -108,8 +129,16 @@ const ProductForm = (props) => {
                                 message: 'Please input the code!'
                             },
                             {
+                                validator: (rule, value) => {
+                                    if (value && value.length > 50) {
+                                        return Promise.reject(new Error('length must be < 50 characters'));
+                                    }
+                                    return Promise.resolve();
+                                },
+                            },
+                            {
                                 validator: checkDuplicateCode
-                            }
+                            },
                         ]}>
                         <Input />
                     </Form.Item>
@@ -121,7 +150,15 @@ const ProductForm = (props) => {
                             {
                                 required: true,
                                 message: 'Please input the name!'
-                            }
+                            },
+                            {
+                                validator: (rule, value) => {
+                                    if (value && value.length > 50) {
+                                        return Promise.reject(new Error('length must be < 50 characters'));
+                                    }
+                                    return Promise.resolve();
+                                },
+                            },
                         ]}>
                         <Input />
                     </Form.Item>
@@ -133,6 +170,14 @@ const ProductForm = (props) => {
                             {
                                 required: true,
                                 message: 'Please input the price!'
+                            },
+                            {
+                                validator: (rule, value) => {
+                                    if (value && value < 1) {
+                                        return Promise.reject(new Error('price must be >0'));
+                                    }
+                                    return Promise.resolve();
+                                },
                             }
                         ]}>
                         <Input />

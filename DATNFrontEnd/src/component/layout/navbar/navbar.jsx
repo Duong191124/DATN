@@ -7,7 +7,28 @@ const items = [
   {
     key: '1',
     icon: <ProductOutlined />,
-    label: <Link to="/products">Product Management</Link>
+    label: <Link to="/products">Product Management</Link>,
+    children: [
+      {
+
+        label: <Link to="/collars">Collar</Link>
+      },
+      {
+        label: <Link to="/sleeves">Sleeve</Link>
+      },
+      {
+        label: <Link to="/categories">Category</Link>
+      },
+      {
+        label: <Link to="/brands">Brand</Link>
+      },
+      {
+        label: <Link to="/colors">Color</Link>
+      },
+      {
+        label: <Link to="/sizes">Size</Link>
+      }
+    ]
   },
   {
     key: '2',
