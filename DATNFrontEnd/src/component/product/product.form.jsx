@@ -1,11 +1,12 @@
 import { Button, Input, Modal, notification, Select, Form } from "antd";
-import { useEffect, useState } from "react";
-import { createProductAPI, fetchDataBrand, fetchDataCategory, fetchDataCollar, fetchDataSleeve } from "../../service/api.service";
+import { useCallback, useEffect, useState } from "react";
+import { debounce } from "lodash"; // Import lodash debounce
+import { checkDuplicateProductAPI, createProductAPI, fetchDataBrand, fetchDataCategory, fetchDataCollar, fetchDataSleeve } from "../../service/api.service";
 
 const ProductForm = (props) => {
     const [form] = Form.useForm();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { loadProduct, allProductCodes } = props;
+    const { loadProduct } = props;
 
     const [brands, setBrands] = useState([]);
     const [sleeves, setSleeves] = useState([]);
@@ -49,7 +50,7 @@ const ProductForm = (props) => {
 
     const loadDataBrand = async () => {
         const res = await fetchDataBrand();
-        setBrands(res.data);
+        setBrands(res.data.data);
     };
 
     const loadDataSleeve = async () => {
@@ -59,7 +60,7 @@ const ProductForm = (props) => {
 
     const loadDataCategory = async () => {
         const res = await fetchDataCategory();
-        setCategories(res.data);
+        setCategories(res.data.data);
     };
 
     const loadDataCollar = async () => {
@@ -72,17 +73,43 @@ const ProductForm = (props) => {
         form.resetFields(); // Đặt lại các trường trong form
     };
 
-    const checkDuplicateCode = (rules, value) => {
-        if (allProductCodes.includes(value)) {
-            return Promise.reject(new Error('code already exists'))
-        }
-        return Promise.resolve()
-    }
+    console.log("Check brand", brands)
+    console.log("check category", categories)
+
+
+    const debounceCheckDuplicateCode = useCallback(
+        debounce(async (value, callback) => {
+            const res = await checkDuplicateProductAPI('code', value);
+            if (res.data.exists) {
+                callback(new Error('Code already exists'));
+            } else {
+                callback();
+            }
+        }, 1000), []
+    );
+
+    // Sử dụng hàm validator với debounce
+    const checkDuplicateCode = (rule, value) => {
+        return new Promise((resolve, reject) => {
+            if (!value) {
+                resolve(); // Nếu không có giá trị thì không kiểm tra
+            } else {
+                debounceCheckDuplicateCode(value, (error) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve();
+                    }
+                });
+            }
+        });
+
+    };
 
     return (
         <>
             <div>
-                <Button onClick={() => setIsModalOpen(true)} type="primary">Create User</Button>
+                <Button onClick={() => setIsModalOpen(true)} type="primary">Create Product</Button>
             </div>
 
             <Modal
@@ -106,8 +133,16 @@ const ProductForm = (props) => {
                                 message: 'Please input the code!'
                             },
                             {
+                                validator: (rule, value) => {
+                                    if (value && value.length > 50) {
+                                        return Promise.reject(new Error('length must be < 50 characters'));
+                                    }
+                                    return Promise.resolve();
+                                },
+                            },
+                            {
                                 validator: checkDuplicateCode
-                            }
+                            },
                         ]}>
                         <Input />
                     </Form.Item>
@@ -119,7 +154,15 @@ const ProductForm = (props) => {
                             {
                                 required: true,
                                 message: 'Please input the name!'
-                            }
+                            },
+                            {
+                                validator: (rule, value) => {
+                                    if (value && value.length > 50) {
+                                        return Promise.reject(new Error('length must be < 50 characters'));
+                                    }
+                                    return Promise.resolve();
+                                },
+                            },
                         ]}>
                         <Input />
                     </Form.Item>
@@ -131,6 +174,14 @@ const ProductForm = (props) => {
                             {
                                 required: true,
                                 message: 'Please input the price!'
+                            },
+                            {
+                                validator: (rule, value) => {
+                                    if (value && value < 1) {
+                                        return Promise.reject(new Error('price must be >0'));
+                                    }
+                                    return Promise.resolve();
+                                },
                             }
                         ]}>
                         <Input />
@@ -222,7 +273,9 @@ const ProductForm = (props) => {
                 </Form>
             </Modal>
         </>
+
     );
+
 };
 
 export default ProductForm;

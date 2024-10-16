@@ -42,6 +42,23 @@ public class ProductServiceImpl implements ProductService {
           throw new RuntimeException("Failed to add product"+e.getMessage());
       }
     }
+    public boolean isDuplicate(String type, String value) {
+        if ("code".equals(type)) {
+            return productRepo.existsByCode(value);
+        } else if ("name".equals(type)) {
+            return productRepo.existsByName(value);
+        }
+        return false;
+    }
+
+    public boolean isDuplicate(String type, String value) {
+        if ("code".equals(type)) {
+            return productRepo.existsByCode(value);
+        } else if ("name".equals(type)) {
+            return productRepo.existsByName(value);
+        }
+        return false;
+    }
 
     @Override
     public ProductResponse updatedProduct(int id,ProductDTO productDTO) {

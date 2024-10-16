@@ -12,7 +12,7 @@ import java.util.List;
 public interface StaffService {
     Page<Staff> getAll(Pageable pageable);
 
-    Staff save(Staff Staff);
+    Staff save(StaffDTO Staff);
 
     void deleteById(int id);
 

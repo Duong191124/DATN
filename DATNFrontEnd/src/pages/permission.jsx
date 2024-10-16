@@ -1,63 +1,63 @@
-import React, { useEffect, useState } from 'react';
-import { Button } from 'antd';
-import { getAllPermission } from '../service/api.service'
-import PermissionTable from '../component/permission/permission.table';
-import PermissionModal from '../component/permission/permission.modal';
-import PermissionUpdate from '../component/permission/permission.update';
+// import React, { useEffect, useState } from 'react';
+// import { Button } from 'antd';
+// import { getAllPermission } from '../service/api.service'
+// import PermissionTable from '../component/permission/permission.table';
+// import PermissionModal from '../component/permission/permission.modal';
+// import PermissionUpdate from '../component/permission/permission.update';
 
 
 
-const PermissionPage = () => {
-    const [dataTable, setDataTable] = useState([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [page, setPage] = useState(1);
-    const [size, setSize] = useState(200);
-    const [total, setTotal] = useState(0);
+// const PermissionPage = () => {
+//     const [dataTable, setDataTable] = useState([]);
+//     const [isModalOpen, setIsModalOpen] = useState(false);
+//     const [page, setPage] = useState(1);
+//     const [size, setSize] = useState(200);
+//     const [total, setTotal] = useState(0);
 
-    const loadData = async () => {
-        try {
-            const data = await getAllPermission(page, size);
-            setDataTable(data.data.content);
-            setTotal(data.data.totalElements)
-        } catch (error) {
-        }
-    }
+//     const loadData = async () => {
+//         try {
+//             const data = await getAllPermission(page, size);
+//             setDataTable(data.data.content);
+//             setTotal(data.data.totalElements)
+//         } catch (error) {
+//         }
+//     }
 
-    const handleOpenModal = () => {
-        setIsModalOpen(true)
-    }
+//     const handleOpenModal = () => {
+//         setIsModalOpen(true)
+//     }
 
-    useEffect(() => {
-        loadData();
-    }, []);
+//     useEffect(() => {
+//         loadData();
+//     }, []);
 
-    return (
-        <>
-            <div style={{
-                margin: "20px 50px",
-            }}>
-                <Button
-                    onClick={handleOpenModal}
-                    type='primary'>
-                    Create
-                </Button>
-                <PermissionTable
-                    dataTable={dataTable}
-                    loadData={loadData}
-                    setPage={setPage}
-                    setSize={setSize}
-                    page={page}
-                    size={size}
-                    total={total}
-                />
-                <PermissionModal
-                    loadData={loadData}
-                    isModalOpen={isModalOpen}
-                    setIsModalOpen={setIsModalOpen}
-                />
-            </div>
-        </>
-    )
-}
+//     return (
+//         <>
+//             <div style={{
+//                 margin: "20px 50px",
+//             }}>
+//                 <Button
+//                     onClick={handleOpenModal}
+//                     type='primary'>
+//                     Create
+//                 </Button>
+//                 <PermissionTable
+//                     dataTable={dataTable}
+//                     loadData={loadData}
+//                     setPage={setPage}
+//                     setSize={setSize}
+//                     page={page}
+//                     size={size}
+//                     total={total}
+//                 />
+//                 <PermissionModal
+//                     loadData={loadData}
+//                     isModalOpen={isModalOpen}
+//                     setIsModalOpen={setIsModalOpen}
+//                 />
+//             </div>
+//         </>
+//     )
+// }
 
-export default PermissionPage
+// export default PermissionPage

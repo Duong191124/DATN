@@ -1,29 +1,25 @@
 package com.example.demo.response;
 
+import com.example.demo.entity.Color;
 import com.example.demo.entity.ProductDetail;
-import jakarta.validation.constraints.*;
-import lombok.Builder;
-import lombok.Data;
+import com.example.demo.entity.Size;
+import lombok.*;
 
 @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class ProductDetailResponse {
-
-    private int id;
-
+    private Integer id;
     private String code;
-
     private int quantity;
-
-    private double price;
-
+    private Double price;
     private String image;
-
-    private String productId;
-
-    private String sizeId;
-
-    private String colorId;
+    private ProductResponse productResponse;
+    private Size size;
+    private Color color;
 
     public static ProductDetailResponse fromProductDetailResponse(ProductDetail productDetail){
         return ProductDetailResponse.builder()
@@ -32,9 +28,9 @@ public class ProductDetailResponse {
                 .quantity(productDetail.getQuantity())
                 .price(productDetail.getPrice())
                 .image(productDetail.getImage())
-                .productId(productDetail.getProduct().getName())
-                .sizeId(productDetail.getSize().getName())
-                .colorId(productDetail.getColor().getName())
+                .productResponse(ProductResponse.convertResponse(productDetail.getProduct()))
+                .size(productDetail.getSize())
+                .color(productDetail.getColor())
                 .build();
     }
 }

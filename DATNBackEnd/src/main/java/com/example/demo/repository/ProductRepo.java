@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ProductRepo extends JpaRepository<Product,Integer> {
+public interface ProductRepo extends JpaRepository<Product, Integer> {
     @Query("SELECT p FROM Product p " +
             "JOIN p.category c " +
             "JOIN p.sleeve s " +
@@ -30,5 +30,12 @@ public interface ProductRepo extends JpaRepository<Product,Integer> {
                                   @Param("price") Double price,
                                   @Param("description") String description,
                                   Pageable pageable);
+    boolean existsByCode(String code);
+    boolean existsByName(String name);
+
+
+    boolean existsByCode(String code);
+
+    boolean existsByName(String name);
 
 }
