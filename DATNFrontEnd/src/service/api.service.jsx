@@ -83,7 +83,6 @@ const deleteProductAPI = (id) => {
   const URL_BACKEND = `/api/v1/products/${id}`;
   return axios.delete(URL_BACKEND);
 };
-
 const fetchAllProduct = (page, pageSize) => {
   const URL_BACKEND = `/api/v1/products?page=${page}&pageSize=${pageSize}`;
   return axios.get(URL_BACKEND);
