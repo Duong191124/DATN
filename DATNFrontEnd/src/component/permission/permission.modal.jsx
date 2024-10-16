@@ -46,11 +46,7 @@
 //             }));
 
 //             setPermissions(updatedPermissions);
-// <<<<<<< HEAD
-//             setStaffPermission(staffPermissions);
-// =======
 //             setStaffPermission(staffPermission);
-// >>>>>>> 138698894d81f4803409ac0ee8b2451698029ddb
 //         } catch (error) {
 //             console.error("Failed to load user permissions:", error);
 //         }
@@ -99,7 +95,6 @@
 //             onClose();
 //         }
 //     };
-
 //     // Grouping dữ liệu để hiển thị lên table
 //     const groupData = [
 //         {
@@ -115,7 +110,6 @@
 //         },
 //         ...permissions.filter(item => item.action.includes('USER')),
 //     ];
-
 //     return (
 //         <Modal
 //             title="Manage Permissions"

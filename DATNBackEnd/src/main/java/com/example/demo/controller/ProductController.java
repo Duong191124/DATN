@@ -38,8 +38,7 @@ public class ProductController {
 
     private final ProductService productService;
     private final ProductServiceImpl productServiceImpl;
-
-    private final ProductDetailService productDetailService;
+    private final ProductDetailServiceImpl productDetailService;
 
     @PostMapping("/check-duplicate")
     public ResponseEntity<Map<String, Boolean>> checkDuplicateSize(@RequestBody Map<String, String> request) {

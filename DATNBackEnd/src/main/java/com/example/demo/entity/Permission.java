@@ -18,10 +18,4 @@ public class Permission {
     @Basic
     @Column(name = "name", nullable = false, length = 255)
     private String name;
-    @Basic
-    @Column(name = "status", nullable = false)
-    private int status;
-//    @ManyToOne
-//    @JoinColumn(name = "entity_id",referencedColumnName = "id")
-//    private Entity entity;
 }
