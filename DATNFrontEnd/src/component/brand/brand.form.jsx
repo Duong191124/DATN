@@ -63,9 +63,7 @@ const BrandForm = (props) => {
                                 required: true,
                                 message: 'Name cannot be empty',
                             },
-                            {
-                                validator: checkDuplicateName
-                            }
+
                         ]}
                     >
                         <Input />

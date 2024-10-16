@@ -31,4 +31,3 @@ const SizePage = () => {
   );
 };
 export default SizePage;
-

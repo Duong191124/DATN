@@ -117,6 +117,7 @@ const fetchDataBrand = () => {
 
 const checkDuplicateProductAPI = async (type, value) => {
   return await axios.post(`/api/v1/products/check-duplicate`, { type, value });
+
 }
 /* API Order*/
 // const fetchDataOrders = () => {
@@ -151,7 +152,6 @@ const fetchDataOrders = (
     throw error;
   }
 };
-
 const productFindById = (productId) => {
   const URL_BACKEND = `api/v1/products/productId/${productId}`;
   return axios.get(URL_BACKEND);
@@ -237,7 +237,6 @@ const createPayment = async (paymentDate, paymentMethod, orderId) => {
     throw new Error("Thanh toán thất bại: " + error.message);
   }
 };
-
 //API product-detail
 const fetchDataProductDetail = () => {
   const URL_BACKEND = "/api/v1/productDetail/getAllProductDetail";
@@ -312,6 +311,7 @@ const createColorAPI = (code, name, status) => {
     status: status
   }
   return axios.post(URL_BACKEND, data)
+
 }
 // const checkCodeExistsAPI = (code, name, status) => {
 //     const URL_BACKEND = "/api/v1/color"
@@ -333,7 +333,6 @@ const checkCodeExistsAPI = (code, name, status) => {
   };
   return axios.post(URL_BACKEND, data);
 };
-
 
 const deleteColorAPI = (id) => {
   const URL_BACKEND = `/api/v1/color/${id}`;
@@ -491,14 +490,11 @@ export const checkDuplicateSizeAPI = async (type, value) => {
     API permission
 */
 
-
-
-
-
 const getAllPermission = () => {
   const URL_BACKEND = "/api/v1/permission/all";
   return axios.get(URL_BACKEND);
-};
+}
+
 
 const getAllPermissionPagination = (page, size) => {
   const URL_BACKEND = `/api/v1/permission/getAll?page=${page}&size=${size}`;
@@ -508,10 +504,10 @@ const createNewPermission = (name) => {
 
   const URL_BACKEND = "/api/v1/permission/";
   const data = {
-    name: name,
-  };
-  return axios.post(URL_BACKEND, data);
-};
+    name: name
+  }
+  return axios.post(URL_BACKEND, data)
+}
 
 const deletePermissionById = (id) => {
   const URL_BACKEND = `/api/v1/permission/${id}`;
@@ -528,25 +524,49 @@ const updatePermissionById = (id, name) => {
 const getAllStaff = (page, size) => {
   const URL_BACKEND = `/api/v1/staff/getAll?page=${page}&size=${size}`;
   return axios.get(URL_BACKEND);
-};
+}
 
 const getStaffPermissions = (id) => {
   const URL_BACKEND = `/api/v1/staff/${id}`;
   return axios.get(URL_BACKEND);
 };
+
 // const updateStaffPermissions = (id, payload) => {
 
 // };
-const createNewStaff = (
-  username,
-  password,
-  phoneNumber,
-  email,
-  address,
-  name,
-  gender,
-  dateOfBirth
-) => {
+// const uodateNewStaff = (
+//   username,
+//   password,
+//   phoneNumber,
+//   email,
+//   address,
+//   name,
+//   gender,
+//   dateOfBirth
+// ) => {
+//   const URL_BACKEND = "/api/v1/staff/register";
+//   const data = {
+//     username,
+//     password,
+//     phoneNumber,
+//     email,
+//     address,
+//     name,
+//     gender,
+//     dateOfBirth,
+//   };
+//   return axios.post(URL_BACKEND, data, {
+//     headers: {
+//       "Content-Type": "application/json",
+//       Accept: "application/json",
+//     },
+//   });
+// }
+const updateStaffPermissions = (id, payload) => {
+  const URL_BACKEND = `/api/v1/staff/update-permission/${id}`;
+  return axios.put(URL_BACKEND, payload);
+};
+const createNewStaff = (username, password, phoneNumber, email, address, name, gender, dateOfBirth) => {
   const URL_BACKEND = "/api/v1/staff/register";
   const data = {
     username,
@@ -560,20 +580,38 @@ const createNewStaff = (
   };
   return axios.post(URL_BACKEND, data, {
     headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
     },
   });
+
 };
+const deleteStaff = (id) => {
+  const URL_BACKEND = `/api/v1/staff/${id}`;
+  return axios.delete(URL_BACKEND);
+}
 export {
+  updateStaffPermissions,
+  deleteStaff,
+  registerCustomerAPI,
+  loginCustomerAPI,
+  sizeFindById,
+  colorFindById,
+  deleteOrder,
+  updateStatusOrder,
+  orderStaffFindById,
+  orderProductDetail,
+  productFindById,
+  fetchDataOrders,
+  orderStaff,
+  createOrder,
+  createPayment,
   createNewStaff,
   getAllPermissionPagination,
   updatePermissionById,
   getAllPermission,
   getAllStaff,
   getStaffPermissions,
-  registerCustomerAPI,
-  loginCustomerAPI,
   createProductAPI,
   fetchAllProduct,
   fetchDataSleeve,
@@ -616,16 +654,9 @@ export {
   updateSleeveAPI,
   deleteSleeveAPI,
   checkDuplicateProductAPI,
-  productFindById,
-  colorFindById,
-  sizeFindById,
-  deleteOrder,
-  updateStatusOrder,
-  createPayment,
-  orderStaffFindById,
-  orderProductDetail,
   checkCodeExistsAPI,
-  createOrder,
-  orderStaff,
-  fetchDataOrders
+
+
 }
+
+

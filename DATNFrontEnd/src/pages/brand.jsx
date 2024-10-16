@@ -26,4 +26,3 @@ const BrandPage = () => {
   );
 };
 export default BrandPage;
-

@@ -12,7 +12,6 @@ const items = [
     key: "1",
     icon: <TeamOutlined />,
     label: <Link to="/counter-sales">Counter-Sales Management</Link>,
-
   },
   {
     key: "2",

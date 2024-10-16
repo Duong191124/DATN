@@ -273,7 +273,9 @@ const ProductForm = (props) => {
                 </Form>
             </Modal>
         </>
+
     );
+
 };
 
 export default ProductForm;
