@@ -2,7 +2,7 @@ import React from 'react';
 import { Layout, Avatar, Badge, Dropdown } from 'antd';
 import { BellOutlined, UserOutlined } from '@ant-design/icons';
 import './header.admin.css'; // Optional for styling
-import logo from '../../../assets/logo.jpg';
+import logo from '../../../../assets/logo.jpg';
 import { Link } from 'react-router-dom';
 
 const { Header } = Layout;

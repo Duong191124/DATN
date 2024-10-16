@@ -48,39 +48,39 @@ const router = createBrowserRouter([
         element: <StaffManagement />,
       },
       {
-        path: "/counter-sales",
+        path: "counter-sales",
         element: <CounterSales />,
       },
       {
-        path: "/order",
+        path: "order",
         element: <OrderPage />,
       },
       {
-        path: "/colors",
+        path: "colors",
         element: <ColorPage />,
       },
       {
-        path: "/sizes",
+        path: "sizes",
         element: <SizePage />,
       },
       {
-        path: "/collars",
+        path: "collars",
         element: <CollarPage />,
       },
       {
-        path: "/brands",
+        path: "brands",
         element: <BrandPage />,
       },
       {
-        path: "/categories",
+        path: "categories",
         element: <CategoryPage />,
       },
       {
-        path: "/sleeves",
+        path: "sleeves",
         element: <SleevePage />,
       },
       {
-        path: "/permission",
+        path: "permission",
         element: <PermissionPage />,
       },
     ],
