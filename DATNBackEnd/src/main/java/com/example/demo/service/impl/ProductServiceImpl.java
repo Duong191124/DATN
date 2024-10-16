@@ -52,6 +52,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
+    public boolean isDuplicate(String type, String value) {
+        if ("code".equals(type)) {
+            return productRepo.existsByCode(value);
+        } else if ("name".equals(type)) {
+            return productRepo.existsByName(value);
+        }
+        return false;
+    }
+
 
     @Override
     public ProductResponse updatedProduct(int id,ProductDTO productDTO) {
