@@ -7,6 +7,7 @@ import com.example.demo.response.MessageReponse;
 import com.example.demo.response.PageProductResponse;
 import com.example.demo.response.ProductDetailResponse;
 import com.example.demo.response.ProductResponse;
+import com.example.demo.service.ProductDetailService;
 import com.example.demo.service.ProductService;
 import com.example.demo.service.impl.ProductDetailServiceImpl;
 import com.example.demo.service.impl.ProductServiceImpl;

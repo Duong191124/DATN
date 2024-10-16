@@ -7,7 +7,7 @@ const BrandForm = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [form] = Form.useForm();
 
-    const { loadBrand, listCode, listName } = props
+    const { loadBrand } = props
 
     const handleSubmit = async (values) => {
         const res = await createBrandAPI(values.code, values.name, values.status)
@@ -24,18 +24,7 @@ const BrandForm = (props) => {
         form.resetFields()
         setIsModalOpen(false)
     }
-    const checkDuplicateCode = (rule, value) => {
-        if (listCode.includes(value)) {
-            return Promise.reject(new Error("Code already exists"))
-        }
-        return Promise.resolve();
-    }
-    const checkDuplicateName = (rule, value) => {
-        if (listName.includes(value)) {
-            return Promise.reject(new Error("Name already exists"))
-        }
-        return Promise.resolve();
-    }
+
     return (
         <>
             <Button type="primary" onClick={() => setIsModalOpen(true)}>
@@ -61,9 +50,6 @@ const BrandForm = (props) => {
                                 required: true,
                                 message: 'Code cannot be empty',
                             },
-                            {
-                                validator: checkDuplicateCode
-                            }
                         ]}
                     >
                         <Input />
@@ -77,9 +63,7 @@ const BrandForm = (props) => {
                                 required: true,
                                 message: 'Name cannot be empty',
                             },
-                            {
-                                validator: checkDuplicateName
-                            }
+
                         ]}
                     >
                         <Input />
