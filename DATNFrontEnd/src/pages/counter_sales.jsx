@@ -5,6 +5,7 @@ import CounterSaleCart from "../component/layout/admin/counter.sale/counter.sale
 import CounterSalePayment from "../component/layout/admin/counter.sale/counter.sale.payment";
 import CounterSaleBillWaiting from "../component/layout/admin/counter.sale/counter.sale.order";
 import CounterSaleStaff from "../component/layout/admin/counter.sale/order.sale.staff";
+import moment from "moment";
 import {
   createOrder,
   createPayment,
@@ -12,8 +13,7 @@ import {
   orderProductDetail,
   orderStaff,
 } from "../service/api.service";
-import axios from "axios";
-import moment from "moment";
+
 
 const CounterSales = () => {
   const [dataProductDetail, setDataProductDetail] = useState([]);

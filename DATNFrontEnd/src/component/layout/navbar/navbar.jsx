@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   TeamOutlined,
   ProductOutlined,
@@ -9,36 +9,10 @@ import { Link } from "react-router-dom";
 
 const items = [
   {
-<<<<<<< HEAD
-    key: '1',
-    icon: <ProductOutlined />,
-    label: <Link to="/products">Product Management</Link>,
-    children: [
-      {
-
-        label: <Link to="/collars">Collar</Link>
-      },
-      {
-        label: <Link to="/sleeves">Sleeve</Link>
-      },
-      {
-        label: <Link to="/categories">Category</Link>
-      },
-      {
-        label: <Link to="/brands">Brand</Link>
-      },
-      {
-        label: <Link to="/colors">Color</Link>
-      },
-      {
-        label: <Link to="/sizes">Size</Link>
-      }
-    ]
-=======
     key: "1",
     icon: <TeamOutlined />,
     label: <Link to="/counter-sales">Counter-Sales Management</Link>,
->>>>>>> 5a2884cd93aeab05ed8ca0cc21e068ede8cb0a9c
+
   },
   {
     key: "2",

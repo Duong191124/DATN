@@ -16,26 +16,7 @@ const ColorPage = () => {
     setListCode(res.data.map((color) => color.code));
   };
 
-<<<<<<< HEAD
 
-    useEffect(() => {
-        loadColor();
-    }, []);
-    return (
-        <div style={{ margin: "20px" }}>
-            <ColorForm
-                loadColor={loadColor}
-                listName={listName} // Truyền danh sách tên đã tồn tại vào ColorForm
-                listCode={listCode}
-            />
-            <ColorTable
-                loadColor={loadColor}
-                dataColor={dataColor}
-            />
-            <Button type="primary"><Link to="/products">Go to product</Link></Button>
-        </div>
-    );
-=======
   useEffect(() => {
     loadColor();
   }, []);
@@ -49,7 +30,6 @@ const ColorPage = () => {
       <ColorTable loadColor={loadColor} dataColor={dataColor} />
     </div>
   );
->>>>>>> 5a2884cd93aeab05ed8ca0cc21e068ede8cb0a9c
 };
 
 export default ColorPage;

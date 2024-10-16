@@ -110,18 +110,14 @@ const fetchDataCollar = () => {
 };
 
 const fetchDataBrand = () => {
-<<<<<<< HEAD
-    const URL_BACKEND = "api/v1/brand"
-    return axios.get(URL_BACKEND)
+
+  const URL_BACKEND = "api/v1/brand"
+  return axios.get(URL_BACKEND)
 }
 
 const checkDuplicateProductAPI = async (type, value) => {
-    return await axios.post(`/api/v1/products/check-duplicate`, { type, value });
+  return await axios.post(`/api/v1/products/check-duplicate`, { type, value });
 }
-=======
-  const URL_BACKEND = "api/v1/brand";
-  return axios.get(URL_BACKEND);
-};
 /* API Order*/
 // const fetchDataOrders = () => {
 //   const URL_BACKEND = "api/v1/orders/list";
@@ -241,7 +237,7 @@ const createPayment = async (paymentDate, paymentMethod, orderId) => {
     throw new Error("Thanh toán thất bại: " + error.message);
   }
 };
->>>>>>> 5a2884cd93aeab05ed8ca0cc21e068ede8cb0a9c
+
 //API product-detail
 const fetchDataProductDetail = () => {
   const URL_BACKEND = "/api/v1/productDetail/getAllProductDetail";
@@ -308,14 +304,14 @@ const fetchDataColor = () => {
   return axios.get(URL_BACKEND);
 };
 const createColorAPI = (code, name, status) => {
-<<<<<<< HEAD
-    const URL_BACKEND = "/api/v1/color"
-    const data = {
-        code: code,
-        name: name,
-        status: status
-    }
-    return axios.post(URL_BACKEND, data)
+
+  const URL_BACKEND = "/api/v1/color"
+  const data = {
+    code: code,
+    name: name,
+    status: status
+  }
+  return axios.post(URL_BACKEND, data)
 }
 // const checkCodeExistsAPI = (code, name, status) => {
 //     const URL_BACKEND = "/api/v1/color"
@@ -327,15 +323,7 @@ const createColorAPI = (code, name, status) => {
 //     return axios.post(URL_BACKEND, data)
 // }
 
-=======
-  const URL_BACKEND = "/api/v1/color";
-  const data = {
-    code: code,
-    name: name,
-    status: status,
-  };
-  return axios.post(URL_BACKEND, data);
-};
+
 const checkCodeExistsAPI = (code, name, status) => {
   const URL_BACKEND = "/api/v1/color";
   const data = {
@@ -345,7 +333,7 @@ const checkCodeExistsAPI = (code, name, status) => {
   };
   return axios.post(URL_BACKEND, data);
 };
->>>>>>> 5a2884cd93aeab05ed8ca0cc21e068ede8cb0a9c
+
 
 const deleteColorAPI = (id) => {
   const URL_BACKEND = `/api/v1/color/${id}`;
@@ -502,40 +490,29 @@ export const checkDuplicateSizeAPI = async (type, value) => {
 /*
     API permission
 */
-<<<<<<< HEAD
 
-const getAllPermission = () => {
-    const URL_BACKEND = "/api/v1/permission/all";
-    return axios.get(URL_BACKEND);
-}
 
-=======
+
+
+
 const getAllPermission = () => {
   const URL_BACKEND = "/api/v1/permission/all";
   return axios.get(URL_BACKEND);
 };
->>>>>>> 5a2884cd93aeab05ed8ca0cc21e068ede8cb0a9c
+
 const getAllPermissionPagination = (page, size) => {
   const URL_BACKEND = `/api/v1/permission/getAll?page=${page}&size=${size}`;
   return axios.get(URL_BACKEND);
 };
 const createNewPermission = (name) => {
-<<<<<<< HEAD
-    const URL_BACKEND = "/api/v1/permission/";
-    const data = {
-        name: name
-    }
-    return axios.post(URL_BACKEND, data)
-}
 
-=======
   const URL_BACKEND = "/api/v1/permission/";
   const data = {
     name: name,
   };
   return axios.post(URL_BACKEND, data);
 };
->>>>>>> 5a2884cd93aeab05ed8ca0cc21e068ede8cb0a9c
+
 const deletePermissionById = (id) => {
   const URL_BACKEND = `/api/v1/permission/${id}`;
   return axios.delete(URL_BACKEND);
@@ -547,31 +524,19 @@ const updatePermissionById = (id, name) => {
 /*
     API staff
 */
-<<<<<<< HEAD
 
-const getAllStaff = (page, size) => {
-    const URL_BACKEND = `/api/v1/staff/getAll?page=${page}&size=${size}`;
-    return axios.get(URL_BACKEND);
-}
-=======
 const getAllStaff = (page, size) => {
   const URL_BACKEND = `/api/v1/staff/getAll?page=${page}&size=${size}`;
   return axios.get(URL_BACKEND);
 };
->>>>>>> 5a2884cd93aeab05ed8ca0cc21e068ede8cb0a9c
+
 const getStaffPermissions = (id) => {
   const URL_BACKEND = `/api/v1/staff/${id}`;
   return axios.get(URL_BACKEND);
 };
-const updateStaffPermissions = (id, payload) => {
-<<<<<<< HEAD
-    const URL_BACKEND = `/api/v1/staff/update-permission/${id}`;
-    return axios.put(URL_BACKEND, payload);
-=======
-  const URL_BACKEND = `/api/v1/staff/update-permission/${id}`;
-  return axios.put(URL_BACKEND, payload);
->>>>>>> 5a2884cd93aeab05ed8ca0cc21e068ede8cb0a9c
-};
+// const updateStaffPermissions = (id, payload) => {
+
+// };
 const createNewStaff = (
   username,
   password,
@@ -601,80 +566,14 @@ const createNewStaff = (
   });
 };
 export {
-<<<<<<< HEAD
-    createNewStaff,
-    getAllPermissionPagination,
-    updatePermissionById,
-    getAllPermission,
-    getAllStaff,
-    getStaffPermissions,
-    updateStaffPermissions,
-    registerCustomerAPI,
-    loginCustomerAPI,
-    createProductAPI,
-    fetchAllProduct,
-    fetchDataSleeve,
-    fetchDataCategory,
-    fetchDataCollar,
-    fetchDataBrand,
-    updateProductAPI,
-    deleteProductAPI,
-    createNewPermission,
-    deletePermissionById,
-    fetchDataProductAPI,
-    fetchDataProductDetail,
-    fetchDataColorAPI,
-    fetchDataSize,
-    createProductDetailAPi,
-    updateProductDetailAPi,
-    deleteProductDetailAPI,
-    fetchDataColor,
-    createColorAPI,
-    deleteColorAPI,
-    updateColorAPI,
-    fetchDataSizeAPI,
-    createSizeAPI,
-    updateSizeAPI,
-    deleteSizeAPI,
-    fetchDataCollarAPI,
-    createCollarAPI,
-    updateCollarAPI,
-    deleteCollarAPI,
-    fetchDataBrandAPI,
-    createBrandAPI,
-    updateBrandAPI,
-    deleteBrandAPI,
-    fetchDataCategoryAPI,
-    createCategoryAPI,
-    updateCategoryAPI,
-    deleteCategoryAPI,
-    fetchDataSleeveAPI,
-    createSleeveAPI,
-    updateSleeveAPI,
-    deleteSleeveAPI,
-    checkDuplicateProductAPI
-}
-=======
-  registerCustomerAPI,
-  loginCustomerAPI,
-  sizeFindById,
-  colorFindById,
-  deleteOrder,
-  updateStatusOrder,
-  orderStaffFindById,
-  orderProductDetail,
-  productFindById,
-  fetchDataOrders,
-  orderStaff,
-  createOrder,
-  createPayment,
   createNewStaff,
   getAllPermissionPagination,
   updatePermissionById,
   getAllPermission,
   getAllStaff,
   getStaffPermissions,
-  updateStaffPermissions,
+  registerCustomerAPI,
+  loginCustomerAPI,
   createProductAPI,
   fetchAllProduct,
   fetchDataSleeve,
@@ -716,5 +615,17 @@ export {
   createSleeveAPI,
   updateSleeveAPI,
   deleteSleeveAPI,
-};
->>>>>>> 5a2884cd93aeab05ed8ca0cc21e068ede8cb0a9c
+  checkDuplicateProductAPI,
+  productFindById,
+  colorFindById,
+  sizeFindById,
+  deleteOrder,
+  updateStatusOrder,
+  createPayment,
+  orderStaffFindById,
+  orderProductDetail,
+  checkCodeExistsAPI,
+  createOrder,
+  orderStaff,
+  fetchDataOrders
+}
