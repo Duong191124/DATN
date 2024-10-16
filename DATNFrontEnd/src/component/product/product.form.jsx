@@ -50,7 +50,7 @@ const ProductForm = (props) => {
 
     const loadDataBrand = async () => {
         const res = await fetchDataBrand();
-        setBrands(res.data);
+        setBrands(res.data.data);
     };
 
     const loadDataSleeve = async () => {
@@ -60,7 +60,7 @@ const ProductForm = (props) => {
 
     const loadDataCategory = async () => {
         const res = await fetchDataCategory();
-        setCategories(res.data);
+        setCategories(res.data.data);
     };
 
     const loadDataCollar = async () => {
@@ -72,6 +72,9 @@ const ProductForm = (props) => {
         setIsModalOpen(false);
         form.resetFields(); // Đặt lại các trường trong form
     };
+
+    console.log("Check brand", brands)
+    console.log("check category", categories)
 
 
     const debounceCheckDuplicateCode = useCallback(
@@ -270,7 +273,9 @@ const ProductForm = (props) => {
                 </Form>
             </Modal>
         </>
-      );
+
+    );
+
 };
 
 export default ProductForm;

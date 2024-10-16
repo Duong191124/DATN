@@ -2,8 +2,7 @@ import ColorForm from "../component/color/color.form";
 import ColorTable from "../component/color/color.table";
 import { useEffect, useState } from "react";
 import { fetchDataColor } from "../service/api.service";
-import { Button } from "antd";
-import { Link } from "react-router-dom";
+
 
 const ColorPage = () => {
   const [dataColor, setDataColor] = useState([]);
@@ -15,6 +14,7 @@ const ColorPage = () => {
     setListName(res.data.map((color) => color.name)); // Cập nhật danh sách tên từ dữ liệu màu
     setListCode(res.data.map((color) => color.code));
   };
+
   useEffect(() => {
     loadColor();
   }, []);

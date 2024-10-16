@@ -6,10 +6,8 @@ import { AuthWrapper } from "./component/context/auth.context.jsx";
 import App from "./App.jsx";
 import Home from "./component/layout/content/home/home.jsx";
 import ProductPage from "./pages/product.jsx";
-import OrderTable from "./component/layout/admin/order/order.table.jsx";
 import OrderPage from "./pages/order.jsx";
 import CounterSales from "./pages/counter_sales.jsx";
-import PermissionPage from "./pages/permission.jsx";
 import ProductDetail from "./pages/product.detail.jsx";
 import ColorPage from "./pages/color.jsx";
 import SizePage from "./pages/size.jsx";
@@ -72,10 +70,10 @@ const router = createBrowserRouter([
         path: "/sleeves",
         element: <SleevePage />,
       },
-      {
-        path: "/permission",
-        element: <PermissionPage />,
-      },
+      // {
+      //   path: "/permission",
+      //   element: <PermissionPage />,
+      // },
     ],
   },
   {
