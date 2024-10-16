@@ -73,8 +73,7 @@ const ProductForm = (props) => {
         form.resetFields(); // Đặt lại các trường trong form
     };
 
-    console.log("Check brand", brands)
-    console.log("check category", categories)
+
 
 
     const debounceCheckDuplicateCode = useCallback(

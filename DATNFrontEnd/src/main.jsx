@@ -16,6 +16,7 @@ import BrandPage from "./pages/brand.jsx";
 import CategoryPage from "./pages/category.jsx";
 import SleevePage from "./pages/sleeve.jsx";
 import StaffManagement from "./pages/staff.jsx";
+import PermissionPage from "./pages/permission.jsx";
 
 const router = createBrowserRouter([
   {
@@ -70,10 +71,10 @@ const router = createBrowserRouter([
         path: "/sleeves",
         element: <SleevePage />,
       },
-      // {
-      //   path: "/permission",
-      //   element: <PermissionPage />,
-      // },
+      {
+        path: "/permission",
+        element: <PermissionPage />,
+      },
     ],
   },
   {
