@@ -1,5 +1,6 @@
 package com.example.demo.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +23,8 @@ public class VoucherDTO {
     @Size(max = 255, message = "Discount amount cannot exceed 255 characters")
     @Pattern(regexp = "^[0-9]+(\\.[0-9]{1,2})?$", message = "Discount amount must be a valid number")
     private String discountAmount;
-
+    @NotNull(message = "Code is required")
+    private int quantity;
     @NotBlank(message = "Discount percent is required")
     @Size(max = 255, message = "Discount percent cannot exceed 255 characters")
     @Pattern(regexp = "^(100|\\d{1,2})(\\.\\d{1,2})?$", message = "Discount percent must be a valid percentage")
@@ -30,6 +32,7 @@ public class VoucherDTO {
 
     @NotNull(message = "Expiration date is required")
     @Future(message = "Expiration date must be a future date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date expirationDate;
 
     @NotBlank(message = "Minimum purchase amount is required")
@@ -45,11 +48,9 @@ public class VoucherDTO {
     @Size(max = 255, message = "Terms and conditions cannot exceed 255 characters")
     private String termsAndConditions;
 
-    @NotNull(message = "Status is required")
-    @Min(value = 0, message = "Status must be 0 or greater")
-    @Max(value = 1, message = "Status must be 1 or less")
+
     private int status;
 
-    private Integer customerId;
+    private Integer customers;
 
 }

@@ -13,6 +13,8 @@ import CollarPage from "./pages/collar.jsx";
 import BrandPage from "./pages/brand.jsx";
 import CategoryPage from "./pages/category.jsx";
 import SleevePage from "./pages/sleeve.jsx";
+import PromotionPage from "./pages/promotion.jsx";
+import VoucherPage from "./pages/voucher.jsx";
 // import StaffManagement from "./pages/staff.jsx";
 
 const router = createBrowserRouter([
@@ -70,6 +72,14 @@ const router = createBrowserRouter([
     path: "/sleeves",
     element: <SleevePage />,
   },
+  {
+    path: "/promotions",
+    element: <PromotionPage />,
+  },
+  {
+    path: "/voucher",
+    element: <VoucherPage />,
+  }
   // {
   //   path: "/staff",
   //   element: <StaffManagement />
