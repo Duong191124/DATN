@@ -21,6 +21,7 @@ import StaffManagement from "./pages/staff.jsx";
 // import App from "./App.jsx";
 
 import PermissionPage from "./pages/permission.jsx";
+// import ProductDetailPage from "./component/product/product.detail.jsx";
 
 const router = createBrowserRouter([
   {
@@ -41,9 +42,13 @@ const router = createBrowserRouter([
         element: <ProductPage />,
       },
       {
-        path: "products/:id",
+        path: "products/:productId",
         element: <ProductDetail />,
       },
+      // {
+      //   path: "product-detail/:productId",
+      //   element: <ProductDetailPage />,
+      // },
       {
         path: "staff",
         element: <StaffManagement />,

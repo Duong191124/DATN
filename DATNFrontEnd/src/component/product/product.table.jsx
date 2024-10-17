@@ -1,8 +1,10 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { notification, Popconfirm, Table } from "antd";
+import { Button, notification, Popconfirm, Table } from "antd";
 import UpdateProduct from "./update.product";
 import { useState } from "react";
 import { deleteProductAPI } from "../../service/api.service";
+import { Link } from "react-router-dom";
+import ProductDetailTable from "../product.detail/product.detail.table";
 
 
 
@@ -95,6 +97,11 @@ const ProductTable = (props) => {
             >
               <DeleteOutlined style={{ cursor: "pointer", color: "red" }} />
             </Popconfirm>
+
+            {/* Thêm Link để chuyển trang */}
+            <Link to={`/admin/products/${record.id}`}>
+              <Button>Product-detail</Button>
+            </Link>
           </div>
         )
       }

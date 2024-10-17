@@ -34,17 +34,17 @@ const ProDuctDetailForm = (props) => {
     }
     const loadDataProduct = async () => {
         const res = await fetchDataProductAPI()
-        setProductId(res.data)
+        setProductId(res.data.data)
     }
 
     const loadDataColor = async () => {
         const res = await fetchDataColorAPI()
-        setColorId(res.data)
+        setColorId(res.data.data)
     }
 
     const loadDataSize = async () => {
         const res = await fetchDataSize()
-        setSizeId(res.data)
+        setSizeId(res.data.data)
     }
 
     useEffect(() => {
@@ -63,7 +63,7 @@ const ProDuctDetailForm = (props) => {
     return (
         <>
             <div>
-                <Button onClick={() => setIsModalOpen(true)} type="primary">Create Product</Button>
+                <Button onClick={() => setIsModalOpen(true)} type="primary">Create Product-Detail</Button>
             </div>
 
             <Modal
