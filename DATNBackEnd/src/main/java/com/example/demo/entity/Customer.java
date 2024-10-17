@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.ServiceLoader;
 import java.util.Set;
 
 @Entity
@@ -50,11 +52,6 @@ public class Customer extends BaseEntity {
     @Basic
     @Column(name = "gender")
     private int gender;
-    @ManyToMany
-    @JoinTable(
-            name = "customer_voucher",
-            joinColumns = @JoinColumn(name = "customer_id"),
-            inverseJoinColumns = @JoinColumn(name = "voucher_id")
-    )
-    private Set<Voucher> vouchers;
+
+
 }

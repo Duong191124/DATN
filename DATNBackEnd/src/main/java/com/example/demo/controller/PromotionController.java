@@ -32,8 +32,8 @@ public class PromotionController {
     }
 
     @PostMapping("")
-    public ResponseEntity<MessageReponse> add(@Valid @RequestBody PromotionDTO promotionDTO, BindingResult result){
-        if(result.hasErrors()){
+    public ResponseEntity<MessageReponse> add(@Valid @RequestBody PromotionDTO promotionDTO, BindingResult result) {
+        if (result.hasErrors()) {
             List<String> errorMessage = result.getFieldErrors()
                     .stream()
                     .map(FieldError::getDefaultMessage)
@@ -43,6 +43,7 @@ public class PromotionController {
                     .status(HttpStatus.BAD_REQUEST.value())
                     .build());
         }
+
         PromotionResponse newPromotion = promotionService.add(promotionDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
                 .message("Create promotion successfully")
@@ -72,6 +73,25 @@ public class PromotionController {
                 .status(HttpStatus.OK.value())
                 .data(updatePromotion)
                 .build());
+    }
+    @GetMapping("detail/{id}")
+    public ResponseEntity<?> getPromotionDetail(@PathVariable("id") Integer id) {
+        try {
+            // Gọi service để lấy thông tin khuyến mãi theo ID
+            PromotionResponse promotion = PromotionResponse.fromPromotionResponse(promotionService.getPromotionById(id));
+
+            return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
+                    .message("Lấy thông tin chi tiết thành công")
+                    .status(HttpStatus.OK.value())
+                    .data(promotion)
+                    .build());
+        } catch (Exception e) {
+            // Nếu không tìm thấy khuyến mãi với ID, trả về lỗi
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(MessageReponse.builder()
+                    .message("Không tìm thấy khuyến mãi với ID = " + id)
+                    .status(HttpStatus.NOT_FOUND.value())
+                    .build());
+        }
     }
 
     @DeleteMapping("{id}")

@@ -28,6 +28,6 @@ public class PromotionDTO {
     private int status;
 
     @NotNull(message = "ProductDetailsId can't null")
-    private Integer productDetailsId;
+    private Integer productDetailsId; // Thay đổi thành Integer
 
 }

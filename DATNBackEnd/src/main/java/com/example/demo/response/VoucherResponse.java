@@ -5,7 +5,8 @@ import com.example.demo.entity.Voucher;
 import lombok.*;
 
 import java.util.Date;
-
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Builder
 @Data
@@ -15,6 +16,8 @@ public class VoucherResponse {
     private int id;
 
     private String code;
+
+    private int quantity;
 
     private String discountAmount;
 
@@ -30,13 +33,14 @@ public class VoucherResponse {
 
     private int status;
 
-    private Integer customersId;
+    private Integer customers;
 
-    public static VoucherResponse fromVoucherResponse(Voucher voucher){
+    public static VoucherResponse fromVoucherResponse(Voucher voucher) {
         return VoucherResponse
                 .builder()
                 .id(voucher.getId())
                 .code(voucher.getCode())
+                .quantity(voucher.getQuantity())
                 .discountAmount(voucher.getDiscountAmount())
                 .discountPercent(voucher.getDiscountPercent())
                 .expirationDate(voucher.getExpirationDate())
@@ -44,10 +48,9 @@ public class VoucherResponse {
                 .maxDiscountAmount(voucher.getMaxDiscountAmount())
                 .termsAndConditions(voucher.getTermsAndConditions())
                 .status(voucher.getStatus())
-                .customersId(voucher.getCustomers()
-                        .stream()
-                        .findFirst()
-                        .map(Customer::getId).orElse(null))
+                .customers(voucher.getCustomer() != null ? voucher.getCustomer().getId() : null) // Nếu customer không null
                 .build();
     }
+
+
 }
