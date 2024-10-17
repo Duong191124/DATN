@@ -1,8 +1,9 @@
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { notification, Popconfirm, Table } from "antd";
 import UpdateProduct from "./update.product";
 import { useState } from "react";
 import { deleteProductAPI } from "../../service/api.service";
+import UploadImage from "./update.image.product";
 
 
 
@@ -24,16 +25,10 @@ const ProductTable = (props) => {
 
   }
 
-
-
-
   const { dataProduct, loadProduct, page, pageSize, total, setPage, setPageSize } = props;
-
-
   const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false)
-
-
-  const [dataUpdate, setDataUpdate] = useState("")
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [dataUpdate, setDataUpdate] = useState(null)
 
   const columns = [
     {
@@ -47,6 +42,16 @@ const ProductTable = (props) => {
     {
       title: 'Name',
       dataIndex: 'name'
+    },
+    {
+      title: 'Image',
+      dataIndex: 'image',
+      render: (imageUrl) => (
+        <img 
+          src={imageUrl} 
+          style={{ width: "50px", height: "50px", objectFit: "cover" }} 
+        />
+      )
     },
     {
       title: 'Price',
@@ -95,6 +100,13 @@ const ProductTable = (props) => {
             >
               <DeleteOutlined style={{ cursor: "pointer", color: "red" }} />
             </Popconfirm>
+            <UploadOutlined 
+              style={{ cursor: "pointer"}}
+              onClick={() => {
+                setDataUpdate(record.id)
+                setIsModalOpen(true)
+              }}
+            />
           </div>
         )
       }
@@ -137,6 +149,13 @@ const ProductTable = (props) => {
         setIsModalUpdateOpen={setIsModalUpdateOpen}
         dataUpdate={dataUpdate}
         setDataUpdate={setDataUpdate}
+      />
+      <UploadImage
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        loadProduct={loadProduct}
+        dataUpdate={dataUpdate}
+        onClose={() => setIsModalOpen(false)}
       />
     </>
   )

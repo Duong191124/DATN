@@ -72,11 +72,6 @@ const ProductForm = (props) => {
         setIsModalOpen(false);
         form.resetFields(); // Đặt lại các trường trong form
     };
-
-    console.log("Check brand", brands)
-    console.log("check category", categories)
-
-
     const debounceCheckDuplicateCode = useCallback(
         debounce(async (value, callback) => {
             const res = await checkDuplicateProductAPI('code', value);

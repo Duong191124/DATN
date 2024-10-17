@@ -29,6 +29,9 @@ const loginCustomerAPI = (username, password) => {
   return axios.post(URL_BACKEND, data);
 };
 
+/*
+  API product
+*/
 const createProductAPI = (
   code,
   name,
@@ -77,8 +80,13 @@ const updateProductAPI = (
   };
   return axios.put(URL_BACKEND, data);
 };
-
-//API product
+const uploadImageAPI = (id, formData) => {
+  return axios.post(`/api/v1/products/upload/${id}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
 const deleteProductAPI = (id) => {
   const URL_BACKEND = `/api/v1/products/${id}`;
   return axios.delete(URL_BACKEND);
@@ -494,8 +502,6 @@ const getAllPermission = () => {
   const URL_BACKEND = "/api/v1/permission/all";
   return axios.get(URL_BACKEND);
 }
-
-
 const getAllPermissionPagination = (page, size) => {
   const URL_BACKEND = `/api/v1/permission/getAll?page=${page}&size=${size}`;
   return axios.get(URL_BACKEND);
@@ -559,6 +565,7 @@ const deleteStaff = (id) => {
     return axios.delete(URL_BACKEND);
 }
 export {
+  uploadImageAPI,
   updateStaffPermissions,
   deleteStaff,
   registerCustomerAPI,

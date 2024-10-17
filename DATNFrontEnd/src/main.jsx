@@ -18,6 +18,7 @@ import SleevePage from "./pages/sleeve.jsx";
 import StaffManagement from "./pages/staff.jsx";
 import PrivateRoute from "./pages/private.route.jsx";
 import App from "./App.jsx";
+import PermissionPage from "./pages/permission.jsx";
 
 const router = createBrowserRouter([
   {
@@ -82,6 +83,16 @@ const router = createBrowserRouter([
         element: <PermissionPage />,
       },
     ],
+  },
+  {
+    path: "/",
+    element: <App />,
+    children: [
+      {
+        index: true,
+        element: <Home />
+      }
+    ]
   },
   {
     path: "/login",

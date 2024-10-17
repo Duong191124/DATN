@@ -19,44 +19,51 @@ const items = [
     label: <Link to="/admin/order">Bill Management</Link>,
   },
   {
-    key: "3",
+    key: "opt1",
     icon: <ProductOutlined />,
-    label: <Link to="/admin/products">Product Management</Link>,
-  },
-  {
-    key: "4",
-    icon: <TeamOutlined />,
-    label: <Link to="/admin/staff">Staff Management</Link>, // Updated path
-  },
-  {
-    key: "5",
-    icon: <TeamOutlined />,
-    label: <Link to="/admin/colors">Color Management</Link>,
-  },
-  {
-    key: "6",
-    icon: <TeamOutlined />,
-    label: <Link to="/admin/sizes">Size Management</Link>,
-  },
-  {
-    key: "7",
-    icon: <TeamOutlined />,
-    label: <Link to="/admin/collars">Collar Management</Link>,
-  },
-  {
-    key: "8",
-    icon: <TeamOutlined />,
-    label: <Link to="/admin/brands">Brand Management</Link>,
-  },
-  {
-    key: "9",
-    icon: <TeamOutlined />,
-    label: <Link to="/admin/categories">Category Management</Link>,
+    label: "Product",
+    children: [
+      {
+        key: "3",
+        icon: <ProductOutlined />,
+        label: <Link to="/admin/products">Product Management</Link>,
+      },
+      {
+        key: "4",
+        icon: <TeamOutlined />,
+        label: <Link to="/admin/colors">Color Management</Link>,
+      },
+      {
+        key: "5",
+        icon: <TeamOutlined />,
+        label: <Link to="/admin/sizes">Size Management</Link>,
+      },
+      {
+        key: "6",
+        icon: <TeamOutlined />,
+        label: <Link to="/admin/collars">Collar Management</Link>,
+      },
+      {
+        key: "7",
+        icon: <TeamOutlined />,
+        label: <Link to="/admin/brands">Brand Management</Link>,
+      },
+      {
+        key: "8",
+        icon: <TeamOutlined />,
+        label: <Link to="/admin/categories">Category Management</Link>,
+      },
+      {
+        key: "9",
+        icon: <SettingOutlined />,
+        label: <Link to="/admin/sleeves">Sleeve Management</Link>,
+      },
+    ]
   },
   {
     key: "10",
-    icon: <SettingOutlined />,
-    label: <Link to="/admin/sleeves">Sleeve Management</Link>,
+    icon: <TeamOutlined />,
+    label: <Link to="/admin/staff">Staff Management</Link>,
   },
   {
     key: "11",

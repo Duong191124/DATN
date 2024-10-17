@@ -32,10 +32,4 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
                                   Pageable pageable);
     boolean existsByCode(String code);
     boolean existsByName(String name);
-
-
-    boolean existsByCode(String code);
-
-    boolean existsByName(String name);
-
 }
