@@ -30,12 +30,11 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
                                   @Param("price") Double price,
                                   @Param("description") String description,
                                   Pageable pageable);
+
     boolean existsByCode(String code);
     boolean existsByName(String name);
 
 
-    boolean existsByCode(String code);
-
-    boolean existsByName(String name);
+    
 
 }

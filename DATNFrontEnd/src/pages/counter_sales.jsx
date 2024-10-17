@@ -71,7 +71,7 @@ const CounterSales = () => {
     try {
       const response = await getAllStaff(page, size);
       if (response.data?.data) {
-        setStaffList(response.data.data); // Lưu danh sách nhân viên vào state
+        setStaffList(response.data.data.content); // Lưu danh sách nhân viên vào state
         setTotal(response.data.total); // Lưu tổng số nhân viên (để phân trang)
       }
     } catch (error) {
