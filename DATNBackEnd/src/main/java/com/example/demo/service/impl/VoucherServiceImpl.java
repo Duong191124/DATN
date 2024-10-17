@@ -29,17 +29,18 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Override
     public VoucherResponse add(VoucherDTO voucherDTO) {
-        Customer existingCustomer = customerRepository.findById(voucherDTO.getCustomerId()).orElse(null);
+        Customer existingCustomer = customerRepository.findById(voucherDTO.getCustomers()).orElse(null);
         Voucher newVoucher = Voucher.builder()
                 .code(voucherDTO.getCode())
+                .quantity(voucherDTO.getQuantity())
                 .discountAmount(voucherDTO.getDiscountAmount())
                 .discountPercent(voucherDTO.getDiscountPercent())
                 .expirationDate(voucherDTO.getExpirationDate())
                 .minPurchaseAmount(voucherDTO.getMinPurchaseAmount())
                 .maxDiscountAmount(voucherDTO.getMaxDiscountAmount())
                 .termsAndConditions(voucherDTO.getTermsAndConditions())
-                .status(voucherDTO.getStatus())
-                .customers(existingCustomer != null ? Set.of(existingCustomer) : Set.of())
+                .status(1)
+
                 .build();
         Voucher addVoucher = voucherRepository.save(newVoucher);
         return VoucherResponse.fromVoucherResponse(addVoucher);
@@ -47,9 +48,11 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Override
     public VoucherResponse update(Integer id, VoucherDTO voucherDTO) throws Exception {
-        Customer existingCustomer = customerRepository.findById(voucherDTO.getCustomerId()).orElse(null);
-        Voucher existingVoucher = getById(id);
+        Customer existingCustomer = customerRepository.findById(voucherDTO.getCustomers()).orElse(null);
+        Voucher existingVoucher = getById(id); // Kiểm tra nếu voucher tồn tại
+
         existingVoucher.setCode(voucherDTO.getCode());
+        existingVoucher.setQuantity((voucherDTO.getQuantity()));
         existingVoucher.setDiscountAmount(voucherDTO.getDiscountAmount());
         existingVoucher.setDiscountPercent(voucherDTO.getDiscountPercent());
         existingVoucher.setExpirationDate(voucherDTO.getExpirationDate());
@@ -57,13 +60,16 @@ public class VoucherServiceImpl implements VoucherService {
         existingVoucher.setMaxDiscountAmount(voucherDTO.getMaxDiscountAmount());
         existingVoucher.setTermsAndConditions(voucherDTO.getTermsAndConditions());
         existingVoucher.setStatus(voucherDTO.getStatus());
-        Set<Customer> customers = new HashSet<>();
-        customers.add(existingCustomer);
-        existingVoucher.setCustomers(customers);
+
+        // Thiết lập khách hàng nếu tồn tại
+        if (existingCustomer != null) {
+            existingVoucher.setCustomer(existingCustomer);
+        }
 
         Voucher updateVoucher = voucherRepository.save(existingVoucher);
         return VoucherResponse.fromVoucherResponse(updateVoucher);
     }
+
 
     @Override
     public Voucher getById(Integer id) throws Exception {

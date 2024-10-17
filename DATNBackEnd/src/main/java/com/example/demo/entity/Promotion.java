@@ -39,6 +39,11 @@ public class Promotion extends BaseEntity {
     @Basic
     @Column(name = "status")
     private int status;
-    @ManyToMany(mappedBy = "promotions")
-    private Set<ProductDetail> productDetails;
+    @ManyToMany(fetch = FetchType.EAGER) // Loại bỏ cascade
+    @JoinTable(
+            name = "product_promotion", // Tên bảng trung gian
+            joinColumns = @JoinColumn(name = "promotion_id"), // Khóa ngoại tới bảng Promotion
+            inverseJoinColumns = @JoinColumn(name = "product_detail_id") // Khóa ngoại tới bảng ProductDetail
+    )
+    private Set<ProductDetail> productDetailsId;
 }

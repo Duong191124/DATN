@@ -28,10 +28,15 @@ public class PromotionServiceImpl implements PromotionService {
 
     @Override
     public PromotionResponse add(PromotionDTO promotion) {
-        ProductDetail productDetail = productDetailRepo.findById(promotion.getProductDetailsId())
-                .orElse(null);
-        Promotion newPromotion = Promotion
-                .builder()
+        ProductDetail productDetail = null;
+
+        // Kiểm tra nếu productDetailsId không phải là null
+        if (promotion.getProductDetailsId() != null) {
+            productDetail = productDetailRepo.findById(promotion.getProductDetailsId())
+                    .orElse(null);
+        }
+
+        Promotion newPromotion = Promotion.builder()
                 .name(promotion.getName())
                 .description(promotion.getDescription())
                 .discountAmount(promotion.getDiscountAmount())
@@ -39,11 +44,13 @@ public class PromotionServiceImpl implements PromotionService {
                 .startDate(promotion.getStartDate())
                 .endDate(promotion.getEndDate())
                 .status(promotion.getStatus())
-                .productDetails(productDetail != null ? Set.of(productDetail) : Set.of())
+                .productDetailsId(productDetail != null ? Set.of(productDetail) : Set.of()) // Nếu productDetail là null, không thêm
                 .build();
+
         Promotion addPromotion = promotionRepo.save(newPromotion);
         return PromotionResponse.fromPromotionResponse(addPromotion);
     }
+
 
     @Override
     public PromotionResponse update(Integer id, PromotionDTO promotion) throws Exception {
@@ -59,7 +66,7 @@ public class PromotionServiceImpl implements PromotionService {
         existingPromotion.setStatus(promotion.getStatus());
         Set<ProductDetail> productDetails = new HashSet<>();
         productDetails.add(productDetail);
-        existingPromotion.setProductDetails(productDetails);
+        existingPromotion.setProductDetailsId(productDetails);
         Promotion updatePromotion = promotionRepo.save(existingPromotion);
         return PromotionResponse.fromPromotionResponse(updatePromotion);
     }
@@ -72,6 +79,8 @@ public class PromotionServiceImpl implements PromotionService {
     @Override
     public void deletePromotion(Integer id) throws Exception {
         Promotion existingPromotion = getPromotionById(id);
+
+        // Chỉ xóa khuyến mãi, không làm ảnh hưởng đến ProductDetail
         promotionRepo.delete(existingPromotion);
     }
 }
