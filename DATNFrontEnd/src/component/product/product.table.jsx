@@ -1,9 +1,11 @@
 import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { notification, Popconfirm, Table } from "antd";
-import UpdateProduct from "./update.product";
 import { useState } from "react";
 import { deleteProductAPI } from "../../service/api.service";
-import UploadImage from "./update.image.product";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { notification, Popconfirm, Table } from "antd";
+import { useState } from "react";
+import { deleteProductAPI } from "../../service/api.service";
 
 
 
@@ -107,6 +109,10 @@ const ProductTable = (props) => {
                 setIsModalOpen(true)
               }}
             />
+            {/* Thêm Link để chuyển trang */}
+            <Link to={`/admin/products/${record.id}`}>
+              <Button>Product-detail</Button>
+            </Link>
           </div>
         )
       }

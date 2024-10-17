@@ -19,7 +19,6 @@ const registerCustomerAPI = (
   };
   return axios.post(URL_BACKEND, data);
 };
-
 const loginCustomerAPI = (username, password) => {
   const URL_BACKEND = "/api/v1/auth/login";
   const data = {
@@ -246,6 +245,12 @@ const createPayment = async (paymentDate, paymentMethod, orderId) => {
   }
 };
 //API product-detail
+const findByProductId = (productId) => {
+  const URL_BACKEND = `/api/v1/products/${productId}`
+  return axios.get(URL_BACKEND)
+}
+
+
 const fetchDataProductDetail = () => {
   const URL_BACKEND = "/api/v1/productDetail/getAllProductDetail";
   return axios.get(URL_BACKEND);
@@ -561,11 +566,135 @@ const createNewStaff = (username, password, phoneNumber, email, address, name, g
 
 };
 const deleteStaff = (id) => {
-    const URL_BACKEND = `/api/v1/staff/${id}`;
-    return axios.delete(URL_BACKEND);
+  const URL_BACKEND = `/api/v1/staff/${id}`;
+  return axios.delete(URL_BACKEND);
 }
+//API Promotion
+
+const fetchDataPromotion = () => {
+  const URL_BACKEND = "/api/v1/promotion"
+  return axios.get(URL_BACKEND)
+}
+
+const createPromotion = async (name, description, startDate, endDate, discountPercent, discountAmount, status, productDetailsId) => {
+  const URL_BACKEND = "/api/v1/promotion";
+  const data = {
+    name,
+    description,
+    startDate,
+    endDate,
+    discountPercent,
+    discountAmount,
+    status,
+    productDetailsId // Chỉnh sửa tại đây để sử dụng productDetailsId
+  };
+
+  try {
+    const response = await axios.post(URL_BACKEND, data);
+    return response; // Trả về phản hồi nếu thành công
+  } catch (error) {
+    return { data: null, message: error.response ? error.response.data : error.message }; // Trả về thông tin lỗi
+  }
+};
+// Hàm cập nhật khuyến mãi
+const updatePromotion = (id, { name, description, startDate, endDate, discountPercent, discountAmount, status, productDetailsId }) => {
+  const URL_BACKEND = `/api/v1/promotion/${id}`; // Đường dẫn đến API cập nhật khuyến mãi
+  const data = {
+    name,
+    description,
+    startDate,
+    endDate,
+    discountPercent,
+    discountAmount,
+    status,
+    productDetailsId
+  };
+
+  return axios.put(URL_BACKEND, data); // Gọi PUT với URL và dữ liệu
+};
+
+const detailPromotion = (id) => {
+  const URL_BACKEND = `/api/v1/promotion/detail/${id}`
+  return axios.get(URL_BACKEND)
+}
+
+
+
+const deletePromotionAPI = (id) => {
+  const URL_BACKEND = `/api/v1/promotion/${id}`
+  return axios.delete(URL_BACKEND)
+}
+
+// API VOUCHER
+const fetchDataVoucher = () => {
+  const URL_BACKEND = "/api/v1/voucher"
+  return axios.get(URL_BACKEND)
+};
+const createVoucher = async (
+  code,
+  quantity,
+  discountAmount,
+  discountPercent,
+  expirationDate,
+  minPurchaseAmount,
+  maxDiscountAmount,
+  termsAndConditions,
+  // status,
+  customers
+) => {
+  const URL_BACKEND = "/api/v1/voucher";
+  const data = {
+    code: code,
+    quantity: quantity,
+    discountAmount: discountAmount,
+    discountPercent: discountPercent,
+    expirationDate: expirationDate,
+    minPurchaseAmount: minPurchaseAmount,
+    maxDiscountAmount: maxDiscountAmount,
+    termsAndConditions: termsAndConditions,
+    // status,
+    customers: customers
+  };
+  return axios.post(URL_BACKEND, data);
+}
+
+
+const deleteVoucher = async (id) => {
+  const URL_BACKEND = `/api/v1/voucher/${id}`;
+  return axios.delete(URL_BACKEND);
+};
+const fetchVoucherById = (id) => {
+  const URL_BACKEND = `/api/v1/voucher/detail/${id}`;
+  return axios.get(URL_BACKEND);
+};
+const updateVoucher = async (id, { code, quantity, discountAmount, discountPercent, expirationDate, minPurchaseAmount, maxDiscountAmount, termsAndConditions, customers }) => {
+  const URL_BACKEND = `/api/v1/voucher/${id}`;
+  const data = {
+    code,
+    quantity,
+    discountAmount,
+    discountPercent,
+    expirationDate,
+    minPurchaseAmount,
+    maxDiscountAmount,
+    termsAndConditions,
+    status: 1,// Gán giá trị trạng thái mặc định là 1 (active)
+    customers
+  };
+  return axios.put(URL_BACKEND, data);
+};
 export {
   uploadImageAPI,
+  fetchDataPromotion,
+  createPromotion,
+  deletePromotionAPI,
+  updatePromotion,
+  detailPromotion,
+  fetchDataVoucher,
+  deleteVoucher,
+  createVoucher,
+  fetchVoucherById,
+  updateVoucher,
   updateStaffPermissions,
   deleteStaff,
   registerCustomerAPI,

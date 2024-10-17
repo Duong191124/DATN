@@ -15,15 +15,18 @@ import CollarPage from "./pages/collar.jsx";
 import BrandPage from "./pages/brand.jsx";
 import CategoryPage from "./pages/category.jsx";
 import SleevePage from "./pages/sleeve.jsx";
+import PromotionPage from "./pages/promotion.jsx";
+import VoucherPage from "./pages/voucher.jsx";
 import StaffManagement from "./pages/staff.jsx";
 import PrivateRoute from "./pages/private.route.jsx";
 import App from "./App.jsx";
 import PermissionPage from "./pages/permission.jsx";
 
+import PermissionPage from "./pages/permission.jsx";
 const router = createBrowserRouter([
   {
     path: "/admin",
-    element:(
+    element: (
       // <PrivateRoute>
       //   <AppAdmin />
       // </PrivateRoute>
@@ -39,7 +42,7 @@ const router = createBrowserRouter([
         element: <ProductPage />,
       },
       {
-        path: "products/:id",
+        path: "products/:productId",
         element: <ProductDetail />,
       },
       {
@@ -79,6 +82,7 @@ const router = createBrowserRouter([
         element: <SleevePage />,
       },
       {
+
         path: "permission",
         element: <PermissionPage />,
       },
@@ -102,6 +106,14 @@ const router = createBrowserRouter([
     path: "/register",
     element: <RegisterPage />,
   },
+  {
+    path: "/promotions",
+    element: <PromotionPage />,
+  },
+  {
+    path: "/voucher",
+    element: <VoucherPage />,
+  }
 ]);
 createRoot(document.getElementById("root")).render(
   <AuthWrapper>
