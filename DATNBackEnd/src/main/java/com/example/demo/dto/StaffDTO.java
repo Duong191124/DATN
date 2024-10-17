@@ -1,6 +1,7 @@
 package com.example.demo.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.util.Date;
@@ -23,6 +24,7 @@ public class StaffDTO {
 
     private int status;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date dateOfBirth;
 
     private String name;
@@ -31,5 +33,5 @@ public class StaffDTO {
 
     private int gender;
 
-    private Integer roleId;
+    private Integer permissionId;
 }

@@ -1,18 +1,16 @@
-import { Button, Input, Modal, notification } from "antd"
+import { Button, Form, Input, Modal, notification } from "antd"
 import { useState } from "react"
 import { createBrandAPI } from "../../service/api.service"
 
 
 const BrandForm = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [code, setCode] = useState("")
-    const [name, setName] = useState("")
-    const [status, setStatus] = useState("")
+    const [form] = Form.useForm();
 
     const { loadBrand } = props
 
-    const handleSubmit = async () => {
-        const res = await createBrandAPI(code, name, status)
+    const handleSubmit = async (values) => {
+        const res = await createBrandAPI(values.code, values.name, values.status)
         if (res.data) {
             notification.success({
                 message: "create brand",
@@ -23,11 +21,10 @@ const BrandForm = (props) => {
         }
     }
     const resetModal = () => {
-        setCode("")
-        setName("")
-        setStatus("")
+        form.resetFields()
         setIsModalOpen(false)
     }
+
     return (
         <>
             <Button type="primary" onClick={() => setIsModalOpen(true)}>
@@ -36,25 +33,42 @@ const BrandForm = (props) => {
             <Modal
                 title="Create brand"
                 open={isModalOpen}
-                onOk={handleSubmit}
+                onOk={() => { form.submit() }}
                 onCancel={() => resetModal()}
                 okText={"save"}
             >
-                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                    <div>
-                        <span>Code</span>
-                        <Input
-                            onChange={(event) => { setCode(event.target.value) }}
-                        />
-                    </div>
+                <Form
+                    form={form}
+                    onFinish={handleSubmit}
+                    layout="vertical"
+                >
+                    <Form.Item
+                        label="Code"
+                        name="code"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Code cannot be empty',
+                            },
+                        ]}
+                    >
+                        <Input />
+                    </Form.Item>
 
-                    <div>
-                        <span>Name</span>
-                        <Input
-                            onChange={(event) => { setName(event.target.value) }}
-                        />
-                    </div>
-                </div>
+                    <Form.Item
+                        label="Name"
+                        name="name"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Name cannot be empty',
+                            },
+
+                        ]}
+                    >
+                        <Input />
+                    </Form.Item>
+                </Form>
             </Modal>
         </>
 

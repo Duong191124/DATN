@@ -12,7 +12,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("${api.prefix}/size")
@@ -28,6 +30,18 @@ public class SizeController {
                 .status(HttpStatus.OK.value())
                 .data(sizeList)
                 .build());
+    }
+
+
+    @PostMapping("/check-duplicate")
+    public ResponseEntity<Map<String, Boolean>> checkDuplicateSize(@RequestBody Map<String, String> request) {
+        String type = request.get("type");
+        String value = request.get("value");
+
+        boolean exists = sizeService.isDuplicate(type, value);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", exists);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("")
@@ -69,5 +83,14 @@ public class SizeController {
                 .message("Delete size with id = " + id + " successfully")
                 .status(HttpStatus.OK.value())
                 .build());
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<?> sizeFindById(@PathVariable Integer id){
+        try {
+            Size size = sizeService.findById(id);
+            return ResponseEntity.ok(new MessageReponse("find size success",200,size));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

@@ -5,6 +5,7 @@ import com.example.demo.entity.Size;
 import com.example.demo.repository.SizeRepo;
 import com.example.demo.service.SizeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +31,16 @@ public class SizeServiceImpl implements SizeService {
         return sizeRepo.save(newColor);
     }
 
+
+    public boolean isDuplicate(String type, String value) {
+        if ("code".equals(type)) {
+            return sizeRepo.existsByCode(value);
+        } else if ("name".equals(type)) {
+            return sizeRepo.existsByName(value);
+        }
+        return false;
+    }
+
     @Override
     public Size update(Integer id, SizeDTO size) throws Exception {
         Size existingSize = getSizeById(id);
@@ -48,5 +59,10 @@ public class SizeServiceImpl implements SizeService {
     public void deleteSize(Integer id) throws Exception {
         Size existingSize = getSizeById(id);
         sizeRepo.delete(existingSize);
+    }
+
+    @Override
+    public Size findById(Integer id) {
+        return sizeRepo.findById(id).orElseThrow(()->new RuntimeException("not found size with id:"+id));
     }
 }

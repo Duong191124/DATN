@@ -7,8 +7,10 @@ import com.example.demo.response.MessageReponse;
 import com.example.demo.response.PageProductResponse;
 import com.example.demo.response.ProductDetailResponse;
 import com.example.demo.response.ProductResponse;
+import com.example.demo.service.ProductDetailService;
 import com.example.demo.service.ProductService;
 import com.example.demo.service.impl.ProductDetailServiceImpl;
+import com.example.demo.service.impl.ProductServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,7 +37,19 @@ public class ProductController {
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
 
     private final ProductService productService;
+    private final ProductServiceImpl productServiceImpl;
     private final ProductDetailServiceImpl productDetailService;
+
+    @PostMapping("/check-duplicate")
+    public ResponseEntity<Map<String, Boolean>> checkDuplicateSize(@RequestBody Map<String, String> request) {
+        String type = request.get("type");
+        String value = request.get("value");
+
+        boolean exists = productServiceImpl.isDuplicate(type, value);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", exists);
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping("/getAllProduct")
     public ResponseEntity<MessageReponse> getAllProduct() {
@@ -59,7 +73,6 @@ public class ProductController {
             @RequestParam(defaultValue = "") String description,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "3") int pageSize) {
-
         // Đảm bảo page không nhỏ hơn 1
         page = Math.max(1, page);
         Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("id").ascending());
@@ -149,7 +162,20 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-
+    @GetMapping("productId/{id}")
+    public ResponseEntity<?> getById(@PathVariable Integer id){
+        try {
+            ProductResponse product = productService.findById(id);
+            return ResponseEntity.ok()
+                    .body(MessageReponse.builder()
+                            .message("Lay thong tin thanh cong")
+                            .status(HttpStatus.OK.value())
+                            .data(product)
+                            .build());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
     @GetMapping("/{productId}")
     public ResponseEntity<?> getProductById(@PathVariable Integer productId) {
         try {
