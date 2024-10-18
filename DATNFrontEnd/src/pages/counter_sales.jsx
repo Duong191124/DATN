@@ -50,6 +50,7 @@ const CounterSales = () => {
   const loadProductDetail = async () => {
     try {
       const response = await orderProductDetail();
+      console.log(response);
       if (response.data) {
         setDataProductDetail(response.data);
       }

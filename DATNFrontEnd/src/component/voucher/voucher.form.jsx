@@ -15,8 +15,9 @@ const VoucherForm = (props) => {
     const fetchCustomers = async () => {
       try {
         const res = await fetchCustomerList();
-        if (res && res.data) {
-          setCustomers(res.data);
+        console.log("Customer: ",res);
+        if (res && res.data.data) {
+          setCustomers(res.data.data);
         } else {
           notification.error({
             message: "Lỗi",

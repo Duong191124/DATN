@@ -13,8 +13,8 @@ const VoucherTable = ({ refreshData }) => {
     const loadData = async () => {
         try {
             const response = await fetchDataVoucher();
-            if (response.data) {
-                setDataVoucher(response.data);
+            if (response.data.data) {
+                setDataVoucher(response.data.data);
             }
         } catch (error) {
             notification.error({

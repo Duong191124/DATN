@@ -8,29 +8,31 @@ const PromotionForm = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productDetails, setProductDetails] = useState([]);
     const { loadData } = props;
-
-    useEffect(() => {
-        const fetchProductDetails = async () => {
-            try {
-                const res = await fetchDataProductDetail();
-                if (res && res.data) {
-                    setProductDetails(res.data);
-                } else {
-                    notification.error({
-                        message: "Lỗi",
-                        description: "Không thể tải danh sách chi tiết sản phẩm"
-                    });
-                }
-            } catch (error) {
+    const fetchProductDetails = async () => {
+        try {
+            const res = await fetchDataProductDetail();
+            console.log("ProductDetails: ",res);
+            if (res && Array.isArray(res.data.data)) {
+                setProductDetails(res.data.data);
+            } else {
+                setProductDetails([]);  // Đảm bảo productDetails luôn là mảng
                 notification.error({
                     message: "Lỗi",
-                    description: "Có lỗi xảy ra khi tải danh sách chi tiết sản phẩm"
+                    description: "Không thể tải danh sách chi tiết sản phẩm"
                 });
             }
-        };
-
+        } catch (error) {
+            setProductDetails([]);  // Đảm bảo productDetails luôn là mảng
+            notification.error({
+                message: "Lỗi",
+                description: "Có lỗi xảy ra khi tải danh sách chi tiết sản phẩm"
+            });
+        }
+    };
+    useEffect(() => {
         fetchProductDetails();
     }, []);
+    
 
     const handleSubmit = async () => {
         const values = form.getFieldsValue();
@@ -203,13 +205,14 @@ const PromotionForm = (props) => {
                             placeholder="Chọn chi tiết sản phẩm"
                             allowClear
                         >
-                            {productDetails.map(product => (
+                            {Array.isArray(productDetails) && productDetails.map(product => (
                                 <Select.Option key={product.id} value={product.id}>
                                     {product.code}
                                 </Select.Option>
                             ))}
                         </Select>
                     </Form.Item>
+
                 </Form>
             </Modal>
         </div>
