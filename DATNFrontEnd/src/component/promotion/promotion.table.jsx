@@ -10,7 +10,10 @@ const PromotionTable = (props) => {
     // Trạng thái để quản lý việc hiển thị modal và dữ liệu cần cập nhật
     const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false);
     const [dataUpdate, setDataUpdate] = useState(null);
-
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 2,
+    });
     const showDeleteConfirm = (id) => {
         Modal.confirm({
             title: 'Bạn có muốn xóa khuyến mãi này không?',
@@ -48,7 +51,8 @@ const PromotionTable = (props) => {
     const columns = [
         {
             title: 'STT',
-            render: (text, record, index) => index + 1,
+            render: (text, record, index) => 
+                (pagination.current - 1) * pagination.pageSize + index + 1, // Tính toán lại index
         },
         {
             title: 'ID',
@@ -116,8 +120,12 @@ const PromotionTable = (props) => {
                 dataSource={dataPromotion}
                 columns={columns}
                 pagination={{
-                    pageSize: 2,
+                    current: pagination.current,
+                    pageSize: pagination.pageSize,
                     showSizeChanger: false,
+                    onChange: (page, pageSize) => {
+                        setPagination({ current: page, pageSize });
+                    },
                 }}
                 rowKey="id"
             />

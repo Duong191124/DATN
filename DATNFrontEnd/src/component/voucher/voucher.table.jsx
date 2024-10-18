@@ -9,7 +9,10 @@ const VoucherTable = ({ refreshData }) => {
     const [selectedVoucherId, setSelectedVoucherId] = useState(null); // Chỉ lưu ID để khi mở modal fetch lại chi tiết voucher
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAddSuccess, setIsAddSuccess] = useState(false);
-
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 2,
+    });
     const loadData = async () => {
         try {
             const response = await fetchDataVoucher();
@@ -76,7 +79,8 @@ const VoucherTable = ({ refreshData }) => {
     const columns = [
         {
             title: 'STT',
-            render: (text, record, index) => index + 1,
+            render: (text, record, index) => 
+                (pagination.current - 1) * pagination.pageSize + index + 1, // Tính toán lại index
         },
         {
             title: "ID",
@@ -134,10 +138,16 @@ const VoucherTable = ({ refreshData }) => {
             <Table 
                 columns={columns} 
                 dataSource={dataVoucher} 
-                rowKey="id" 
-                pagination={{ pageSize: 2, showSizeChanger: false }}
+                pagination={{
+                    current: pagination.current,
+                    pageSize: pagination.pageSize,
+                    showSizeChanger: false,
+                    onChange: (page, pageSize) => {
+                        setPagination({ current: page, pageSize });
+                    },
+                }}
+                rowKey="id"
             />
-
             {isModalOpen && (
                 <VoucherUpdateModal
                     visible={isModalOpen}
