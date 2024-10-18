@@ -16,7 +16,7 @@ import BrandPage from "./pages/brand.jsx";
 import CategoryPage from "./pages/category.jsx";
 import SleevePage from "./pages/sleeve.jsx";
 import PromotionPage from "./pages/promotion.jsx";
-import VoucherPage from "./pages/voucher.jsx";
+// import VoucherPage from "./pages/voucher.jsx";
 import StaffManagement from "./pages/staff.jsx";
 
 // import PrivateRoute from "./pages/private.route.jsx";
@@ -100,10 +100,10 @@ const router = createBrowserRouter([
     path: "/promotions",
     element: <PromotionPage />,
   },
-  {
-    path: "/voucher",
-    element: <VoucherPage />,
-  }
+  // {
+  //   path: "/voucher",
+  //   element: <VoucherPage />,
+  // }
 ]);
 createRoot(document.getElementById("root")).render(
   <AuthWrapper>
