@@ -19,6 +19,10 @@ const registerCustomerAPI = (
   };
   return axios.post(URL_BACKEND, data);
 };
+const fetchCustomerList = () => {
+    const URL_BACKEND = `/api/v1/customer/getAll`;
+    return axios.get(URL_BACKEND);
+  };
 const loginCustomerAPI = (username, password) => {
   const URL_BACKEND = "/api/v1/auth/login";
   const data = {
@@ -687,6 +691,7 @@ export {
   deleteStaff,
   registerCustomerAPI,
   loginCustomerAPI,
+  fetchCustomerList,
   sizeFindById,
   colorFindById,
   deleteOrder,
