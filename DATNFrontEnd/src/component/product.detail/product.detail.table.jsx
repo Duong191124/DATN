@@ -1,25 +1,30 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { notification, Popconfirm, Table } from "antd";
+import { Button, notification, Popconfirm, Table } from "antd";
 import { useState } from "react";
 import ProductDetailUpdate from "./productDetail.update";
 import { deleteProductDetailAPI } from "../../service/api.service";
+
 const ProductDetailTable = (props) => {
-  const { dataProductDetail, loadProductDetail } = props;
+  const { dataProductDetail, loadDataProductDetail } = props;
   const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false);
-  const [dataUpdate, setDataUpdate] = useState("");
+  const [dataUpdate, setDataUpdate] = useState(null);
 
   const handleDeleteProduct = async (id) => {
-    const res = await deleteProductDetailAPI(id);
-    if (res.data) {
-      notification.success({
-        message: "delete product",
-        description: "Delete product successfully",
-      });
-      await loadProductDetail();
-    } else {
+    try {
+      const res = await deleteProductDetailAPI(id);
+      if (res?.data) {
+        notification.success({
+          message: "Delete Product Detail",
+          description: "Product deleted successfully",
+        });
+        await loadDataProductDetail();
+      } else {
+        throw new Error(res.message || "Delete failed");
+      }
+    } catch (error) {
       notification.error({
-        message: "delete product",
-        description: JSON.stringify(res.message),
+        message: "Delete Product Detail",
+        description: error.message || "Something went wrong",
       });
     }
   };
@@ -39,15 +44,15 @@ const ProductDetailTable = (props) => {
     },
     {
       title: "Product",
-      dataIndex: "productId",
+      dataIndex: "product",
     },
     {
       title: "Size",
-      dataIndex: "sizeId",
+      dataIndex: "size",
     },
     {
       title: "Color",
-      dataIndex: "colorId",
+      dataIndex: "color",
     },
     {
       title: "Action",
@@ -62,15 +67,12 @@ const ProductDetailTable = (props) => {
                 setDataUpdate(record);
               }}
             />
-
             <Popconfirm
-              title="Xoá sản phẩm"
-              description="bạn có chắc chắn muốn xoá sản phẩm này không ?"
-              onConfirm={() => {
-                handleDeleteProduct(record.id);
-              }}
-              okText="yes"
-              cancelText="no"
+              title="Delete product"
+              description="Are you sure you want to delete this product?"
+              onConfirm={() => handleDeleteProduct(record.id)}
+              okText="Yes"
+              cancelText="No"
               placement="left"
             >
               <DeleteOutlined style={{ cursor: "pointer", color: "red" }} />
@@ -89,9 +91,10 @@ const ProductDetailTable = (props) => {
         setIsModalUpdateOpen={setIsModalUpdateOpen}
         dataUpdate={dataUpdate}
         setDataUpdate={setDataUpdate}
-        loadProductDetail={loadProductDetail}
+        loadDataProductDetail={loadDataProductDetail}
       />
     </>
   );
 };
+
 export default ProductDetailTable;

@@ -241,6 +241,12 @@ const createPayment = async (paymentDate, paymentMethod, orderId) => {
   }
 };
 //API product-detail
+const findByProductId = (productId) => {
+  const URL_BACKEND = `/api/v1/products/${productId}`
+  return axios.get(URL_BACKEND)
+}
+
+
 const fetchDataProductDetail = () => {
   const URL_BACKEND = "/api/v1/productDetail/getAllProductDetail";
   return axios.get(URL_BACKEND);
@@ -561,7 +567,6 @@ const deleteStaff = (id) => {
   const URL_BACKEND = `/api/v1/staff/${id}`;
   return axios.delete(URL_BACKEND);
 }
-
 //API Promotion
 
 const fetchDataPromotion = () => {

@@ -18,10 +18,11 @@ import SleevePage from "./pages/sleeve.jsx";
 import PromotionPage from "./pages/promotion.jsx";
 import VoucherPage from "./pages/voucher.jsx";
 import StaffManagement from "./pages/staff.jsx";
+
 // import PrivateRoute from "./pages/private.route.jsx";
 // import App from "./App.jsx";
-import PermissionPage from "./pages/permission.jsx";
 
+import PermissionPage from "./pages/permission.jsx";
 const router = createBrowserRouter([
   {
     path: "/admin",
@@ -41,7 +42,7 @@ const router = createBrowserRouter([
         element: <ProductPage />,
       },
       {
-        path: "products/:id",
+        path: "products/:productId",
         element: <ProductDetail />,
       },
       {
@@ -81,6 +82,7 @@ const router = createBrowserRouter([
         element: <SleevePage />,
       },
       {
+
         path: "permission",
         element: <PermissionPage />,
       },

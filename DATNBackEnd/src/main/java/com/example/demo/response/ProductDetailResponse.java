@@ -17,9 +17,9 @@ public class ProductDetailResponse {
     private int quantity;
     private Double price;
     private String image;
-    private ProductResponse productResponse;
-    private Size size;
-    private Color color;
+    private String productName;
+    private String sizeName;
+    private String colorName;
 
     public static ProductDetailResponse fromProductDetailResponse(ProductDetail productDetail){
         return ProductDetailResponse.builder()
@@ -28,9 +28,9 @@ public class ProductDetailResponse {
                 .quantity(productDetail.getQuantity())
                 .price(productDetail.getPrice())
                 .image(productDetail.getImage())
-                .productResponse(ProductResponse.convertResponse(productDetail.getProduct()))
-                .size(productDetail.getSize())
-                .color(productDetail.getColor())
+                .productName(productDetail.getProduct().getName())
+                .sizeName(productDetail.getSize().getName())
+                .colorName(productDetail.getColor().getName())
                 .build();
     }
 }

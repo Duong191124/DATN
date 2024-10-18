@@ -34,14 +34,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse createdProduct(ProductDTO productDTO) {
-      try {
+        try {
 
-          Product product = productRepo.save(ProductDTO.convertProduct(productDTO,categoryRepo,sleeveRepo,collarRepo,brandRepo));
-          return ProductResponse.convertResponse(product);
-      }catch (Exception e){
-          throw new RuntimeException("Failed to add product"+e.getMessage());
-      }
+            Product product = productRepo.save(ProductDTO.convertProduct(productDTO,categoryRepo,sleeveRepo,collarRepo,brandRepo));
+            return ProductResponse.convertResponse(product);
+        }catch (Exception e){
+            throw new RuntimeException("Failed to add product"+e.getMessage());
+        }
     }
+
 
     public boolean isDuplicate(String type, String value) {
         if ("code".equals(type)) {
@@ -51,6 +52,7 @@ public class ProductServiceImpl implements ProductService {
         }
         return false;
     }
+
 
     @Override
     public ProductResponse updatedProduct(int id,ProductDTO productDTO) {
@@ -95,7 +97,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deletedProduct(Integer id) {
         for (ProductResponse productResponse: productRepo.findAll().stream().map(ProductResponse::convertResponse).toList()
-             ) {
+        ) {
             if(productResponse.getId().equals(id)){
                 productRepo.deleteById(id);
             }
