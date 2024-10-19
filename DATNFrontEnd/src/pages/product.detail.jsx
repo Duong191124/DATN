@@ -22,7 +22,7 @@ const ProductDetail = () => {
 
   return (
     <div style={{ margin: "20px" }}>
-      <ProDuctDetailForm loadProductDetail={loadProductDetail} />
+      <ProDuctDetailForm loadProductDetail={loadProductDetail} productId={productId} />
       <ProductDetailTable
         loadProductDetail={loadProductDetail}
         dataProductDetail={dataProductDetail}

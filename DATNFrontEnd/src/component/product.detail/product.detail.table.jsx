@@ -1,6 +1,6 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Button, notification, Popconfirm, Table } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProductDetailUpdate from "./productDetail.update";
 import { deleteProductDetailAPI } from "../../service/api.service";
 
@@ -8,24 +8,23 @@ const ProductDetailTable = (props) => {
   const { dataProductDetail, loadDataProductDetail } = props;
   const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false);
   const [dataUpdate, setDataUpdate] = useState(null);
+  const [selectedProductDetail, setSelectedProductDetail] = useState(null); // Thông tin sản phẩm được chọn
+
+  useEffect(() => {
+    if (dataProductDetail && dataProductDetail.length > 0) {
+      setSelectedProductDetail(dataProductDetail[0]); // Chọn sản phẩm đầu tiên
+    }
+  }, [dataProductDetail]);
 
   const handleDeleteProduct = async (id) => {
-    try {
-      const res = await deleteProductDetailAPI(id);
-      if (res?.data) {
-        notification.success({
-          message: "Delete Product Detail",
-          description: "Product deleted successfully",
-        });
-        await loadDataProductDetail();
-      } else {
-        throw new Error(res.message || "Delete failed");
-      }
-    } catch (error) {
-      notification.error({
+
+    const res = await deleteProductDetailAPI(id);
+    if (res.data) {
+      notification.success({
         message: "Delete Product Detail",
-        description: error.message || "Something went wrong",
+        description: "Product deleted successfully",
       });
+      await loadDataProductDetail();
     }
   };
 
@@ -41,13 +40,6 @@ const ProductDetailTable = (props) => {
     {
       title: "Price",
       dataIndex: "price",
-    },
-    {
-      title: "Product",
-      dataIndex: "product",
-      render: (text, record) => {
-        return record.productResponse?.name || "Chưa có product";
-      },
     },
     {
       title: "Size",
@@ -94,7 +86,16 @@ const ProductDetailTable = (props) => {
 
   return (
     <>
+
+      {selectedProductDetail && (
+        <div style={{ marginTop: "20px" }}>
+          <p><strong>Product:</strong> {selectedProductDetail.productResponse?.name || "Chưa có product"}</p>
+
+        </div>
+      )}
+
       <Table columns={columns} dataSource={dataProductDetail} rowKey={"id"} />
+
       <ProductDetailUpdate
         isModalUpdateOpen={isModalUpdateOpen}
         setIsModalUpdateOpen={setIsModalUpdateOpen}

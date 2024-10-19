@@ -29,6 +29,7 @@ const ProductDetailUpdate = (props) => {
         const { id, code, quantity, price, product, color, size } = values;
 
         const res = await updateProductDetailAPi(id, code, quantity, price, product, size, color);
+        console.log("check res", res)
         if (res.data) {
             notification.success({
                 message: "Update product",
@@ -52,21 +53,21 @@ const ProductDetailUpdate = (props) => {
 
     const loadDataProduct = async () => {
         const res = await fetchDataProductAPI();
-        if (res.data) {
+        if (res.data.data) {
             setDataProduct(res.data.data);
         }
     };
 
     const loadDataColor = async () => {
         const res = await fetchDataColorAPI();
-        if (res.data) {
+        if (res.data.data) {
             setDataColor(res.data.data);
         }
     };
 
     const loadDataSize = async () => {
         const res = await fetchDataSize();
-        if (res.data) {
+        if (res.data.data) {
             setDataSize(res.data.data);
         }
     };
