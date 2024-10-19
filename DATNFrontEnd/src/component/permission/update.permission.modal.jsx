@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Table, Checkbox } from 'antd';
+import { Modal, Table, Checkbox, notification } from 'antd';
 import { getAllPermission, getStaffPermissions, updateStaffPermissions } from '../../service/api.service';
 
-const UpdatePermissionForUserModal = React.memo(({ id, open, onClose }) => {
+const UpdatePermissionForUserModal = (props) => {
     const [permissions, setPermissions] = useState([]);
     const [staffPermissions, setStaffPermission] = useState([]);
     const [initialized, setInitialized] = useState(false);
     const allPermissionsRef = useRef([]); // Lưu tất cả quyền để không cần gọi lại API
+    const { id, open, onClose } = props
 
     useEffect(() => {
         if (open && !initialized) {
@@ -37,7 +38,7 @@ const UpdatePermissionForUserModal = React.memo(({ id, open, onClose }) => {
     const loadStaffPermissions = async (id) => {
         try {
             const staffPermissionRes = await getStaffPermissions(id);
-            const staffPermission = staffPermissionRes.data.map(item => item.name);
+            const staffPermission = staffPermissionRes.data.data.map(item => item.name);
 
             // Update trạng thái checked cho các quyền dựa trên staffPermission
             const updatedPermissions = allPermissionsRef.current.map(permission => ({
@@ -86,7 +87,7 @@ const UpdatePermissionForUserModal = React.memo(({ id, open, onClose }) => {
         if (Object.keys(payload).length > 0) {
             try {
                 const res = await updateStaffPermissions(id, payload);
-                if (res.data) {
+                if (res.status == 200) {
                     notification.success({
                         message: "Update Permission Success",
                         description: "Update Permission for staff successfully!",
@@ -154,6 +155,6 @@ const UpdatePermissionForUserModal = React.memo(({ id, open, onClose }) => {
             </Table>
         </Modal>
     );
-});
+}
 
 export default UpdatePermissionForUserModal;

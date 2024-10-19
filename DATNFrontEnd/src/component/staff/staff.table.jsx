@@ -26,7 +26,6 @@ const StaffTable = () => {
 
   const loadStaff = async () => {
     const res = await getAllStaff(current, pageSize);
-    console.log(res);
     if (res.data) {
       setDataStaff(res.data.data.content);
       setTotal(res.data.data.totalElements);
