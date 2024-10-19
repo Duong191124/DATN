@@ -18,5 +18,5 @@ public interface ProductDetailService {
 
     void deletePD(Integer id) throws Exception;
 
-    ProductDetail uploadImageWithColor(Integer productId, String colorName, MultipartFile file) throws Exception;
+    ProductDetail uploadImageForProductDetail(Integer productId, Integer productDetailId, MultipartFile file) throws Exception;
 }

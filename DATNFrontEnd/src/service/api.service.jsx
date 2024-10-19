@@ -20,9 +20,9 @@ const registerCustomerAPI = (
   return axios.post(URL_BACKEND, data);
 };
 const fetchCustomerList = () => {
-    const URL_BACKEND = `/api/v1/customer/getAll`;
-    return axios.get(URL_BACKEND);
-  };
+  const URL_BACKEND = `/api/v1/customer/getAll`;
+  return axios.get(URL_BACKEND);
+};
 const loginCustomerAPI = (username, password) => {
   const URL_BACKEND = "/api/v1/auth/login";
   const data = {
@@ -32,6 +32,9 @@ const loginCustomerAPI = (username, password) => {
   return axios.post(URL_BACKEND, data);
 };
 
+/*
+  API product
+*/
 const createProductAPI = (
   code,
   name,
@@ -80,8 +83,13 @@ const updateProductAPI = (
   };
   return axios.put(URL_BACKEND, data);
 };
-
-//API product
+const uploadImageAPI = (id, formData) => {
+  return axios.post(`/api/v1/products/upload/${id}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
 const deleteProductAPI = (id) => {
   const URL_BACKEND = `/api/v1/products/${id}`;
   return axios.delete(URL_BACKEND);
@@ -240,13 +248,21 @@ const createPayment = async (paymentDate, paymentMethod, orderId) => {
     throw new Error("Thanh toán thất bại: " + error.message);
   }
 };
-//API product-detail
+/*
+  API Product detail
+*/
 const findByProductId = (productId) => {
   const URL_BACKEND = `/api/v1/products/${productId}`
   return axios.get(URL_BACKEND)
 }
-
-
+const upLoadImageForProductDetail = (productId, id, formData) => {
+  const URL_BACKEND = `/api/v1/products/uploadForProductDetail/${productId}/${id}`
+  return axios.post(URL_BACKEND, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    }
+  })
+}
 const fetchDataProductDetail = () => {
   const URL_BACKEND = "/api/v1/productDetail/getAllProductDetail";
   return axios.get(URL_BACKEND);
@@ -503,8 +519,6 @@ const getAllPermission = () => {
   const URL_BACKEND = "/api/v1/permission/all";
   return axios.get(URL_BACKEND);
 }
-
-
 const getAllPermissionPagination = (page, size) => {
   const URL_BACKEND = `/api/v1/permission/getAll?page=${page}&size=${size}`;
   return axios.get(URL_BACKEND);
@@ -682,7 +696,10 @@ const updateVoucher = async (id, { code, quantity, discountAmount, discountPerce
   return axios.put(URL_BACKEND, data);
 };
 export {
+  fetchCustomerList,
+  upLoadImageForProductDetail,
   findByProductId,
+  uploadImageAPI,
   fetchDataPromotion,
   createPromotion,
   deletePromotionAPI,

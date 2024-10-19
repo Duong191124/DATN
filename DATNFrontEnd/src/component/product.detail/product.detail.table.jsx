@@ -1,12 +1,14 @@
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, notification, Popconfirm, Table } from "antd";
 import { useState } from "react";
 import ProductDetailUpdate from "./productDetail.update";
 import { deleteProductDetailAPI } from "../../service/api.service";
+import UpLoadImageForProductDetail from "./upload.image.product.detail";
 
 const ProductDetailTable = (props) => {
-  const { dataProductDetail, loadDataProductDetail } = props;
+  const { dataProductDetail, loadProductDetail } = props;
   const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [dataUpdate, setDataUpdate] = useState(null);
 
   const handleDeleteProduct = async (id) => {
@@ -32,7 +34,7 @@ const ProductDetailTable = (props) => {
   const columns = [
     {
       title: "Code",
-      dataIndex: "code",
+      dataIndex: "code"
     },
     {
       title: "Quantity",
@@ -43,8 +45,18 @@ const ProductDetailTable = (props) => {
       dataIndex: "price",
     },
     {
+      title: "Image",
+      dataIndex: "image",
+      render: (imageUrl) => (
+        <img 
+          src={imageUrl} 
+          style={{ width: "50px", height: "50px", objectFit: "cover" }} 
+        />
+      )
+    },
+    {
       title: "Product",
-      dataIndex: "product",
+      dataIndex: "productResponse",
       render: (text, record) => {
         return record.productResponse?.name || "Chưa có product";
       },
@@ -86,6 +98,13 @@ const ProductDetailTable = (props) => {
             >
               <DeleteOutlined style={{ cursor: "pointer", color: "red" }} />
             </Popconfirm>
+            <UploadOutlined 
+              style={{ cursor: "pointer"}}
+              onClick={() => {
+                setDataUpdate({ productId: record.productResponse?.id, productDetailId: record.id })
+                setIsModalOpen(true)
+              }}
+            />
           </div>
         );
       },
@@ -100,7 +119,14 @@ const ProductDetailTable = (props) => {
         setIsModalUpdateOpen={setIsModalUpdateOpen}
         dataUpdate={dataUpdate}
         setDataUpdate={setDataUpdate}
-        loadDataProductDetail={loadDataProductDetail}
+        loadProductDetail={loadProductDetail}
+      />
+      <UpLoadImageForProductDetail
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        loadProductDetail={loadProductDetail}
+        dataUpdate={dataUpdate}
+        onClose={() => setIsModalOpen(false)}
       />
     </>
   );

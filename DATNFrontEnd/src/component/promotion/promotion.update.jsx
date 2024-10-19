@@ -15,7 +15,7 @@ const PromotionUpdate = (props) => {
                     const res = await fetchDataProductDetail();
 
                     if (res && res.data) {
-                         setProductDetails(res.data);
+                         setProductDetails(res.data.data);
                     }
                } catch (error) {
                     notification.error({
@@ -167,11 +167,15 @@ const PromotionUpdate = (props) => {
                     </Form.Item>
                     <Form.Item label="Chi Tiết Sản Phẩm" name="productDetailsId">
                          <Select>
-                              {productDetails.map((item) => (
-                                   <Select.Option key={item.id} value={item.id}>
-                                        {item.code} {/* Hiển thị tên sản phẩm */}
-                                   </Select.Option>
-                              ))}
+                              {Array.isArray(productDetails) && productDetails.length > 0 ? (
+                                   productDetails.map((item) => (
+                                        <Select.Option key={item.id} value={item.id}>
+                                             {item.code} {/* Hiển thị tên sản phẩm */}
+                                        </Select.Option>
+                                   ))
+                              ) : (
+                                   <Select.Option disabled>Không có sản phẩm nào</Select.Option>
+                              )}
                          </Select>
                     </Form.Item>
                </Form>

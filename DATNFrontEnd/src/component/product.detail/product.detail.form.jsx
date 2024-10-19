@@ -149,10 +149,6 @@ const ProDuctDetailForm = (props) => {
                             value={selectedSize}
                         />
                     </div>
-
-
-
-
                 </div>
             </Modal>
         </>

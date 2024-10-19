@@ -24,8 +24,6 @@ const ProductPage = () => {
         }
     };
 
-
-
     return (
         <>
             <div style={{ margin: "20px" }}>

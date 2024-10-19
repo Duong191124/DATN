@@ -13,8 +13,9 @@ const PromotionForm = (props) => {
         const fetchProductDetails = async () => {
             try {
                 const res = await fetchDataProductDetail();
+                console.log(res)
                 if (res && res.data) {
-                    setProductDetails(res.data);
+                    setProductDetails(res.data.data);
                 } else {
                     notification.error({
                         message: "Lỗi",
@@ -203,11 +204,14 @@ const PromotionForm = (props) => {
                             placeholder="Chọn chi tiết sản phẩm"
                             allowClear
                         >
-                            {productDetails.map(product => (
-                                <Select.Option key={product.id} value={product.id}>
-                                    {product.code}
-                                </Select.Option>
-                            ))}
+                            {Array.isArray(productDetails) && productDetails.length > 0
+                                ? productDetails.map(product => (
+                                    <Select.Option key={product.id} value={product.id}>
+                                        {product.code}
+                                    </Select.Option>
+                                ))
+                                : <Select.Option disabled>Không có sản phẩm chi tiết</Select.Option>
+                            }
                         </Select>
                     </Form.Item>
                 </Form>

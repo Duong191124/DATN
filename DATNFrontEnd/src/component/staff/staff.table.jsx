@@ -6,8 +6,8 @@ import { useState } from 'react';
 import CreateStaff from './create.staff';
 import { deleteStaff, getAllStaff } from '../../service/api.service';
 
-const PermissionModal = React.lazy(() =>
-  import("../permission/permission.modal")
+const UpdatePermissionForUserModal = React.lazy(() =>
+  import("../permission/update.permission.modal")
 );
 
 const StaffTable = () => {
@@ -137,7 +137,7 @@ const StaffTable = () => {
         loadStaff={loadStaff}
       />
       <Suspense fallback={<div>Loading Permission Modal...</div>}>
-        <PermissionModal
+        <UpdatePermissionForUserModal
           id={selectedUserId}
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}
