@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Table, Checkbox } from 'antd';
 import { getAllPermission, getStaffPermissions, updateStaffPermissions } from '../../service/api.service';
 
-const PermissionModal = React.memo(({ id, open, onClose }) => {
+const UpdatePermissionForUserModal = React.memo(({ id, open, onClose }) => {
     const [permissions, setPermissions] = useState([]);
     const [staffPermissions, setStaffPermission] = useState([]);
     const [initialized, setInitialized] = useState(false);
@@ -45,15 +45,12 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
                 staff: staffPermission.includes(permission.action),
             }));
 
-
             setPermissions(updatedPermissions);
             setStaffPermission(staffPermission);
         } catch (error) {
             console.error("Failed to load user permissions:", error);
         }
     };
-
-
 
     const handleCheckboxChange = (action, checked) => {
         setPermissions(prevState =>
@@ -86,11 +83,16 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
             payload.permissionToRemove = permissionsToRemove;
         }
 
-
         if (Object.keys(payload).length > 0) {
             try {
-                await updateStaffPermissions(id, payload);
-                onClose();
+                const res = await updateStaffPermissions(id, payload);
+                if (res.data) {
+                    notification.success({
+                        message: "Update Permission Success",
+                        description: "Update Permission for staff successfully!",
+                    });
+                    onClose();
+                }
             } catch (error) {
                 console.error("Failed to update permissions:", error);
             }
@@ -154,74 +156,4 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
     );
 });
 
-export default PermissionModal;
-
-//         if (Object.keys(payload).length > 0) {
-//             try {
-//                 await updateStaffPermissions(id, payload);
-//                 onClose();
-//             } catch (error) {
-//                 console.error("Failed to update permissions:", error);
-//             }
-//         } else {
-//             console.log("No permissions to update");
-//             onClose();
-//         }
-//     };
-//     // Grouping dữ liệu để hiển thị lên table
-//     const groupData = [
-//         {
-//             key: 'permitionGroup',
-//             action: 'Permissions',
-//             staff: null,
-//         },
-//         ...permissions.filter(item => item.action.includes('PERMITION')),
-//         {
-//             key: 'userGroup',
-//             action: 'Users',
-//             staff: null,
-//         },
-//         ...permissions.filter(item => item.action.includes('USER')),
-//     ];
-//     return (
-//         <Modal
-//             title="Manage Permissions"
-//             open={open}
-//             maskClosable={false}
-//             onCancel={onClose}
-//             onOk={handleOk}
-//         >
-//             <Table
-//                 dataSource={permissions}
-//                 pagination={false}
-//                 rowKey="key"
-//             >
-//                 <Table.Column
-//                     title="Action"
-//                     dataIndex="action"
-//                     render={(text, record) => (
-//                         record.key && (record.key === 'permitionGroup' || record.key === 'userGroup') ? (
-//                             <strong>{text}</strong>
-//                         ) : (
-//                             text
-//                         )
-//                     )}
-//                 />
-//                 <Table.Column
-//                     title="Status"
-//                     render={(text, record) => (
-//                         record.key && (record.key === 'permitionGroup' || record.key === 'userGroup') ? null : (
-//                             <Checkbox
-//                                 checked={record.staff}
-//                                 onChange={e => handleCheckboxChange(record.action, e.target.checked)}
-//                             />
-//                         )
-//                     )}
-//                 />
-//             </Table>
-//         </Modal>
-//     );
-// });
-
-// export default PermissionModal;
-
+export default UpdatePermissionForUserModal;

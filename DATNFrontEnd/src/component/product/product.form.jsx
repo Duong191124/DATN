@@ -72,10 +72,6 @@ const ProductForm = (props) => {
         setIsModalOpen(false);
         form.resetFields();
     };
-
-
-
-
     const debounceCheckDuplicateCode = useCallback(
         debounce(async (value, callback) => {
             const res = await checkDuplicateProductAPI('code', value);

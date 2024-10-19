@@ -50,11 +50,6 @@ public class ProductServiceImpl implements ProductService {
         }
         return false;
     }
-
-
-
-
-
     @Override
     public ProductResponse updatedProduct(int id,ProductDTO productDTO) {
         Product product = productRepo.findById(id).orElseThrow(()->new RuntimeException("product not found"));

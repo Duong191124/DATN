@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from 'antd';
-import { getAllPermission } from '../service/api.service'
+import { getAllPermissionPagination } from '../service/api.service'
 import PermissionTable from '../component/permission/permission.table';
 import PermissionModal from '../component/permission/permission.modal';
-import PermissionUpdate from '../component/permission/permission.update';
 
 
 
@@ -11,12 +10,12 @@ const PermissionPage = () => {
     const [dataTable, setDataTable] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [page, setPage] = useState(1);
-    const [size, setSize] = useState(200);
+    const [size, setSize] = useState(10);
     const [total, setTotal] = useState(0);
 
     const loadData = async () => {
         try {
-            const data = await getAllPermission(page, size);
+            const data = await getAllPermissionPagination(page, size);
             setDataTable(data.data.content);
             setTotal(data.data.totalElements)
         } catch (error) {
