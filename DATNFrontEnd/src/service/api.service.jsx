@@ -714,6 +714,7 @@ export {
   deleteStaff,
   registerCustomerAPI,
   loginCustomerAPI,
+  fetchCustomerList,
   sizeFindById,
   colorFindById,
   deleteOrder,

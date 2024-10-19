@@ -59,21 +59,21 @@ const ProductDetailTable = (props) => {
       dataIndex: "productResponse",
       render: (text, record) => {
         return record.productResponse?.name || "Chưa có product";
-      }
+      },
     },
     {
       title: "Size",
       dataIndex: "size",
       render: (text, record) => {
         return record.size?.name || "Chưa có size";
-      }
+      },
     },
     {
       title: "Color",
       dataIndex: "color",
       render: (text, record) => {
         return record.color?.name || "Chưa có color";
-      }
+      },
     },
     {
       title: "Action",
