@@ -16,6 +16,7 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
             setLoading(true);
             try {
                 const res = await fetchVoucherById(voucherId);
+                console.log(res)
                 if (res && res.data) {
                     form.setFieldsValue({
                         code: res.data.code,
@@ -28,7 +29,7 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                         customers: res.data.customers,
                         //startDate: moment(res.data.startDate),
                         expirationDate: res.data.expirationDate ? moment(res.data.expirationDate, "DD/MM/YYYY") : null
-                        
+
                     });
                     console.log("Expiration Date:", res.data.expirationDate);
 
@@ -51,8 +52,9 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
         const fetchCustomers = async () => {
             try {
                 const res = await fetchCustomerList();
+                console.log(res)
                 if (res && res.data) {
-                    setCustomers(res.data);
+                    setCustomers(res.data.data);
                 } else {
                     notification.error({
                         message: "Lỗi",
@@ -143,11 +145,14 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                             rules={[{ required: true, message: "Vui lòng chọn khách hàng!" }]}
                         >
                             <Select placeholder="Chọn khách hàng" allowClear>
-                                {customers.map((customer) => (
-                                    <Select.Option key={customer.id} value={customer.id}>
-                                        {customer.name}
-                                    </Select.Option>
-                                ))}
+                                {Array.isArray(customers) && customers.length > 0
+                                    ? customers.map(customer => (
+                                        <Select.Option key={customer.id} value={customer.id}>
+                                            {customer.code}
+                                        </Select.Option>
+                                    ))
+                                    : <Select.Option disabled>Không có khách hàng</Select.Option>
+                                }
                             </Select>
                         </Form.Item>
 

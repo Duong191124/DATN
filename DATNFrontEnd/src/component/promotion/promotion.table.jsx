@@ -116,7 +116,7 @@ const PromotionTable = (props) => {
                 dataSource={dataPromotion}
                 columns={columns}
                 pagination={{
-                    pageSize: 2,
+                    pageSize: 5,
                     showSizeChanger: false,
                 }}
                 rowKey="id"

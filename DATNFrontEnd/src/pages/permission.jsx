@@ -3,8 +3,6 @@ import { Button } from 'antd';
 import { getAllPermissionPagination } from '../service/api.service'
 import PermissionTable from '../component/permission/permission.table';
 import PermissionModal from '../component/permission/permission.modal';
-import PermissionTable from '../component/permission/permission.table';
-import PermissionModal from '../component/permission/permission.modal';
 
 
 

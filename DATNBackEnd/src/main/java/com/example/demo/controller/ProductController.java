@@ -34,7 +34,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ProductController {
 
-    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
 
     private final ProductService productService;
     private final ProductServiceImpl productServiceImpl;
@@ -122,15 +122,15 @@ public class ProductController {
         }
     }
 
-    @PostMapping(value = "uploadForProductDetail/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadImageForProductDetail(@PathVariable() int productId,
-                                                         @RequestParam("color") String colorName,
+    @PostMapping(value = "uploadForProductDetail/{productId}/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadImageForProductDetail(@PathVariable("productId") int productId,
+                                                         @PathVariable("id") int productDetailId,
                                                          @ModelAttribute("file") MultipartFile file) {
         try {
             if (file.getSize() > MAX_FILE_SIZE) {
                 return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("File is too large! Maximum size is 5MB");
             }
-            ProductDetail newProductDetail = productDetailService.uploadImageWithColor(productId, colorName, file);
+            ProductDetail newProductDetail = productDetailService.uploadImageForProductDetail(productId, productDetailId, file);
             ProductDetailResponse productDetailResponse = ProductDetailResponse.fromProductDetailResponse(newProductDetail);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new MessageReponse("Upload image productDetail successfully", HttpStatus.OK.value(), productDetailResponse));

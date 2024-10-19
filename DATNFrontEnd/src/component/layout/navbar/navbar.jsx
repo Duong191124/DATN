@@ -70,6 +70,16 @@ const items = [
     icon: <SettingOutlined />,
     label: <Link to="/admin/permission">Permission Management</Link>,
   },
+  {
+    key: "12",
+    icon: <SettingOutlined />,
+    label: <Link to="/admin/voucher">Voucher Management</Link>,
+  },
+  {
+    key: "13",
+    icon: <SettingOutlined />,
+    label: <Link to="/admin/promotions">Promotion Management</Link>,
+  },
 ];
 const getLevelKeys = (items1) => {
   const key = {};

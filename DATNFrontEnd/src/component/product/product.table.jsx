@@ -1,12 +1,10 @@
 import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
-import { notification, Popconfirm, Table } from "antd";
+import { notification, Popconfirm, Table , Button} from "antd";
 import { useState } from "react";
 import { deleteProductAPI } from "../../service/api.service";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { notification, Popconfirm, Table } from "antd";
-import { useState } from "react";
-import { deleteProductAPI } from "../../service/api.service";
-
+import UpdateProduct from "./update.product";
+import UploadImage from "./update.image.product";
+import { Link } from "react-router-dom";
 
 
 const ProductTable = (props) => {
