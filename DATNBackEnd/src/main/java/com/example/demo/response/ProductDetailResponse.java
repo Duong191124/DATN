@@ -1,6 +1,7 @@
 package com.example.demo.response;
 
 import com.example.demo.entity.Color;
+import com.example.demo.entity.Product;
 import com.example.demo.entity.ProductDetail;
 import com.example.demo.entity.Size;
 import lombok.*;
@@ -21,7 +22,7 @@ public class ProductDetailResponse {
     private Size size;
     private Color color;
 
-    public static ProductDetailResponse fromProductDetailResponse(ProductDetail productDetail){
+    public static ProductDetailResponse fromProductDetailResponse(ProductDetail productDetail) {
         return ProductDetailResponse.builder()
                 .id(productDetail.getId())
                 .code(productDetail.getCode())

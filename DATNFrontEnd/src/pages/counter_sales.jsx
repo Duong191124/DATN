@@ -53,6 +53,7 @@ const CounterSales = () => {
       if (response.data) {
         setDataProductDetail(response.data);
       }
+      console.log("check", response)
     } catch (error) {
       console.error("Error loading product details", error);
     }
