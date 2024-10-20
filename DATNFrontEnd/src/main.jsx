@@ -98,7 +98,6 @@ const router = createBrowserRouter([
         element: <CustomerPage />,
       }
     ],
-    
   },
   {
     path: "/",

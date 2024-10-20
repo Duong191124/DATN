@@ -1,7 +1,6 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Popconfirm, Table, Space } from "antd"
 import { useEffect } from "react";
-import { softDelete } from "../../service/api.service";
 
 const CustomerTable = ({ dataTable, loadData, setPage, setSize, page, size, total, setIsModalOpen, setDataDetail, setIsModalOpenU })=>{
     
