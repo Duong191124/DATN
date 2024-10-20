@@ -90,10 +90,10 @@ const router = createBrowserRouter([
         path: "promotions",
         element: <PromotionPage />,
       },
-      {
-        path: "voucher",
-        element: <VoucherPage />,
-      }
+      // {
+      //   path: "voucher",
+      //   element: <VoucherPage />,
+      // }
     ],
   },
   {

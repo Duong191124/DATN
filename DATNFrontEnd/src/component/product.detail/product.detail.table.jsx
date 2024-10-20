@@ -1,34 +1,32 @@
-import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
+import { DeleteOutlined, DoubleLeftOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, notification, Popconfirm, Table } from "antd";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ProductDetailUpdate from "./productDetail.update";
 import { deleteProductDetailAPI } from "../../service/api.service";
 import UpLoadImageForProductDetail from "./upload.image.product.detail";
+import { Link } from "react-router-dom";
 
 const ProductDetailTable = (props) => {
   const { dataProductDetail, loadProductDetail } = props;
   const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [dataUpdate, setDataUpdate] = useState(null);
-  const [selectedProductDetail, setSelectedProductDetail] = useState(null); // Thông tin sản phẩm được chọn
-
-  useEffect(() => {
-    if (dataProductDetail && dataProductDetail.length > 0) {
-      setSelectedProductDetail(dataProductDetail[0]); // Chọn sản phẩm đầu tiên
-    }
-  }, [dataProductDetail]);
 
   const handleDeleteProduct = async (id) => {
-
-    const res = await deleteProductDetailAPI(id);
-    if (res.data) {
-      notification.success({
-        message: "Delete Product Detail",
-        description: "Product deleted successfully",
-      });
-      await loadDataProductDetail();
+    try {
+      const res = await deleteProductDetailAPI(id);
+      if (res.status == 204) {
+        notification.success({
+          message: "delete product-detail",
+          description: "delete product-detail successfully"
+        })
+        await loadProductDetail();
+      }
+    } catch (error) {
+      console.log(error)
     }
-  };
+
+  }
 
   const columns = [
     {
@@ -44,26 +42,16 @@ const ProductDetailTable = (props) => {
       dataIndex: "price",
     },
     {
-<<<<<<< HEAD
-=======
       title: "Image",
       dataIndex: "image",
       render: (imageUrl) => (
-        <img 
-          src={imageUrl} 
-          style={{ width: "50px", height: "50px", objectFit: "cover" }} 
+        <img
+          src={imageUrl}
+          style={{ width: "50px", height: "50px", objectFit: "cover" }}
         />
       )
     },
     {
-      title: "Product",
-      dataIndex: "productResponse",
-      render: (text, record) => {
-        return record.productResponse?.name || "Chưa có product";
-      },
-    },
-    {
->>>>>>> 3acc51631d779700edf97c530070ee34f460d5ee
       title: "Size",
       dataIndex: "size",
       render: (text, record) => {
@@ -93,17 +81,17 @@ const ProductDetailTable = (props) => {
             <Popconfirm
               title="Delete product"
               description="Are you sure you want to delete this product?"
-              onConfirm={() => handleDeleteProduct(record.id)}
+              onConfirm={() => { handleDeleteProduct(record.id) }}
               okText="Yes"
               cancelText="No"
               placement="left"
             >
               <DeleteOutlined style={{ cursor: "pointer", color: "red" }} />
             </Popconfirm>
-            <UploadOutlined 
-              style={{ cursor: "pointer"}}
+            <UploadOutlined
+              style={{ cursor: "pointer" }}
               onClick={() => {
-                setDataUpdate({ productId: record.productResponse?.id, productDetailId: record.id })
+                setDataUpdate(record.id)
                 setIsModalOpen(true)
               }}
             />
@@ -113,18 +101,20 @@ const ProductDetailTable = (props) => {
     },
   ];
 
+  // Lấy tên của sản phẩm đầu tiên trong danh sách
+  const productName = dataProductDetail[0]?.productResponse.name || "Chưa có product";
+
   return (
     <>
-
-      {selectedProductDetail && (
-        <div style={{ marginTop: "20px" }}>
-          <p><strong>Product:</strong> {selectedProductDetail.productResponse?.name || "Chưa có product"}</p>
-
-        </div>
-      )}
+      <h1>{productName}</h1>
 
       <Table columns={columns} dataSource={dataProductDetail} rowKey={"id"} />
-
+      <Link to={"/admin/products"}>
+        <div style={{ display: "flex", flexDirection: columns, color: "black" }}>
+          <DoubleLeftOutlined />
+          <h4 style={{ margin: "5px" }}> go to product pages </h4>
+        </div>
+      </Link>
       <ProductDetailUpdate
         isModalUpdateOpen={isModalUpdateOpen}
         setIsModalUpdateOpen={setIsModalUpdateOpen}
