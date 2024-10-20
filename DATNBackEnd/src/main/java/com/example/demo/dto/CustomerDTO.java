@@ -32,6 +32,4 @@ public class CustomerDTO {
     private String notes;
 
     private int gender;
-
-    private Integer vouchers;
 }

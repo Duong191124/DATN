@@ -32,7 +32,6 @@ public class CustomerResponse {
     private String notes;
 
     private int gender;
-    private Integer vouchers;
 
     public static CustomerResponse fromCustomerResponse(Customer customer){
         return CustomerResponse

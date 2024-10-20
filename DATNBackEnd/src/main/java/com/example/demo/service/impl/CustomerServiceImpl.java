@@ -54,7 +54,6 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerResponse update(Integer id, CustomerDTO customerDTO) throws Exception {
-        Voucher existingVoucher = voucherRepo.findById(customerDTO.getVouchers()).orElse(null);
         Customer existingCustomer = getCustomerByID(id);
         existingCustomer.setDateOfBirth(customerDTO.getDateOfBirth());
         existingCustomer.setAddress(customerDTO.getAddress());
@@ -63,8 +62,6 @@ public class CustomerServiceImpl implements CustomerService {
         existingCustomer.setPhoneNumber(customerDTO.getPhoneNumber());
         existingCustomer.setName(customerDTO.getName());
         existingCustomer.setNotes(customerDTO.getNotes());
-        Set<Voucher> vouchers = new HashSet<>();
-        vouchers.add(existingVoucher);
         Customer updateCustomer = customerRepo.save(existingCustomer);
         return CustomerResponse.fromCustomerResponse(updateCustomer);
     }
