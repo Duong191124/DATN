@@ -301,19 +301,18 @@ const updateProductDetailAPi = (
   code,
   quantity,
   price,
-  selectedProduct,
-  selectedSize,
-  selectedColor
+  productId,
+  sizeId,
+  colorId
 ) => {
   const URL_BACKEND = `/api/v1/productDetail/${id}`;
   const data = {
-    id: id,
     code: code,
     quantity: quantity,
     price: price,
-    productId: selectedProduct,
-    sizeId: selectedSize,
-    colorId: selectedColor,
+    productId: productId,
+    sizeId: sizeId,
+    colorId: colorId,
   };
   return axios.put(URL_BACKEND, data);
 };

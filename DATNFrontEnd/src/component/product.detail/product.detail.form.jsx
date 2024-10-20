@@ -1,65 +1,51 @@
-import { Button, Input, Modal, notification, Select } from "antd"
-import { useEffect, useState } from "react"
-import { createProductDetailAPi, fetchDataColorAPI, fetchDataProductAPI, fetchDataSize } from "../../service/api.service";
+import { Button, Input, Modal, notification, Select, Form } from "antd";
+import { useEffect, useState } from "react";
+import { createProductDetailAPi, fetchDataColorAPI, fetchDataSize } from "../../service/api.service";
 
 const ProDuctDetailForm = (props) => {
-    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [sizes, setSizes] = useState([]);       // Dữ liệu danh sách size
+    const [colors, setColors] = useState([]);     // Dữ liệu danh sách màu
 
-    const [code, setCode] = useState("");
-    const [quantity, setQuantity] = useState("");
-    const [price, setPrice] = useState("");
-    const [productId, setProductId] = useState("");
-    const [sizeId, setSizeId] = useState("");
-    const [colorId, setColorId] = useState("")
+    const { productId, loadProductDetail } = props;  // Lấy productId từ props
 
-    const [selectedProduct, setSelectedProduct] = useState("")
-    const [selectedSize, setSelectedSize] = useState("")
-    const [selectedColor, setSelectColor] = useState("")
+    const [form] = Form.useForm();  // Khởi tạo form từ Ant Design
 
-    const { loadProductDetail } = props
-    const handleSubmit = async () => {
+    const handleSubmit = async (values) => {
+        const { code, quantity, price, size, color } = values;
         const res = await createProductDetailAPi(
-            code, quantity, price, selectedProduct, selectedSize, selectedColor
-        )
+            code, quantity, price, productId, size, color  // Truyền productId từ props
+        );
         if (res.data) {
             notification.success({
                 message: "Create ProductDetail",
-                Descriptions: "Create ProductDetail Success"
-            })
-            await loadProductDetail()
-            resetCloseModal()
+                description: "Create ProductDetail Success"
+            });
+            await loadProductDetail();
+            resetCloseModal();
         }
-
-
-    }
-    const loadDataProduct = async () => {
-        const res = await fetchDataProductAPI()
-        setProductId(res.data.data)
-    }
+    };
 
     const loadDataColor = async () => {
-        const res = await fetchDataColorAPI()
-        setColorId(res.data.data)
-    }
+        const res = await fetchDataColorAPI();
+        setColors(res.data.data); // Dữ liệu màu sắc
+    };
 
     const loadDataSize = async () => {
-        const res = await fetchDataSize()
-        setSizeId(res.data.data)
-    }
+        const res = await fetchDataSize();
+        setSizes(res.data.data); // Dữ liệu size
+    };
 
     useEffect(() => {
-        loadDataProduct()
-        loadDataColor()
-        loadDataSize()
-    }, [])
+        loadDataColor();
+        loadDataSize();
+    }, []);
+
     const resetCloseModal = () => {
-        setCode("")
-        setQuantity("")
-        setProductId(null)
-        setSizeId(null)
-        setColorId(null)
-        setIsModalOpen(false)
-    }
+        form.resetFields();  // Reset lại các trường trong form
+        setIsModalOpen(false);
+    };
+
     return (
         <>
             <div>
@@ -67,91 +53,76 @@ const ProDuctDetailForm = (props) => {
             </div>
 
             <Modal
-                title="Basic Modal"
+                title="Create Product Detail"
                 open={isModalOpen}
-                onOk={() => handleSubmit()}
+                onOk={() => form.submit()}  // Gọi hàm submit form khi click OK
                 onCancel={() => resetCloseModal()}
                 okText="Create"
-
             >
+                <Form
+                    form={form}  // Khởi tạo form
+                    layout="vertical"  // Layout dọc cho các trường
+                    onFinish={handleSubmit}  // Xử lý submit form
+                >
+                    <Form.Item
+                        label="Code"
+                        name="code"
+                        rules={[{ required: true, message: "Please input product code!" }]}
+                    >
+                        <Input />
+                    </Form.Item>
 
-                <div style={{ display: "flex", gap: "20px", flexDirection: "column" }}>
-                    <h2 style={{ textAlign: "center" }}>CREATE PRODUCT</h2>
+                    <Form.Item
+                        label="Quantity"
+                        name="quantity"
+                        rules={[{ required: true, message: "Please input quantity!" }]}
+                    >
+                        <Input />
+                    </Form.Item>
 
-                    <div>
-                        <span>Code</span>
-                        <Input
-                            value={code}
-                            onChange={(event) => setCode(event.target.value)} />
-                    </div>
+                    <Form.Item
+                        label="Price"
+                        name="price"
+                        rules={[{ required: true, message: "Please input price!" }]}
+                    >
+                        <Input />
+                    </Form.Item>
 
-                    <div>
-                        <span>Quantity</span>
-                        <Input
-                            value={quantity}
-                            onChange={(event) => setQuantity(event.target.value)} />
-                    </div>
-
-                    <div>
-                        <span>Price</span>
-                        <Input
-                            value={price}
-                            onChange={(event) => setPrice(event.target.value)} />
-                    </div>
-
-                    <div>
-                        <span>Product</span>
+                    <Form.Item
+                        label="Color"
+                        name="color"
+                        rules={[{ required: true, message: "Please select a color!" }]}
+                    >
                         <Select
-
-                            style={{ width: "100%" }}
-                            showSearch
-                            placeholder="Select a product"
-                            filterOption={(input, option) =>
-                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                            }
-                            options={productId}
-                            fieldNames={{ label: "name", value: "id" }}
-                            onChange={(value) => setSelectedProduct(value)}// Chỉ lấy đối tượng dataCollar đã chọn
-                            value={selectedProduct}
-                        />
-                    </div>
-
-                    <div>
-                        <span>Color</span>
-                        <Select
-
-                            style={{ width: "100%" }}
                             showSearch
                             placeholder="Select a color"
                             filterOption={(input, option) =>
                                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                             }
-                            options={colorId}
+                            options={colors}
                             fieldNames={{ label: "name", value: "id" }}
-                            onChange={(value) => setSelectColor(value)}
-                            value={selectedColor}
                         />
-                    </div>
+                    </Form.Item>
 
-                    <div>
-                        <span>Size</span>
+                    <Form.Item
+                        label="Size"
+                        name="size"
+                        rules={[{ required: true, message: "Please select a size!" }]}
+                    >
                         <Select
-
-                            style={{ width: "100%" }}
                             showSearch
                             placeholder="Select a size"
                             filterOption={(input, option) =>
                                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                             }
-                            options={sizeId}
+                            options={sizes}
                             fieldNames={{ label: "name", value: "id" }}
-                            onChange={(value) => setSelectedSize(value)}
-                            value={selectedSize}
                         />
-                    </div>
-                </div>
+                    </Form.Item>
+                </Form>
             </Modal>
         </>
-    )
-}
-export default ProDuctDetailForm
+    );
+};
+
+export default ProDuctDetailForm;

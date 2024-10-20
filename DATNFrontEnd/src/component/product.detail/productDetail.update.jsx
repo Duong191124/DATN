@@ -17,57 +17,71 @@ const ProductDetailUpdate = (props) => {
                 code: dataUpdate.code,
                 price: dataUpdate.price,
                 quantity: dataUpdate.quantity,
-                product: dataUpdate.product,
-                color: dataUpdate.color,
-                size: dataUpdate.size,
+                product: dataUpdate.productResponse?.id,
+                color: dataUpdate.color?.id,
+                size: dataUpdate.size?.id,
             });
         }
     }, [dataUpdate, form]);
 
     const handleSubmit = async () => {
-        const values = await form.validateFields();
-        const { id, code, quantity, price, product, color, size } = values;
 
-        const res = await updateProductDetailAPi(id, code, quantity, price, product, size, color);
-        if (res.data) {
-            notification.success({
-                message: "Update product",
-                description: "Update product success",
-            });
-            resetCloseModal();
-            await loadProductDetail();
-        } else {
-            notification.error({
-                message: "Update product",
-                description: JSON.stringify(res.message),
-            });
+        try {
+            const values = await form.validateFields();
+            const res = await updateProductDetailAPi(values.id, values.code, values.quantity, values.price, values.product, values.size, values.color);
+            console.log("check resss", res)
+            if (res.data) {
+
+                notification.success({
+                    message: "Update product",
+                    description: "Update product success",
+                });
+                resetCloseModal();
+                await loadProductDetail();
+            }
+        } catch (error) {
+            console.log(error);
         }
     };
 
     useEffect(() => {
-        loadDataProduct();
-        loadDataColor();
-        loadDataSize();
-    }, []);
+        if (isModalUpdateOpen) {
+            loadDataProduct();
+            loadDataColor();
+            loadDataSize();
+        }
+    }, [isModalUpdateOpen]);
 
     const loadDataProduct = async () => {
-        const res = await fetchDataProductAPI();
-        if (res.data) {
-            setDataProduct(res.data.data);
+        try {
+            const res = await fetchDataProductAPI();
+            if (res.data.data) {
+                setDataProduct(res.data.data);
+            }
+        } catch (error) {
+            console.log(error);
         }
     };
 
     const loadDataColor = async () => {
-        const res = await fetchDataColorAPI();
-        if (res.data) {
-            setDataColor(res.data.data);
+        try {
+            const res = await fetchDataColorAPI();
+            if (res.data.data) {
+                setDataColor(res.data.data);
+            }
+        } catch (error) {
+            console.log(error);
         }
     };
 
     const loadDataSize = async () => {
-        const res = await fetchDataSize();
-        if (res.data) {
-            setDataSize(res.data.data);
+        try {
+            const res = await fetchDataSize();
+            if (res.data.data) {
+                setDataSize(res.data.data);
+            }
+        } catch (error) {
+            console.log(error);
         }
     };
 
@@ -94,33 +108,40 @@ const ProductDetailUpdate = (props) => {
             <Form
                 form={form}
                 layout="vertical"
-                initialValues={{
-                    id: "",
-                    code: "",
-                    quantity: "",
-                    price: "",
-                    product: null,
-                    color: null,
-                    size: null,
-                }}
             >
                 <Form.Item label="ID" name="id">
                     <Input disabled />
                 </Form.Item>
 
-                <Form.Item label="Code" name="code" rules={[{ required: true, message: 'Please input the code!' }]}>
+                <Form.Item
+                    label="Code"
+                    name="code"
+                    rules={[{ required: true, message: 'Please input the code!' }]}
+                >
                     <Input />
                 </Form.Item>
 
-                <Form.Item label="Quantity" name="quantity" rules={[{ required: true, message: 'Please input the quantity!' }]}>
+                <Form.Item
+                    label="Quantity"
+                    name="quantity"
+                    rules={[{ required: true, message: 'Please input the quantity!' }]}
+                >
                     <Input />
                 </Form.Item>
 
-                <Form.Item label="Price" name="price" rules={[{ required: true, message: 'Please input the price!' }]}>
+                <Form.Item
+                    label="Price"
+                    name="price"
+                    rules={[{ required: true, message: 'Please input the price!' }]}
+                >
                     <Input />
                 </Form.Item>
 
-                <Form.Item label="Product" name="product" rules={[{ required: true, message: 'Please select a product!' }]}>
+                <Form.Item
+                    label="Product"
+                    name="product"
+                    rules={[{ required: true, message: 'Please select a product!' }]}
+                >
                     <Select
                         showSearch
                         placeholder="Select a product"
