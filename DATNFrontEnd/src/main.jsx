@@ -21,6 +21,7 @@ import StaffManagement from "./pages/staff.jsx";
 import PrivateRoute from "./pages/private.route.jsx";
 import App from "./App.jsx";
 import PermissionPage from "./pages/permission.jsx";
+import CustomerPage from "./pages/customer.jsx";
 const router = createBrowserRouter([
   {
     path: "/admin",
@@ -91,6 +92,10 @@ const router = createBrowserRouter([
       {
         path: "voucher",
         element: <VoucherPage />,
+      },
+      {
+        path: "customer",
+        element: <CustomerPage />,
       }
     ],
   },
