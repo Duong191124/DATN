@@ -577,8 +577,12 @@ const createNewStaff = (username, password, phoneNumber, email, address, name, g
 
 };
 const deleteStaff = (id) => {
-  const URL_BACKEND = `/api/v1/staff/${id}`;
-  return axios.delete(URL_BACKEND);
+  const URL_BACKEND = `/api/v1/staff/soft-delete/${id}`;
+  return axios.put(URL_BACKEND);
+}
+const updateStatus = (id) => {
+  const URL_BACKEND = `/api/v1/staff/update-status/${id}`;
+  return axios.put(URL_BACKEND)
 }
 //API Promotion
 
@@ -758,12 +762,13 @@ const createCustomer = (
 }
 
 const softDelete = (id)=>{
-  const URL_BACKEND = `/api/v1/customer/${id}`
-  return axios.delete(URL_BACKEND)
+  const URL_BACKEND = `/api/v1/customer/soft-delete/${id}`
+  return axios.put(URL_BACKEND)
 }
 
 
 export {
+  updateStatus,
   getAllCustomer,
   updateCustomer,
   createCustomer,
