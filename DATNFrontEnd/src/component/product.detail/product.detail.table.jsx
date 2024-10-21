@@ -91,7 +91,7 @@ const ProductDetailTable = (props) => {
             <UploadOutlined
               style={{ cursor: "pointer" }}
               onClick={() => {
-                setDataUpdate(record.id)
+                setDataUpdate(record)
                 setIsModalOpen(true)
               }}
             />
