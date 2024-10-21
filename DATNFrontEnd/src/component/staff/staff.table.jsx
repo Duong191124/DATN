@@ -1,13 +1,13 @@
-import { Button, Popconfirm, Space, Table } from 'antd';
-import { DeleteOutlined, KeyOutlined } from '@ant-design/icons';
+import { Button, message, Popconfirm, Space, Table } from 'antd';
+import { DeleteOutlined, EditOutlined, KeyOutlined } from '@ant-design/icons';
 import React, { Suspense, useEffect } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import CreateStaff from './create.staff';
-import { deleteStaff, getAllStaff } from '../../service/api.service';
+import { deleteStaff, getAllStaff, updateStatus } from '../../service/api.service';
 
-const PermissionModal = React.lazy(() =>
-  import("../permission/permission.modal")
+const UpdatePermissionForUserModal = React.lazy(() =>
+  import("../permission/update.permission.modal")
 );
 
 const StaffTable = () => {
@@ -26,7 +26,6 @@ const StaffTable = () => {
 
   const loadStaff = async () => {
     const res = await getAllStaff(current, pageSize);
-    console.log(res);
     if (res.data) {
       setDataStaff(res.data.data.content);
       setTotal(res.data.data.totalElements);
@@ -46,6 +45,12 @@ const StaffTable = () => {
     await deleteStaff(id);
     await loadStaff();
     message.success("delete success")
+  }
+
+  const handleStatus = async (id) => {
+    await updateStatus(id)
+    await loadStaff();
+    message.success("update status success")
   }
 
   const columns = [
@@ -68,6 +73,9 @@ const StaffTable = () => {
     {
       title: 'Status',
       dataIndex: 'status',
+      render: (_, record) => (
+        <p>{record.status == 1 ? "Activate" : "Inactivate"}</p>
+      )
     },
     {
       title: 'Action',
@@ -89,6 +97,16 @@ const StaffTable = () => {
             cancelText="No"
           >
             <DeleteOutlined />
+          </Popconfirm>
+          <Popconfirm
+            title="Are you sure to enable status this staff?"
+            onConfirm={() => {
+              handleStatus(record.id);
+            }}
+            okText="Yes"
+            cancelText="No"
+          >
+            <EditOutlined />
           </Popconfirm>
         </Space>
       ),
@@ -137,7 +155,7 @@ const StaffTable = () => {
         loadStaff={loadStaff}
       />
       <Suspense fallback={<div>Loading Permission Modal...</div>}>
-        <PermissionModal
+        <UpdatePermissionForUserModal
           id={selectedUserId}
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}

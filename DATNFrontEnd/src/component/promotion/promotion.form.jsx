@@ -8,10 +8,11 @@ const PromotionForm = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productDetails, setProductDetails] = useState([]);
     const { loadData } = props;
+
     const fetchProductDetails = async () => {
         try {
             const res = await fetchDataProductDetail();
-            console.log("ProductDetails: ",res);
+            console.log("ProductDetails: ", res);
             if (res && Array.isArray(res.data.data)) {
                 setProductDetails(res.data.data);
             } else {
@@ -32,7 +33,7 @@ const PromotionForm = (props) => {
     useEffect(() => {
         fetchProductDetails();
     }, []);
-    
+
 
     const handleSubmit = async () => {
         const values = form.getFieldsValue();
@@ -205,11 +206,16 @@ const PromotionForm = (props) => {
                             placeholder="Chọn chi tiết sản phẩm"
                             allowClear
                         >
-                            {Array.isArray(productDetails) && productDetails.map(product => (
-                                <Select.Option key={product.id} value={product.id}>
-                                    {product.code}
-                                </Select.Option>
-                            ))}
+
+                            {Array.isArray(productDetails) && productDetails.length > 0
+                                ? productDetails.map(product => (
+                                    <Select.Option key={product.id} value={product.id}>
+                                        {product.code}
+                                    </Select.Option>
+                                ))
+                                : <Select.Option disabled>Không có sản phẩm chi tiết</Select.Option>
+                            }
+
                         </Select>
                     </Form.Item>
 

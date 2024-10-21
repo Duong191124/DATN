@@ -6,13 +6,16 @@ import { fetchDataPromotion } from "../service/api.service";
 const PromotionPage = () => {
     const [dataPromotion, setDataPromotion] = useState([]); // Dữ liệu khuyến mãi
     const [selectedPromotion, setSelectedPromotion] = useState(null); // Khuyến mãi cần chỉnh sửa
-     
+
     // Hàm load dữ liệu khuyến mãi
     const loadData = async () => {
         try {
+
             const res = await fetchDataPromotion(); // Gọi API để lấy dữ liệu khuyến mãi
             console.log(res);
-            setDataPromotion(res.data.data ); // Cập nhật state với dữ liệu khuyến mãi
+            setDataPromotion(res.data.data); // Cập nhật state với dữ liệu khuyến mãi
+
+
         } catch (error) {
             console.error("Error fetching promotions:", error); // Ghi log lỗi nếu có
         }

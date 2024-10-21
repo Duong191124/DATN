@@ -120,8 +120,7 @@ const PromotionTable = (props) => {
                 dataSource={dataPromotion}
                 columns={columns}
                 pagination={{
-                    current: pagination.current,
-                    pageSize: pagination.pageSize,
+                    pageSize: 5,
                     showSizeChanger: false,
                     onChange: (page, pageSize) => {
                         setPagination({ current: page, pageSize });

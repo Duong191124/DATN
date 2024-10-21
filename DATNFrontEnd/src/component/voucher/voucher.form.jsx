@@ -121,11 +121,14 @@ const VoucherForm = (props) => {
               style={{ width: '48%' }} // Đặt width cho Form.Item
             >
               <Select placeholder="Chọn khách hàng" allowClear>
-                {customers.map(customer => (
-                  <Select.Option key={customer.id} value={customer.id}>
-                    {customer.name}
-                  </Select.Option>
-                ))}
+                {Array.isArray(customers) && customers.length > 0
+                  ? customers.map(customer => (
+                    <Select.Option key={customer.id} value={customer.id}>
+                      {customer.code}
+                    </Select.Option>
+                  ))
+                  : <Select.Option disabled>Không có khách hàng</Select.Option>
+                }
               </Select>
             </Form.Item>
           </div>
@@ -141,23 +144,23 @@ const VoucherForm = (props) => {
             </Form.Item>
 
             <Form.Item
-  label="Phần trăm giảm giá (%)"
-  name="discountPercent"
-  rules={[
-    { required: true, message: 'Vui lòng nhập phần trăm giảm giá!' },
-    ({ getFieldValue }) => ({
-      validator(_, value) {
-        if (value > 100) {
-          return Promise.reject(new Error('Phần trăm giảm giá không được vượt quá 100!'));
-        }
-        return Promise.resolve();
-      },
-    }),
-  ]}
-  style={{ width: '48%' }}
->
-  <InputNumber style={{ width: '100%' }} placeholder="Nhập phần trăm giảm giá" min={0} max={100} />
-</Form.Item>
+              label="Phần trăm giảm giá (%)"
+              name="discountPercent"
+              rules={[
+                { required: true, message: 'Vui lòng nhập phần trăm giảm giá!' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (value > 100) {
+                      return Promise.reject(new Error('Phần trăm giảm giá không được vượt quá 100!'));
+                    }
+                    return Promise.resolve();
+                  },
+                }),
+              ]}
+              style={{ width: '48%' }}
+            >
+              <InputNumber style={{ width: '100%' }} placeholder="Nhập phần trăm giảm giá" min={0} max={100} />
+            </Form.Item>
 
           </div>
 

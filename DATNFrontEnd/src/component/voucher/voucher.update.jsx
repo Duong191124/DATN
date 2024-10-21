@@ -28,7 +28,8 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                         customers: res.data.data.customers,
                         //startDate: moment(res.data.startDate),
                         expirationDate: res.data.data.expirationDate ? moment(res.data.data.expirationDate, "DD/MM/YYYY") : null
-                        
+
+
                     });
                     console.log("Expiration Date:", res.data.expirationDate);
 
@@ -51,7 +52,9 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
         const fetchCustomers = async () => {
             try {
                 const res = await fetchCustomerList();
+
                 if (res && res.data.data) {
+
                     setCustomers(res.data.data);
                 } else {
                     notification.error({
@@ -143,11 +146,14 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                             rules={[{ required: true, message: "Vui lòng chọn khách hàng!" }]}
                         >
                             <Select placeholder="Chọn khách hàng" allowClear>
-                                {customers.map((customer) => (
-                                    <Select.Option key={customer.id} value={customer.id}>
-                                        {customer.name}
-                                    </Select.Option>
-                                ))}
+                                {Array.isArray(customers) && customers.length > 0
+                                    ? customers.map(customer => (
+                                        <Select.Option key={customer.id} value={customer.id}>
+                                            {customer.code}
+                                        </Select.Option>
+                                    ))
+                                    : <Select.Option disabled>Không có khách hàng</Select.Option>
+                                }
                             </Select>
                         </Form.Item>
 

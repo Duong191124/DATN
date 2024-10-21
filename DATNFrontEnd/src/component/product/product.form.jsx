@@ -70,12 +70,8 @@ const ProductForm = (props) => {
 
     const resetCloseModal = () => {
         setIsModalOpen(false);
-        form.resetFields(); // Đặt lại các trường trong form
+        form.resetFields();
     };
-
-
-
-
     const debounceCheckDuplicateCode = useCallback(
         debounce(async (value, callback) => {
             const res = await checkDuplicateProductAPI('code', value);

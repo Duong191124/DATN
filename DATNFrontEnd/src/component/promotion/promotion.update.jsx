@@ -13,7 +13,6 @@ const PromotionUpdate = (props) => {
           const fetchProductDetails = async () => {
                try {
                     const res = await fetchDataProductDetail();
-                    console.log(res);
                     if (res && res.data.data) {
                          setProductDetails(res.data.data);
                     }
@@ -35,7 +34,7 @@ const PromotionUpdate = (props) => {
                const fetchPromotionDetail = async () => {
                     try {
                          const res = await detailPromotion(dataUpdate.id);
-                        console.log("PromotionUpdate: ",res);
+                         console.log("PromotionUpdate: ", res);
                          if (res && res.data.data) {
                               form.setFieldsValue({
                                    name: res.data.data.name,
@@ -168,11 +167,15 @@ const PromotionUpdate = (props) => {
                     </Form.Item>
                     <Form.Item label="Chi Tiết Sản Phẩm" name="productDetailsId">
                          <Select>
-                              {productDetails.map((item) => (
-                                   <Select.Option key={item.id} value={item.id}>
-                                        {item.code} {/* Hiển thị tên sản phẩm */}
-                                   </Select.Option>
-                              ))}
+                              {Array.isArray(productDetails) && productDetails.length > 0 ? (
+                                   productDetails.map((item) => (
+                                        <Select.Option key={item.id} value={item.id}>
+                                             {item.code} {/* Hiển thị tên sản phẩm */}
+                                        </Select.Option>
+                                   ))
+                              ) : (
+                                   <Select.Option disabled>Không có sản phẩm nào</Select.Option>
+                              )}
                          </Select>
                     </Form.Item>
                </Form>

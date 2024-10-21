@@ -54,6 +54,7 @@ const CounterSales = () => {
       if (response.data) {
         setDataProductDetail(response.data);
       }
+      console.log("check", response)
     } catch (error) {
       console.error("Error loading product details", error);
     }
@@ -71,9 +72,10 @@ const CounterSales = () => {
   const loadStaffList = async (page = 1, size = 10) => {
     try {
       const response = await getAllStaff(page, size);
+      console.log(response);
       if (response.data?.data) {
         setStaffList(response.data.data.content); // Lưu danh sách nhân viên vào state
-        setTotal(response.data.total); // Lưu tổng số nhân viên (để phân trang)
+        setTotal(response.data.data.totalElements); // Lưu tổng số nhân viên (để phân trang)
       }
     } catch (error) {
       console.error("Error loading staff list", error);

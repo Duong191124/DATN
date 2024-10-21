@@ -3,22 +3,31 @@ import { Layout, Avatar, Badge, Dropdown } from 'antd';
 import { BellOutlined, UserOutlined } from '@ant-design/icons';
 import './header.admin.css'; // Optional for styling
 import logo from '../../../../assets/logo.jpg';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const { Header } = Layout;
 
-const userMenuItems = [
-  {
-    key: "1",
-    label: "Profile",
-  },
-  {
-    key: "2",
-    label: "Logout",
-  },
-];
-
 const HeaderAdmin = () => {
+  const navigate = useNavigate();
+
+  const handleLogOut = () => {
+    localStorage.removeItem("access_token")
+    navigate('/login')
+  }
+
+  const userMenuItems = [
+    {
+      key: "1",
+      label: "Profile",
+    },
+    {
+      label: (
+        <p onClick={handleLogOut}>Logout</p>
+      ),
+      key: "2",
+    },
+  ];
+
   return (
     <Header className="header-admin">
       <div className="header-left">

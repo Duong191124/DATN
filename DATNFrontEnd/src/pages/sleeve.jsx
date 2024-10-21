@@ -34,7 +34,7 @@ const SleevePage = () => {
                 loadSleeve={loadSleeve}
                 dataSleeve={dataSleeve}
             />
-            <Button type="primary"><Link to="/products">Go to product</Link></Button>
+            <Button type="primary"><Link to="/admin/products">Go to product</Link></Button>
         </div>
     )
 }

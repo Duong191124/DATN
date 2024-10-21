@@ -78,8 +78,8 @@ public class ProductDetailController {
         }
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteProductDetail(@PathVariable("id") Integer id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteProductDetail(@PathVariable("id") Integer id) {
         try {
             productDetailService.deletePD(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import "./global.css";
-import NavbarAdmin from "./component/layout/navbar/navbar";
-import HeaderAdmin from "./component/layout/user/header/header.admin";
+import HeaderAdmin from "./component/layout/user/header/header.admin"
+import NavbarAdmin from "./component/layout/navbar/navbar"
 
 function AppAdmin() {
   return (
