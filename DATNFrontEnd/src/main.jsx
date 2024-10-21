@@ -98,7 +98,9 @@ const router = createBrowserRouter([
       {
         path: "customer",
         element: <CustomerPage />,
-      }
+      },
+
+
     ],
   },
   {
