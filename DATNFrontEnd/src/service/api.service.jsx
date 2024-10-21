@@ -810,6 +810,7 @@ export {
   getStaffPermissions,
   createProductAPI,
   fetchAllProduct,
+  findByProductId,
   fetchDataSleeve,
   fetchDataCategory,
   fetchDataCollar,

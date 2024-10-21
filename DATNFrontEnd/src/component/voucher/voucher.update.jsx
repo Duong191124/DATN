@@ -16,19 +16,19 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
             setLoading(true);
             try {
                 const res = await fetchVoucherById(voucherId);
-                console.log(res)
-                if (res && res.data) {
+                if (res && res.data.data) {
                     form.setFieldsValue({
-                        code: res.data.code,
-                        quantity: res.data.quantity,
-                        discountAmount: res.data.discountAmount,
-                        discountPercent: res.data.discountPercent,
-                        minPurchaseAmount: res.data.minPurchaseAmount,
-                        maxDiscountAmount: res.data.maxDiscountAmount,
-                        termsAndConditions: res.data.termsAndConditions,
-                        customers: res.data.customers,
+                        code: res.data.data.code,
+                        quantity: res.data.data.quantity,
+                        discountAmount: res.data.data.discountAmount,
+                        discountPercent: res.data.data.discountPercent,
+                        minPurchaseAmount: res.data.data.minPurchaseAmount,
+                        maxDiscountAmount: res.data.data.maxDiscountAmount,
+                        termsAndConditions: res.data.data.termsAndConditions,
+                        customers: res.data.data.customers,
                         //startDate: moment(res.data.startDate),
-                        expirationDate: res.data.expirationDate ? moment(res.data.expirationDate, "DD/MM/YYYY") : null
+                        expirationDate: res.data.data.expirationDate ? moment(res.data.data.expirationDate, "DD/MM/YYYY") : null
+
 
                     });
                     console.log("Expiration Date:", res.data.expirationDate);
@@ -52,8 +52,9 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
         const fetchCustomers = async () => {
             try {
                 const res = await fetchCustomerList();
-                console.log(res)
-                if (res && res.data) {
+
+                if (res && res.data.data) {
+
                     setCustomers(res.data.data);
                 } else {
                     notification.error({

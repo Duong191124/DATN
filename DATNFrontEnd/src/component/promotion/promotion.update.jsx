@@ -13,8 +13,7 @@ const PromotionUpdate = (props) => {
           const fetchProductDetails = async () => {
                try {
                     const res = await fetchDataProductDetail();
-
-                    if (res && res.data) {
+                    if (res && res.data.data) {
                          setProductDetails(res.data.data);
                     }
                } catch (error) {
@@ -31,20 +30,21 @@ const PromotionUpdate = (props) => {
      // Fetch chi tiết khuyến mãi khi dataUpdate thay đổi
      useEffect(() => {
           if (dataUpdate) {
+
                const fetchPromotionDetail = async () => {
                     try {
                          const res = await detailPromotion(dataUpdate.id);
-                         console.log(res);
-                         if (res && res.data) {
+                         console.log("PromotionUpdate: ", res);
+                         if (res && res.data.data) {
                               form.setFieldsValue({
-                                   name: res.data.name,
-                                   description: res.data.description,
-                                   discountPercent: res.data.discountPercent,
-                                   discountAmount: res.data.discountAmount,
-                                   startDate: moment(res.data.startDate),
-                                   endDate: moment(res.data.endDate),
-                                   status: res.data.status,
-                                   productDetailsId: res.data.productDetailsId || [],
+                                   name: res.data.data.name,
+                                   description: res.data.data.description,
+                                   discountPercent: res.data.data.discountPercent,
+                                   discountAmount: res.data.data.discountAmount,
+                                   startDate: moment(res.data.data.startDate),
+                                   endDate: moment(res.data.data.endDate),
+                                   status: res.data.data.status,
+                                   productDetailsId: res.data.data.productDetailsId || [],
                               });
                          }
                     } catch (error) {

@@ -6,15 +6,17 @@ import VoucherUpdateModal from "./voucher.update"; // Đổi tên thành Modal �
 
 const VoucherTable = ({ refreshData }) => {
     const [dataVoucher, setDataVoucher] = useState([]);
-    const [selectedVoucherId, setSelectedVoucherId] = useState(null); // Chỉ lưu ID để khi mở modal fetch lại chi tiết voucher
+    const [selectedVoucherId, setSelectedVoucherId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isAddSuccess, setIsAddSuccess] = useState(false);
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 2,
+    });
 
     const loadData = async () => {
         try {
             const response = await fetchDataVoucher();
-            console.log(response)
-            if (response.data) {
+            if (response.data.data) {
                 setDataVoucher(response.data.data);
             }
         } catch (error) {
@@ -27,13 +29,13 @@ const VoucherTable = ({ refreshData }) => {
 
     useEffect(() => {
         loadData(); // Tải dữ liệu lần đầu
-    }, []); // Chỉ tải lần đầu
+    }, []);
 
     useEffect(() => {
         if (refreshData) {
             loadData(); // Tải lại dữ liệu khi refreshData thay đổi
         }
-    }, [refreshData]); // Theo dõi refreshData
+    }, [refreshData]);
 
     const handleDelete = (id) => {
         Modal.confirm({
@@ -65,23 +67,24 @@ const VoucherTable = ({ refreshData }) => {
     };
 
     const handleEdit = (voucher) => {
-        setSelectedVoucherId(voucher.id); // Chỉ lưu ID voucher
-        setIsModalOpen(true); // Mở modal
+        setSelectedVoucherId(voucher.id);
+        setIsModalOpen(true); 
     };
 
     const handleUpdateSuccess = () => {
-        setIsModalOpen(false); // Đóng modal sau khi cập nhật thành công
-        loadData(); // Tải lại dữ liệu
+        setIsModalOpen(false); 
+        loadData();
     };
 
     const columns = [
         {
             title: 'STT',
-            render: (text, record, index) => index + 1,
+            render: (text, record, index) =>
+                (pagination.current - 1) * pagination.pageSize + index + 1,
         },
         {
             title: "ID",
-           dataIndex: 'id', // Hiển thị ID từ cơ sở dữ liệu
+            dataIndex: 'id',
         },
         {
             title: "Mã Voucher",
@@ -132,23 +135,28 @@ const VoucherTable = ({ refreshData }) => {
 
     return (
         <div>
-            <Table 
-                columns={columns} 
-                dataSource={dataVoucher} 
-                rowKey="id" 
-                pagination={{ pageSize: 2, showSizeChanger: false }}
+            <Table
+                columns={columns}
+                dataSource={dataVoucher}
+                pagination={{
+                    current: pagination.current,
+                    pageSize: pagination.pageSize,
+                    showSizeChanger: false,
+                    onChange: (page, pageSize) => {
+                        setPagination({ current: page, pageSize });
+                    },
+                }}
+                rowKey="id"
             />
-
             {isModalOpen && (
                 <VoucherUpdateModal
                     visible={isModalOpen}
-                    voucherId={selectedVoucherId} // Truyền ID voucher cần chỉnh sửa
-                    onClose={() => setIsModalOpen(false)} // Đóng modal
-                    onSuccess={handleUpdateSuccess} // Thành công thì tải lại dữ liệu
+                    voucherId={selectedVoucherId}
+                    onClose={() => setIsModalOpen(false)}
+                    onSuccess={handleUpdateSuccess}
                 />
             )}
         </div>
-        
     );
 };
 
