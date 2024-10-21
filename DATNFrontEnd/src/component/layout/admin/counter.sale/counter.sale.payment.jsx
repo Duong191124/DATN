@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Button, Input, Form, notification, Select } from "antd";
-import axios from "axios";
-import moment from "moment";
 
 const InputField = ({
   label,
