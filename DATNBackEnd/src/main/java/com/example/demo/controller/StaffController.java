@@ -85,11 +85,20 @@ public class StaffController {
 
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") Integer id)throws Exception{
-        staffService.deleteById(id);
+    @PutMapping("/update-status/{id}")
+    public ResponseEntity<?> updateStaff(@PathVariable("id") Integer id){
+        String updateStatus = staffService.updateStatus(id);
         return ResponseEntity.ok().body(MessageReponse.builder()
-                .message("xoa staff voi id = " + id +"thanh cong")
+                .message(updateStatus)
+                .status(HttpStatus.OK.value())
+                .build());
+    }
+
+    @PutMapping("/soft-delete/{id}")
+    public ResponseEntity<?> delete(@PathVariable("id") Integer id)throws Exception{
+        String delete = staffService.softDelete(id);
+        return ResponseEntity.ok().body(MessageReponse.builder()
+                .message(delete)
                 .status(HttpStatus.OK.value())
                 .build());
     }
