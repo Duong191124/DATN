@@ -29,9 +29,7 @@ const ProductDetailUpdate = (props) => {
         try {
             const values = await form.validateFields();
             const res = await updateProductDetailAPi(values.id, values.code, values.quantity, values.price, values.product, values.size, values.color);
-            console.log("check resss", res)
             if (res.data) {
-
                 notification.success({
                     message: "Update product",
                     description: "Update product success",

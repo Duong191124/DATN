@@ -80,6 +80,11 @@ const items = [
     icon: <SettingOutlined />,
     label: <Link to="/admin/promotions">Promotion Management</Link>,
   },
+  {
+    key: "14",
+    icon: <SettingOutlined />,
+    label: <Link to="/admin/customer">Customer Management</Link>,
+  },
 ];
 const getLevelKeys = (items1) => {
   const key = {};

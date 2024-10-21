@@ -758,8 +758,8 @@ const createCustomer = (
 }
 
 const softDelete = (id)=>{
-  const URL_BACKEND = `/api/v1/customer/soft-delete/${id}`
-  return axios.put(URL_BACKEND)
+  const URL_BACKEND = `/api/v1/customer/${id}`
+  return axios.delete(URL_BACKEND)
 }
 
 
