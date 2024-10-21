@@ -15,20 +15,21 @@ const LoginPage = () => {
         setLoading(true)
         const res = await loginCustomerAPI(values.username, values.password);
         console.log(res);
-        if (res.data) {
-            message.success("Đăng nhập thành công");
+        if (res.status === 200 || res.status === 201) {
             localStorage.setItem("access_token", res.data.token);
+            console.log(res.data.token);
             setUser(res.data.user);
-            navigate("/");
+            message.success("Đăng nhập thành công");
+            if (res.status === 200) {
+                navigate("/");
+            } else {
+                navigate("/admin");
+            }
         } else {
-            notification.error({
-                message: "Error Login",
-                description: JSON.stringify(res.message)
-            })
+            message.error("Đăng nhập thất bại");
         }
         setLoading(false)
     }
-
 
     return (
         <Row justify={"center"} style={{ marginTop: "30px" }}>
