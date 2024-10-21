@@ -62,8 +62,17 @@ public class CustomerServiceImpl implements CustomerService {
         existingCustomer.setPhoneNumber(customerDTO.getPhoneNumber());
         existingCustomer.setName(customerDTO.getName());
         existingCustomer.setNotes(customerDTO.getNotes());
+
         Customer updateCustomer = customerRepo.save(existingCustomer);
         return CustomerResponse.fromCustomerResponse(updateCustomer);
+    }
+
+    @Override
+    public String softDelete(Integer id) throws Exception {
+        Customer customer = customerRepo.findById(id).get();
+        customer.setStatus(0);
+        customerRepo.save(customer);
+        return "Soft delete successfully";
     }
 
     @Override
