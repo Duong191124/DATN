@@ -5,7 +5,6 @@ export const AuthContext = createContext({
     password: "",
     confirm_password: "",
     email: "",
-    role: "",
     id: "",
     phone: ""
 });
@@ -14,6 +13,7 @@ export const AuthWrapper = (props) => {
     const [user, setUser] = useState({
         username: "",
         password: "",
+        email: "",
         id: "",
     })
 

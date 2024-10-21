@@ -99,6 +99,11 @@
             <artifactId>spring-webmvc</artifactId>
             <version>6.1.6</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.modelmapper</groupId>-->
+<!--            <artifactId>modelmapper</artifactId>-->
+<!--&lt;!&ndash;            <version>3.0.0</version>&ndash;&gt;-->
+<!--        </dependency>-->
     </dependencies>
     <build>
         <plugins>

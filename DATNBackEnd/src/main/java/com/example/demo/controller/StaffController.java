@@ -2,12 +2,13 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.StaffDTO;
 import com.example.demo.dto.UserPermissionDTO;
-import com.example.demo.entity.Permission;
 import com.example.demo.entity.Staff;
+import com.example.demo.response.CustomerResponse;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.StaffResponse;
 import com.example.demo.service.impl.StaffServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,19 @@ import java.util.List;
 @RequestMapping("${api.prefix}/staff")
 @RequiredArgsConstructor
 public class StaffController {
+
     private final StaffServiceImpl staffService;
+
+//    @GetMapping("/staffListByOrder")
+//    public ResponseEntity<?> getAllStaff(){
+//        Pageable pageable = PageRequest.of(page-1, size);
+//        return ResponseEntity.ok().body(MessageReponse.builder()
+//                .message("lay thong tin thanh cong")
+//                .status(HttpStatus.OK.value())
+//                .data(staffService.getAll(pageable))
+//                .build()
+//        );
+//    }
 
     @GetMapping("/getAll")
     public ResponseEntity<MessageReponse> getAll(
@@ -30,21 +43,17 @@ public class StaffController {
             @RequestParam(name = "size", defaultValue = "10")int size
     ){
         Pageable pageable = PageRequest.of(page-1, size);
-        List<StaffResponse> staffList = staffService.getAll(pageable)
-                .stream()
-                .map(StaffResponse::fromStaffResponse)
-                .toList();
         return ResponseEntity.ok().body(MessageReponse.builder()
                 .message("lay thong tin thanh cong")
                 .status(HttpStatus.OK.value())
-                .data(staffList)
+                .data(staffService.getAll(pageable))
                 .build()
         );
     }
 
     @PostMapping("/register")
     public ResponseEntity<MessageReponse> createStaff(
-            @RequestBody Staff staffDTO,
+            @RequestBody StaffDTO staffDTO,
             BindingResult result
     ){
         if(result.hasErrors()){
@@ -61,7 +70,7 @@ public class StaffController {
         try{
             Staff newStaff = staffService.save(staffDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
-                    .message("register succesfuly")
+                    .message("register successfully")
                     .status(HttpStatus.OK.value())
                     .data(newStaff)
                     .build()
@@ -129,4 +138,13 @@ public class StaffController {
             );
         }
     }
+//    @GetMapping("/{id}")
+//    public ResponseEntity<?> findStaffById(@PathVariable Integer id){
+//        try {
+//            Staff staff = staffService.getById(id);
+//            return ResponseEntity.ok(new MessageReponse("find staff with id: "+id+" successfully",200,StaffResponse.fromStaffResponse(staff)));
+//        }catch (Exception e){
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        }
+//    }
 }

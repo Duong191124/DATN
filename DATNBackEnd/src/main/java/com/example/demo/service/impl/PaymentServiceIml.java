@@ -1,10 +1,12 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dto.PaymentDTO;
+import com.example.demo.entity.OrderStatus;
 import com.example.demo.entity.Orders;
 import com.example.demo.entity.Payment;
 import com.example.demo.repository.OrderRepo;
 import com.example.demo.repository.PaymentRepo;
+import com.example.demo.response.PaymentResponse;
 import com.example.demo.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,44 +21,46 @@ public class PaymentServiceIml implements PaymentService {
     @Autowired
     OrderRepo orderRepo;
     @Override
-    public List<PaymentDTO> getAll() {
-        return paymentRepo.findAll().stream().map(PaymentDTO::convertDTO).toList();
+    public List<PaymentResponse> getAll() {
+        return paymentRepo.findAll().stream().map(PaymentResponse::convertPaymentResponse).toList();
     }
 
     @Override
-    public PaymentDTO createdPayment(PaymentDTO paymentDTO) {
+    public PaymentResponse createdPayment(PaymentDTO paymentDTO) {
         try {
-            return PaymentDTO.convertDTO(paymentRepo.save(PaymentDTO.convertPayment(paymentDTO,orderRepo)));
+            Orders orders = orderRepo.findById(paymentDTO.getOrderId()).orElseThrow(()->new RuntimeException("not found order with id:"+paymentDTO.getOrderId()));
+            if(!paymentDTO.getPaymentMethod().equalsIgnoreCase("ocd")){
+                orders.setStatus(OrderStatus.shipped);
+                orderRepo.save(orders);
+            }
+            paymentDTO.setOrderId(orders.getId());
+            return PaymentResponse.convertPaymentResponse(paymentRepo.save(PaymentDTO.convertPayment(paymentDTO,orderRepo)));
         }catch (Exception e){
             throw new RuntimeException("not found payment"+e.getMessage());
         }
     }
 
     @Override
-    public PaymentDTO updatedPayment(int id,PaymentDTO paymentDTO) {
-        Payment payment = paymentRepo.findById(id).orElseThrow(()-> new RuntimeException("not found paymentById"));
+    public PaymentResponse updatedPayment(int id,PaymentDTO paymentDTO) {
+        Payment payment = paymentRepo.findById(id).orElseThrow(()-> new RuntimeException("not found payment with id:"+id));
         payment.setPaymentDate(paymentDTO.getPaymentDate());
         payment.setPaymentMethod(paymentDTO.getPaymentMethod());
-        Optional<Orders> orders = orderRepo.findById(paymentDTO.getOrders().getId());
+        Optional<Orders> orders = orderRepo.findById(paymentDTO.getOrderId());
         if(orders.isEmpty()){
-            throw new RuntimeException("not found orderById");
+            throw new RuntimeException("not found order with id:"+ paymentDTO.getOrderId());
         }
         payment.setOrders(orders.get());
-        return PaymentDTO.convertDTO(paymentRepo.save(payment));
+        return PaymentResponse.convertPaymentResponse(paymentRepo.save(payment));
     }
 
     @Override
     public void deletedPayment(int id) {
-        List<PaymentDTO> paymentDTO = paymentRepo.findAll().stream().map(PaymentDTO::convertDTO).toList();
-        for (int i = 0;i < paymentDTO.size();i++){
-            if(paymentDTO.get(i).getId() == id){
-                paymentRepo.deleteById(paymentDTO.get(i).getId());
-            }
-        }
+        Payment payment = paymentRepo.findById(id).orElseThrow(()-> new RuntimeException("not found payment with id:"+id));
+        paymentRepo.delete(payment);
     }
 
     @Override
-    public PaymentDTO findById(Integer id) {
-        return paymentRepo.findById(id).map(PaymentDTO::convertDTO).get();
+    public PaymentResponse findById(Integer id) {
+        return paymentRepo.findById(id).map(PaymentResponse::convertPaymentResponse).orElseThrow(()->new RuntimeException("not found payment with id:"+id));
     }
 }

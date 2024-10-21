@@ -1,15 +1,17 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.dto.StaffDTO;
 import com.example.demo.dto.UserPermissionDTO;
 import com.example.demo.entity.Permission;
 import com.example.demo.entity.Staff;
-import com.example.demo.repository.CustomerRepo;
+import com.example.demo.exception.UsernameExisting;
 import com.example.demo.repository.PermissionRepo;
 import com.example.demo.repository.StaffRepo;
 import com.example.demo.service.StaffService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,8 +30,25 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public Staff save(Staff staff) {
-        return staffRepo.save(staff);
+    public Staff save(StaffDTO staff) {
+        if(staffRepo.existsByUsername(staff.getUsername())){
+            throw new UsernameExisting();
+        }
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        Staff newStaff = Staff
+                .builder()
+                .username(staff.getUsername())
+                .password(passwordEncoder.encode(staff.getPassword()))
+                .email(staff.getEmail())
+                .address(staff.getAddress())
+                .phoneNumber(staff.getPhoneNumber())
+                .dateOfBirth(staff.getDateOfBirth())
+                .name(staff.getName())
+                .notes(staff.getNotes())
+                .gender(staff.getGender())
+                .status(1)
+                .build();
+        return staffRepo.save(newStaff);
     }
 
     @Override

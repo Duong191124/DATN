@@ -22,23 +22,10 @@ public class PaymentDTO {
     private Date paymentDate;
     @NotBlank(message = "check payment method, please!")
     private String paymentMethod;
-    private Orders orders;
-
-    public static PaymentDTO convertDTO(Payment payment){
-        return PaymentDTO.builder()
-                .id(payment.getId())
-                .paymentDate(payment.getPaymentDate())
-                .paymentMethod(payment.getPaymentMethod())
-                .orders(payment.getOrders())
-                .build()
-                ;
-    }
+    private Integer orderId;
     public static Payment convertPayment(PaymentDTO paymentDTO, OrderRepo orderRepo){
-        if (paymentDTO == null || paymentDTO.getOrders() == null) {
-            throw new IllegalArgumentException("PaymentDTO or Orders cannot be null");
-        }
-        Orders orders = orderRepo.findById(paymentDTO.getOrders().getId())
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+        Orders orders = orderRepo.findById(paymentDTO.getOrderId())
+                .orElseThrow(() -> new RuntimeException("Order not found order with id:"+paymentDTO.getOrderId()));
         return Payment.builder()
                 .paymentDate(paymentDTO.getPaymentDate())
                 .paymentMethod(paymentDTO.getPaymentMethod())

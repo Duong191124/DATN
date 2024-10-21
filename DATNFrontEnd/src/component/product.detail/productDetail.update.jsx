@@ -1,133 +1,146 @@
 import { useEffect, useState } from "react";
 import { fetchDataColorAPI, fetchDataProductAPI, fetchDataSize, updateProductDetailAPi } from "../../service/api.service";
-import { Input, Modal, notification, Select } from "antd";
+import { Input, Modal, notification, Select, Form, Button } from "antd";
 
 const ProductDetailUpdate = (props) => {
-    const [id, setId] = useState("");
-    const [code, setCode] = useState("");
-    const [quantity, setQuantity] = useState("");
-    const [price, setPrice] = useState("");
+    const [form] = Form.useForm();
     const [dataProduct, setDataProduct] = useState([]);
     const [dataSize, setDataSize] = useState([]);
     const [dataColor, setDataColor] = useState([]);
-
-    const [selectedProduct, setSelectedProduct] = useState(null);
-    const [selectedSize, setSelectedSize] = useState(null);
-    const [selectedColor, setSelectColor] = useState(null);
 
     const { loadProductDetail, isModalUpdateOpen, setIsModalUpdateOpen, dataUpdate, setDataUpdate } = props;
 
     useEffect(() => {
         if (dataUpdate) {
-            setId(dataUpdate.id);
-            setCode(dataUpdate.code);
-            setPrice(dataUpdate.price);
-            setQuantity(dataUpdate.quantity);
-
-
-            // Dùng tên để hiển thị
-            const product = dataProduct.find((item) => item.name === dataUpdate.productId);
-            const color = dataColor.find((item) => item.name === dataUpdate.colorId);
-            const size = dataSize.find((item) => item.name === dataUpdate.sizeId);
-
-            // Lưu id để submit
-            setSelectedProduct(product ? product.id : null);
-            setSelectedSize(size ? size.id : null);
-            setSelectColor(color ? color.id : null);
+            form.setFieldsValue({
+                id: dataUpdate.id,
+                code: dataUpdate.code,
+                price: dataUpdate.price,
+                quantity: dataUpdate.quantity,
+                product: dataUpdate.productResponse?.id,
+                color: dataUpdate.color?.id,
+                size: dataUpdate.size?.id,
+            });
         }
-    }, [dataUpdate, dataProduct, dataSize, dataColor]);
+    }, [dataUpdate, form]);
 
     const handleSubmit = async () => {
-        const res = await updateProductDetailAPi(
-            id, code, quantity, price, selectedProduct, selectedSize, selectedColor
-        );
-        if (res.data) {
-            notification.success({
-                message: "Update product",
-                description: "Update product success",
-            });
-            resetCloseModal();
-            await loadProductDetail()
-        } else {
-            notification.error({
-                message: "Update product",
-                description: JSON.stringify(res.message),
-            });
+
+        try {
+            const values = await form.validateFields();
+            const res = await updateProductDetailAPi(values.id, values.code, values.quantity, values.price, values.product, values.size, values.color);
+            if (res.data) {
+                notification.success({
+                    message: "Update product",
+                    description: "Update product success",
+                });
+                resetCloseModal();
+                await loadProductDetail();
+            }
+        } catch (error) {
+            console.log(error);
         }
     };
 
     useEffect(() => {
-        loadDataProduct();
-        loadDataColor();
-        loadDataSize();
-    }, []);
+        if (isModalUpdateOpen) {
+            loadDataProduct();
+            loadDataColor();
+            loadDataSize();
+        }
+    }, [isModalUpdateOpen]);
 
     const loadDataProduct = async () => {
-        const res = await fetchDataProductAPI();
-        if (res.data) {
-            setDataProduct(res.data);
+        try {
+            const res = await fetchDataProductAPI();
+            if (res.data.data) {
+                setDataProduct(res.data.data);
+            }
+        } catch (error) {
+            console.log(error);
         }
     };
 
     const loadDataColor = async () => {
-        const res = await fetchDataColorAPI();
-        if (res.data) {
-            setDataColor(res.data);
+        try {
+            const res = await fetchDataColorAPI();
+            if (res.data.data) {
+                setDataColor(res.data.data);
+            }
+        } catch (error) {
+            console.log(error);
         }
     };
 
     const loadDataSize = async () => {
-        const res = await fetchDataSize();
-        if (res.data) {
-            setDataSize(res.data);
+        try {
+            const res = await fetchDataSize();
+            if (res.data.data) {
+                setDataSize(res.data.data);
+            }
+        } catch (error) {
+            console.log(error);
         }
     };
 
-
-
     const resetCloseModal = () => {
-        setCode("")
-        setQuantity("")
-        setDataProduct(null)
-        setDataSize(null)
-        setDataColor(null)
-        setIsModalUpdateOpen(false)
-        setDataUpdate(null)
+        form.resetFields();
+        setIsModalUpdateOpen(false);
+        setDataUpdate(null);
     };
 
     return (
         <Modal
             title="Update Product"
             open={isModalUpdateOpen}
-            onOk={handleSubmit}
             onCancel={resetCloseModal}
-            okText="SAVE"
+            footer={[
+                <Button key="cancel" onClick={resetCloseModal}>
+                    Cancel
+                </Button>,
+                <Button key="submit" type="primary" onClick={handleSubmit}>
+                    SAVE
+                </Button>,
+            ]}
         >
-            <div style={{ display: "flex", gap: "20px", flexDirection: "column" }}>
-                <div>
-                    <span>ID</span>
-                    <Input value={id} onChange={(event) => setId(event.target.value)} disabled />
-                </div>
+            <Form
+                form={form}
+                layout="vertical"
+            >
+                <Form.Item label="ID" name="id">
+                    <Input disabled />
+                </Form.Item>
 
-                <div>
-                    <span>Code</span>
-                    <Input value={code} onChange={(event) => setCode(event.target.value)} />
-                </div>
+                <Form.Item
+                    label="Code"
+                    name="code"
+                    rules={[{ required: true, message: 'Please input the code!' }]}
+                >
+                    <Input />
+                </Form.Item>
 
-                <div>
-                    <span>Quantity</span>
-                    <Input value={quantity} onChange={(event) => setQuantity(event.target.value)} />
-                </div>
+                <Form.Item
+                    label="Quantity"
+                    name="quantity"
+                    rules={[{ required: true, message: 'Please input the quantity!' }]}
+                >
+                    <Input />
+                </Form.Item>
 
-                <div>
-                    <span>Price</span>
-                    <Input value={price} onChange={(event) => setPrice(event.target.value)} />
-                </div>
+                <Form.Item
+                    label="Price"
+                    name="price"
+                    rules={[{ required: true, message: 'Please input the price!' }]}
+                >
+                    <Input />
+                </Form.Item>
 
-                <div>
-                    <span>Product</span>
+                <Form.Item
+                    label="Product"
+                    name="product"
+                    rules={[{ required: true, message: 'Please select a product!' }]}
+                >
                     <Select
-                        style={{ width: "100%" }}
                         showSearch
                         placeholder="Select a product"
                         filterOption={(input, option) =>
@@ -135,45 +148,33 @@ const ProductDetailUpdate = (props) => {
                         }
                         options={dataProduct}
                         fieldNames={{ label: "name", value: "id" }}
-                        onChange={(value) => setSelectedProduct(value)}// Chỉ lấy đối tượng dataCollar đã chọn
-                        value={selectedProduct}
                     />
-                </div>
+                </Form.Item>
 
-                <div>
-                    <span>Color</span>
+                <Form.Item label="Color" name="color" rules={[{ required: true, message: 'Please select a color!' }]}>
                     <Select
-                        style={{ width: "100%" }}
                         showSearch
                         placeholder="Select a color"
                         filterOption={(input, option) =>
                             (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
                         }
-
                         options={dataColor}
                         fieldNames={{ label: "name", value: "id" }}
-                        onChange={(value) => setSelectColor(value)}// Chỉ lấy đối tượng dataCollar đã chọn
-                        value={selectedColor}
                     />
-                </div>
+                </Form.Item>
 
-                <div>
-                    <span>Size</span>
+                <Form.Item label="Size" name="size" rules={[{ required: true, message: 'Please select a size!' }]}>
                     <Select
-                        style={{ width: "100%" }}
                         showSearch
                         placeholder="Select a size"
                         filterOption={(input, option) =>
                             (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
                         }
-
                         options={dataSize}
                         fieldNames={{ label: "name", value: "id" }}
-                        onChange={(value) => setSelectedSize(value)}// Chỉ lấy đối tượng dataCollar đã chọn
-                        value={selectedSize}
                     />
-                </div>
-            </div>
+                </Form.Item>
+            </Form>
         </Modal>
     );
 };

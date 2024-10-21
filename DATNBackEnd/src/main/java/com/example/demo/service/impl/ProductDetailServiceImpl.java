@@ -9,6 +9,7 @@ import com.example.demo.repository.ColorRepo;
 import com.example.demo.repository.ProductDetailRepo;
 import com.example.demo.repository.ProductRepo;
 import com.example.demo.repository.SizeRepo;
+import com.example.demo.response.ProductDetailResponse;
 import com.example.demo.service.ProductDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -34,8 +36,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     @Autowired
     private ColorRepo colorRepo;
     @Override
-    public List<ProductDetail> getAll(){
-        return productDetailRepo.findAll();
+    public List<ProductDetailResponse> getAll(){
+        return productDetailRepo.findAll().stream().map(ProductDetailResponse::fromProductDetailResponse).collect(Collectors.toList());
     }
 
     @Override
@@ -85,13 +87,10 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     }
 
     @Override
-    public ProductDetail uploadImageWithColor(Integer ProductId, String colorName, MultipartFile file) throws Exception {
+    public ProductDetail uploadImageForProductDetail(Integer ProductId, Integer productDetailId, MultipartFile file) throws Exception {
         String imageUrl = cloudinaryService.uploadImage(file);
 
-        Color color = colorRepo.findByName(colorName)
-                .orElseThrow(() -> new Exception("Color not found"));
-
-        ProductDetail productDetail = productDetailRepo.findByProductIdAndColorName(ProductId, colorName)
+        ProductDetail productDetail = productDetailRepo.findByIdAndProductId(productDetailId, ProductId)
                 .orElseThrow(() -> new Exception("Product detail not found"));
 
         productDetail.setImage(imageUrl);

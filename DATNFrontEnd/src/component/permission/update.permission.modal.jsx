@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Table, Checkbox } from 'antd';
+import { Modal, Table, Checkbox, notification } from 'antd';
 import { getAllPermission, getStaffPermissions, updateStaffPermissions } from '../../service/api.service';
 
-const PermissionModal = React.memo(({ id, open, onClose }) => {
+const UpdatePermissionForUserModal = (props) => {
     const [permissions, setPermissions] = useState([]);
     const [staffPermissions, setStaffPermission] = useState([]);
     const [initialized, setInitialized] = useState(false);
     const allPermissionsRef = useRef([]); // Lưu tất cả quyền để không cần gọi lại API
+    const { id, open, onClose } = props
 
     useEffect(() => {
         if (open && !initialized) {
@@ -37,7 +38,7 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
     const loadStaffPermissions = async (id) => {
         try {
             const staffPermissionRes = await getStaffPermissions(id);
-            const staffPermission = staffPermissionRes.data.map(item => item.name);
+            const staffPermission = staffPermissionRes.data.data.map(item => item.name);
 
             // Update trạng thái checked cho các quyền dựa trên staffPermission
             const updatedPermissions = allPermissionsRef.current.map(permission => ({
@@ -75,8 +76,6 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
             })
             .filter(id => id !== null && id !== undefined);
 
-        console.log("Permissions:", permissions);
-        console.log("Staff Permissions:", staffPermissions);
         const payload = {};
         if (permissionsToAdd.length > 0) {
             payload.permissionToAdd = permissionsToAdd;
@@ -87,8 +86,14 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
 
         if (Object.keys(payload).length > 0) {
             try {
-                await updateStaffPermissions(id, payload);
-                onClose();
+                const res = await updateStaffPermissions(id, payload);
+                if (res.status == 200) {
+                    notification.success({
+                        message: "Update Permission Success",
+                        description: "Update Permission for staff successfully!",
+                    });
+                    onClose();
+                }
             } catch (error) {
                 console.error("Failed to update permissions:", error);
             }
@@ -97,7 +102,6 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
             onClose();
         }
     };
-
     // Grouping dữ liệu để hiển thị lên table
     const groupData = [
         {
@@ -113,7 +117,6 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
         },
         ...permissions.filter(item => item.action.includes('USER')),
     ];
-
     return (
         <Modal
             title="Manage Permissions"
@@ -152,6 +155,6 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
             </Table>
         </Modal>
     );
-});
+}
 
-export default PermissionModal;
+export default UpdatePermissionForUserModal;

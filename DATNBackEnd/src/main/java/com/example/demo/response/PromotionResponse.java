@@ -35,7 +35,7 @@ public class PromotionResponse {
 
     private int status;
 
-    private Integer productDetails;
+    private Integer productDetailsId;
 
     public static PromotionResponse fromPromotionResponse(Promotion promotion){
         return PromotionResponse
@@ -48,7 +48,7 @@ public class PromotionResponse {
                 .discountAmount(promotion.getDiscountAmount())
                 .discountPercent(promotion.getDiscountPercent())
                 .status(promotion.getStatus())
-                .productDetails(promotion.getProductDetails()
+                .productDetailsId(promotion.getProductDetailsId()
                         .stream()
                         .findFirst()
                         .map(ProductDetail::getId).orElse(null))

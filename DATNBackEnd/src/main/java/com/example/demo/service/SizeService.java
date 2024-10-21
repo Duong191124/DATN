@@ -15,4 +15,5 @@ public interface SizeService {
     Size getSizeById(Integer id) throws Exception;
 
     void deleteSize(Integer id) throws Exception;
+    Size findById(Integer id);
 }

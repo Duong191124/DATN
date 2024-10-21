@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { fetchDataCollarAPI } from "../service/api.service";
 import CollarForm from "../component/collar/collar.form";
 import CollarTable from "../component/collar/collar.table";
+import { Button } from "antd";
+import { Link } from "react-router-dom";
 
 const CollarPage = () => {
 
@@ -33,6 +35,7 @@ const CollarPage = () => {
                 loadCollar={loadCollar}
                 dataCollar={dataCollar}
             />
+            <Button type="primary"><Link to="/products">Go to product</Link></Button>
         </div>
     )
 }

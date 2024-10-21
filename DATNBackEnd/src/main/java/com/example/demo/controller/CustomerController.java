@@ -1,4 +1,5 @@
 package com.example.demo.controller;
+
 import com.example.demo.dto.CustomerDTO;
 import com.example.demo.response.CustomerResponse;
 import com.example.demo.response.MessageReponse;
@@ -25,14 +26,10 @@ public class CustomerController {
             @RequestParam(name = "size", defaultValue = "10")int size
     ){
         Pageable pageable = PageRequest.of(page-1, size);
-        List<CustomerResponse> customerList = customerService.getALl(pageable)
-                .stream()
-                .map(CustomerResponse::fromCustomerResponse)
-                .toList();
         return ResponseEntity.ok().body(MessageReponse.builder()
                 .message("get info successfuly")
                 .status(HttpStatus.OK.value())
-                .data(customerList)
+                .data(customerService.getALl(pageable))
                 .build()
         );
     }
