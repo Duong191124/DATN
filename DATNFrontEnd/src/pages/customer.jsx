@@ -26,7 +26,6 @@ const CustomerPage = ()=>{
 
     const hanleOpenCreate = ()=>{
         setIsModalOpen(true)
-        console.log("cleci")
     }
 
     useEffect(() => {

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { upLoadImageForProductDetail } from "../../service/api.service";
 
 const UpLoadImageForProductDetail = (props) => {
-
     const { isModalOpen, setIsModalOpen, loadProductDetail, onClose, dataUpdate } = props;
     const [selectedFile, setSelectedFile] = useState(null);
     const [preview, setPreview] = useState(null);
@@ -37,9 +36,10 @@ const UpLoadImageForProductDetail = (props) => {
     
         const formData = new FormData();
         formData.append("file", selectedFile);
-    
+        
         try {
-          const response = await upLoadImageForProductDetail(dataUpdate.productId, dataUpdate.productDetailId, formData);
+          const response = await upLoadImageForProductDetail(dataUpdate.productResponse.id, dataUpdate.id, formData);
+          console.log(response);
           if (response.data && response.data.status === 200) {
             notification.success({
               message: "Upload Success",
