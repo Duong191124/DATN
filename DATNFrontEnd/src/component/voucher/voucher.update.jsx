@@ -52,10 +52,9 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
         const fetchCustomers = async () => {
             try {
                 const res = await fetchCustomerList();
-
-                if (res && res.data.data) {
-
-                    setCustomers(res.data.data);
+                console.log("Response from API: ", res);
+                if (res && res.data && res.data.data && res.data.data.content) {
+                    setCustomers(res.data.data.content); // Sử dụng "content" để lấy danh sách khách hàng
                 } else {
                     notification.error({
                         message: "Lỗi",
@@ -79,15 +78,20 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
             const values = form.getFieldsValue();
             const formattedValues = {
                 ...values,
-                // startDate: values.startDate.format("YYYY-MM-DD"),
-                expirationDate: values.expirationDate.format("YYYY-MM-DD"),
-                status: 1, // Gán trạng thái 'active' khi cập nhật
+                discountAmount: Number(values.discountAmount),  // Chuyển đổi thành số
+                discountPercent: Number(values.discountPercent), // Chuyển đổi thành số
+                minPurchaseAmount: Number(values.minPurchaseAmount), // Chuyển đổi thành số
+                maxDiscountAmount: Number(values.maxDiscountAmount), // Chuyển đổi thành số
+                expirationDate: values.expirationDate ? values.expirationDate.format("YYYY-MM-DD") : null,
+                customers: values.customers, // Đảm bảo customers là ID
+                status: 1, // Luôn là 'active'
             };
+
+            console.log("Formatted values before sending:", formattedValues); // Debug
 
             setLoading(true);
             const res = await updateVoucher(voucherId, formattedValues);
             console.log(res);
-            console.log("Voucher ID: ", voucherId);
             if (res && res.data) {
                 notification.success({
                     message: "Cập nhật Voucher",
@@ -144,12 +148,13 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                             label="Khách hàng"
                             name="customers"
                             rules={[{ required: true, message: "Vui lòng chọn khách hàng!" }]}
+                            style={{ width: '100%' }} // Đặt width cho Form.Item
                         >
                             <Select placeholder="Chọn khách hàng" allowClear>
                                 {Array.isArray(customers) && customers.length > 0
                                     ? customers.map(customer => (
                                         <Select.Option key={customer.id} value={customer.id}>
-                                            {customer.code}
+                                            {customer.username}
                                         </Select.Option>
                                     ))
                                     : <Select.Option disabled>Không có khách hàng</Select.Option>

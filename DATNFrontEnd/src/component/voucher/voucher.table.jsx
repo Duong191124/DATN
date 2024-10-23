@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { Table, Space, Modal, notification } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import { fetchDataVoucher, deleteVoucher } from "../../service/api.service";
-import VoucherUpdateModal from "./voucher.update"; // Đổi tên thành Modal để đúng với Ant Design
+import VoucherUpdateModal from "./voucher.update";
+import VoucherCustomer from "./voucher.customer"; // Nhập component hiển thị khách hàng
 
 const VoucherTable = ({ refreshData }) => {
     const [dataVoucher, setDataVoucher] = useState([]);
     const [selectedVoucherId, setSelectedVoucherId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false); // Thêm trạng thái cho modal khách hàng
+    const [selectedCustomers, setSelectedCustomers] = useState([]); // Khách hàng đã chọn để xem chi tiết
     const [pagination, setPagination] = useState({
         current: 1,
-        pageSize: 2,
+        pageSize: 5,
     });
 
     const loadData = async () => {
@@ -32,9 +35,7 @@ const VoucherTable = ({ refreshData }) => {
     }, []);
 
     useEffect(() => {
-        if (refreshData) {
-            loadData(); // Tải lại dữ liệu khi refreshData thay đổi
-        }
+        loadData(); // Tải lại dữ liệu khi refreshData thay đổi
     }, [refreshData]);
 
     const handleDelete = (id) => {
@@ -68,12 +69,25 @@ const VoucherTable = ({ refreshData }) => {
 
     const handleEdit = (voucher) => {
         setSelectedVoucherId(voucher.id);
-        setIsModalOpen(true); 
+        setIsModalOpen(true);
     };
 
     const handleUpdateSuccess = () => {
-        setIsModalOpen(false); 
+        setIsModalOpen(false);
         loadData();
+    };
+
+    // Xử lý hiển thị modal khách hàng với danh sách khách hàng đã áp dụng cho voucher
+    const handleShowCustomerDetail = (customers) => {
+        if (customers && customers.length > 0) {
+            setSelectedCustomers(customers); // Lưu khách hàng đã áp dụng vào state
+            setIsCustomerModalOpen(true); // Mở modal
+        } else {
+            notification.warning({
+                message: "Thông báo",
+                description: "Voucher này chưa áp dụng cho khách hàng nào.",
+            });
+        }
     };
 
     const columns = [
@@ -112,14 +126,14 @@ const VoucherTable = ({ refreshData }) => {
             render: (status) => (status === 1 ? "Hoạt động" : "Hết hạn")
         },
         {
-            title: "Khách hàng ID",
-            dataIndex: "customers",
-        },
-        {
             title: "Hành động",
             key: "actions",
             render: (_, record) => (
                 <Space size="middle">
+                    <EyeOutlined
+                        style={{ color: "green", cursor: "pointer" }}
+                        onClick={() => handleShowCustomerDetail(record.customers)} // Gọi hàm hiển thị chi tiết khách hàng
+                    />
                     <EditOutlined
                         style={{ color: "blue", cursor: "pointer" }}
                         onClick={() => handleEdit(record)}
@@ -154,6 +168,13 @@ const VoucherTable = ({ refreshData }) => {
                     voucherId={selectedVoucherId}
                     onClose={() => setIsModalOpen(false)}
                     onSuccess={handleUpdateSuccess}
+                />
+            )}
+            {isCustomerModalOpen && (
+                <VoucherCustomer
+                    appliedCustomers={selectedCustomers} // Truyền danh sách khách hàng đã áp dụng cho voucher
+                    onClose={() => setIsCustomerModalOpen(false)} // Đóng modal
+                    onApply={(selected) => console.log(selected)} // Xử lý khi khách hàng được áp dụng
                 />
             )}
         </div>

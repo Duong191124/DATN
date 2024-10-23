@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Form, Input, InputNumber, DatePicker, Button, Select, notification } from 'antd';
 import moment from 'moment';
-import { createVoucher, fetchCustomerList } from '../../service/api.service';
+import { createVoucher, fetchCustomerList, updateVoucherCustomer } from '../../service/api.service';
 
 const { TextArea } = Input;
 
@@ -15,34 +15,31 @@ const VoucherForm = (props) => {
     const fetchCustomers = async () => {
       try {
         const res = await fetchCustomerList();
-        console.log("Customer: ",res);
-        if (res && res.data.data) {
-          setCustomers(res.data.data);
+        if (res && res.data && res.data.data && res.data.data.content) {
+          setCustomers(res.data.data.content); // Sử dụng "content" để lấy danh sách khách hàng
         } else {
           notification.error({
             message: "Lỗi",
-            description: "Không thể tải danh sách khách hàng"
+            description: "Không thể tải danh sách khách hàng",
           });
         }
       } catch (error) {
         notification.error({
           message: "Lỗi",
-          description: "Có lỗi xảy ra khi tải danh sách khách hàng"
+          description: "Có lỗi xảy ra khi tải danh sách khách hàng",
         });
       }
     };
-
     fetchCustomers();
   }, []);
 
+  // VoucherForm.js
   const handleSubmit = async () => {
     const values = form.getFieldsValue();
-    // Chuyển đổi ngày bắt đầu và ngày hết hạn từ moment sang định dạng chuỗi
     const formattedValues = {
       ...values,
-      // startDate: values.startDate.format("YYYY-MM-DD"),
       expirationDate: values.expirationDate.format("YYYY-MM-DD"),
-      status: Number(values.status), // Chuyển đổi giá trị status sang số nguyên
+      status: Number(values.status),
     };
 
     const res = await createVoucher(
@@ -54,8 +51,7 @@ const VoucherForm = (props) => {
       formattedValues.minPurchaseAmount,
       formattedValues.maxDiscountAmount,
       formattedValues.termsAndConditions,
-      // formattedValues.status, // Gửi giá trị status đã chuyển đổi
-      formattedValues.customers // Chỉ định customerId
+      formattedValues.customers
     );
 
     if (res && res.data) {
@@ -64,17 +60,14 @@ const VoucherForm = (props) => {
         description: "Tạo voucher thành công"
       });
       resetCloseModal();
-      onCreate(formattedValues); // Gọi onCreate từ props/ Tải lại dữ liệu sau khi tạo thành công
+      onCreate(formattedValues); // Gọi onCreate để tải lại dữ liệu sau khi tạo thành công
     } else {
       notification.error({
         message: "Tạo Voucher",
-        description: JSON.stringify(res.message)//|| "Đã xảy ra lỗi không xác định"
+        description: JSON.stringify(res.message)
       });
     }
   };
-
-
-
 
   const resetCloseModal = () => {
     setIsModalOpen(false);
@@ -117,20 +110,21 @@ const VoucherForm = (props) => {
             <Form.Item
               label="Khách hàng"
               name="customers"
-              rules={[{ required: true, message: 'Vui lòng chọn khách hàng!' }]}
+              rules={[{ required: true, message: "Vui lòng chọn khách hàng!" }]}
               style={{ width: '48%' }} // Đặt width cho Form.Item
             >
               <Select placeholder="Chọn khách hàng" allowClear>
                 {Array.isArray(customers) && customers.length > 0
                   ? customers.map(customer => (
                     <Select.Option key={customer.id} value={customer.id}>
-                      {customer.code}
+                      {customer.username}
                     </Select.Option>
                   ))
                   : <Select.Option disabled>Không có khách hàng</Select.Option>
                 }
               </Select>
             </Form.Item>
+
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap' }}>

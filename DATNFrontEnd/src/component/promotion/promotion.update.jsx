@@ -29,12 +29,10 @@ const PromotionUpdate = (props) => {
 
      // Fetch chi tiết khuyến mãi khi dataUpdate thay đổi
      useEffect(() => {
-          if (dataUpdate) {
-
+          if (isModalUpdateOpen && dataUpdate) {
                const fetchPromotionDetail = async () => {
                     try {
                          const res = await detailPromotion(dataUpdate.id);
-                         console.log("PromotionUpdate: ", res);
                          if (res && res.data.data) {
                               form.setFieldsValue({
                                    name: res.data.data.name,
@@ -44,8 +42,9 @@ const PromotionUpdate = (props) => {
                                    startDate: moment(res.data.data.startDate),
                                    endDate: moment(res.data.data.endDate),
                                    status: res.data.data.status,
-                                   productDetailsId: res.data.data.productDetailsId || [],
+                                   // productDetailsId: Array.isArray(res.data.data.productDetailsId) ? res.data.data.productDetailsId : [], // Giữ nguyên nếu là mảng
                               });
+
                          }
                     } catch (error) {
                          notification.error({
@@ -57,7 +56,8 @@ const PromotionUpdate = (props) => {
 
                fetchPromotionDetail();
           }
-     }, [dataUpdate, form]);
+     }, [isModalUpdateOpen, dataUpdate, form]);
+
 
      // Xử lý gửi dữ liệu cập nhật
      const handleSubmit = async () => {
@@ -66,6 +66,7 @@ const PromotionUpdate = (props) => {
                ...values,
                startDate: values.startDate.format("YYYY-MM-DDTHH:mm:ss"),
                endDate: values.endDate.format("YYYY-MM-DDTHH:mm:ss"),
+               productDetailsIds: values.productDetailsId || [], // Đảm bảo rằng nếu không có giá trị nào thì nó sẽ là mảng rỗng
           };
 
           try {
@@ -87,7 +88,7 @@ const PromotionUpdate = (props) => {
           }
      };
 
-     // Xử lý khi người dùng hủy
+
      const handleCancel = () => {
           form.resetFields();
           setIsModalUpdateOpen(false);
@@ -105,10 +106,11 @@ const PromotionUpdate = (props) => {
                     <Form.Item
                          label="Tên"
                          name="name"
-                         rules={[{ required: true, message: 'Vui lòng nhập tên khuyến mãi!' }]}
+                         rules={[{ required: true, message: 'Vui lòng nhập tên khuyến mại!' }]}
                     >
                          <Input />
                     </Form.Item>
+
                     <Form.Item
                          label="Mô tả"
                          name="description"
@@ -116,45 +118,57 @@ const PromotionUpdate = (props) => {
                     >
                          <Input />
                     </Form.Item>
+
                     <Form.Item
                          label="Phần Trăm Giảm Giá(%)"
                          name="discountPercent"
-                         rules={[{ required: true, message: 'Vui lòng nhập phần trăm giảm giá!' }]}
+                         rules={[
+                              { required: true, message: 'Vui lòng nhập phần trăm giảm giá!' },
+                              {
+                                   validator: (_, value) => {
+                                        if (value < 0 || value > 100) {
+                                             return Promise.reject(new Error('Phần trăm giảm giá phải nằm trong khoảng từ 0 đến 100!'));
+                                        }
+                                        return Promise.resolve();
+                                   },
+                              },
+                         ]}
                     >
-                         <Input type="number" min={0} max={100} />
+                         <Input type="number" />
                     </Form.Item>
+
                     <Form.Item
-                         label="Số Tiền Giảm Giá(VNĐ)"
+                         label="Điều Kiện Được Giảm(VNĐ)"
                          name="discountAmount"
                          rules={[{ required: true, message: 'Vui lòng nhập số tiền giảm giá!' }]}
                     >
                          <Input type="number" />
                     </Form.Item>
+
                     <Form.Item
                          label="Ngày Bắt Đầu"
                          name="startDate"
                          rules={[{ required: true, message: 'Vui lòng chọn ngày bắt đầu!' }]}
                     >
-                         <DatePicker format="YYYY-MM-DD" />
+                         <DatePicker
+                              showTime
+                              format="YYYY-MM-DD HH:mm:ss"
+                              disabledDate={(current) => current && current < moment().startOf('day')}
+                         />
                     </Form.Item>
+
                     <Form.Item
                          label="Ngày Kết Thúc"
                          name="endDate"
-                         rules={[
-                              { required: true, message: 'Vui lòng chọn ngày kết thúc!' },
-                              ({ getFieldValue }) => ({
-                                   validator(_, value) {
-                                        const startDate = getFieldValue('startDate');
-                                        if (!value || (startDate && value.isAfter(startDate))) {
-                                             return Promise.resolve();
-                                        }
-                                        return Promise.reject(new Error('Ngày kết thúc không được trước ngày bắt đầu!'));
-                                   },
-                              }),
-                         ]}
+                         rules={[{ required: true, message: 'Vui lòng chọn ngày kết thúc!' }]}
                     >
-                         <DatePicker format="YYYY-MM-DD" />
+                         <DatePicker
+                              showTime
+                              format="YYYY-MM-DD HH:mm:ss"
+                              disabledDate={(current) => current && current < moment().startOf('day')}
+                         />
                     </Form.Item>
+
                     <Form.Item
                          label="Trạng Thái"
                          name="status"
@@ -165,22 +179,10 @@ const PromotionUpdate = (props) => {
                               <Select.Option value={0}>Ngừng hoạt động</Select.Option>
                          </Select>
                     </Form.Item>
-                    <Form.Item label="Chi Tiết Sản Phẩm" name="productDetailsId">
-                         <Select>
-                              {Array.isArray(productDetails) && productDetails.length > 0 ? (
-                                   productDetails.map((item) => (
-                                        <Select.Option key={item.id} value={item.id}>
-                                             {item.code} {/* Hiển thị tên sản phẩm */}
-                                        </Select.Option>
-                                   ))
-                              ) : (
-                                   <Select.Option disabled>Không có sản phẩm nào</Select.Option>
-                              )}
-                         </Select>
-                    </Form.Item>
                </Form>
           </Modal>
      );
 };
 
 export default PromotionUpdate;
+
