@@ -22,7 +22,6 @@ const ProductPage = () => {
       setPage(res.data.page);
       setPageSize(res.data.pageSize);
       setTotal(res.data.totalElement);
-
       const currentProductCodes = res.data.productResponseList.map(
         (value) => value.code
       );

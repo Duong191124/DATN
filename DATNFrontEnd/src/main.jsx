@@ -3,13 +3,11 @@ import { createRoot } from "react-dom/client";
 import LoginPage from "./pages/login";
 import RegisterPage from "./pages/register";
 import { AuthWrapper } from "./component/context/auth.context.jsx";
-import App from "./App.jsx";
+import AppAdmin from "./AppAdmin.jsx";
 import Home from "./component/layout/content/home/home.jsx";
 import ProductPage from "./pages/product.jsx";
-import OrderTable from "./component/layout/admin/order/order.table.jsx";
 import OrderPage from "./pages/order.jsx";
 import CounterSales from "./pages/counter_sales.jsx";
-import PermissionPage from "./pages/permission.jsx";
 import ProductDetail from "./pages/product.detail.jsx";
 import ColorPage from "./pages/color.jsx";
 import SizePage from "./pages/size.jsx";
@@ -17,12 +15,22 @@ import CollarPage from "./pages/collar.jsx";
 import BrandPage from "./pages/brand.jsx";
 import CategoryPage from "./pages/category.jsx";
 import SleevePage from "./pages/sleeve.jsx";
+import PromotionPage from "./pages/promotion.jsx";
+import VoucherPage from "./pages/voucher.jsx";
 import StaffManagement from "./pages/staff.jsx";
-
+import PrivateRoute from "./pages/private.route.jsx";
+import App from "./App.jsx";
+import PermissionPage from "./pages/permission.jsx";
+import CustomerPage from "./pages/customer.jsx";
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <App />,
+    path: "/admin",
+    element: (
+      // <PrivateRoute>
+      //   <AppAdmin />
+      // </PrivateRoute>
+      <AppAdmin />
+    ),
     children: [
       {
         index: false,
@@ -33,7 +41,7 @@ const router = createBrowserRouter([
         element: <ProductPage />,
       },
       {
-        path: "products/:id",
+        path: "products/:productId",
         element: <ProductDetail />,
       },
       {
@@ -41,42 +49,65 @@ const router = createBrowserRouter([
         element: <StaffManagement />,
       },
       {
-        path: "/counter-sales",
+        path: "counter-sales",
         element: <CounterSales />,
       },
       {
-        path: "/order",
+        path: "order",
         element: <OrderPage />,
       },
       {
-        path: "/colors",
+        path: "colors",
         element: <ColorPage />,
       },
       {
-        path: "/sizes",
+        path: "sizes",
         element: <SizePage />,
       },
       {
-        path: "/collars",
+        path: "collars",
         element: <CollarPage />,
       },
       {
-        path: "/brands",
+        path: "brands",
         element: <BrandPage />,
       },
       {
-        path: "/categories",
+        path: "categories",
         element: <CategoryPage />,
       },
       {
-        path: "/sleeves",
+        path: "sleeves",
         element: <SleevePage />,
       },
       {
-        path: "/permission",
+
+        path: "permission",
         element: <PermissionPage />,
       },
+      {
+        path: "promotions",
+        element: <PromotionPage />,
+      },
+      {
+        path: "voucher",
+        element: <VoucherPage />,
+      },
+      {
+        path: "customer",
+        element: <CustomerPage />,
+      },
     ],
+  },
+  {
+    path: "/",
+    element: <App />,
+    children: [
+      {
+        index: true,
+        element: <Home />
+      }
+    ]
   },
   {
     path: "/login",

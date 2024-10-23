@@ -7,7 +7,7 @@ const CategoryForm = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [form] = Form.useForm()
 
-    const { loadCategory, listName } = props
+    const { loadCategory } = props
 
     const handleSubmit = async (values) => {
         const res = await createCategoryAPI(values.name)
@@ -23,12 +23,6 @@ const CategoryForm = (props) => {
     const resetModal = () => {
         setIsModalOpen(false)
         form.resetFields
-    }
-    const checkDuplicateName = (rules, value) => {
-        if (listName.includes(value)) {
-            return Promise.reject(new Error('Name already exists'))
-        }
-        return Promise.resolve();
     }
     return (
         <>
@@ -55,9 +49,7 @@ const CategoryForm = (props) => {
                                 required: true,
                                 message: 'Please input your username!',
                             },
-                            {
-                                validator: checkDuplicateName
-                            }
+
                         ]}
                     >
                         <Input />

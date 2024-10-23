@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.StaffDTO;
 import com.example.demo.dto.UserPermissionDTO;
 import com.example.demo.entity.Staff;
+import com.example.demo.response.CustomerResponse;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.service.impl.StaffServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.List;
 @RequestMapping("${api.prefix}/staff")
 @RequiredArgsConstructor
 public class StaffController {
+
     private final StaffServiceImpl staffService;
 
 //    @GetMapping("/staffListByOrder")
@@ -40,11 +42,10 @@ public class StaffController {
             @RequestParam(name = "size", defaultValue = "10")int size
     ){
         Pageable pageable = PageRequest.of(page-1, size);
-        Page<Staff> staff = staffService.getAll(pageable);
         return ResponseEntity.ok().body(MessageReponse.builder()
                 .message("lay thong tin thanh cong")
                 .status(HttpStatus.OK.value())
-                .data(staff)
+                .data(staffService.getAll(pageable))
                 .build()
         );
     }
@@ -68,7 +69,7 @@ public class StaffController {
         try{
             Staff newStaff = staffService.save(staffDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
-                    .message("register succesfuly")
+                    .message("register successfully")
                     .status(HttpStatus.OK.value())
                     .data(newStaff)
                     .build()
@@ -83,11 +84,20 @@ public class StaffController {
 
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") Integer id)throws Exception{
-        staffService.deleteById(id);
+    @PutMapping("/update-status/{id}")
+    public ResponseEntity<?> updateStaff(@PathVariable("id") Integer id){
+        String updateStatus = staffService.updateStatus(id);
         return ResponseEntity.ok().body(MessageReponse.builder()
-                .message("xoa staff voi id = " + id +"thanh cong")
+                .message(updateStatus)
+                .status(HttpStatus.OK.value())
+                .build());
+    }
+
+    @PutMapping("/soft-delete/{id}")
+    public ResponseEntity<?> delete(@PathVariable("id") Integer id)throws Exception{
+        String delete = staffService.softDelete(id);
+        return ResponseEntity.ok().body(MessageReponse.builder()
+                .message(delete)
                 .status(HttpStatus.OK.value())
                 .build());
     }

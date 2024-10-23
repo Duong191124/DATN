@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,11 +36,10 @@ public class PromotionResponse {
 
     private int status;
 
-    private Integer productDetails;
+    private List<Integer> productDetailsId;
 
-    public static PromotionResponse fromPromotionResponse(Promotion promotion){
-        return PromotionResponse
-                .builder()
+    public static PromotionResponse fromPromotionResponse(Promotion promotion) {
+        PromotionResponse response = PromotionResponse.builder()
                 .id(promotion.getId())
                 .name(promotion.getName())
                 .description(promotion.getDescription())
@@ -48,11 +48,22 @@ public class PromotionResponse {
                 .discountAmount(promotion.getDiscountAmount())
                 .discountPercent(promotion.getDiscountPercent())
                 .status(promotion.getStatus())
-                .productDetails(promotion.getProductDetails()
-                        .stream()
-                        .findFirst()
-                        .map(ProductDetail::getId).orElse(null))
                 .build();
+
+        // Chỉ thêm productDetailsId nếu có sản phẩm liên kết
+        if (promotion.getProductDetails() != null && !promotion.getProductDetails().isEmpty()) {
+            response.setProductDetailsId(
+                    promotion.getProductDetails()
+                            .stream()
+                            .map(ProductDetail::getId)
+                            .collect(Collectors.toList()));
+        } else {
+            response.setProductDetailsId(new ArrayList<>()); // Trả về một mảng rỗng
+        }
+
+        return response;
     }
+
+
 }
 

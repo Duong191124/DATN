@@ -7,8 +7,10 @@ import com.example.demo.response.MessageReponse;
 import com.example.demo.response.PageProductResponse;
 import com.example.demo.response.ProductDetailResponse;
 import com.example.demo.response.ProductResponse;
+import com.example.demo.service.ProductDetailService;
 import com.example.demo.service.ProductService;
 import com.example.demo.service.impl.ProductDetailServiceImpl;
+import com.example.demo.service.impl.ProductServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,10 +34,22 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ProductController {
 
-    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
 
     private final ProductService productService;
+    private final ProductServiceImpl productServiceImpl;
     private final ProductDetailServiceImpl productDetailService;
+
+    @PostMapping("/check-duplicate")
+    public ResponseEntity<Map<String, Boolean>> checkDuplicateSize(@RequestBody Map<String, String> request) {
+        String type = request.get("type");
+        String value = request.get("value");
+
+        boolean exists = productServiceImpl.isDuplicate(type, value);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", exists);
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping("/getAllProduct")
     public ResponseEntity<MessageReponse> getAllProduct() {
@@ -108,15 +122,15 @@ public class ProductController {
         }
     }
 
-    @PostMapping(value = "uploadForProductDetail/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadImageForProductDetail(@PathVariable() int productId,
-                                                         @RequestParam("color") String colorName,
+    @PostMapping(value = "uploadForProductDetail/{productId}/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadImageForProductDetail(@PathVariable("productId") int productId,
+                                                         @PathVariable("id") int productDetailId,
                                                          @ModelAttribute("file") MultipartFile file) {
         try {
             if (file.getSize() > MAX_FILE_SIZE) {
                 return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("File is too large! Maximum size is 5MB");
             }
-            ProductDetail newProductDetail = productDetailService.uploadImageWithColor(productId, colorName, file);
+            ProductDetail newProductDetail = productDetailService.uploadImageForProductDetail(productId, productDetailId, file);
             ProductDetailResponse productDetailResponse = ProductDetailResponse.fromProductDetailResponse(newProductDetail);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new MessageReponse("Upload image productDetail successfully", HttpStatus.OK.value(), productDetailResponse));

@@ -89,13 +89,10 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     }
 
     @Override
-    public ProductDetail uploadImageWithColor(Integer ProductId, String colorName, MultipartFile file) throws Exception {
+    public ProductDetail uploadImageForProductDetail(Integer ProductId, Integer productDetailId, MultipartFile file) throws Exception {
         String imageUrl = cloudinaryService.uploadImage(file);
 
-        Color color = colorRepo.findByName(colorName)
-                .orElseThrow(() -> new Exception("Color not found"));
-
-        ProductDetail productDetail = productDetailRepo.findByProductIdAndColorName(ProductId, colorName)
+        ProductDetail productDetail = productDetailRepo.findByIdAndProductId(productDetailId, ProductId)
                 .orElseThrow(() -> new Exception("Product detail not found"));
 
         productDetail.setImage(imageUrl);

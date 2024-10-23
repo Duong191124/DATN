@@ -8,5 +8,4 @@ import java.util.Optional;
 
 @Repository
 public interface VoucherRepo extends JpaRepository<Voucher,Integer> {
-    Optional<Voucher> findByDiscountPercent(String name);
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   TeamOutlined,
   ProductOutlined,
@@ -11,62 +11,79 @@ const items = [
   {
     key: "1",
     icon: <TeamOutlined />,
-    label: <Link to="/counter-sales">Counter-Sales Management</Link>,
+    label: <Link to="/admin/counter-sales">Counter-Sales Management</Link>,
   },
   {
     key: "2",
     icon: <TeamOutlined />,
-    label: <Link to="/order">Bill Management</Link>,
+    label: <Link to="/admin/order">Bill Management</Link>,
   },
   {
-    key: "3",
+    key: "opt1",
     icon: <ProductOutlined />,
-    label: <Link to="/products">Product Management</Link>,
-  },
-  {
-    key: "4",
-    icon: <TeamOutlined />,
-    label: <Link to="/staff">Staff Management</Link>,
-  },
-  {
-    key: "5",
-    icon: <TeamOutlined />,
-    label: <Link to="/colors">Color Management</Link>,
-  },
-  {
-    key: "6",
-    icon: <TeamOutlined />,
-    label: <Link to="/sizes">Size Management</Link>,
-  },
-  {
-    key: "7",
-    icon: <TeamOutlined />,
-    label: <Link to="/collars">Collar Management</Link>,
-  },
-  {
-    key: "8",
-    icon: <TeamOutlined />,
-    label: <Link to="/brands">Brand Management</Link>,
-  },
-  {
-    key: "9",
-    icon: <TeamOutlined />,
-    label: <Link to="/categories">Category Management</Link>,
+    label: "Product",
+    children: [
+      {
+        key: "3",
+        icon: <ProductOutlined />,
+        label: <Link to="/admin/products">Product Management</Link>,
+      },
+      {
+        key: "4",
+        icon: <TeamOutlined />,
+        label: <Link to="/admin/colors">Color Management</Link>,
+      },
+      {
+        key: "5",
+        icon: <TeamOutlined />,
+        label: <Link to="/admin/sizes">Size Management</Link>,
+      },
+      {
+        key: "6",
+        icon: <TeamOutlined />,
+        label: <Link to="/admin/collars">Collar Management</Link>,
+      },
+      {
+        key: "7",
+        icon: <TeamOutlined />,
+        label: <Link to="/admin/brands">Brand Management</Link>,
+      },
+      {
+        key: "8",
+        icon: <TeamOutlined />,
+        label: <Link to="/admin/categories">Category Management</Link>,
+      },
+      {
+        key: "9",
+        icon: <SettingOutlined />,
+        label: <Link to="/admin/sleeves">Sleeve Management</Link>,
+      },
+    ]
   },
   {
     key: "10",
-    icon: <SettingOutlined />,
-    label: <Link to="/sleeves">Sleeve Management</Link>,
-  },
-  {
-    key: "10",
-    icon: <SettingOutlined />,
-    label: <Link to="/permission">Permission Management</Link>,
+    icon: <TeamOutlined />,
+    label: <Link to="/admin/staff">Staff Management</Link>,
   },
   {
     key: "11",
     icon: <SettingOutlined />,
-    label: "Navigation Three",
+    label: <Link to="/admin/permission">Permission Management</Link>,
+  },
+  {
+    key: "12",
+    icon: <SettingOutlined />,
+    label: <Link to="/admin/voucher">Voucher Management</Link>,
+  },
+  {
+    key: "13",
+    icon: <SettingOutlined />,
+    label: <Link to="/admin/promotions">Promotion Management</Link>,
+  },
+  {
+    key: "14",
+    icon: <SettingOutlined />,
+    label: <Link to="/admin/customer">Customer Management</Link>,
   },
 ];
 const getLevelKeys = (items1) => {
@@ -86,7 +103,9 @@ const getLevelKeys = (items1) => {
 };
 const levelKeys = getLevelKeys(items);
 const NavbarAdmin = () => {
+  const [collapsed, setCollapsed] = useState(false);
   const [stateOpenKeys, setStateOpenKeys] = useState(["2", "23"]);
+
   const onOpenChange = (openKeys) => {
     const currentOpenKey = openKeys.find(
       (key) => stateOpenKeys.indexOf(key) === -1
@@ -94,19 +113,23 @@ const NavbarAdmin = () => {
     // open
     if (currentOpenKey !== undefined) {
       const repeatIndex = openKeys
-        .filter((key) => key !== currentOpenKey)
-        .findIndex((key) => levelKeys[key] === levelKeys[currentOpenKey]);
+      .filter((key) => key !== currentOpenKey)
+      .findIndex((key) => levelKeys[key] === levelKeys[currentOpenKey]);
       setStateOpenKeys(
         openKeys
-          // remove repeat key
-          .filter((_, index) => index !== repeatIndex)
-          // remove current level all child
-          .filter((key) => levelKeys[key] <= levelKeys[currentOpenKey])
+        // remove repeat key
+        .filter((_, index) => index !== repeatIndex)
+        // remove current level all child
+        .filter((key) => levelKeys[key] <= levelKeys[currentOpenKey])
       );
     } else {
       // close
       setStateOpenKeys(openKeys);
     }
+  };
+
+  const toggleCollapsed = () => {
+    setCollapsed(!collapsed);
   };
   return (
     <>
@@ -118,6 +141,7 @@ const NavbarAdmin = () => {
         style={{
           width: 256,
         }}
+        inlineCollapsed={collapsed}
         className="menu-sidebar"
         items={items}
       />

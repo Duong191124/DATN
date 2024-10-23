@@ -20,6 +20,7 @@ public interface ProductDetailService {
 
     void deletePD(Integer id) throws Exception;
 
-    ProductDetail uploadImageWithColor(Integer productId, String colorName, MultipartFile file) throws Exception;
     Page<ProductDetailResponse> pageAndFilterWithProductDetailResponse(String productName, String code, String colorName, String sizeName, Double minPrice,Double maxPrice, Pageable pageable);
+  
+    ProductDetail uploadImageForProductDetail(Integer productId, Integer productDetailId, MultipartFile file) throws Exception;
 }

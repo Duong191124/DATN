@@ -14,9 +14,11 @@ public interface StaffService {
 
     Staff save(StaffDTO Staff);
 
-    void deleteById(int id);
-
     Staff getById(int id);
+
+    String softDelete(Integer id) throws Exception;
+
+    String updateStatus(Integer id);
 
     Staff updatePermissions(Integer staffId, UserPermissionDTO permissionDTO);
 

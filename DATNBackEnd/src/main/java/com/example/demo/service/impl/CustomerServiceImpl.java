@@ -54,20 +54,26 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerResponse update(Integer id, CustomerDTO customerDTO) throws Exception {
-        Voucher existingVoucher = voucherRepo.findById(customerDTO.getVouchers()).orElse(null);
         Customer existingCustomer = getCustomerByID(id);
         existingCustomer.setDateOfBirth(customerDTO.getDateOfBirth());
+        existingCustomer.setUsername(customerDTO.getUsername());
         existingCustomer.setAddress(customerDTO.getAddress());
         existingCustomer.setEmail(customerDTO.getEmail());
         existingCustomer.setGender(customerDTO.getGender());
         existingCustomer.setPhoneNumber(customerDTO.getPhoneNumber());
         existingCustomer.setName(customerDTO.getName());
         existingCustomer.setNotes(customerDTO.getNotes());
-        Set<Voucher> vouchers = new HashSet<>();
-        vouchers.add(existingVoucher);
-        existingCustomer.setVouchers(vouchers);
+
         Customer updateCustomer = customerRepo.save(existingCustomer);
         return CustomerResponse.fromCustomerResponse(updateCustomer);
+    }
+
+    @Override
+    public String softDelete(Integer id) throws Exception {
+        Customer customer = customerRepo.findById(id).get();
+        customer.setStatus(0);
+        customerRepo.save(customer);
+        return "Soft delete successfully";
     }
 
     @Override

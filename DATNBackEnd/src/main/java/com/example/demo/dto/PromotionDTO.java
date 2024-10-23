@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,7 +28,6 @@ public class PromotionDTO {
 
     private int status;
 
-    @NotNull(message = "ProductDetailsId can't null")
-    private Integer productDetailsId;
+    private List<Integer> productDetailsIds;
 
 }

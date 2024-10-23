@@ -14,6 +14,7 @@ public interface CustomerService {
     CustomerResponse add(CustomerDTO customer);
 
     CustomerResponse update(Integer id, CustomerDTO customerDTO) throws Exception;
+    String softDelete(Integer id) throws Exception;
 
     void delete(Integer id) throws Exception;
 

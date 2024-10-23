@@ -6,85 +6,68 @@ import {
   fetchDataSleeve,
   updateProductAPI,
 } from "../../service/api.service";
-import { Input, Modal, notification, Select } from "antd";
+import { Form, Input, Modal, notification, Select } from "antd";
 
 const UpdateProduct = (props) => {
-  const [code, setCode] = useState("");
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
-  const [description, setDescription] = useState("");
+  const [form] = Form.useForm(); // Tạo đối tượng form của Ant Design
   const [dataBrand, setDataBrand] = useState([]);
   const [dataSleeve, setDataSleeve] = useState([]);
   const [dataCategory, setDataCategory] = useState([]);
   const [dataCollar, setDataCollar] = useState([]);
-  const [selectedValueCollar, setSelectedValueCollar] = useState(null); // id của Collar
-  const [selectedValueBrand, setSelectedValueBrand] = useState(null); // id của Brand
-  const [selectedValueCategory, setSelectedValueCategory] = useState(null); // id của Category
-  const [selectValueSleeve, setSelectValueSleeve] = useState(null); // id của Sleeve
-  const [id, setId] = useState("");
-
-  const {
-    isModalUpdateOpen,
-    setIsModalUpdateOpen,
-    dataUpdate,
-    setDataUpdate,
-    loadProduct,
-  } = props;
+  const { isModalUpdateOpen, setIsModalUpdateOpen, dataUpdate, setDataUpdate, loadProduct } = props;
 
   useEffect(() => {
     if (dataUpdate) {
-      setId(dataUpdate.id);
-      setCode(dataUpdate.code);
-      setName(dataUpdate.name);
-      setPrice(dataUpdate.price);
-      setDescription(dataUpdate.description);
-
-      // Dùng tên để hiển thị
-      const collar = dataCollar.find(
-        (item) => item.name === dataUpdate.collarName
-      );
-      const brand = dataBrand.find(
-        (item) => item.name === dataUpdate.brandName
-      );
-      const category = dataCategory.find(
-        (item) => item.name === dataUpdate.categoryName
-      );
-      const sleeve = dataSleeve.find(
-        (item) => item.name === dataUpdate.sleeveName
-      );
-
-      // Lưu id để submit
-      setSelectedValueCollar(collar ? collar.id : null);
-      setSelectedValueBrand(brand ? brand.id : null);
-      setSelectedValueCategory(category ? category.id : null);
-      setSelectValueSleeve(sleeve ? sleeve.id : null);
+      // Set các giá trị của form khi dữ liệu cập nhật thay đổi
+      form.setFieldsValue({
+        id: dataUpdate.id,
+        code: dataUpdate.code,
+        name: dataUpdate.name,
+        price: dataUpdate.price,
+        description: dataUpdate.description,
+        collar: dataUpdate.collarName,
+        brand: dataUpdate.brandName,
+        category: dataUpdate.categoryName,
+        sleeve: dataUpdate.sleeveName,
+      });
     }
-  }, [dataUpdate, dataBrand, dataCollar, dataCategory, dataSleeve]);
+  }, [dataUpdate, form]);
 
   const handleSubmit = async () => {
-    const res = await updateProductAPI(
-      id,
-      code,
-      name,
-      description,
-      price,
-      selectValueSleeve,
-      selectedValueBrand,
-      selectedValueCategory,
-      selectedValueCollar
-    );
-    if (res.data) {
-      notification.success({
-        message: "Update product",
-        description: "Update product success",
-      });
-      resetCloseModal();
-      loadProduct();
-    } else {
-      notification.error({
-        message: "Update product",
-        description: JSON.stringify(res.message),
-      });
+    try {
+      const values = await form.validateFields(); // Lấy và validate dữ liệu form
+      const collar = dataCollar.find((item) => item.name === values.collar);
+      const brand = dataBrand.find((item) => item.name === values.brand);
+      const category = dataCategory.find((item) => item.name === values.category);
+      const sleeve = dataSleeve.find((item) => item.name === values.sleeve);
+
+      const res = await updateProductAPI(
+        values.id,
+        values.code,
+        values.name,
+        values.description,
+        values.price,
+        sleeve ? sleeve.id : null,
+        brand ? brand.id : null,
+        category ? category.id : null,
+        collar ? collar.id : null
+      );
+
+      if (res.data) {
+        notification.success({
+          message: "Update product",
+          description: "Update product success",
+        });
+        resetCloseModal();
+        loadProduct();
+      } else {
+        notification.error({
+          message: "Update product",
+          description: JSON.stringify(res.message),
+        });
+      }
+    } catch (error) {
+      console.log("Validation failed:", error);
     }
   };
 
@@ -98,7 +81,7 @@ const UpdateProduct = (props) => {
   const loadDataBrand = async () => {
     const res = await fetchDataBrand();
     if (res.data) {
-      setDataBrand(res.data);
+      setDataBrand(res.data.data);
     }
   };
 
@@ -112,7 +95,7 @@ const UpdateProduct = (props) => {
   const loadDataCategory = async () => {
     const res = await fetchDataCategory();
     if (res.data) {
-      setDataCategory(res.data);
+      setDataCategory(res.data.data);
     }
   };
 
@@ -125,14 +108,7 @@ const UpdateProduct = (props) => {
 
   const resetCloseModal = () => {
     setIsModalUpdateOpen(false);
-    setCode("");
-    setName("");
-    setPrice("");
-    setDescription("");
-    setDataBrand([]);
-    setDataSleeve([]);
-    setDataCategory([]);
-    setDataCollar([]);
+    form.resetFields(); // Reset lại các trường trong form
     setDataUpdate(null);
   };
 
@@ -144,44 +120,54 @@ const UpdateProduct = (props) => {
       onCancel={resetCloseModal}
       okText="SAVE"
     >
-      <div style={{ display: "flex", gap: "20px", flexDirection: "column" }}>
-        <div>
-          <span>ID</span>
-          <Input
-            value={id}
-            onChange={(event) => setId(event.target.value)}
-            disabled
-          />
-        </div>
+      <Form form={form} layout="vertical">
+        <Form.Item name="id" label="ID">
+          <Input disabled />
+        </Form.Item>
 
-        <div>
-          <span>Code</span>
-          <Input
-            value={code}
-            onChange={(event) => setCode(event.target.value)}
-          />
-        </div>
+        <Form.Item
+          name="code"
+          label="Code"
+          rules={[
+            {
+              required: true, message: "Please input the code!"
+            }
+          ]}
+        >
+          <Input />
+        </Form.Item>
 
-        <div>
-          <span>Name</span>
-          <Input
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-          />
-        </div>
+        <Form.Item
+          name="name"
+          label="Name"
+          rules={[
+            {
+              required: true, message: "Please input the name!"
+            }
+          ]}
+        >
+          <Input />
+        </Form.Item>
 
-        <div>
-          <span>Price</span>
-          <Input
-            value={price}
-            onChange={(event) => setPrice(event.target.value)}
-          />
-        </div>
+        <Form.Item
+          name="price"
+          label="Price"
+          rules={[
+            {
+              required: true, message: "Please input the price!"
 
-        <div>
-          <span>Collar</span>
+            }
+          ]}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item
+          name="collar"
+          label="Collar"
+          rules={[{ required: true, message: "Please select a collar!" }]}
+        >
           <Select
-            style={{ width: "100%" }}
             showSearch
             placeholder="Select a collar"
             filterOption={(input, option) =>
@@ -189,15 +175,19 @@ const UpdateProduct = (props) => {
             }
             options={dataCollar}
             fieldNames={{ label: "name", value: "id" }}
-            onChange={(value) => setSelectedValueCollar(value)} // Chỉ lấy đối tượng dataCollar đã chọn
-            value={selectedValueCollar}
           />
-        </div>
+        </Form.Item>
 
-        <div>
-          <span>Sleeve</span>
+        <Form.Item
+          name="sleeve"
+          label="Sleeve"
+          rules={[
+            {
+              required: true, message: "Please select a sleeve!"
+            }
+          ]}
+        >
           <Select
-            style={{ width: "100%" }}
             showSearch
             placeholder="Select a sleeve"
             filterOption={(input, option) =>
@@ -205,15 +195,20 @@ const UpdateProduct = (props) => {
             }
             options={dataSleeve}
             fieldNames={{ label: "name", value: "id" }}
-            onChange={(value) => setSelectValueSleeve(value)} // Chỉ lấy đối tượng dataCollar đã chọn
-            value={selectValueSleeve}
           />
-        </div>
+        </Form.Item>
 
-        <div>
-          <span>Category</span>
+        <Form.Item
+          name="category"
+          label="Category"
+          rules={[
+            {
+              required: true, message: "Please select a category!"
+
+            }
+          ]}
+        >
           <Select
-            style={{ width: "100%" }}
             showSearch
             placeholder="Select a category"
             filterOption={(input, option) =>
@@ -221,15 +216,19 @@ const UpdateProduct = (props) => {
             }
             options={dataCategory}
             fieldNames={{ label: "name", value: "id" }}
-            onChange={(value) => setSelectedValueCategory(value)} // Chỉ lấy đối tượng dataCollar đã chọn
-            value={selectedValueCategory}
           />
-        </div>
+        </Form.Item>
 
-        <div>
-          <span>Brand</span>
+        <Form.Item
+          name="brand"
+          label="Brand"
+          rules={[
+            {
+              required: true, message: "Please select a brand!"
+            }
+          ]}
+        >
           <Select
-            style={{ width: "100%" }}
             showSearch
             placeholder="Select a brand"
             filterOption={(input, option) =>
@@ -237,19 +236,13 @@ const UpdateProduct = (props) => {
             }
             options={dataBrand}
             fieldNames={{ label: "name", value: "id" }}
-            onChange={(value) => setSelectedValueBrand(value)} // Chỉ lấy đối tượng dataCollar đã chọn
-            value={selectedValueBrand}
           />
-        </div>
+        </Form.Item>
 
-        <div>
-          <span>Description</span>
-          <Input
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-          />
-        </div>
-      </div>
+        <Form.Item name="description" label="Description">
+          <Input />
+        </Form.Item>
+      </Form>
     </Modal>
   );
 };

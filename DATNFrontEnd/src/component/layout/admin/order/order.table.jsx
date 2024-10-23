@@ -18,17 +18,19 @@ import {
   Tabs,
 } from "antd";
 import { useRef, useState, useEffect } from "react";
-import Highlighter from "react-highlight-words";
 import {
   updateStatusOrder,
   colorFindById,
   productFindById,
   sizeFindById,
 } from "../../../../service/api.service";
+
+import Highlighter from "react-highlight-words";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import "./order.css";
 import moment from "moment";
+
+import "./order.css";
 import { NavLink } from "react-router-dom";
 
 const OrderTable = (props) => {

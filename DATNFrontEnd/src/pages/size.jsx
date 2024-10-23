@@ -3,6 +3,7 @@ import { fetchDataSizeAPI } from "../service/api.service";
 import SizeForm from "../component/size/size.form";
 import SizeTable from "../component/size/size.table";
 
+
 const SizePage = () => {
   const [dataSize, setDataSize] = useState("");
   const [listSizeCode, setListSizeCode] = useState([]);
@@ -13,6 +14,7 @@ const SizePage = () => {
     setListSizeCode(res.data.map((size) => size.code));
     setListSizeName(res.data.map((size) => size.name));
   };
+
 
   useEffect(() => {
     loadSize();

@@ -22,6 +22,9 @@ public class  Voucher extends BaseEntity {
     @Column(name = "code", nullable = true, length = 255)
     private String code;
     @Basic
+    @Column(name = "quantity", nullable = true, length = 255)
+    private int quantity;
+    @Basic
     @Column(name = "discount_amount", nullable = true, length = 255)
     private String discountAmount;
     @Basic
@@ -42,6 +45,7 @@ public class  Voucher extends BaseEntity {
     @Basic
     @Column(name = "status")
     private int status;
-    @ManyToMany(mappedBy = "vouchers")
-    private Set<Customer> customers;
+    @ManyToOne
+    @JoinColumn(name = "customer_id",referencedColumnName = "id")
+    private Customer customer;
 }

@@ -1,13 +1,13 @@
-import { Button, Table } from "antd";
-import { KeyOutlined } from "@ant-design/icons";
-import React, { Suspense, useEffect } from "react";
-import { PlusOutlined } from "@ant-design/icons";
-import { useState } from "react";
-import CreateStaff from "./create.staff";
-import { getAllStaff } from "../../service/api.service";
+import { Button, message, Popconfirm, Space, Table } from 'antd';
+import { DeleteOutlined, EditOutlined, KeyOutlined } from '@ant-design/icons';
+import React, { Suspense, useEffect } from 'react';
+import { PlusOutlined } from '@ant-design/icons';
+import { useState } from 'react';
+import CreateStaff from './create.staff';
+import { deleteStaff, getAllStaff, updateStatus } from '../../service/api.service';
 
-const PermissionModal = React.lazy(() =>
-  import("../permission/permission.modal")
+const UpdatePermissionForUserModal = React.lazy(() =>
+  import("../permission/update.permission.modal")
 );
 
 const StaffTable = () => {
@@ -26,7 +26,6 @@ const StaffTable = () => {
 
   const loadStaff = async () => {
     const res = await getAllStaff(current, pageSize);
-    console.log(res, "staffff");
     if (res.data) {
       setDataStaff(res.data.data.content);
       setTotal(res.data.data.totalElements);
@@ -42,41 +41,76 @@ const StaffTable = () => {
     }
   };
 
+  const handleDelete = async (id) => {
+    await deleteStaff(id);
+    await loadStaff();
+    message.success("delete success")
+  }
+
+  const handleStatus = async (id) => {
+    await updateStatus(id)
+    await loadStaff();
+    message.success("update status success")
+  }
+
   const columns = [
     {
-      title: "Id",
-      dataIndex: "id",
+      title: 'Id',
+      dataIndex: 'id',
     },
     {
-      title: "Username",
-      dataIndex: "username",
+      title: 'Username',
+      dataIndex: 'username',
     },
     {
-      title: "Phone number",
-      dataIndex: "phoneNumber",
+      title: 'Phone number',
+      dataIndex: 'phoneNumber',
     },
     {
-      title: "Email",
-      dataIndex: "email",
+      title: 'Email',
+      dataIndex: 'email',
     },
     {
-      title: "Status",
-      dataIndex: "status",
-    },
-    {
-      title: "Action",
-      key: "action",
+      title: 'Status',
+      dataIndex: 'status',
       render: (_, record) => (
-        <div style={{ display: "flex", gap: "20px" }}>
+        <p>{record.status == 1 ? "Activate" : "Inactivate"}</p>
+      )
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_, record) => (
+        <Space size="middle">
           <KeyOutlined
             onClick={() => {
               setSelectedUserId(record.id);
               setIsModalOpen(true);
             }}
           />
-        </div>
+          <Popconfirm
+            title="Are you sure to delete this staff?"
+            onConfirm={() => {
+              handleDelete(record.id);
+            }}
+            okText="Yes"
+            cancelText="No"
+          >
+            <DeleteOutlined />
+          </Popconfirm>
+          <Popconfirm
+            title="Are you sure to enable status this staff?"
+            onConfirm={() => {
+              handleStatus(record.id);
+            }}
+            okText="Yes"
+            cancelText="No"
+          >
+            <EditOutlined />
+          </Popconfirm>
+        </Space>
       ),
-    },
+    }
   ];
 
   return (
@@ -121,7 +155,7 @@ const StaffTable = () => {
         loadStaff={loadStaff}
       />
       <Suspense fallback={<div>Loading Permission Modal...</div>}>
-        <PermissionModal
+        <UpdatePermissionForUserModal
           id={selectedUserId}
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}

@@ -47,7 +47,7 @@ const CounterSalesProductDetail = ({
     },
     {
       title: "Size",
-      dataIndex: "sizeId",
+      dataIndex: "size",
       render: (text, record) => {
         return record.size?.name || "Chưa có size";
       },

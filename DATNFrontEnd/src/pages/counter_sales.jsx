@@ -5,6 +5,7 @@ import CounterSaleCart from "../component/layout/admin/counter.sale/counter.sale
 import CounterSalePayment from "../component/layout/admin/counter.sale/counter.sale.payment";
 import CounterSaleBillWaiting from "../component/layout/admin/counter.sale/counter.sale.order";
 import CounterSaleStaff from "../component/layout/admin/counter.sale/order.sale.staff";
+import moment from "moment";
 import {
   createOrder,
   createPayment,
@@ -88,7 +89,12 @@ const CounterSales = () => {
       console.log("erafadfa", response);
       if (response?.data?.data) {
         setDataProductDetail(response.data.data); // Cập nhật trạng thái với dữ liệu nhận được
+      const response = await orderProductDetail();
+      console.log(response);
+      if (response.data) {
+        setDataProductDetail(response.data);
       }
+      console.log("check", response)
     } catch (error) {
       console.error("Error loading product details", error);
     }
@@ -106,6 +112,7 @@ const CounterSales = () => {
   const loadStaffList = async (page = 1, size = 10) => {
     try {
       const response = await getAllStaff(page, size);
+      console.log(response);
       if (response.data?.data) {
         setStaffList(response.data.data.content);
         setTotal(response.data.data.totalElements);

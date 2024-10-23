@@ -3,6 +3,7 @@ package com.example.demo.repository;
 import com.example.demo.entity.ProductDetail;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import com.example.demo.response.ProductDetailResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,9 +14,8 @@ import java.util.Optional;
 
 @Repository
 public interface ProductDetailRepo extends JpaRepository<ProductDetail,Integer> {
-    Optional<ProductDetail> findByProductIdAndColorName(Integer productId, String colorName);
+    Optional<ProductDetail> findByIdAndProductId(Integer productDetailId, Integer productId);
     List<ProductDetail> findByProductId(Integer productId);
-
     @Query("SELECT pdt FROM ProductDetail pdt " +
             "WHERE (:productName IS NULL OR :productName = '' OR pdt.product.name LIKE %:productName%) " +
             "AND (:code IS NULL OR :code = '' OR pdt.code LIKE %:code%) " +

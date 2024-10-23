@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Table, Checkbox } from 'antd';
-import { getAllPermission, getStaffPermissions, updateStaffPermissions } from '../../service/api.service';
+import { Modal, Table, Checkbox, notification } from 'antd';
+import { getAllPermissionPagination, getStaffPermissions, updateStaffPermissions } from '../../service/api.service';
 
-const PermissionModal = React.memo(({ id, open, onClose }) => {
+const UpdatePermissionForUserModal = (props) => {
     const [permissions, setPermissions] = useState([]);
     const [staffPermissions, setStaffPermission] = useState([]);
     const [initialized, setInitialized] = useState(false);
     const allPermissionsRef = useRef([]); // Lưu tất cả quyền để không cần gọi lại API
+    const [current, setCurrent] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [total, setTotal] = useState(0);
+    const { id, open, onClose } = props
 
     useEffect(() => {
         if (open && !initialized) {
@@ -16,18 +20,19 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
         if (id && open) {
             loadStaffPermissions(id);
         }
-    }, [id, open]);
+    }, [id, open, current, pageSize]);
 
     const loadAllPermissions = async () => {
         try {
-            const allPermissionsRes = await getAllPermission();
-            const allPermissions = allPermissionsRes.data.map(item => ({
+            const allPermissionsRes = await getAllPermissionPagination(current, pageSize);
+            const allPermissions = allPermissionsRes.data.data.content.map(item => ({
                 id: item.id,
                 action: item.name,
                 staff: false,
             }));
             setPermissions(allPermissions);
             allPermissionsRef.current = allPermissions;
+            setTotal(allPermissionsRes.data.data.totalElements)
             setInitialized(true);
         } catch (error) {
             console.error("Failed to load all permissions:", error);
@@ -37,7 +42,7 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
     const loadStaffPermissions = async (id) => {
         try {
             const staffPermissionRes = await getStaffPermissions(id);
-            const staffPermission = staffPermissionRes.data.map(item => item.name);
+            const staffPermission = staffPermissionRes.data.data.map(item => item.name);
 
             // Update trạng thái checked cho các quyền dựa trên staffPermission
             const updatedPermissions = allPermissionsRef.current.map(permission => ({
@@ -60,6 +65,15 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
         );
     };
 
+    const onChange = (pagination) => {
+        if (pagination && pagination.current) {
+            setCurrent(pagination.current);
+        }
+        if (pagination && pagination.pageSize) {
+            setPageSize(pagination.pageSize);
+        }
+    };
+
     const handleOk = async () => {
         const permissionsToAdd = permissions
             .filter(permission => permission.staff && !staffPermissions.includes(permission.action))
@@ -75,8 +89,6 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
             })
             .filter(id => id !== null && id !== undefined);
 
-        console.log("Permissions:", permissions);
-        console.log("Staff Permissions:", staffPermissions);
         const payload = {};
         if (permissionsToAdd.length > 0) {
             payload.permissionToAdd = permissionsToAdd;
@@ -87,8 +99,14 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
 
         if (Object.keys(payload).length > 0) {
             try {
-                await updateStaffPermissions(id, payload);
-                onClose();
+                const res = await updateStaffPermissions(id, payload);
+                if (res.status == 200) {
+                    notification.success({
+                        message: "Update Permission Success",
+                        description: "Update Permission for staff successfully!",
+                    });
+                    onClose();
+                }
             } catch (error) {
                 console.error("Failed to update permissions:", error);
             }
@@ -97,7 +115,6 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
             onClose();
         }
     };
-
     // Grouping dữ liệu để hiển thị lên table
     const groupData = [
         {
@@ -113,7 +130,6 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
         },
         ...permissions.filter(item => item.action.includes('USER')),
     ];
-
     return (
         <Modal
             title="Manage Permissions"
@@ -124,24 +140,23 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
         >
             <Table
                 dataSource={permissions}
-                pagination={false}
-                rowKey="key"
+                pagination={{
+                    current: current,
+                    pageSize: pageSize,
+                    showSizeChanger: true,
+                    total: total,
+                }}
+                onChange={onChange}
+                rowKey="action"
             >
                 <Table.Column
                     title="Action"
                     dataIndex="action"
-                    render={(text, record) => (
-                        record.key && (record.key === 'permitionGroup' || record.key === 'userGroup') ? (
-                            <strong>{text}</strong>
-                        ) : (
-                            text
-                        )
-                    )}
                 />
                 <Table.Column
                     title="Status"
                     render={(text, record) => (
-                        record.key && (record.key === 'permitionGroup' || record.key === 'userGroup') ? null : (
+                        record.key ? null : (
                             <Checkbox
                                 checked={record.staff}
                                 onChange={e => handleCheckboxChange(record.action, e.target.checked)}
@@ -152,6 +167,6 @@ const PermissionModal = React.memo(({ id, open, onClose }) => {
             </Table>
         </Modal>
     );
-});
+}
 
-export default PermissionModal;
+export default UpdatePermissionForUserModal;
