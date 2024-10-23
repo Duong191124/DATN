@@ -56,6 +56,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponse update(Integer id, CustomerDTO customerDTO) throws Exception {
         Customer existingCustomer = getCustomerByID(id);
         existingCustomer.setDateOfBirth(customerDTO.getDateOfBirth());
+        existingCustomer.setUsername(customerDTO.getUsername());
         existingCustomer.setAddress(customerDTO.getAddress());
         existingCustomer.setEmail(customerDTO.getEmail());
         existingCustomer.setGender(customerDTO.getGender());
