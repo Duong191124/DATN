@@ -4,7 +4,6 @@ import com.example.demo.dto.StaffDTO;
 import com.example.demo.dto.UserPermissionDTO;
 import com.example.demo.entity.Staff;
 import com.example.demo.response.MessageReponse;
-import com.example.demo.response.StaffResponse;
 import com.example.demo.service.impl.StaffServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -42,11 +41,10 @@ public class StaffController {
     ){
         Pageable pageable = PageRequest.of(page-1, size);
         Page<Staff> staff = staffService.getAll(pageable);
-        List<StaffResponse> staffResponses = staff.getContent().stream().map(StaffResponse::fromStaffResponse).toList();
         return ResponseEntity.ok().body(MessageReponse.builder()
                 .message("lay thong tin thanh cong")
                 .status(HttpStatus.OK.value())
-                .data(staffResponses)
+                .data(staff)
                 .build()
         );
     }

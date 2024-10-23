@@ -1,9 +1,14 @@
-import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import {
   Button,
   DatePicker,
   Input,
   message,
+  Modal,
   notification,
   Popconfirm,
   Radio,
@@ -15,7 +20,6 @@ import {
 import { useRef, useState, useEffect } from "react";
 import Highlighter from "react-highlight-words";
 import {
-  deleteOrder,
   updateStatusOrder,
   colorFindById,
   productFindById,
@@ -29,7 +33,6 @@ import { NavLink } from "react-router-dom";
 
 const OrderTable = (props) => {
   const { Search } = Input;
-  const { RangePicker } = DatePicker;
   const { TabPane } = Tabs;
   const {
     dataOrder,
@@ -39,6 +42,7 @@ const OrderTable = (props) => {
     currentPage,
     totalOrders,
     loading,
+    setDataOrder,
   } = props;
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
@@ -48,6 +52,9 @@ const OrderTable = (props) => {
   const [products, setProducts] = useState([]);
   const [colors, setColors] = useState([]);
   const [sizes, setSizes] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState(null);
+  const [currentOrderId, setCurrentOrderId] = useState(null);
 
   useEffect(() => {
     const fetchData = async (orderDetailResponses) => {
@@ -93,37 +100,51 @@ const OrderTable = (props) => {
     const product = products.find((item) => item.id === productId);
     return product ? product.name : "N/A";
   };
-
   const getColorName = (colorId) => {
     const color = colors.find((item) => item.id === colorId);
     return color ? color.name : "N/A";
   };
-
   const getSizeName = (sizeId) => {
     const size = sizes.find((item) => item.id === sizeId);
     return size ? size.name : "N/A";
   };
-
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
     setSearchText(selectedKeys[0]);
     setSearchedColumn(dataIndex);
   };
-
   const handleReset = (clearFilters) => {
     clearFilters();
     setSearchText("");
   };
+  const statusOptions = [
+    { value: "pending", label: "Chờ xử lý" },
+    { value: "process", label: "Đang xử lý" },
+    { value: "delivery", label: "Đang giao" },
+    { value: "shipped", label: "Đã giao" },
+    { value: "cancelled", label: "Đã hủy" },
+  ];
 
-  const updateStatus = async (orderId, status) => {
+  const showModal = (orderId, currentStatus) => {
+    setCurrentOrderId(orderId);
+    setSelectedStatus(currentStatus);
+    setIsModalVisible(true);
+  };
+  const handleUpdateStatus = async () => {
     try {
-      await updateStatusOrder(orderId, status);
-      loadOrder();
+      await updateStatusOrder(currentOrderId, selectedStatus);
       notification.success({
-        message: "Update",
-        description: "Update status successfully",
-        placement: "top",
+        message: "Update status",
+        description: "Update status successfully!",
       });
+      setIsModalVisible(false);
+      setDataOrder((prevDataOrder) =>
+        prevDataOrder.map((order) =>
+          order.id === currentOrderId
+            ? { ...order, status: selectedStatus }
+            : order
+        )
+      );
     } catch (error) {
       notification.error({
         message: "Error updating status",
@@ -135,12 +156,18 @@ const OrderTable = (props) => {
   const canceledOrder = async (orderId, status) => {
     try {
       await updateStatusOrder(orderId, status);
-      loadOrder();
       notification.success({
         message: "Update",
         description: "Update status successfully",
         placement: "top",
       });
+      setDataOrder((prevDataOrder) =>
+        prevDataOrder.map((order) =>
+          order.id === currentOrderId
+            ? { ...order, status: selectedStatus }
+            : order
+        )
+      );
     } catch (error) {
       notification.error({
         message: "Error updating status",
@@ -225,25 +252,6 @@ const OrderTable = (props) => {
       ),
   });
 
-  const confirm = async (id) => {
-    const res = await deleteOrder(id);
-    if (res.data) {
-      notification.success({
-        message: "Deleted",
-        description: "Deleted successfully",
-      });
-      loadOrder();
-    } else {
-      notification.error({
-        message: "Error deleting order",
-        description: JSON.stringify(res.message),
-      });
-    }
-  };
-
-  const handleRowExpand = (record) => {
-    setExpandedRowKey(expandedRowKey === record.id ? null : record.id);
-  };
   const columns = [
     {
       title: "STT",
@@ -270,19 +278,14 @@ const OrderTable = (props) => {
           { value: "shipped", label: "Đã giao" },
           { value: "cancelled", label: "Đã hủy" },
         ];
+
+        // Tìm trạng thái trong danh sách options
         const currentStatus = statusOptions.find(
           (option) => option.value === status
         );
 
-        return (
-          <Select
-            labelInValue
-            defaultValue={currentStatus || { value: status, label: "N/A" }}
-            style={{ width: 120 }}
-            onChange={(value) => updateStatus(record.id, value.value)}
-            options={statusOptions}
-          />
-        );
+        // Nếu trạng thái tìm được, hiển thị label, nếu không hiển thị "N/A"
+        return currentStatus ? currentStatus.label : "N/A";
       },
     },
     {
@@ -314,20 +317,13 @@ const OrderTable = (props) => {
     {
       title: "Hành Động",
       render: (_, record) => (
-        <div style={{ display: "flex", gap: "16px" }}>
-          <Popconfirm
-            title="Delete the task"
-            description="Are you sure to delete this task?"
-            onConfirm={() => confirm(record.id)}
-            onCancel={(e) => message.error("Click on No")}
-            okText="Yes"
-            cancelText="No"
-          >
-            <DeleteOutlined
-              style={{ color: "red", fontSize: "24px", cursor: "pointer" }}
-            />
-          </Popconfirm>
-        </div>
+        <Button
+          icon={<EditOutlined />}
+          style={{ color: "blue" }}
+          onClick={() => showModal(record.id, record.status)}
+        >
+          Cập nhật trạng thái
+        </Button>
       ),
     },
   ];
@@ -652,24 +648,51 @@ const OrderTable = (props) => {
   };
 
   return (
-    <Table
-      style={{ border: "1px solid #ddd" }}
-      columns={columns}
-      dataSource={dataOrder}
-      rowKey="id"
-      onRow={(record) => ({
-        onClick: () => handleRowExpand(record),
-      })}
-      expandedRowRender={(record) => expandedRowRender(record)}
-      expandedRowKeys={expandedRowKey ? [expandedRowKey] : []}
-      pagination={{
-        current: currentPage,
-        pageSize: pageSize,
-        total: totalOrders,
-        onChange: handlePageChange,
-      }}
-      loading={loading}
-    />
+    <>
+      <Table
+        style={{ border: "1px solid #ddd" }}
+        columns={columns}
+        dataSource={dataOrder}
+        rowKey="id"
+        expandable={{
+          expandedRowRender: (record) => expandedRowRender(record),
+          expandedRowKeys: expandedRowKey ? [expandedRowKey] : [],
+          onExpand: (expanded, record) => {
+            // Chỉ cần expand hoặc thu gọn khi click vào dấu cộng
+            if (expanded) {
+              setExpandedRowKey(record.id);
+            } else {
+              setExpandedRowKey(null);
+            }
+          },
+        }}
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          total: totalOrders,
+          onChange: handlePageChange,
+        }}
+        loading={loading}
+      />
+      <Modal
+        title="Cập nhật trạng thái đơn hàng"
+        visible={isModalVisible}
+        onOk={handleUpdateStatus}
+        onCancel={() => setIsModalVisible(false)}
+      >
+        <Select
+          value={selectedStatus}
+          onChange={setSelectedStatus}
+          style={{ width: "100%" }}
+        >
+          {statusOptions.map((status) => (
+            <Select.Option key={status.value} value={status.value}>
+              {status.label}
+            </Select.Option>
+          ))}
+        </Select>
+      </Modal>
+    </>
   );
 };
 

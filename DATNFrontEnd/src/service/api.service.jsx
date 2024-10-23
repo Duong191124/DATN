@@ -117,6 +117,29 @@ const fetchDataBrand = () => {
 //   const URL_BACKEND = "api/v1/orders/list";
 //   return axios.get(URL_BACKEND);
 // };
+const fetchPageDataProductDetail = async (
+  productName,
+  code,
+  colorName,
+  sizeName,
+  minPrice,
+  maxPrice,
+  page = 0,
+  limit = 10
+) => {
+  const URL_BACKEND = "api/v1/productDetail";
+  const params = {
+    productName: productName || "",
+    code: code || "",
+    colorName: colorName || "",
+    sizeName: sizeName || "",
+    minPrice: minPrice || "",
+    maxPrice: maxPrice || "",
+    page: page,
+    limit: limit,
+  };
+  return axios.get(URL_BACKEND, { params });
+};
 const fetchDataOrders = (
   staffName = "",
   startDate = null,
@@ -598,4 +621,5 @@ export {
   createSleeveAPI,
   updateSleeveAPI,
   deleteSleeveAPI,
+  fetchPageDataProductDetail,
 };

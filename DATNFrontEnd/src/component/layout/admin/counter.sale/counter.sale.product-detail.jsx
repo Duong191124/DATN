@@ -1,10 +1,24 @@
-import { Button, InputNumber, Modal, notification, Table } from "antd";
+import {
+  Button,
+  Col,
+  Input,
+  InputNumber,
+  Modal,
+  notification,
+  Row,
+  Select,
+  Slider,
+  Table,
+} from "antd";
+import { Option } from "antd/es/mentions";
 import { useState } from "react";
 
 const CounterSalesProductDetail = ({
   dataProductDetail,
   onAddToCart,
   selectedBill,
+  filter,
+  setFilter,
 }) => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [quantity, setQuantity] = useState(1); // Số lượng sản phẩm
@@ -94,6 +108,75 @@ const CounterSalesProductDetail = ({
       <h3 style={{ marginBottom: "20px", borderBottom: "1px solid #ddd" }}>
         Chi tiết sản phẩm
       </h3>
+      <div style={{ marginBottom: "20px" }}>
+        <h4 style={{ marginBottom: "20px" }}>Bộ lọc</h4>
+        <Row style={{ gap: "20px" }}>
+          <Col span={11}>
+            <p style={{ marginBottom: "10px", fontSize: "16px" }}>Sản phẩm</p>
+            <div style={{ display: "flex", gap: "20px" }}>
+              <Input
+                placeholder="Tên sản phẩm"
+                value={filter.productName}
+                onChange={(e) =>
+                  setFilter({ ...filter, productName: e.target.value })
+                }
+                style={{ marginBottom: "10px" }}
+              />
+              <Input
+                placeholder="Mã sản phẩm"
+                value={filter.productCode}
+                onChange={(e) =>
+                  setFilter({ ...filter, productCode: e.target.value })
+                }
+                style={{ marginBottom: "10px" }}
+              />
+            </div>
+          </Col>
+          <Col span={11}>
+            <p style={{ marginBottom: "10px", fontSize: "16px" }}>Màu</p>
+            <Select
+              placeholder="Chọn màu"
+              value={filter.color || undefined}
+              onChange={(value) => setFilter({ ...filter, color: value })}
+              style={{ width: "100%", marginBottom: "10px" }}
+            >
+              <Option value="red">Đỏ</Option>
+              <Option value="black">Đen</Option>
+              <Option value="blue">Xanh</Option>
+              <Option value="green">Xanh lá</Option>
+            </Select>
+          </Col>
+        </Row>
+        <Row style={{ gap: "20px" }}>
+          <Col span={11}>
+            <p style={{ marginBottom: "10px", fontSize: "16px" }}>Kích thước</p>
+            <Select
+              placeholder="Chọn kích cỡ"
+              value={filter.size || undefined}
+              onChange={(value) => setFilter({ ...filter, size: value })}
+              style={{ width: "100%", marginBottom: "10px" }}
+              allowClear // Thêm allowClear để cho phép xóa lựa chọn
+            >
+              <Option value="S">S</Option>
+              <Option value="M">M</Option>
+              <Option value="L">L</Option>
+              <Option value="XL">XL</Option>
+            </Select>
+          </Col>
+          <Col span={11}>
+            <p style={{ marginBottom: "10px", fontSize: "16px" }}>Giá</p>
+            <Slider
+              range
+              min={0}
+              max={10000000} // Thay đổi max value theo nhu cầu của bạn
+              value={[filter.minPrice || 0, filter.maxPrice || 10000000]}
+              onChange={(value) =>
+                setFilter({ ...filter, minPrice: value[0], maxPrice: value[1] })
+              }
+            />
+          </Col>
+        </Row>
+      </div>
       <Table
         rowKey="id"
         columns={columns}
