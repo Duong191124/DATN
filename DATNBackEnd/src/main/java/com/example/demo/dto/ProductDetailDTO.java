@@ -27,14 +27,14 @@ public class ProductDetailDTO {
     @Size(max = 255, message = "Image path cannot exceed 255 characters")
     private String image;
 
-//    @NotNull(message = "Product is required")
+    @NotNull(message = "Product is required")
     private int productId;
 
     @NotNull(message = "Size is required")
     private int sizeId;
 
     @NotNull(message = "Color is required")
-    private int colorId;
+        private int colorId;
 
     public static ProductDetailDTO convertProductDetailDTO(ProductDetail productDetail){
         return ProductDetailDTO.builder()

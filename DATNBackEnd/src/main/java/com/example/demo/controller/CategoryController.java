@@ -25,7 +25,7 @@ public class CategoryController {
     private final MessageSource messageSource;
 
     @GetMapping("")
-    public ResponseEntity<MessageReponse> getAll(){
+    public ResponseEntity<MessageReponse> getAll() {
         List<Category> categoryList = categoryService.getAll();
         return ResponseEntity.ok().body(MessageReponse.builder()
                 .message("Lay thong tin thanh cong")
@@ -35,8 +35,8 @@ public class CategoryController {
     }
 
     @PostMapping("")
-    public ResponseEntity<MessageReponse> add(@Valid @RequestBody CategoryDTO category, BindingResult result){
-        if(result.hasErrors()){
+    public ResponseEntity<MessageReponse> add(@Valid @RequestBody CategoryDTO category, BindingResult result) {
+        if (result.hasErrors()) {
             List<String> errorMessage = result.getFieldErrors()
                     .stream()
                     .map(FieldError::getDefaultMessage)
@@ -57,7 +57,7 @@ public class CategoryController {
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
-            @RequestBody CategoryDTO categoryDTO) throws Exception{
+            @RequestBody CategoryDTO categoryDTO) throws Exception {
         categoryService.update(id, categoryDTO);
         return ResponseEntity.ok().body(MessageReponse.builder()
                 .message("update category success")
@@ -67,14 +67,17 @@ public class CategoryController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception{
-        categoryService.deleteCategory(id);
-        return ResponseEntity.ok().body(MessageReponse.builder()
-                .message("delete category success")
-                .status(HttpStatus.OK.value())
-                .build());
+    public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception {
+        try {
+            categoryService.deleteCategory(id);
+            return ResponseEntity.ok().body(MessageReponse.builder()
+                    .message("delete category success")
+                    .status(HttpStatus.OK.value())
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
-
 
 
 }

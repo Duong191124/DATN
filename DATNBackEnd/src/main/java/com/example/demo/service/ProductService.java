@@ -26,4 +26,6 @@ public interface ProductService {
     ProductResponse findById(Integer id);
 
     Page<ProductResponse> pageAllProducts(Integer categoryId, String productName, Integer sleeveId, Integer collarId, Integer brandId, Double price, String description, Pageable pageable);
+
+    boolean canDeleteProduct(Integer productId);
 }

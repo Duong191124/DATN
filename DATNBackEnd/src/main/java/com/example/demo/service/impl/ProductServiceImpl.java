@@ -27,6 +27,7 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepo categoryRepo;
     private final CollarRepo collarRepo;
     private final SleeveRepo sleeveRepo;
+
     @Override
     public List<ProductResponse> getAll() {
         return productRepo.findAll().stream().map(product -> ProductResponse.convertResponse(product)).toList();
@@ -36,12 +37,13 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse createdProduct(ProductDTO productDTO) {
         try {
 
-            Product product = productRepo.save(ProductDTO.convertProduct(productDTO,categoryRepo,sleeveRepo,collarRepo,brandRepo));
+            Product product = productRepo.save(ProductDTO.convertProduct(productDTO, categoryRepo, sleeveRepo, collarRepo, brandRepo));
             return ProductResponse.convertResponse(product);
-        }catch (Exception e){
-            throw new RuntimeException("Failed to add product"+e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to add product" + e.getMessage());
         }
     }
+
     public boolean isDuplicate(String type, String value) {
         if ("code".equals(type)) {
             return productRepo.existsByCode(value);
@@ -50,11 +52,12 @@ public class ProductServiceImpl implements ProductService {
         }
         return false;
     }
+
     @Override
-    public ProductResponse updatedProduct(int id,ProductDTO productDTO) {
-        Product product = productRepo.findById(id).orElseThrow(()->new RuntimeException("product not found"));
-        Collar collar = collarRepo.findById(productDTO.getCollarId()).orElseThrow(()->new RuntimeException("not found collar's id:"+productDTO.getCollarId()));
-        Sleeve sleeve = sleeveRepo.findById(productDTO.getSleeveId()).orElseThrow(()->new RuntimeException("not found sleeve's id:"+productDTO.getSleeveId()));
+    public ProductResponse updatedProduct(int id, ProductDTO productDTO) {
+        Product product = productRepo.findById(id).orElseThrow(() -> new RuntimeException("product not found"));
+        Collar collar = collarRepo.findById(productDTO.getCollarId()).orElseThrow(() -> new RuntimeException("not found collar's id:" + productDTO.getCollarId()));
+        Sleeve sleeve = sleeveRepo.findById(productDTO.getSleeveId()).orElseThrow(() -> new RuntimeException("not found sleeve's id:" + productDTO.getSleeveId()));
         product.setCode(productDTO.getCode());
         product.setName(productDTO.getName());
         product.setImage(productDTO.getImage());
@@ -63,13 +66,13 @@ public class ProductServiceImpl implements ProductService {
         product.setSleeve(sleeve);
         product.setDescription(productDTO.getDescription());
         Optional<Brand> brand = brandRepo.findById(productDTO.getBrandId());
-        if(brand.isEmpty()){
-            throw new RuntimeException("not found brand's id:"+productDTO.getBrandId());
+        if (brand.isEmpty()) {
+            throw new RuntimeException("not found brand's id:" + productDTO.getBrandId());
         }
         product.setBrand(brand.get());
         Optional<Category> category = categoryRepo.findById(productDTO.getCategoryId());
-        if(category.isEmpty()){
-            throw new RuntimeException("not found category's id:"+productDTO.getCategoryId());
+        if (category.isEmpty()) {
+            throw new RuntimeException("not found category's id:" + productDTO.getCategoryId());
         }
         product.setCategory(category.get());
         Product pr = productRepo.save(product);
@@ -91,12 +94,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public boolean canDeleteProduct(Integer productId) {
+        List<ProductDetail> relateProductDetail = productDetailRepo.findByProductId(productId);
+        return relateProductDetail.isEmpty();
+    }
+
+    @Override
     public void deletedProduct(Integer id) {
-        for (ProductResponse productResponse: productRepo.findAll().stream().map(ProductResponse::convertResponse).toList()
-        ) {
-            if(productResponse.getId().equals(id)){
-                productRepo.deleteById(id);
-            }
+        if (canDeleteProduct(id)){
+            productRepo.deleteById(id);
+        }else {
+            throw new IllegalStateException("cannot delete product, because it has related productDetail");
         }
     }
 
@@ -104,6 +112,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse findById(Integer id) {
         return productRepo.findById(id).map(ProductResponse::convertResponse).get();
     }
+
 
     @Override
     public Page<ProductResponse> pageAllProducts(Integer categoryId, String productName, Integer sleeveId, Integer collarId, Integer brandId, Double price, String description, Pageable pageable) {

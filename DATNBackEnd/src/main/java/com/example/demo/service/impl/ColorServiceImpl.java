@@ -3,8 +3,10 @@ package com.example.demo.service.impl;
 import com.example.demo.dto.ColorDTO;
 import com.example.demo.dto.SizeDTO;
 import com.example.demo.entity.Color;
+import com.example.demo.entity.ProductDetail;
 import com.example.demo.entity.Size;
 import com.example.demo.repository.ColorRepo;
+import com.example.demo.repository.ProductDetailRepo;
 import com.example.demo.service.ColorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
@@ -17,6 +19,7 @@ import java.util.List;
 public class ColorServiceImpl implements ColorService {
 
     private final ColorRepo colorRepo;
+    private final ProductDetailRepo productDetailRepo;
 
     @Override
     public List<Color> getAll() {
@@ -48,13 +51,24 @@ public class ColorServiceImpl implements ColorService {
     }
 
     @Override
+    public boolean canDeleteColor(Integer colorId) {
+        List<ProductDetail> relateProductDetail = productDetailRepo.findByColorId(colorId);
+        return relateProductDetail.isEmpty();
+    }
+
+    @Override
     public void deleteColor(Integer id) throws Exception {
-        Color existingColor = getColorById(id);
-        colorRepo.delete(existingColor);
+        if (canDeleteColor(id)){
+            colorRepo.deleteById(id);
+        }else {
+            throw new IllegalStateException("cannot delete color, because it has related product-detail");
+        }
     }
 
     @Override
     public Color findById(Integer id) {
-        return colorRepo.findById(id).orElseThrow(()->new RuntimeException("not found color with id:"+id));
+        return colorRepo.findById(id).orElseThrow(() -> new RuntimeException("not found color with id:" + id));
     }
+
+
 }

@@ -19,4 +19,6 @@ public interface ColorService {
 
     void deleteColor(Integer id) throws Exception;
     Color findById(Integer id);
+
+    boolean canDeleteColor(Integer colorId);
 }

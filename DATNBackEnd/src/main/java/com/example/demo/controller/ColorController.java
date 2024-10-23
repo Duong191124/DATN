@@ -26,7 +26,7 @@ public class ColorController {
     private final ColorServiceImpl colorService;
 
     @GetMapping("")
-    public ResponseEntity<MessageReponse> getAll(){
+    public ResponseEntity<MessageReponse> getAll() {
         List<Color> colorList = colorService.getAll();
         return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                 .message("Lay thong tin thanh cong")
@@ -57,8 +57,8 @@ public class ColorController {
 
 
     @PostMapping("")
-    public ResponseEntity<MessageReponse> add(@Valid @RequestBody ColorDTO colorDTO, BindingResult result){
-        if(result.hasErrors()){
+    public ResponseEntity<MessageReponse> add(@Valid @RequestBody ColorDTO colorDTO, BindingResult result) {
+        if (result.hasErrors()) {
             List<String> errorMessage = result.getFieldErrors()
                     .stream()
                     .map(FieldError::getDefaultMessage)
@@ -79,7 +79,7 @@ public class ColorController {
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
-            @RequestBody ColorDTO colorDTO) throws Exception{
+            @RequestBody ColorDTO colorDTO) throws Exception {
         colorService.update(id, colorDTO);
         return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                 .message("Update Successfully")
@@ -88,20 +88,25 @@ public class ColorController {
                 .build());
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception{
-        colorService.deleteColor(id);
-        return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
-                .message("Delete color with id = " + id + " successfully")
-                .status(HttpStatus.OK.value())
-                .build());
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception {
+        try {
+            colorService.deleteColor(id);
+            return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
+                    .message("delete color successfully")
+                    .status(HttpStatus.OK.value())
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<?> sizeFindById(@PathVariable Integer id){
+    public ResponseEntity<?> sizeFindById(@PathVariable Integer id) {
         try {
             Color color = colorService.findById(id);
-            return ResponseEntity.ok(new MessageReponse("find color success",200,color));
-        }catch (Exception e){
+            return ResponseEntity.ok(new MessageReponse("find color success", 200, color));
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

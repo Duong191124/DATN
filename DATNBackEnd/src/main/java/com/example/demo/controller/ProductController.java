@@ -7,7 +7,6 @@ import com.example.demo.response.MessageReponse;
 import com.example.demo.response.PageProductResponse;
 import com.example.demo.response.ProductDetailResponse;
 import com.example.demo.response.ProductResponse;
-import com.example.demo.service.ProductDetailService;
 import com.example.demo.service.ProductService;
 import com.example.demo.service.impl.ProductDetailServiceImpl;
 import com.example.demo.service.impl.ProductServiceImpl;
@@ -154,10 +153,13 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable int id) {
+    public ResponseEntity<?> deleteProduct(@PathVariable int id) {
         try {
             productService.deletedProduct(id);
-            return ResponseEntity.ok("Deleted successfully");
+            return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
+                    .message("delete product successfully")
+                    .status(HttpStatus.OK.value())
+                    .build());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -194,4 +196,6 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
         }
     }
+
+
 }

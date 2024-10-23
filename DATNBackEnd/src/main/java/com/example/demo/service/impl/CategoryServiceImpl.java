@@ -2,7 +2,9 @@ package com.example.demo.service.impl;
 
 import com.example.demo.dto.CategoryDTO;
 import com.example.demo.entity.Category;
+import com.example.demo.entity.Product;
 import com.example.demo.repository.CategoryRepo;
+import com.example.demo.repository.ProductRepo;
 import com.example.demo.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,8 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepo categoryRepo;
+
+    private final ProductRepo productRepo;
 
     @Override
     public List<Category> getAll() {
@@ -41,8 +45,21 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void deleteCategory(Integer id) throws Exception {
-        Category existingCategory = getCategoryById(id);
-        categoryRepo.delete(existingCategory);
+    public boolean canDeleteCategory(Integer categoryId) {
+        List<Product> relateProduct = productRepo.findByCategoryId(categoryId);
+        return relateProduct.isEmpty();
     }
+
+    @Override
+    public void deleteCategory(Integer id) throws Exception {
+       if(canDeleteCategory(id)){
+           categoryRepo.deleteById(id);
+       }else {
+           throw new Exception("canot delete category, because it has relate products");
+       }
+    }
+
+
+
+
 }

@@ -12,7 +12,7 @@ public interface ProductDetailService {
 
     ProductDetail addProductDetail(ProductDetailDTO productDetailDTO) throws Exception;
 
-    ProductDetail pdate(Integer id, ProductDetailDTO pdd) throws  Exception;
+    ProductDetail update(Integer id, ProductDetailDTO pdd) throws  Exception;
 
     ProductDetail getPDById(Integer id) throws Exception;
 

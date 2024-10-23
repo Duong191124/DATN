@@ -16,4 +16,6 @@ public interface SizeService {
 
     void deleteSize(Integer id) throws Exception;
     Size findById(Integer id);
+
+    boolean canDeleteSize(Integer sizeId);
 }

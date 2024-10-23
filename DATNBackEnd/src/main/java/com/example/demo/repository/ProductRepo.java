@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ProductRepo extends JpaRepository<Product, Integer> {
     @Query("SELECT p FROM Product p " +
@@ -32,5 +34,14 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
                                   Pageable pageable);
 
     boolean existsByCode(String code);
+
     boolean existsByName(String name);
+
+    List<Product> findByBrandId(Integer brandId);
+
+    List<Product> findByCollarId(Integer collarId);
+
+    List<Product> findBySleeveId(Integer sleeveId);
+
+    List<Product> findByCategoryId(Integer categoryId);
 }

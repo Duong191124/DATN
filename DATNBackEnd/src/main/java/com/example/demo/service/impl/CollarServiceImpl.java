@@ -2,7 +2,9 @@ package com.example.demo.service.impl;
 
 import com.example.demo.dto.CollarDTO;
 import com.example.demo.entity.Collar;
+import com.example.demo.entity.Product;
 import com.example.demo.repository.CollarRepo;
+import com.example.demo.repository.ProductRepo;
 import com.example.demo.service.CollarService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CollarServiceImpl implements CollarService {
     private final CollarRepo collarRepo;
+    private final ProductRepo productRepo;
     @Override
     public List<Collar> getAll() {
         return collarRepo.findAll();
@@ -37,12 +40,18 @@ public class CollarServiceImpl implements CollarService {
     }
 
     @Override
+    public boolean canDeleteCollar(Integer collarId) {
+        List<Product> relateProduct = productRepo.findByCollarId(collarId);
+        return relateProduct.isEmpty();
+    }
+
+    @Override
     public void deleteCollar(Integer id) {
-        for (Collar collar: collarRepo.findAll()
-             ) {
-            if(collar.getId()==id){
-                collarRepo.delete(collar);
+            if(canDeleteCollar(id)){
+                collarRepo.deleteById(id);
+            }else {
+                throw new IllegalStateException("cannot delete collar, because it has related product");
             }
-        }
+
     }
 }
