@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, notification } from "antd";
+import { Button, Input, InputNumber, notification } from "antd";
 import CounterSalesProductDetail from "../component/layout/admin/counter.sale/counter.sale.product-detail";
 import CounterSaleCart from "../component/layout/admin/counter.sale/counter.sale.cart";
 import CounterSalePayment from "../component/layout/admin/counter.sale/counter.sale.payment";
@@ -9,11 +9,11 @@ import moment from "moment";
 import {
   createOrder,
   createPayment,
+  fetchPageDataProductDetail,
   getAllStaff,
   orderProductDetail,
-  orderStaff,
 } from "../service/api.service";
-
+import moment from "moment";
 
 const CounterSales = () => {
   const [dataProductDetail, setDataProductDetail] = useState([]);
@@ -21,10 +21,18 @@ const CounterSales = () => {
     const savedBillWaiting = localStorage.getItem("billWaiting");
     return savedBillWaiting ? JSON.parse(savedBillWaiting) : [];
   });
+  const [tempBillItems, setTempBillItems] = useState(() => {
+    const savedTempBills = localStorage.getItem("tempBillItems");
+    return savedTempBills ? JSON.parse(savedTempBills) : [];
+  });
   const [cartItemsByBill, setCartItemsByBill] = useState(() => {
     const savedCartItems = localStorage.getItem("cartItemsByBill");
     return savedCartItems ? JSON.parse(savedCartItems) : {};
   });
+  useEffect(() => {
+    localStorage.setItem("billWaiting", JSON.stringify(billWaiting));
+    localStorage.setItem("tempBillItems", JSON.stringify(tempBillItems));
+  }, [billWaiting, tempBillItems]);
   const [selectedBill, setSelectedBill] = useState(null);
   const [selectedStaff, setSelectedStaff] = useState(null);
   const [paymentInfo, setPaymentInfo] = useState({
@@ -41,14 +49,46 @@ const CounterSales = () => {
   const [total, setTotal] = useState(0); // Tổng số nhân viên
   const [page, setPage] = useState(1); // Trang hiện tại
   const [size] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [filter, setFilter] = useState({
+    productName: "",
+    productCode: "",
+    color: "",
+    size: "",
+    minPrice: undefined,
+    maxPrice: undefined,
+  });
+
   useEffect(() => {
     loadProductDetail();
     calculateTotalAmount();
     loadStaffList(page, size);
-  }, [selectedBill, cartItemsByBill, discountAmount, page, size]);
-
+  }, [
+    selectedBill,
+    cartItemsByBill,
+    discountAmount,
+    page,
+    size,
+    currentPage,
+    pageSize,
+    filter,
+  ]);
   const loadProductDetail = async () => {
     try {
+      const response = await fetchPageDataProductDetail(
+        filter.productName,
+        filter.productCode,
+        filter.color,
+        filter.size,
+        filter.minPrice,
+        filter.maxPrice,
+        (currentPage - 1) * pageSize,
+        pageSize
+      );
+      console.log("erafadfa", response);
+      if (response?.data?.data) {
+        setDataProductDetail(response.data.data); // Cập nhật trạng thái với dữ liệu nhận được
       const response = await orderProductDetail();
       console.log(response);
       if (response.data) {
@@ -74,14 +114,13 @@ const CounterSales = () => {
       const response = await getAllStaff(page, size);
       console.log(response);
       if (response.data?.data) {
-        setStaffList(response.data.data.content); // Lưu danh sách nhân viên vào state
-        setTotal(response.data.data.totalElements); // Lưu tổng số nhân viên (để phân trang)
+        setStaffList(response.data.data.content);
+        setTotal(response.data.data.totalElements);
       }
     } catch (error) {
       console.error("Error loading staff list", error);
     }
   };
-
   const calculateTotalAmount = () => {
     if (!selectedBill || !cartItemsByBill[selectedBill]) {
       setTotalAmount(0);
@@ -167,10 +206,72 @@ const CounterSales = () => {
       description: `Hóa đơn chờ đã được tạo bởi nhân viên ${selectedStaff.name}.`,
     });
   };
-  const handleBillSelect = (billId) => {
-    setSelectedBill((prevSelectedBill) =>
-      prevSelectedBill === billId ? null : billId
+  const handleMoveBillToTemp = (billId) => {
+    const billToMove = billWaiting.find((bill) => bill.billId === billId);
+
+    if (!billToMove) {
+      notification.error({
+        message: "Lỗi",
+        description: `Không tìm thấy hóa đơn với mã ${billId}.`,
+      });
+      return;
+    }
+
+    // Loại bỏ hóa đơn khỏi billWaiting và thêm vào tempBillItems
+    setBillWaiting(billWaiting.filter((bill) => bill.billId !== billId));
+    setTempBillItems([...tempBillItems, billToMove]);
+
+    notification.success({
+      message: "Chuyển hóa đơn thành công",
+      description: `Hóa đơn ${billId} đã được chuyển sang tạm chờ.`,
+    });
+  };
+  // Hàm chuyển hóa đơn từ chờ sang tạm chờ
+  const handleSwapBills = (tempBillId, waitingBillId) => {
+    const tempBill = tempBillItems.find((bill) => bill.billId === tempBillId);
+    const waitingBill = billWaiting.find(
+      (bill) => bill.billId === waitingBillId
     );
+    if (tempBill && waitingBill) {
+      // Logic hoán đổi
+      const updatedTempBills = tempBillItems.map((bill) =>
+        bill.billId === tempBillId ? waitingBill : bill
+      );
+      const updatedBillItems = billWaiting.map((bill) =>
+        bill.billId === waitingBillId ? tempBill : bill
+      );
+
+      setTempBillItems(updatedTempBills);
+      setBillWaiting(updatedBillItems);
+
+      // Cập nhật localStorage
+      localStorage.setItem("tempBillItems", JSON.stringify(updatedTempBills));
+      localStorage.setItem("billItems", JSON.stringify(updatedBillItems));
+    }
+  };
+
+  const handleMoveBillToWaiting = (billId) => {
+    if (billWaiting.length >= 5) {
+      // Nếu danh sách chờ đã có 5 hóa đơn, không cho phép thêm
+      notification.error({
+        message: "Danh sách chờ đã đầy",
+        description:
+          "Không thể thêm hóa đơn vào danh sách chờ vì đã có 5 hóa đơn.",
+      });
+      return;
+    }
+
+    const billToMove = tempBillItems.find((bill) => bill.billId === billId);
+    if (!billToMove) return;
+
+    // Remove from tempBillItems and add to billWaiting
+    setTempBillItems(tempBillItems.filter((bill) => bill.billId !== billId));
+    setBillWaiting([...billWaiting, billToMove]);
+
+    notification.success({
+      message: "Chuyển hóa đơn thành công",
+      description: `Hóa đơn ${billId} đã được chuyển từ tạm chờ sang chờ.`,
+    });
   };
   const handlePayment = async () => {
     const cartItems = cartItemsByBill[selectedBill] || [];
@@ -303,6 +404,29 @@ const CounterSales = () => {
     setBillWaiting(updatedBillWaiting);
     localStorage.setItem("billWaiting", JSON.stringify(updatedBillWaiting));
   };
+  const handleMoveBillFromTempToWaiting = (billId) => {
+    const billToMove = tempBillItems.find((bill) => bill.billId === billId);
+    if (!billToMove) return;
+
+    // Remove from tempBillItems and add to billWaiting
+    setTempBillItems(tempBillItems.filter((bill) => bill.billId !== billId));
+    setBillWaiting([...billWaiting, billToMove]);
+
+    notification.success({
+      message: "Hóa đơn đã được lấy ra",
+      description: `Hóa đơn ${billId} đã được chuyển về hóa đơn chờ.`,
+    });
+
+    // Cập nhật localStorage
+    localStorage.setItem(
+      "tempBillItems",
+      JSON.stringify(tempBillItems.filter((bill) => bill.billId !== billId))
+    );
+    localStorage.setItem(
+      "billWaiting",
+      JSON.stringify([...billWaiting, billToMove])
+    );
+  };
 
   return (
     <div
@@ -324,9 +448,15 @@ const CounterSales = () => {
         <div style={{ width: "48%" }}>
           <CounterSaleBillWaiting
             billItems={billWaiting}
+            tempBillItems={tempBillItems}
             onRemoveBill={handleRemoveBill}
-            onSelectBill={handleBillSelect}
+            onSelectBill={setSelectedBill}
             selectedBill={selectedBill}
+            onMoveBillToTemp={handleMoveBillToTemp}
+            onSwapBills={handleSwapBills}
+            setSelectedBill={setSelectedBill}
+            onMoveBillFromTempToWaiting={handleMoveBillFromTempToWaiting}
+            onMoveBillToWaiting={handleMoveBillToWaiting}
           />
         </div>
         <div style={{ width: "48%", display: "flex", flexDirection: "column" }}>
@@ -385,6 +515,8 @@ const CounterSales = () => {
           dataProductDetail={dataProductDetail}
           onAddToCart={addToCart}
           selectedBill={selectedBill}
+          filter={filter}
+          setFilter={setFilter}
         />
       </div>
     </div>

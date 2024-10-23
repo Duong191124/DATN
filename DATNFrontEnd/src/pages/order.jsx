@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { DatePicker, Radio, Input, Button } from "antd";
 import OrderTable from "../component/layout/admin/order/order.table";
 import { fetchDataOrders } from "../service/api.service";
-import moment from "moment";
 import debounce from "lodash.debounce";
 
 const { RangePicker } = DatePicker;
@@ -28,32 +27,26 @@ const OrderPage = () => {
   const loadOrder = useCallback(
     async (page = 1, pageSize = 10) => {
       setLoading(true); // Bật loading ngay trước khi bắt đầu tải dữ liệu
-
       try {
-        // Để tạo hiệu ứng loading, ta không fetch ngay lập tức
-        setTimeout(async () => {
-          const { staffName, startDate, endDate, status, orderCode } =
-            memoizedFilters;
-          const response = await fetchDataOrders(
-            staffName,
-            startDate,
-            endDate,
-            status,
-            orderCode,
-            page - 1,
-            pageSize
-          );
+        const { staffName, startDate, endDate, status, orderCode } =
+          memoizedFilters;
+        const response = await fetchDataOrders(
+          staffName,
+          startDate,
+          endDate,
+          status,
+          orderCode,
+          page - 1,
+          pageSize
+        );
 
-          if (response && response.data) {
-            setDataOrder(response.data.orderResponseList);
-            setTotalOrders(response.data.totalPage * pageSize);
-          } else {
-            console.error(
-              "Không có dữ liệu trả về hoặc phản hồi không hợp lệ."
-            );
-          }
-          setLoading(false);
-        }, 1000); // Đợi 3 giây trước khi bắt đầu tải dữ liệu (để tạo hiệu ứng loading)
+        if (response && response.data) {
+          setDataOrder(response.data.orderResponseList);
+          setTotalOrders(response.data.totalPage * pageSize);
+        } else {
+          console.error("Không có dữ liệu trả về hoặc phản hồi không hợp lệ.");
+        }
+        setLoading(false);
       } catch (error) {
         console.error("Lỗi khi tải đơn hàng:", error);
         setLoading(false); // Tắt loading ngay cả khi có lỗi
@@ -79,6 +72,7 @@ const OrderPage = () => {
     );
   };
 
+  // Hàm tìm kiếm nhân viên với debounce
   const handleStaffSearch = debounce((value) => {
     updateFilter("staffName", value);
   }, 500);
@@ -86,6 +80,7 @@ const OrderPage = () => {
   const handleOrderCodeSearch = debounce((value) => {
     updateFilter("orderCode", value);
   }, 500);
+
   // Hàm update filter
   const updateFilter = (key, value) => {
     setFilters((prevFilters) => ({
@@ -94,20 +89,26 @@ const OrderPage = () => {
     }));
   };
 
-  // Hàm reset bộ lọc
+  // Hàm reset bộ lọc, nhưng không thay đổi giá trị của staffName
   const handleResetFilters = () => {
-    setFilters({
-      staffName: "",
+    setFilters((prevFilters) => ({
+      ...prevFilters,
       startDate: null,
       endDate: null,
       status: "",
       orderCode: "",
-    });
+      staffName: "", // Reset giá trị staffName về chuỗi rỗng
+    }));
   };
 
   // Khi giá trị trong filters thay đổi, load lại danh sách đơn hàng
   useEffect(() => {
-    loadOrder(currentPage, pageSize);
+    console.log("loadOrder:", loadOrder); // Debugging loadOrder
+    if (typeof loadOrder === "function") {
+      loadOrder(currentPage, pageSize);
+    } else {
+      console.error("loadOrder is not a function");
+    }
   }, [filters, currentPage, pageSize, loadOrder]);
 
   const handlePageChange = useCallback((page, pageSize) => {
@@ -122,6 +123,16 @@ const OrderPage = () => {
       </div>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <div className="filter-bill">
+          <div className="bill-order-code">
+            <p>Mã đơn</p>
+            <Search
+              placeholder="Nhập mã đơn hàng ..."
+              onSearch={handleOrderCodeSearch}
+              enterButton
+              value={filters.orderCode} // Set giá trị cho Search từ filter
+              onChange={(e) => updateFilter("orderCode", e.target.value)} // Cập nhật giá trị khi người dùng gõ
+            />
+          </div>
           <div className="bill-date">
             <p>Thời gian</p>
             <RangePicker
@@ -160,18 +171,10 @@ const OrderPage = () => {
               placeholder="Nhập tên nhân viên ..."
               onSearch={handleStaffSearch}
               enterButton
+              value={filters.staffName} // Set giá trị cho Search từ filter
+              onChange={(e) => updateFilter("staffName", e.target.value)} // Cập nhật giá trị khi người dùng gõ
             />
           </div>
-
-          <div className="bill-order-code">
-            <p>Mã đơn</p>
-            <Search
-              placeholder="Nhập mã đơn hàng ..."
-              onSearch={handleOrderCodeSearch}
-              enterButton
-            />
-          </div>
-
           <Button
             style={{ marginTop: "20px" }}
             onClick={handleResetFilters}
@@ -182,12 +185,15 @@ const OrderPage = () => {
         </div>
         <div className="table-bill">
           <OrderTable
+            filters={filters}
             dataOrder={dataOrder}
             currentPage={currentPage}
             pageSize={pageSize}
             totalOrders={totalOrders}
             handlePageChange={handlePageChange}
             loading={loading}
+            handleOrderCodeSearch={handleOrderCodeSearch}
+            setDataOrder={setDataOrder}
           />
         </div>
       </div>
