@@ -701,15 +701,27 @@ const updateVoucher = async (id, { code, quantity, discountAmount, discountPerce
 };
 
 const updateVoucherCustomer = async (id, payload) => {
+  // Kiểm tra id trước khi xây dựng URL
+  if (!id) {
+    throw new Error("Voucher ID is required");
+  }
+
   const URL_BACKEND = `/api/v1/voucher/${id}/customer`; 
   try {
     const response = await axios.put(URL_BACKEND, payload);
+    
+    // Kiểm tra phản hồi
+    if (response.status !== 200) {
+      throw new Error(`Failed to update voucher customer: ${response.statusText}`);
+    }
+
     return response.data; // Trả về dữ liệu từ phản hồi
   } catch (error) {
-    console.error('Error updating promotion product:', error);
+    console.error('Error updating voucher customer:', error); // Thay đổi thông điệp cho phù hợp
     throw error; // Ném lỗi để xử lý ở nơi gọi hàm
   }
 }
+
 //api crud customer
 const getAllCustomer = (page, size) => {
   const URL_BACKEND = `/api/v1/customer/getAll?page=${page}&size=${size}`;

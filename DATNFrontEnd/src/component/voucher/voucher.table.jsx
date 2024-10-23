@@ -1,24 +1,44 @@
 import React, { useEffect, useState } from "react";
 import { Table, Space, Modal, notification } from "antd";
 import { EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
-import { fetchDataVoucher, deleteVoucher } from "../../service/api.service";
+import { fetchDataVoucher, deleteVoucher, fetchCustomerList } from "../../service/api.service";
 import VoucherUpdateModal from "./voucher.update";
-import VoucherCustomer from "./voucher.customer"; // Nhập component hiển thị khách hàng
+import VoucherCustomer from "./voucher.customer";
 
 const VoucherTable = ({ refreshData }) => {
     const [dataVoucher, setDataVoucher] = useState([]);
     const [selectedVoucherId, setSelectedVoucherId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false); // Thêm trạng thái cho modal khách hàng
-    const [selectedCustomers, setSelectedCustomers] = useState([]); // Khách hàng đã chọn để xem chi tiết
+    const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
+    const [selectedCustomers, setSelectedCustomers] = useState([]);
+    const [customers, setCustomers] = useState([]);
     const [pagination, setPagination] = useState({
         current: 1,
         pageSize: 5,
     });
 
+    // Lấy danh sách khách hàng khi component mount
+    useEffect(() => {
+        const fetchCustomers = async () => {
+            try {
+                const res = await fetchCustomerList();
+                if (res && res.data && res.data.data) {
+                    setCustomers(res.data.data.content);
+                }
+            } catch (error) {
+                notification.error({
+                    message: "Lỗi",
+                    description: "Không thể tải danh sách khách hàng",
+                });
+            }
+        };
+        fetchCustomers();
+    }, []);
+
     const loadData = async () => {
         try {
             const response = await fetchDataVoucher();
+            console.log("DataVoucher: ", response);
             if (response.data.data) {
                 setDataVoucher(response.data.data);
             }
@@ -31,11 +51,7 @@ const VoucherTable = ({ refreshData }) => {
     };
 
     useEffect(() => {
-        loadData(); // Tải dữ liệu lần đầu
-    }, []);
-
-    useEffect(() => {
-        loadData(); // Tải lại dữ liệu khi refreshData thay đổi
+        loadData();
     }, [refreshData]);
 
     const handleDelete = (id) => {
@@ -50,7 +66,7 @@ const VoucherTable = ({ refreshData }) => {
                             message: "Xóa Voucher",
                             description: "Xóa voucher thành công."
                         });
-                        loadData(); // Tải lại dữ liệu sau khi xóa
+                        loadData();
                     } else {
                         notification.error({
                             message: "Xóa Voucher",
@@ -77,17 +93,30 @@ const VoucherTable = ({ refreshData }) => {
         loadData();
     };
 
-    // Xử lý hiển thị modal khách hàng với danh sách khách hàng đã áp dụng cho voucher
-    const handleShowCustomerDetail = (customers) => {
-        if (customers && customers.length > 0) {
-            setSelectedCustomers(customers); // Lưu khách hàng đã áp dụng vào state
-            setIsCustomerModalOpen(true); // Mở modal
+
+    const handleShowCustomerDetail = (customerIds, voucherId) => {
+
+        setSelectedVoucherId(voucherId); // Lưu voucherId khi mở modal
+        console.log(voucherId);
+        if (customerIds) {
+            const selectedCustomer = customers.find(customer => customer.id === customerIds);
+            if (selectedCustomer) {
+                setSelectedCustomers([selectedCustomer]);
+                setIsCustomerModalOpen(true);
+            }
         } else {
             notification.warning({
                 message: "Thông báo",
                 description: "Voucher này chưa áp dụng cho khách hàng nào.",
             });
+            setSelectedCustomers([]);
+            setIsCustomerModalOpen(true);
         }
+    };
+
+    const handleApply = (selected) => {
+        console.log("Khách hàng được áp dụng:", selected);
+        loadData(); // Gọi loadData để làm mới dữ liệu voucher
     };
 
     const columns = [
@@ -132,7 +161,7 @@ const VoucherTable = ({ refreshData }) => {
                 <Space size="middle">
                     <EyeOutlined
                         style={{ color: "green", cursor: "pointer" }}
-                        onClick={() => handleShowCustomerDetail(record.customers)} // Gọi hàm hiển thị chi tiết khách hàng
+                        onClick={() => handleShowCustomerDetail(record.customers, record.id)}
                     />
                     <EditOutlined
                         style={{ color: "blue", cursor: "pointer" }}
@@ -172,9 +201,11 @@ const VoucherTable = ({ refreshData }) => {
             )}
             {isCustomerModalOpen && (
                 <VoucherCustomer
-                    appliedCustomers={selectedCustomers} // Truyền danh sách khách hàng đã áp dụng cho voucher
-                    onClose={() => setIsCustomerModalOpen(false)} // Đóng modal
-                    onApply={(selected) => console.log(selected)} // Xử lý khi khách hàng được áp dụng
+                    appliedCustomers={selectedCustomers}
+                    onClose={() => setIsCustomerModalOpen(false)}
+                    onApply={handleApply}
+                    voucherId={selectedVoucherId} // Thêm voucherId vào đây
+                    onRefresh={loadData} // Thêm hàm loadData vào đây
                 />
             )}
         </div>
