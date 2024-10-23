@@ -13,13 +13,22 @@ const SizeTable = (props) => {
     const [dataUpdate, setDataUpdate] = useState("")
 
     const deleteSize = async (id) => {
-        const res = await deleteSizeAPI(id);
-        if (res.data) {
-            notification.success({
-                message: "create size",
-                description: "create size successfully"
-            })
-            await loadSize()
+        try {
+            const res = await deleteSizeAPI(id);
+            if (res.data) {
+                notification.success({
+                    message: "delete size",
+                    description: "delete size successfully"
+                })
+                await loadSize()
+            }
+        } catch (error) {
+            if (error.response.status == 400) {
+                notification.error({
+                    message: "delete size",
+                    description: JSON.stringify(error.response.data)
+                })
+            }
         }
     }
     const columns = [

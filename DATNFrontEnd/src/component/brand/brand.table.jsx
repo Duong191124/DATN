@@ -11,14 +11,24 @@ const BrandTable = (props) => {
     const [dataUpdate, setDataUpdate] = useState("")
 
     const deleteBrand = async (id) => {
-        const res = await deleteBrandAPI(id);
-        if (res.data) {
-            notification.success({
-                message: "delete brand",
-                description: "delete brand successfully"
-            })
-            await loadBrand()
+        try {
+            const res = await deleteBrandAPI(id);
+            if (res.data) {
+                notification.success({
+                    message: "delete brand",
+                    description: "delete brand successfully"
+                })
+                await loadBrand()
+            }
+        } catch (error) {
+            if (error.response && error.response.status === 400) {
+                notification.error({
+                    message: "delete brand",
+                    description: JSON.stringify(error.response.data)
+                })
+            }
         }
+
     }
     const columns = [
         {

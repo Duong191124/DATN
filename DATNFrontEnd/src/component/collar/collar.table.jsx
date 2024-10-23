@@ -11,13 +11,22 @@ const CollarTable = (props) => {
     const [dataUpdate, setDataUpdate] = useState("")
 
     const deleteCollar = async (id) => {
-        const res = await deleteCollarAPI(id);
-        if (res.data) {
-            notification.success({
-                message: "delete collar",
-                description: "delete collar successfully"
-            })
-            await loadCollar()
+        try {
+            const res = await deleteCollarAPI(id);
+            if (res.data) {
+                notification.success({
+                    message: "delete collar",
+                    description: "delete collar successfully"
+                })
+                await loadCollar()
+            }
+        } catch (error) {
+            if (error.response.status === 400) {
+                notification.error({
+                    message: "delete collar",
+                    description: JSON.stringify(error.response.data)
+                })
+            }
         }
     }
     const columns = [

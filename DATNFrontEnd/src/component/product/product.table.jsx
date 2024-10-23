@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
-import { notification, Popconfirm, Table , Button} from "antd";
+import { notification, Popconfirm, Table, Button } from "antd";
 import { useState } from "react";
 import { deleteProductAPI } from "../../service/api.service";
 import UpdateProduct from "./update.product";
@@ -9,18 +9,23 @@ import { Link } from "react-router-dom";
 
 const ProductTable = (props) => {
   const handleDeleteProduct = async (id) => {
-    const res = await deleteProductAPI(id)
-    if (res.data) {
-      notification.success({
-        message: "delete product",
-        description: "Delete product successfully"
-      })
-      await loadProduct()
-    } else {
-      notification.error({
-        message: "delete product",
-        description: JSON.stringify(res.message)
-      })
+    try {
+      const res = await deleteProductAPI(id)
+      if (res.data) {
+        notification.success({
+          message: "delete product",
+          description: "Delete product successfully"
+        })
+        await loadProduct()
+      }
+    } catch (error) {
+      console.log(error)
+      if (error.response.status === 500) {
+        notification.error({
+          message: "delete product",
+          description: JSON.stringify(error.response.data)
+        })
+      }
     }
 
   }
@@ -47,9 +52,9 @@ const ProductTable = (props) => {
       title: 'Image',
       dataIndex: 'image',
       render: (imageUrl) => (
-        <img 
-          src={imageUrl} 
-          style={{ width: "50px", height: "50px", objectFit: "cover" }} 
+        <img
+          src={imageUrl}
+          style={{ width: "50px", height: "50px", objectFit: "cover" }}
         />
       )
     },
@@ -100,8 +105,8 @@ const ProductTable = (props) => {
             >
               <DeleteOutlined style={{ cursor: "pointer", color: "red" }} />
             </Popconfirm>
-            <UploadOutlined 
-              style={{ cursor: "pointer"}}
+            <UploadOutlined
+              style={{ cursor: "pointer" }}
               onClick={() => {
                 setDataUpdate(record.id)
                 setIsModalOpen(true)

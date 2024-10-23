@@ -12,13 +12,22 @@ const SleeveTable = (props) => {
     const [dataUpdate, setDataUpdate] = useState("")
 
     const deleteSleeve = async (id) => {
-        const res = await deleteSleeveAPI(id);
-        if (res.data) {
-            notification.success({
-                message: "delete sleeve",
-                description: "delete sleeve successfully"
-            })
-            await loadSleeve()
+        try {
+            const res = await deleteSleeveAPI(id);
+            if (res.data) {
+                notification.success({
+                    message: "delete sleeve",
+                    description: "delete sleeve successfully"
+                })
+                await loadSleeve()
+            }
+        } catch (error) {
+            if (error.status === 400) {
+                notification.error({
+                    message: "delete sleeve",
+                    description: JSON.stringify(error.response.data)
+                })
+            }
         }
     }
     const columns = [

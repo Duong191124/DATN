@@ -10,13 +10,22 @@ const ColorTable = (props) => {
   const [dataUpdate, setDataUpdate] = useState("");
 
   const deleteColor = async (id) => {
-    const res = await deleteColorAPI(id);
-    if (res.data) {
-      notification.success({
-        message: "delete color",
-        description: "delete color successfully",
-      });
-      await loadColor();
+    try {
+      const res = await deleteColorAPI(id);
+      if (res.data) {
+        notification.success({
+          message: "delete color",
+          description: "delete color successfully",
+        });
+        await loadColor();
+      }
+    } catch (error) {
+      if (error.response.status === 400) {
+        notification.error({
+          message: "delete color",
+          description: JSON.stringify(error.response.data)
+        });
+      }
     }
   };
   const columns = [

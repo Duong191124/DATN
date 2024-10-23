@@ -11,13 +11,22 @@ const CategoryTable = (props) => {
     const [dataUpdate, setDataUpdate] = useState("")
 
     const deleteCategory = async (id) => {
-        const res = await deleteCategoryAPI(id);
-        if (res.data) {
-            notification.success({
-                message: "delete category",
-                description: "delete collar category"
-            })
-            await loadCategory()
+        try {
+            const res = await deleteCategoryAPI(id);
+            if (res.data) {
+                notification.success({
+                    message: "delete category",
+                    description: "delete collar category"
+                })
+                await loadCategory()
+            }
+        } catch (error) {
+            if (error.response.status === 400) {
+                notification.error({
+                    message: "delete category",
+                    description: JSON.stringify(error.response.data)
+                })
+            }
         }
     }
     const columns = [

@@ -457,6 +457,7 @@ const deleteBrandAPI = (id) => {
   const URL_BACKEND = `/api/v1/brand/${id}`;
   return axios.delete(URL_BACKEND);
 };
+
 //API category
 const fetchDataCategoryAPI = () => {
   const URL_BACKEND = "/api/v1/category";
@@ -695,69 +696,69 @@ const updateVoucher = async (id, { code, quantity, discountAmount, discountPerce
   return axios.put(URL_BACKEND, data);
 };
 //api crud customer
-const getAllCustomer = (page, size)=>{
+const getAllCustomer = (page, size) => {
   const URL_BACKEND = `/api/v1/customer/getAll?page=${page}&size=${size}`;
   return axios.get(URL_BACKEND);
 }
 
-const updateCustomer =  (
-    id,
-    username, 
-    password, 
-    email, 
-    address, 
-    phoneNumber, 
-    status,
-    dateOfBirth, 
-    name, 
-    notes, 
-    gender
-  )=>{
-    const data = {
-        username: username,
-        password: password,
-        email: email,
-        address: address,
-        phoneNumber: phoneNumber,
-        status: status,
-        dateOfBirth: dateOfBirth,
-        name: name,
-        notes: notes,
-        gender: gender
-    };
-    const URL_BACKEND = `/api/v1/customer/${id}`
-    return axios.put(URL_BACKEND, data)
-  }
+const updateCustomer = (
+  id,
+  username,
+  password,
+  email,
+  address,
+  phoneNumber,
+  status,
+  dateOfBirth,
+  name,
+  notes,
+  gender
+) => {
+  const data = {
+    username: username,
+    password: password,
+    email: email,
+    address: address,
+    phoneNumber: phoneNumber,
+    status: status,
+    dateOfBirth: dateOfBirth,
+    name: name,
+    notes: notes,
+    gender: gender
+  };
+  const URL_BACKEND = `/api/v1/customer/${id}`
+  return axios.put(URL_BACKEND, data)
+}
 
 const createCustomer = (
-  username, 
-  password, 
-  email, 
-  address, 
-  phoneNumber, 
-  dateOfBirth, 
-  name, 
-  notes, 
+  username,
+  password,
+  email,
+  address,
+  phoneNumber,
+  dateOfBirth,
+  name,
+  notes,
   gender
-)=>{
+) => {
   const URL_BACKEND = `/api/v1/customer/register`
   const data = {
-      username: username,
-      password: password,
-      email: email,
-      address: address,
-      phoneNumber: phoneNumber,
-      status: 1,
-      dateOfBirth: dateOfBirth,  // Định dạng YYYY-MM-DD
-      name: name,
-      notes: notes,
-      gender: gender // 1 (male), 2 (female), 3 (other)
+    username: username,
+    password: password,
+    email: email,
+    address: address,
+    phoneNumber: phoneNumber,
+    status: 1,
+    dateOfBirth: dateOfBirth,  // Định dạng YYYY-MM-DD
+    name: name,
+    notes: notes,
+    gender: gender // 1 (male), 2 (female), 3 (other)
   };
 
   return axios.post(URL_BACKEND, data);
 }
 
-const softDelete = (id)=>{
+const softDelete = (id) => {
   const URL_BACKEND = `/api/v1/customer/${id}`
   return axios.delete(URL_BACKEND)
 }
