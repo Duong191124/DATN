@@ -69,7 +69,21 @@ public class VoucherServiceImpl implements VoucherService {
         Voucher updateVoucher = voucherRepository.save(existingVoucher);
         return VoucherResponse.fromVoucherResponse(updateVoucher);
     }
+    @Override
+    public VoucherResponse updateCustomer(Integer id, Integer customerId) throws Exception {
+        Customer existingCustomer = customerRepository.findById(customerId).orElse(null);
+        Voucher existingVoucher = getById(id); // Kiểm tra nếu voucher tồn tại
 
+        // Thiết lập khách hàng nếu tồn tại
+        if (existingCustomer != null) {
+            existingVoucher.setCustomer(existingCustomer);
+        } else {
+            throw new Exception("Customer not found with id: " + customerId);
+        }
+
+        Voucher updatedVoucher = voucherRepository.save(existingVoucher);
+        return VoucherResponse.fromVoucherResponse(updatedVoucher);
+    }
 
     @Override
     public Voucher getById(Integer id) throws Exception {

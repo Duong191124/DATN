@@ -1,19 +1,26 @@
-import { Table, Space, Modal, notification } from "antd";
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { deletePromotionAPI } from '../../service/api.service';
+import React, { useState } from 'react';
+import { Table, Space, Modal, notification, Button } from "antd";
+import { EditOutlined, DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { deletePromotionAPI, fetchDataProductDetail } from '../../service/api.service';
 import PromotionUpdate from "./promotion.update";
-import { useState } from "react";
+import ProductDetailModal from './promotion.product'; // Import modal chi tiết sản phẩm
 
 const PromotionTable = (props) => {
     const { loadData, dataPromotion } = props;
 
-    // Trạng thái để quản lý việc hiển thị modal và dữ liệu cần cập nhật
     const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false);
     const [dataUpdate, setDataUpdate] = useState(null);
+    const [isProductDetailModalVisible, setIsProductDetailModalVisible] = useState(false);
+    const [productDetails, setProductDetails] = useState([]);
+    const [selectedProductIds, setSelectedProductIds] = useState([]);
     const [pagination, setPagination] = useState({
         current: 1,
-        pageSize: 2,
+        pageSize: 5,
     });
+    const [promotionId, setPromotionId] = useState(null); // Định nghĩa promotionId
+    const [selectedDetails, setSelectedDetails] = useState([]); // Định nghĩa selectedDetails
+
+
     const showDeleteConfirm = (id) => {
         Modal.confirm({
             title: 'Bạn có muốn xóa khuyến mãi này không?',
@@ -48,15 +55,43 @@ const PromotionTable = (props) => {
         }
     };
 
+    // Hiển thị modal chi tiết sản phẩm
+    const showProductDetails = async (productDetailsIds, promotionId) => {
+        try {
+            const res = await fetchDataProductDetail();
+            if (res && res.data.data) {
+                // Lọc chỉ sản phẩm có id trong productDetailsIds
+                const filteredProductDetails = res.data.data.filter(product =>
+                    productDetailsIds.includes(product.id)
+                );
+                setProductDetails(filteredProductDetails); // Cập nhật danh sách chi tiết sản phẩm
+                setSelectedProductIds(productDetailsIds); // Lưu lại product details đã được chọn
+                setPromotionId(promotionId); // Lưu promotionId
+                setIsProductDetailModalVisible(true); // Hiển thị modal
+            }
+        } catch (error) {
+            notification.error({
+                message: "Lỗi",
+                description: "Không thể tải danh sách chi tiết sản phẩm",
+            });
+        }
+    };
+
+    // Cập nhật modal chi tiết sản phẩm sau khi người dùng áp dụng thay đổi
+    const handleApplyProductDetails = (selectedIds) => {
+        setSelectedProductIds(selectedIds);
+        setIsProductDetailModalVisible(false); // Đóng modal sau khi áp dụng
+    };
+
     const columns = [
         {
             title: 'STT',
-            render: (text, record, index) => 
-                (pagination.current - 1) * pagination.pageSize + index + 1, // Tính toán lại index
+            render: (text, record, index) =>
+                (pagination.current - 1) * pagination.pageSize + index + 1,
         },
         {
             title: 'ID',
-            dataIndex: 'id', // Hiển thị ID từ cơ sở dữ liệu
+            dataIndex: 'id',
         },
         {
             title: 'Tên',
@@ -75,11 +110,11 @@ const PromotionTable = (props) => {
             dataIndex: 'endDate',
         },
         {
-            title: 'Phần trăm giảm giá',
+            title: 'Phần trăm giảm giá(%)',
             dataIndex: 'discountPercent',
         },
         {
-            title: 'Số tiền giảm giá',
+            title: 'Số tiền giảm giá(VNĐ)',
             dataIndex: 'discountAmount',
         },
         {
@@ -90,10 +125,6 @@ const PromotionTable = (props) => {
             ),
         },
         {
-            title: 'Chi tiết sản phẩm',
-            dataIndex: 'productDetailsId',
-        },
-        {
             title: 'Thao tác',
             key: 'actions',
             render: (_, record) => (
@@ -101,14 +132,19 @@ const PromotionTable = (props) => {
                     <EditOutlined
                         style={{ color: 'blue', cursor: 'pointer' }}
                         onClick={() => {
-                            setDataUpdate(record); // Lưu dữ liệu khuyến mãi vào state
-                            setIsModalUpdateOpen(true); // Mở modal
+                            setDataUpdate(record);
+                            setIsModalUpdateOpen(true);
                         }}
                     />
                     <DeleteOutlined
                         style={{ color: 'red', cursor: 'pointer' }}
-                        onClick={() => showDeleteConfirm(record.id)} // Gọi modal xác nhận khi xóa
+                        onClick={() => showDeleteConfirm(record.id)}
                     />
+                    <InfoCircleOutlined
+                        style={{ color: 'orange', cursor: 'pointer' }}
+                        onClick={() => showProductDetails(record.productDetailsId, record.id)} // Đảm bảo promotionId có giá trị
+                    />
+
                 </Space>
             ),
         },
@@ -120,11 +156,13 @@ const PromotionTable = (props) => {
                 dataSource={dataPromotion}
                 columns={columns}
                 pagination={{
-                    pageSize: 5,
-                    showSizeChanger: false,
+                    current: pagination.current,
+                    pageSize: pagination.pageSize,
+                    showSizeChanger: true,
                     onChange: (page, pageSize) => {
                         setPagination({ current: page, pageSize });
                     },
+                    pageSizeOptions: ['5', '10', '20'],
                 }}
                 rowKey="id"
             />
@@ -132,7 +170,16 @@ const PromotionTable = (props) => {
                 isModalUpdateOpen={isModalUpdateOpen}
                 setIsModalUpdateOpen={setIsModalUpdateOpen}
                 dataUpdate={dataUpdate}
-                loadData={loadData} // Gọi lại loadData khi cập nhật thành công
+                loadData={loadData}
+            />
+            {/* Modal chi tiết sản phẩm */}
+            <ProductDetailModal
+                isVisible={isProductDetailModalVisible}
+                onClose={() => setIsProductDetailModalVisible(false)}
+                selectedProductDetails={selectedProductIds}
+                onApply={handleApplyProductDetails}
+                id={promotionId}
+                loadData={loadData} // Truyền loadData vào đây
             />
         </>
     );

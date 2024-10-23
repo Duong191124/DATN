@@ -10,17 +10,12 @@ const PromotionPage = () => {
     // Hàm load dữ liệu khuyến mãi
     const loadData = async () => {
         try {
-
             const res = await fetchDataPromotion(); // Gọi API để lấy dữ liệu khuyến mãi
-            console.log(res);
             setDataPromotion(res.data.data); // Cập nhật state với dữ liệu khuyến mãi
-
-
         } catch (error) {
             console.error("Error fetching promotions:", error); // Ghi log lỗi nếu có
         }
     };
-
     useEffect(() => {
         loadData(); // Tải dữ liệu khi component được mount
     }, []);
