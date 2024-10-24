@@ -84,6 +84,7 @@ public class AuthController {
                                 .build()
                 );
             }
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                     LoginResponse.builder()
@@ -93,7 +94,6 @@ public class AuthController {
                             .build()
             );
         }
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/getInformation")

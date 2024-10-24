@@ -50,20 +50,9 @@ public class ColorServiceImpl implements ColorService {
         return colorRepo.findById(id).orElseThrow(() -> new Exception(""));
     }
 
-    @Override
-    public boolean canDeleteColor(Integer colorId) {
-        List<ProductDetail> relateProductDetail = productDetailRepo.findByColorId(colorId);
-        return relateProductDetail.isEmpty();
-    }
 
-    @Override
-    public void deleteColor(Integer id) throws Exception {
-        if (canDeleteColor(id)){
-            colorRepo.deleteById(id);
-        }else {
-            throw new IllegalStateException("cannot delete color, because it has related product-detail");
-        }
-    }
+
+
 
     @Override
     public Color findById(Integer id) {

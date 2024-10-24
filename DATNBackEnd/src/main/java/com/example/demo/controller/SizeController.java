@@ -76,18 +76,7 @@ public class SizeController {
                 .build());
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception{
-       try{
-           sizeService.deleteSize(id);
-           return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
-                   .message("Delete size with id = " + id + " successfully")
-                   .status(HttpStatus.OK.value())
-                   .build());
-       }catch (Exception e){
-           return ResponseEntity.badRequest().body(e.getMessage());
-       }
-    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> sizeFindById(@PathVariable Integer id){
         try {

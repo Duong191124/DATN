@@ -88,18 +88,7 @@ public class ColorController {
                 .build());
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception {
-        try {
-            colorService.deleteColor(id);
-            return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
-                    .message("delete color successfully")
-                    .status(HttpStatus.OK.value())
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<?> sizeFindById(@PathVariable Integer id) {

@@ -58,20 +58,9 @@ public class SizeServiceImpl implements SizeService {
         return sizeRepo.findById(id).orElseThrow(() -> new Exception(""));
     }
 
-    @Override
-    public boolean canDeleteSize(Integer sizeId) {
-        List<ProductDetail> relateProductDetail = productDetailRepo.findBySizeId(sizeId);
-        return relateProductDetail.isEmpty();
-    }
 
-    @Override
-    public void deleteSize(Integer id) throws Exception {
-        if (canDeleteSize(id)) {
-            sizeRepo.deleteById(id);
-        }else {
-            throw new IllegalStateException("cannot delete size, because it has related priduct-detail");
-        }
-    }
+
+
 
     @Override
     public Size findById(Integer id) {

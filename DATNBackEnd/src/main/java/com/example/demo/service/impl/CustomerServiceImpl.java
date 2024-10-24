@@ -56,14 +56,24 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponse update(Integer id, CustomerDTO customerDTO) throws Exception {
         Customer existingCustomer = getCustomerByID(id);
         existingCustomer.setDateOfBirth(customerDTO.getDateOfBirth());
+        existingCustomer.setUsername(customerDTO.getUsername());
         existingCustomer.setAddress(customerDTO.getAddress());
         existingCustomer.setEmail(customerDTO.getEmail());
         existingCustomer.setGender(customerDTO.getGender());
         existingCustomer.setPhoneNumber(customerDTO.getPhoneNumber());
         existingCustomer.setName(customerDTO.getName());
         existingCustomer.setNotes(customerDTO.getNotes());
+
         Customer updateCustomer = customerRepo.save(existingCustomer);
         return CustomerResponse.fromCustomerResponse(updateCustomer);
+    }
+
+    @Override
+    public String softDelete(Integer id) throws Exception {
+        Customer customer = customerRepo.findById(id).get();
+        customer.setStatus(0);
+        customerRepo.save(customer);
+        return "Soft delete successfully";
     }
 
     @Override

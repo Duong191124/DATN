@@ -1,10 +1,11 @@
 package com.example.demo.controller;
-
 import com.example.demo.dto.CustomerDTO;
+import com.example.demo.entity.Customer;
 import com.example.demo.response.CustomerResponse;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.service.impl.CustomerServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -26,10 +27,11 @@ public class CustomerController {
             @RequestParam(name = "size", defaultValue = "10")int size
     ){
         Pageable pageable = PageRequest.of(page-1, size);
+        Page<Customer> customerList = customerService.getALl(pageable);
         return ResponseEntity.ok().body(MessageReponse.builder()
                 .message("get info successfuly")
                 .status(HttpStatus.OK.value())
-                .data(customerService.getALl(pageable))
+                .data(customerList)
                 .build()
         );
     }
@@ -88,6 +90,19 @@ public class CustomerController {
                 .message("xoa khach hang voi id = " + id +"thanh cong")
                 .status(HttpStatus.OK.value())
                 .build());
+    }
+
+    @PutMapping("soft-delete/{id}")
+    public ResponseEntity<?> softDelete(
+            @PathVariable("id") Integer id) throws Exception {
+        String mss = customerService.softDelete(id);
+        return ResponseEntity.ok().body(MessageReponse.builder()
+                .message("sua thanh cong")
+                .status(HttpStatus.OK.value())
+                .data(mss)
+                .build()
+        );
+
     }
 
 

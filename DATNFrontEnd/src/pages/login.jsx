@@ -13,38 +13,22 @@ const LoginPage = () => {
 
     const onFinish = async (values) => {
         setLoading(true)
-        try {
-            const res = await loginCustomerAPI(values.username, values.password);
-            console.log(res);
-            if (res.status === 200 || res.status === 201) {
-                localStorage.setItem("access_token", res.data.token);
-                // setUser(res.data.user)
-                // setStatus(res.status);
-                message.success("Đăng nhập thành công");
-                if (res.status === 200) {
-                    navigate("/");
-                } else {
-                    navigate("/admin");
-                }
-            }
-            setLoading(false)
-        } catch (error) {
-            if (error.response && error.response.status === 401) {
-                form.setFields([
-                    {
-                        name: "username",
-                        errors: ["Username or password is not valid"],
-                    },
-                    {
-                        name: "password",
-                        errors: ["Username or password is not valid"],
-                    },
-                ]);
+        const res = await loginCustomerAPI(values.username, values.password);
+        console.log(res);
+        if (res.status === 200 || res.status === 201) {
+            localStorage.setItem("access_token", res.data.token);
+            console.log(res.data.token);
+            setUser(res.data.user);
+            message.success("Đăng nhập thành công");
+            if (res.status === 200) {
+                navigate("/");
             } else {
-                message.error("Đăng nhập thất bại, vui lòng thử lại.");
+                navigate("/admin");
             }
-            setLoading(false);
+        } else {
+            message.error("Đăng nhập thất bại");
         }
+        setLoading(false)
     }
 
     return (

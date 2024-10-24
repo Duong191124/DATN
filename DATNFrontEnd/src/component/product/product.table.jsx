@@ -78,6 +78,10 @@ const ProductTable = (props) => {
       dataIndex: 'brandName'
     },
     {
+      title: 'Status',
+      dataIndex: 'status'
+    },
+    {
       title: 'Description',
       dataIndex: 'description'
     },
