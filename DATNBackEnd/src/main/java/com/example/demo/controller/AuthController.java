@@ -67,13 +67,23 @@ public class AuthController {
             //generate token
             String token = securityUtil.createToken(authentication);
 
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    LoginResponse.builder()
-                            .message(messageSource.getMessage("auth.login.success", null, LocaleContextHolder.getLocale()))
-                            .status(HttpStatus.OK.value())
-                            .token(token)
-                            .build()
-            );
+            if(customerRepo.existsByUsername(loginDTO.getUsername())) {
+                return ResponseEntity.status(HttpStatus.OK).body(
+                        LoginResponse.builder()
+                                .message(messageSource.getMessage("auth.login.success", null, LocaleContextHolder.getLocale()))
+                                .status(HttpStatus.OK.value())
+                                .token(token)
+                                .build()
+                );
+            }else if(staffRepo.existsByUsername(loginDTO.getUsername())) {
+                return ResponseEntity.status(HttpStatus.CREATED).body(
+                        LoginResponse.builder()
+                                .message(messageSource.getMessage("auth.login.success", null, LocaleContextHolder.getLocale()))
+                                .status(HttpStatus.CREATED.value())
+                                .token(token)
+                                .build()
+                );
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                     LoginResponse.builder()
@@ -83,6 +93,7 @@ public class AuthController {
                             .build()
             );
         }
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/getInformation")
