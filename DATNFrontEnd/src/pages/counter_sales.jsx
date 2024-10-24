@@ -13,8 +13,6 @@ import {
   getAllStaff,
   orderProductDetail,
 } from "../service/api.service";
-import moment from "moment";
-
 const CounterSales = () => {
   const [dataProductDetail, setDataProductDetail] = useState([]);
   const [billWaiting, setBillWaiting] = useState(() => {
@@ -86,15 +84,9 @@ const CounterSales = () => {
         (currentPage - 1) * pageSize,
         pageSize
       );
-      console.log("erafadfa", response);
       if (response?.data?.data) {
         setDataProductDetail(response.data.data); // Cập nhật trạng thái với dữ liệu nhận được
-      const response = await orderProductDetail();
-      console.log(response);
-      if (response.data) {
-        setDataProductDetail(response.data);
       }
-      console.log("check", response)
     } catch (error) {
       console.error("Error loading product details", error);
     }
