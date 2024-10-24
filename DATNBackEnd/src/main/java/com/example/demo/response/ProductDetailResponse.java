@@ -17,6 +17,7 @@ public class ProductDetailResponse {
     private int quantity;
     private Double price;
     private String image;
+    private int status;
     private ProductResponse productResponse;
     private Size size;
     private Color color;
@@ -25,6 +26,7 @@ public class ProductDetailResponse {
         return ProductDetailResponse.builder()
                 .id(productDetail.getId())
                 .code(productDetail.getCode())
+                .status(productDetail.getStatus())
                 .quantity(productDetail.getQuantity())
                 .price(productDetail.getPrice())
                 .image(productDetail.getImage())

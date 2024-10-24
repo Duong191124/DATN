@@ -62,6 +62,7 @@ public class ProductServiceImpl implements ProductService {
         product.setCollar(collar);
         product.setSleeve(sleeve);
         product.setDescription(productDTO.getDescription());
+        product.setStatus(productDTO.getStatus());
         Optional<Brand> brand = brandRepo.findById(productDTO.getBrandId());
         if(brand.isEmpty()){
             throw new RuntimeException("not found brand's id:"+productDTO.getBrandId());
