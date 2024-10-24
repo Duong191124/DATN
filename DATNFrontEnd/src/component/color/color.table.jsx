@@ -63,7 +63,7 @@ const ColorTable = (props) => {
             />
             <Popconfirm
               title="Xoá sản phẩm"
-              description="bạn có chắc chắn muốn xoá sản phẩm này không ?"
+              description="bạn có chắc chắn muốn xoá màu sắc này không ?"
               onConfirm={() => {
                 deleteColor(record.id);
               }}

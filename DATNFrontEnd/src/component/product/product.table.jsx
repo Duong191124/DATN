@@ -19,7 +19,6 @@ const ProductTable = (props) => {
         await loadProduct()
       }
     } catch (error) {
-      console.log(error)
       if (error.response.status === 500) {
         notification.error({
           message: "delete product",

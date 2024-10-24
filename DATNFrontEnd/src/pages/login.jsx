@@ -13,22 +13,39 @@ const LoginPage = () => {
 
     const onFinish = async (values) => {
         setLoading(true)
-        const res = await loginCustomerAPI(values.username, values.password);
-        console.log(res);
-        if (res.data) {
-            message.success("Đăng nhập thành công");
-            localStorage.setItem("access_token", res.data.token);
-            setUser(res.data.user);
-            navigate("/");
-        } else {
-            notification.error({
-                message: "Error Login",
-                description: JSON.stringify(res.message)
-            })
+        try {
+            const res = await loginCustomerAPI(values.username, values.password);
+            console.log(res);
+            if (res.status === 200 || res.status === 201) {
+                localStorage.setItem("access_token", res.data.token);
+                // setUser(res.data.user)
+                // setStatus(res.status);
+                message.success("Đăng nhập thành công");
+                if (res.status === 200) {
+                    navigate("/");
+                } else {
+                    navigate("/admin");
+                }
+            }
+            setLoading(false)
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                form.setFields([
+                    {
+                        name: "username",
+                        errors: ["Username or password is not valid"],
+                    },
+                    {
+                        name: "password",
+                        errors: ["Username or password is not valid"],
+                    },
+                ]);
+            } else {
+                message.error("Đăng nhập thất bại, vui lòng thử lại.");
+            }
+            setLoading(false);
         }
-        setLoading(false)
     }
-
 
     return (
         <Row justify={"center"} style={{ marginTop: "30px" }}>
