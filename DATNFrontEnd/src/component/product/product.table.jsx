@@ -5,6 +5,7 @@ import { deleteProductAPI } from "../../service/api.service";
 import UpdateProduct from "./update.product";
 import UploadImage from "./update.image.product";
 import { Link } from "react-router-dom";
+import { render } from "react-dom";
 
 
 const ProductTable = (props) => {
@@ -79,7 +80,10 @@ const ProductTable = (props) => {
     },
     {
       title: 'Status',
-      dataIndex: 'status'
+      dataIndex: 'status',
+      render: (status) => {
+        return status == 1 ? "Dang Hoat Dong" : "Ngung Hoat Dong";
+      }
     },
     {
       title: 'Description',

@@ -67,6 +67,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         existingProductDetail.setQuantity(productDetailDTO.getQuantity());
         existingProductDetail.setPrice(productDetailDTO.getPrice());
         existingProductDetail.setImage(productDetailDTO.getImage());
+        existingProductDetail.setStatus(productDetailDTO.getStatus());
         existingProductDetail.setProduct(getProductById(productDetailDTO.getProductId()));
         existingProductDetail.setSize(getSizeById(productDetailDTO.getSizeId()));
         existingProductDetail.setColor(getColorById(productDetailDTO.getColorId()));

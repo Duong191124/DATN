@@ -66,6 +66,13 @@ const ProductDetailTable = (props) => {
       },
     },
     {
+      title: "Status",
+      dataIndex: "status",
+      render: (status) => {
+        return status === 1 ? "Dang Hoat Dong" : "Ngung Hoat Dong";
+      },
+    },
+    {
       title: "Action",
       key: "action",
       render: (_, record) => {

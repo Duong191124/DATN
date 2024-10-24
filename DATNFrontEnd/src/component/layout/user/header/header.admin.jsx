@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Avatar, Badge, Dropdown } from 'antd';
+import { Layout, Avatar, Badge, Dropdown, message } from 'antd';
 import { BellOutlined, UserOutlined } from '@ant-design/icons';
 import './header.admin.css'; // Optional for styling
 import logo from '../../../../assets/logo.jpg';
@@ -12,6 +12,7 @@ const HeaderAdmin = () => {
 
   const handleLogOut = () => {
     localStorage.removeItem("access_token")
+    message.success("Logout")
     navigate('/login')
   }
 
@@ -36,9 +37,6 @@ const HeaderAdmin = () => {
         </Link>
       </div>
       <div className="header-right">
-        <Badge count={5} className="notification-icon">
-          <BellOutlined style={{ fontSize: "20px" }} />
-        </Badge>
         <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
           <span className="user-dropdown">
             <Avatar size="large" icon={<UserOutlined />} />

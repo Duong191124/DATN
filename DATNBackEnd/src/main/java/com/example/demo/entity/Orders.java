@@ -47,6 +47,9 @@ public class Orders extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "staff_id", referencedColumnName = "id")
     private Staff staff;
+    @ManyToOne
+    @JoinColumn(name = "customer_id", referencedColumnName = "id")
+    private Customer customer;
     @OneToMany(mappedBy = "orders",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<OrderDetail> orderDetails = new ArrayList<>();
     @OneToMany(mappedBy = "orders",cascade = CascadeType.ALL,orphanRemoval = true)
