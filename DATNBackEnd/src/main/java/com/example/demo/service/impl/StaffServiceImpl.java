@@ -2,6 +2,7 @@ package com.example.demo.service.impl;
 
 import com.example.demo.dto.StaffDTO;
 import com.example.demo.dto.UserPermissionDTO;
+import com.example.demo.entity.Customer;
 import com.example.demo.entity.Permission;
 import com.example.demo.entity.Staff;
 import com.example.demo.exception.UsernameExisting;
@@ -52,13 +53,24 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public void deleteById(int id) {
-        staffRepo.deleteById(id);
+    public Staff getById(int id) {
+        return staffRepo.findById(id).get();
     }
 
     @Override
-    public Staff getById(int id) {
-        return staffRepo.findById(id).get();
+    public String softDelete(Integer id) throws Exception {
+        Staff staff = staffRepo.findById(id).get();
+        staff.setStatus(0);
+        staffRepo.save(staff);
+        return "Soft delete successfully";
+    }
+
+    @Override
+    public String updateStatus(Integer id) {
+        Staff existingStaff = staffRepo.findById(id).get();
+        existingStaff.setStatus(1);
+        staffRepo.save(existingStaff);
+        return "Update status successfully";
     }
 
     @Override

@@ -8,6 +8,10 @@ import com.example.demo.service.ProductDetailService;
 import com.example.demo.response.MessageReponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -22,9 +26,19 @@ public class ProductDetailController {
     private ProductDetailService productDetailService;
 
     @GetMapping("")
-    public ResponseEntity<?> getAllProductDetails() {
-        List<ProductDetailResponse> productDetailResponses = productDetailService.getAll();
-        return new ResponseEntity<>(productDetailResponses, HttpStatus.OK);
+    public ResponseEntity<?> getAllProductDetails(@RequestParam(required = false) String productName,
+                                                  @RequestParam(required = false) String code,
+                                                  @RequestParam(required = false) String colorName,
+                                                  @RequestParam(required = false) String sizeName,
+                                                  @RequestParam(required = false) Double minPrice,
+                                                  @RequestParam(required = false) Double maxPrice,
+                                                  @RequestParam(defaultValue = "0") int page,
+                                                  @RequestParam(defaultValue = "10") int limit
+                                                  ) {
+        Pageable pageable = PageRequest.of(page,limit, Sort.by("id").ascending());
+        Page<ProductDetailResponse> productDetailResponsePage = productDetailService.pageAndFilterWithProductDetailResponse(productName,code,colorName,sizeName,minPrice,maxPrice,pageable);
+        List<ProductDetailResponse> productDetailResponses = productDetailResponsePage.getContent();
+        return ResponseEntity.ok(new MessageReponse("successfully",200,productDetailResponses));
     }
 
     @GetMapping("/getAllProductDetail")
@@ -37,8 +51,6 @@ public class ProductDetailController {
                 .build()
         );
     }
-
-
     @PostMapping("")
     public ResponseEntity<?> addProductDetail(@Valid @RequestBody ProductDetailDTO productDetailDTO, BindingResult result) {
         if (result.hasErrors()) {

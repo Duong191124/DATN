@@ -23,13 +23,9 @@ public class CartDetailResponse {
 
     private Integer productDetailId;
 
-    private Integer ordersId;
-
-//    git clone -b develop https://github.com/Duong191124/DATN.git
     public static CartDetailResponse fromCartDetailResponse(CartDetail cartDetail){
         Integer customerId = (cartDetail.getCustomer() != null) ? cartDetail.getCustomer().getId() : null;
         Integer productDetailId = (cartDetail.getProductDetail() != null) ? cartDetail.getProductDetail().getId() : null;
-        Integer ordersId = (cartDetail.getOrders() != null) ? cartDetail.getOrders().getId() : null;
         return CartDetailResponse
                 .builder()
                 .id(cartDetail.getId())
@@ -38,7 +34,6 @@ public class CartDetailResponse {
                 .totalPrice(cartDetail.getTotalPrice())
                 .customerId(customerId)
                 .productDetailId(productDetailId)
-                .ordersId(ordersId)
                 .build();
     }
 }

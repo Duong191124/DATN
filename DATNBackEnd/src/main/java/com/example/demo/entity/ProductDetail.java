@@ -29,6 +29,9 @@ public class ProductDetail extends BaseEntity {
     @Basic
     @Column(name = "image", nullable = true, length = 255)
     private String image;
+    @Basic
+    @Column(name = "status")
+    private int status;
     @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;

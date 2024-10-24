@@ -78,6 +78,14 @@ public class VoucherController {
             );
         }
     }
+    @PutMapping("/{id}/customer")
+    public ResponseEntity<?> updateCustomer(@PathVariable Integer id, @RequestBody VoucherDTO VoucherDTO) throws Exception {
+        Integer customerId = VoucherDTO.getCustomers();
+
+        VoucherResponse updatedVoucher = voucherService.updateCustomer(id, customerId);
+        return ResponseEntity.ok(updatedVoucher);
+    }
+
 
 
     @GetMapping("detail/{id}")

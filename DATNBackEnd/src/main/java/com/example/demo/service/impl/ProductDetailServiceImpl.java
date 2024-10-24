@@ -13,6 +13,8 @@ import com.example.demo.response.ProductDetailResponse;
 import com.example.demo.service.ProductDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -65,6 +67,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         existingProductDetail.setQuantity(productDetailDTO.getQuantity());
         existingProductDetail.setPrice(productDetailDTO.getPrice());
         existingProductDetail.setImage(productDetailDTO.getImage());
+        existingProductDetail.setStatus(productDetailDTO.getStatus());
         existingProductDetail.setProduct(getProductById(productDetailDTO.getProductId()));
         existingProductDetail.setSize(getSizeById(productDetailDTO.getSizeId()));
         existingProductDetail.setColor(getColorById(productDetailDTO.getColorId()));
@@ -95,6 +98,12 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
         productDetail.setImage(imageUrl);
         return productDetailRepo.save(productDetail);
+    }
+
+    @Override
+    public Page<ProductDetailResponse> pageAndFilterWithProductDetailResponse(String productName, String code, String colorName, String sizeName, Double minPrice,Double maxPrice, Pageable pageable) {
+        Page<ProductDetail> productDetailPage = productDetailRepo.pageAndFilterProductDetail(productName,code,colorName,sizeName,minPrice,maxPrice,pageable);
+        return productDetailPage.map(ProductDetailResponse::fromProductDetailResponse);
     }
 
     public Product getProductById(Integer id) throws Exception {

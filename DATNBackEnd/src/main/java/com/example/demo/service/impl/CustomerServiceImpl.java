@@ -63,7 +63,7 @@ public class CustomerServiceImpl implements CustomerService {
         existingCustomer.setPhoneNumber(customerDTO.getPhoneNumber());
         existingCustomer.setName(customerDTO.getName());
         existingCustomer.setNotes(customerDTO.getNotes());
-        Set<Voucher> vouchers = new HashSet<>();
+
         Customer updateCustomer = customerRepo.save(existingCustomer);
         return CustomerResponse.fromCustomerResponse(updateCustomer);
     }

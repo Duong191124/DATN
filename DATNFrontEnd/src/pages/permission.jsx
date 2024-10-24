@@ -18,46 +18,51 @@ const PermissionPage = () => {
             const data = await getAllPermissionPagination(page, size);
             setDataTable(data.data.data.content);
             setTotal(data.data.data.totalElements)
-            console.log("check data nha: ", data.data.data.totalElements)
         } catch (error) {
+            console.error(error)
         }
     }
 
     const handleOpenModal = () => {
         setIsModalOpen(true)
     }
+  };
 
-    useEffect(() => {
-        loadData();
-    }, []);
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
 
-    return (
-        <>
-            <div style={{
-                margin: "20px 50px",
-            }}>
-                <Button
-                    onClick={handleOpenModal}
-                    type='primary'>
-                    Create
-                </Button>
-                <PermissionTable
-                    dataTable={dataTable}
-                    loadData={loadData}
-                    setPage={setPage}
-                    setSize={setSize}
-                    page={page}
-                    size={size}
-                    total={total}
-                />
-                <PermissionModal
-                    loadData={loadData}
-                    isModalOpen={isModalOpen}
-                    setIsModalOpen={setIsModalOpen}
-                />
-            </div>
-        </>
-    )
-}
+  useEffect(() => {
+    loadData();
+  }, []);
 
-export default PermissionPage
+  return (
+    <>
+      <div
+        style={{
+          margin: "20px 50px",
+        }}
+      >
+        <Button onClick={handleOpenModal} type="primary">
+          Create
+        </Button>
+        <PermissionTable
+          dataTable={dataTable}
+          loadData={loadData}
+          setPage={setPage}
+          setSize={setSize}
+          page={page}
+          size={size}
+          total={total}
+        />
+        <PermissionModal
+          loadData={loadData}
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+        />
+      </div>
+    </>
+  );
+};
+
+export default PermissionPage;
