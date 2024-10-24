@@ -31,8 +31,5 @@ public class CartDetail {
     @ManyToOne
     @JoinColumn(name = "product_detail_id", referencedColumnName = "id")
     private ProductDetail productDetail;
-    @ManyToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "id")
-    private Orders orders;
 }
 

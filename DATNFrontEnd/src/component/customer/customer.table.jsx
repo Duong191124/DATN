@@ -24,11 +24,6 @@ const CustomerTable = ({ dataTable, loadData, setPage, setSize, page, size, tota
             key: 'username',
         },
         {
-            title: 'Password',
-            dataIndex: 'password',
-            key: 'password',
-        },
-        {
             title: 'Email',
             dataIndex: 'email',
             key: 'email',
