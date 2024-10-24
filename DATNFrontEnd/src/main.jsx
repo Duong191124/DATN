@@ -18,7 +18,7 @@ import SleevePage from "./pages/sleeve.jsx";
 import PromotionPage from "./pages/promotion.jsx";
 import VoucherPage from "./pages/voucher.jsx";
 import StaffManagement from "./pages/staff.jsx";
-import PrivateRoute from "./pages/private.route.jsx";
+// import PrivateRoute from "./pages/private.route.jsx";
 import App from "./App.jsx";
 import PermissionPage from "./pages/permission.jsx";
 import CustomerPage from "./pages/customer.jsx";
@@ -81,7 +81,6 @@ const router = createBrowserRouter([
         element: <SleevePage />,
       },
       {
-
         path: "permission",
         element: <PermissionPage />,
       },
