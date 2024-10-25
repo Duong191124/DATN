@@ -15,6 +15,7 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
             setLoading(true);
             try {
                 const res = await fetchVoucherById(voucherId);
+                console.log(res);
                 if (res && res.data.data) {
                     form.setFieldsValue({
                         code: res.data.data.code,
@@ -24,7 +25,8 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                         minPurchaseAmount: res.data.data.minPurchaseAmount,
                         maxDiscountAmount: res.data.data.maxDiscountAmount,
                         termsAndConditions: res.data.data.termsAndConditions,
-                        expirationDate: res.data.data.expirationDate ? moment(res.data.data.expirationDate, "YYYY-MM-DD") : null // Sửa định dạng cho đúng
+                        // Cập nhật để sử dụng moment với LocalDateTime
+                        expirationDate: res.data.data.expirationDate ? moment(res.data.data.expirationDate) : null
                     });
                 } else {
                     notification.error({
@@ -54,12 +56,14 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                 discountPercent: Number(values.discountPercent),
                 minPurchaseAmount: Number(values.minPurchaseAmount),
                 maxDiscountAmount: Number(values.maxDiscountAmount),
-                expirationDate: values.expirationDate ? values.expirationDate.format("YYYY-MM-DD") : null,
+                // Cập nhật định dạng để phù hợp với LocalDateTime
+                expirationDate: values.expirationDate ? values.expirationDate.format("YYYY-MM-DDTHH:mm:ss") : null,
                 status: 1, // Luôn là 'active'
             };
 
             setLoading(true);
             const res = await updateVoucher(voucherId, formattedValues);
+            console.log("dataupdate: ", res);
             if (res && res.data) {
                 notification.success({
                     message: "Cập nhật Voucher",
@@ -92,85 +96,54 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                 <Button key="back" onClick={onClose}>
                     Hủy
                 </Button>,
-                <Button key="submit" type="primary" loading={loading} onClick={form.submit}>
+                <Button key="submit" type="primary" loading={loading} onClick={handleSubmit}>
                     Cập nhật
                 </Button>,
             ]}
         >
-            <Form
-                form={form}
-                layout="vertical"
-                onFinish={handleSubmit}
-            >
+            <Form form={form} layout="vertical" name="form_in_modal">
+                <Form.Item name="code" label="Mã Voucher" rules={[{ required: true, message: 'Vui lòng nhập mã voucher!' }]}>
+                    <Input />
+                </Form.Item>
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item
-                            label="Mã Voucher"
-                            name="code"
-                            rules={[{ required: true, message: "Vui lòng nhập mã voucher!" }]}
-                        >
-                            <Input />
-                        </Form.Item>
-
-                        <Form.Item
-                            label="Giảm giá tiền (VNĐ)"
-                            name="discountAmount"
-                            rules={[{ required: true, message: "Vui lòng nhập số tiền giảm giá!" }]}
-                        >
-                            <InputNumber style={{ width: "100%" }} placeholder="Nhập số tiền giảm giá" min={0} />
-                        </Form.Item>
-
-                        <Form.Item
-                            label="Phần trăm giảm giá (%)"
-                            name="discountPercent"
-                            rules={[{ required: true, message: "Vui lòng nhập phần trăm giảm giá!" }]}
-                        >
-                            <InputNumber style={{ width: "100%" }} placeholder="Nhập phần trăm giảm giá" min={0} max={100} />
-                        </Form.Item>
-
-                        <Form.Item
-                            label="Số lượng voucher"
-                            name="quantity"
-                            rules={[{ required: true, message: "Vui lòng nhập số lượng voucher!" }]}
-                        >
-                            <InputNumber style={{ width: "100%" }} placeholder="Nhập số lượng voucher" min={1} />
+                        <Form.Item name="quantity" label="Số lượng" rules={[{ required: true, message: 'Vui lòng nhập số lượng!' }]}>
+                            <InputNumber min={0} />
                         </Form.Item>
                     </Col>
-
                     <Col span={12}>
-                        <Form.Item
-                            label="Số tiền mua tối thiểu (VNĐ)"
-                            name="minPurchaseAmount"
-                            rules={[{ required: true, message: "Vui lòng nhập số tiền mua tối thiểu!" }]}
-                        >
-                            <InputNumber style={{ width: "100%" }} placeholder="Nhập số tiền mua tối thiểu" min={0} />
-                        </Form.Item>
-
-                        <Form.Item
-                            label="Giảm giá tối đa (VNĐ)"
-                            name="maxDiscountAmount"
-                            rules={[{ required: true, message: "Vui lòng nhập số tiền giảm giá tối đa!" }]}
-                        >
-                            <InputNumber style={{ width: "100%" }} placeholder="Nhập số tiền giảm giá tối đa" min={0} />
-                        </Form.Item>
-
-                        <Form.Item
-                            label="Ngày hết hạn"
-                            name="expirationDate"
-                            rules={[{ required: true, message: "Vui lòng chọn ngày hết hạn!" }]}
-                        >
-                            <DatePicker style={{ width: "100%" }} format="YYYY-MM-DD" />
-                        </Form.Item>
-
-                        <Form.Item
-                            label="Điều khoản và điều kiện"
-                            name="termsAndConditions"
-                            rules={[{ required: true, message: "Vui lòng nhập điều khoản và điều kiện!" }]}
-                        >
-                            <TextArea rows={4} placeholder="Nhập điều khoản và điều kiện sử dụng voucher" />
+                        <Form.Item name="discountAmount" label="Giảm giá (Số tiền)" rules={[{ required: true, message: 'Vui lòng nhập số tiền giảm giá!' }]}>
+                            <InputNumber min={0} />
                         </Form.Item>
                     </Col>
                 </Row>
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item name="discountPercent" label="Giảm giá (Phần trăm)" rules={[{ required: true, message: 'Vui lòng nhập phần trăm giảm giá!' }]}>
+                            <InputNumber min={0} max={100} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item name="minPurchaseAmount" label="Số tiền tối thiểu để mua" rules={[{ required: true, message: 'Vui lòng nhập số tiền tối thiểu!' }]}>
+                            <InputNumber min={0} />
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item name="maxDiscountAmount" label="Số tiền tối đa giảm giá" rules={[{ required: true, message: 'Vui lòng nhập số tiền tối đa giảm giá!' }]}>
+                            <InputNumber min={0} />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item name="expirationDate" label="Ngày hết hạn" rules={[{ required: true, message: 'Vui lòng chọn ngày hết hạn!' }]}>
+                            <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" />
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Form.Item name="termsAndConditions" label="Điều khoản và điều kiện">
+                    <TextArea rows={4} />
+                </Form.Item>
             </Form>
         </Modal>
     );

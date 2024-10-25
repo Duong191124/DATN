@@ -14,9 +14,15 @@ const VoucherForm = (props) => {
     const values = form.getFieldsValue();
     const formattedValues = {
       ...values,
-      expirationDate: values.expirationDate.format("YYYY-MM-DD"),
-      customers: null, // Đặt giá trị khách hàng thành null
+      discountAmount: values.discountAmount?.toString(),
+      discountPercent: values.discountPercent?.toString(),
+      minPurchaseAmount: values.minPurchaseAmount?.toString(),
+      maxDiscountAmount: values.maxDiscountAmount?.toString(),
+      // Chuyển đổi expirationDate sang định dạng LocalDateTime
+      expirationDate: values.expirationDate ? moment(values.expirationDate).format("YYYY-MM-DDTHH:mm:ss") : null,
+      customers: null, // Đặt customers luôn là null
     };
+    console.log("Sending data:", formattedValues);
 
     const res = await createVoucher(
       formattedValues.code,
@@ -27,7 +33,7 @@ const VoucherForm = (props) => {
       formattedValues.minPurchaseAmount,
       formattedValues.maxDiscountAmount,
       formattedValues.termsAndConditions,
-      formattedValues.customers // Khách hàng luôn là null
+      formattedValues.customers  // Khách hàng luôn là null
     );
 
     if (res && res.data) {
@@ -68,7 +74,7 @@ const VoucherForm = (props) => {
           layout="vertical"
           onFinish={handleSubmit}
           initialValues={{
-            expirationDate: moment().add(1, 'days'),
+            expirationDate: moment().startOf('day').add(1, 'days'), // Đặt thời gian giờ phút mặc định
             status: 1, // Trường này luôn được thiết lập là 1
           }}
         >
@@ -98,7 +104,7 @@ const VoucherForm = (props) => {
             <Form.Item
               label="Phần trăm giảm giá (%)"
               name="discountPercent"
-              rules={[
+              rules={[ 
                 { required: true, message: 'Vui lòng nhập phần trăm giảm giá!' },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
@@ -142,7 +148,11 @@ const VoucherForm = (props) => {
               rules={[{ required: true, message: 'Vui lòng chọn ngày hết hạn!' }]}
               style={{ width: '48%' }}
             >
-              <DatePicker style={{ width: '100%' }} />
+              <DatePicker 
+                showTime 
+                style={{ width: '100%' }} 
+                format={"DD-MM-YYYY HH:mm:ss"} 
+              />
             </Form.Item>
           </div>
 

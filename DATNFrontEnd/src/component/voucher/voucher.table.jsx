@@ -38,7 +38,6 @@ const VoucherTable = ({ refreshData }) => {
     const loadData = async () => {
         try {
             const response = await fetchDataVoucher();
-            console.log("DataVoucher: ", response);
             if (response.data.data) {
                 setDataVoucher(response.data.data);
             }
@@ -93,17 +92,12 @@ const VoucherTable = ({ refreshData }) => {
         loadData();
     };
 
-
     const handleShowCustomerDetail = (customerIds, voucherId) => {
-
-        setSelectedVoucherId(voucherId); // Lưu voucherId khi mở modal
-        console.log(voucherId);
-        if (customerIds) {
-            const selectedCustomer = customers.find(customer => customer.id === customerIds);
-            if (selectedCustomer) {
-                setSelectedCustomers([selectedCustomer]);
-                setIsCustomerModalOpen(true);
-            }
+        setSelectedVoucherId(voucherId);
+        if (customerIds && customerIds.length > 0) { // Kiểm tra nếu customerIds có dữ liệu
+            const selectedCustomer = customers.filter(customer => customerIds.includes(customer.id)); // Lấy danh sách khách hàng
+            setSelectedCustomers(selectedCustomer);
+            setIsCustomerModalOpen(true);
         } else {
             notification.warning({
                 message: "Thông báo",
@@ -116,7 +110,7 @@ const VoucherTable = ({ refreshData }) => {
 
     const handleApply = (selected) => {
         console.log("Khách hàng được áp dụng:", selected);
-        loadData(); // Gọi loadData để làm mới dữ liệu voucher
+        loadData();
     };
 
     const columns = [
@@ -142,7 +136,7 @@ const VoucherTable = ({ refreshData }) => {
             dataIndex: "discountAmount",
         },
         {
-            title: "Giảm giá (Phần trăm)",
+            title: "Giảm giá (%)",
             dataIndex: "discountPercent",
         },
         {
@@ -204,8 +198,8 @@ const VoucherTable = ({ refreshData }) => {
                     appliedCustomers={selectedCustomers}
                     onClose={() => setIsCustomerModalOpen(false)}
                     onApply={handleApply}
-                    voucherId={selectedVoucherId} // Thêm voucherId vào đây
-                    onRefresh={loadData} // Thêm hàm loadData vào đây
+                    voucherId={selectedVoucherId}
+                    onRefresh={loadData}
                 />
             )}
         </div>
