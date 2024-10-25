@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from 'antd';
-import { getAllPermissionPagination } from '../service/api.service'
+import { getAllPermissionPagination } from '../service/api.service';
 import PermissionTable from '../component/permission/permission.table';
 import PermissionModal from '../component/permission/permission.modal';
-
-
 
 const PermissionPage = () => {
     const [dataTable, setDataTable] = useState([]);
@@ -17,10 +15,13 @@ const PermissionPage = () => {
         try {
             const data = await getAllPermissionPagination(page, size);
             setDataTable(data.data.data.content);
-            setTotal(data.data.totalElements)
+
+            setTotal(data.data.data.totalElements);
         } catch (error) {
-        }
-    }
+            console.error(error);
+            setTotal(data.data.totalElements)
+        } 
+    };
 
     const handleOpenModal = () => {
         setIsModalOpen(true)
@@ -56,7 +57,8 @@ const PermissionPage = () => {
                 />
             </div>
         </>
-    )
-}
+    );
+};
 
-export default PermissionPage
+export default PermissionPage;
+

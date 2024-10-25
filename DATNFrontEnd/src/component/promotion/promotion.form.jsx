@@ -136,7 +136,7 @@ const PromotionForm = (props) => {
                     </Form.Item>
 
                     <Form.Item
-                        label="Điều Kiện Được Giảm(VNĐ)"
+                        label="Số Tiền Giảm Giá(VNĐ)"
                         name="discountAmount"
                         rules={[{ required: true, message: 'Vui lòng nhập số tiền giảm giá!' }]}
                     >
