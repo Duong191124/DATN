@@ -18,6 +18,4 @@ public class CartDetailDTO {
     private Integer customerId;
 
     private Integer productDetailId;
-
-    private Integer ordersId;
 }

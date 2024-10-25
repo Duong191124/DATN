@@ -31,11 +31,10 @@ const CustomerUpdate = ({ isModalOpen, setIsModalOpen, loadData, dataDetail }) =
             values.address,
             values.phone,
             values.status,
-            values.dob,  // Format date picker thành chuỗi
+            values.dob,
             values.name,
             values.note,
-            values.gender,
-            values.status // Thêm giá trị status vào đây
+            values.gender
         );
         myForm.resetFields();
         loadData();
@@ -68,9 +67,9 @@ const CustomerUpdate = ({ isModalOpen, setIsModalOpen, loadData, dataDetail }) =
 
     return (
         <>
-            <Modal 
-                title="Update staff" 
-                open={isModalOpen} 
+            <Modal
+                title="Update staff"
+                open={isModalOpen}
                 footer={null}  // Ẩn các nút mặc định
                 onCancel={handleCancel}
             >

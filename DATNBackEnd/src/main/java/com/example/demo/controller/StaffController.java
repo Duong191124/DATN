@@ -5,7 +5,6 @@ import com.example.demo.dto.UserPermissionDTO;
 import com.example.demo.entity.Staff;
 import com.example.demo.response.CustomerResponse;
 import com.example.demo.response.MessageReponse;
-import com.example.demo.response.StaffResponse;
 import com.example.demo.service.impl.StaffServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

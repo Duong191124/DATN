@@ -1,9 +1,7 @@
 package com.example.demo.dto;
 
-import com.example.demo.entity.OrderStatus;
-import com.example.demo.entity.Orders;
-import com.example.demo.entity.Staff;
-import com.example.demo.entity.Voucher;
+import com.example.demo.entity.*;
+import com.example.demo.repository.CustomerRepo;
 import com.example.demo.repository.StaffRepo;
 import com.example.demo.repository.VoucherRepo;
 import com.example.demo.request.OrderDetailRequest;
@@ -44,15 +42,18 @@ public class OrderDTO {
     private Integer voucherId;
     @JsonProperty("staff_id")
     private Integer staffId;
+    @JsonProperty("customer_id")
+    private Integer customerId;
     private List<OrderDetailRequest> orderDetailRequests;
 
 
-    public static Orders convertOrder(OrderDTO orderDTO, VoucherRepo voucherRepo, StaffRepo accountRepo) {
+    public static Orders convertOrder(OrderDTO orderDTO, VoucherRepo voucherRepo, StaffRepo accountRepo, CustomerRepo customerRepo) {
         Staff staff = accountRepo.findById(orderDTO.getStaffId()).orElseThrow(()->new RuntimeException("not found staff with id:"+orderDTO.getStaffId()));
         Voucher voucher = null;
         if(voucher != null){
              voucher = voucherRepo.findById(orderDTO.getVoucherId()).orElseThrow(()->new RuntimeException("not found voucher with id:"+orderDTO.getVoucherId()));
         }
+        Customer customer = customerRepo.findById(orderDTO.getCustomerId()).orElseThrow(() -> new RuntimeException("Not found customer with id: "+orderDTO.getCustomerId()));
         return Orders.builder()
                 .code(orderDTO.getCode())
                 .status(orderDTO.getStatus())
@@ -61,6 +62,7 @@ public class OrderDTO {
                 .totalAmount(orderDTO.getTotalAmount())
                 .moneyReceived(orderDTO.moneyReceived)
                 .voucher(voucher)
+                .customer(customer)
                 .build();
     }
 }

@@ -1,34 +1,50 @@
-import { Button, Form, Input, Row, Col, Divider, message, notification } from "antd";
+import { Button, Form, Input, Row, Col, Divider, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useContext } from "react";
+import { useState} from "react";
 import { loginCustomerAPI } from "../service/api.service";
-import { AuthContext } from "../component/context/auth.context";
+// import { AuthContext } from "../component/context/auth.context";
 
 const LoginPage = () => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const { setUser } = useContext(AuthContext);
+    // const { setUser, setStatus } = useContext(AuthContext);
 
 
     const onFinish = async (values) => {
         setLoading(true)
-        const res = await loginCustomerAPI(values.username, values.password);
-        console.log(res);
-        if (res.status === 200 || res.status === 201) {
-            localStorage.setItem("access_token", res.data.token);
-            console.log(res.data.token);
-            setUser(res.data.user);
-            message.success("Đăng nhập thành công");
-            if (res.status === 200) {
-                navigate("/");
-            } else {
-                navigate("/admin");
+        try {
+            const res = await loginCustomerAPI(values.username, values.password);
+            console.log(res);
+            if (res.status === 200 || res.status === 201) {
+                localStorage.setItem("access_token", res.data.token);
+                // setUser(res.data.user)
+                // setStatus(res.status);
+                message.success("Đăng nhập thành công");
+                if (res.status === 200) {
+                    navigate("/");
+                } else {
+                    navigate("/admin");
+                }
             }
-        } else {
-            message.error("Đăng nhập thất bại");
+            setLoading(false)
+        }catch (error) {
+            if (error.response && error.response.status === 401) {
+                form.setFields([
+                    {
+                        name: "username",
+                        errors: ["Username or password is not valid"],
+                    },
+                    {
+                        name: "password",
+                        errors: ["Username or password is not valid"],
+                    },
+                ]);
+            } else {
+                message.error("Đăng nhập thất bại, vui lòng thử lại.");
+            }
+            setLoading(false);
         }
-        setLoading(false)
     }
 
     return (
