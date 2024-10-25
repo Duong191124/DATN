@@ -16,7 +16,7 @@ const PermissionPage = () => {
     const loadData = async () => {
         try {
             const data = await getAllPermissionPagination(page, size);
-            setDataTable(data.data.content);
+            setDataTable(data.data.data.content);
             setTotal(data.data.totalElements)
         } catch (error) {
         }
