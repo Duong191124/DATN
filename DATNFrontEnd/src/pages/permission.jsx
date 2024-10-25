@@ -15,15 +15,17 @@ const PermissionPage = () => {
         try {
             const data = await getAllPermissionPagination(page, size);
             setDataTable(data.data.data.content);
+
             setTotal(data.data.data.totalElements);
         } catch (error) {
             console.error(error);
-        }
+            setTotal(data.data.totalElements)
+        } 
     };
 
     const handleOpenModal = () => {
-        setIsModalOpen(true);
-    };
+        setIsModalOpen(true)
+    }
 
     useEffect(() => {
         loadData();
@@ -31,12 +33,12 @@ const PermissionPage = () => {
 
     return (
         <>
-            <div
-                style={{
-                    margin: "20px 50px",
-                }}
-            >
-                <Button onClick={handleOpenModal} type="primary">
+            <div style={{
+                margin: "20px 50px",
+            }}>
+                <Button
+                    onClick={handleOpenModal}
+                    type='primary'>
                     Create
                 </Button>
                 <PermissionTable
@@ -59,3 +61,4 @@ const PermissionPage = () => {
 };
 
 export default PermissionPage;
+
