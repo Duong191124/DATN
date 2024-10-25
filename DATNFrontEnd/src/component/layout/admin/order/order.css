@@ -6,11 +6,23 @@
 .filter-bill {
   width: 18%;
 }
+.filter-bill .bill-order-code {
+  background-color: #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  width: 100%;
+}
+.bill-order-code p {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
 .filter-bill .bill-date {
   background-color: #ddd;
   border-radius: 10px;
   padding: 20px;
   width: 100%;
+  margin-top: 20px;
 }
 .bill-date p {
   font-size: 16px;

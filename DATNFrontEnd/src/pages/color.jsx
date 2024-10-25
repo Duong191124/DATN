@@ -11,8 +11,8 @@ const ColorPage = () => {
   const loadColor = async () => {
     const res = await fetchDataColor();
     setDataColor(res.data.data);
-    setListName(res.data.map((color) => color.name)); // Cập nhật danh sách tên từ dữ liệu màu
-    setListCode(res.data.map((color) => color.code));
+    setListName(res.data.data.map((color) => color.name)); // Cập nhật danh sách tên từ dữ liệu màu
+    setListCode(res.data.data.map((color) => color.code));
   };
 
   useEffect(() => {

@@ -28,8 +28,6 @@ public class CartDetailServiceImpl implements CartDetailService {
 
     @Override
     public CartDetailResponse add(CartDetailDTO cartDetailDTO) throws Exception {
-        Orders existingOrders = orderRepo.findById(cartDetailDTO.getOrdersId())
-                .orElseThrow(() -> new Exception(""));
         Customer existingCustomer = customerRepo.findById(cartDetailDTO.getCustomerId())
                 .orElseThrow(() -> new Exception(""));
         ProductDetail existingProductDetail = productDetailRepo.findById(cartDetailDTO.getProductDetailId())
@@ -41,7 +39,6 @@ public class CartDetailServiceImpl implements CartDetailService {
                 .totalPrice(cartDetailDTO.getTotalPrice())
                 .customer(existingCustomer)
                 .productDetail(existingProductDetail)
-                .orders(existingOrders)
                 .build();
         CartDetail addCartDetail = cartDetailRepo.save(newCartDetail);
         return CartDetailResponse.fromCartDetailResponse(addCartDetail);
@@ -49,8 +46,6 @@ public class CartDetailServiceImpl implements CartDetailService {
 
     @Override
     public CartDetailResponse update(Integer id, CartDetailDTO cartDetailDTO) throws Exception {
-        Orders existingOrders = orderRepo.findById(cartDetailDTO.getOrdersId())
-                .orElseThrow(() -> new Exception(""));
         Customer existingCustomer = customerRepo.findById(cartDetailDTO.getCustomerId())
                 .orElseThrow(() -> new Exception(""));
         ProductDetail existingProductDetail = productDetailRepo.findById(cartDetailDTO.getProductDetailId())
@@ -61,7 +56,6 @@ public class CartDetailServiceImpl implements CartDetailService {
         cartDetail.setTotalPrice(cartDetailDTO.getTotalPrice());
         cartDetail.setCustomer(existingCustomer);
         cartDetail.setProductDetail(existingProductDetail);
-        cartDetail.setOrders(existingOrders);
         CartDetail updateCartDetail = cartDetailRepo.save(cartDetail);
         return CartDetailResponse.fromCartDetailResponse(updateCartDetail);
 
