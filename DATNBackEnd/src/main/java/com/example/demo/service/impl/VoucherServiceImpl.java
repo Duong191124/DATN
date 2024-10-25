@@ -29,7 +29,6 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Override
     public VoucherResponse add(VoucherDTO voucherDTO) {
-        Customer existingCustomer = customerRepository.findById(voucherDTO.getCustomers()).orElse(null);
         Voucher newVoucher = Voucher.builder()
                 .code(voucherDTO.getCode())
                 .quantity(voucherDTO.getQuantity())
@@ -39,20 +38,27 @@ public class VoucherServiceImpl implements VoucherService {
                 .minPurchaseAmount(voucherDTO.getMinPurchaseAmount())
                 .maxDiscountAmount(voucherDTO.getMaxDiscountAmount())
                 .termsAndConditions(voucherDTO.getTermsAndConditions())
-                .status(1)
-
+                .status(voucherDTO.getStatus())
                 .build();
+
+        // Nếu customers là null thì không cần thiết lập
+        if (voucherDTO.getCustomers() != null) {
+            Customer existingCustomer = customerRepository.findById(voucherDTO.getCustomers()).orElse(null);
+            if (existingCustomer != null) {
+                newVoucher.setCustomer(existingCustomer);
+            }
+        }
+
         Voucher addVoucher = voucherRepository.save(newVoucher);
         return VoucherResponse.fromVoucherResponse(addVoucher);
     }
 
     @Override
     public VoucherResponse update(Integer id, VoucherDTO voucherDTO) throws Exception {
-        Customer existingCustomer = customerRepository.findById(voucherDTO.getCustomers()).orElse(null);
         Voucher existingVoucher = getById(id); // Kiểm tra nếu voucher tồn tại
 
         existingVoucher.setCode(voucherDTO.getCode());
-        existingVoucher.setQuantity((voucherDTO.getQuantity()));
+        existingVoucher.setQuantity(voucherDTO.getQuantity());
         existingVoucher.setDiscountAmount(voucherDTO.getDiscountAmount());
         existingVoucher.setDiscountPercent(voucherDTO.getDiscountPercent());
         existingVoucher.setExpirationDate(voucherDTO.getExpirationDate());
@@ -62,14 +68,32 @@ public class VoucherServiceImpl implements VoucherService {
         existingVoucher.setStatus(voucherDTO.getStatus());
 
         // Thiết lập khách hàng nếu tồn tại
-        if (existingCustomer != null) {
-            existingVoucher.setCustomer(existingCustomer);
+        if (voucherDTO.getCustomers() != null) {
+            Customer existingCustomer = customerRepository.findById(voucherDTO.getCustomers()).orElse(null);
+            if (existingCustomer != null) {
+                existingVoucher.setCustomer(existingCustomer);
+            }
         }
 
         Voucher updateVoucher = voucherRepository.save(existingVoucher);
         return VoucherResponse.fromVoucherResponse(updateVoucher);
     }
 
+    @Override
+    public VoucherResponse updateCustomer(Integer id, Integer customerId) throws Exception {
+        Customer existingCustomer = customerRepository.findById(customerId).orElse(null);
+        Voucher existingVoucher = getById(id); // Kiểm tra nếu voucher tồn tại
+
+        // Thiết lập khách hàng nếu tồn tại
+        if (existingCustomer != null) {
+            existingVoucher.setCustomer(existingCustomer);
+        } else {
+            throw new Exception("Customer not found with id: " + customerId);
+        }
+
+        Voucher updatedVoucher = voucherRepository.save(existingVoucher);
+        return VoucherResponse.fromVoucherResponse(updatedVoucher);
+    }
 
     @Override
     public Voucher getById(Integer id) throws Exception {

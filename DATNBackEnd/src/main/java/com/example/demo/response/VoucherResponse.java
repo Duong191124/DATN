@@ -4,6 +4,7 @@ import com.example.demo.entity.Customer;
 import com.example.demo.entity.Voucher;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,7 +24,7 @@ public class VoucherResponse {
 
     private String discountPercent;
 
-    private Date expirationDate;
+    private LocalDateTime expirationDate;
 
     private String minPurchaseAmount;
 

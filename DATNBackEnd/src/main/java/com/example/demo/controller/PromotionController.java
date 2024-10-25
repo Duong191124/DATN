@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.PromotionDTO;
+import com.example.demo.entity.Promotion;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.PromotionResponse;
 import com.example.demo.service.impl.PromotionServiceImpl;
@@ -74,6 +75,24 @@ public class PromotionController {
                 .data(updatePromotion)
                 .build());
     }
+    @PutMapping("/{id}/product-details")
+    public ResponseEntity<?> updatePromotionProductDetails(
+            @PathVariable("id") Integer id,
+            @RequestBody PromotionDTO promotionDTO) throws Exception {
+
+        // Lấy danh sách productDetailsIds từ promotionDTO
+        List<Integer> productDetailsIds = promotionDTO.getProductDetailsIds();
+
+        // Gọi phương thức cập nhật trong service với danh sách ID đã lấy
+        PromotionResponse updatedPromotion = promotionService.updateProductDetails(id, productDetailsIds);
+
+        return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
+                .message("Cập nhật product details thành công")
+                .status(HttpStatus.OK.value())
+                .data(updatedPromotion)
+                .build());
+    }
+
     @GetMapping("detail/{id}")
     public ResponseEntity<?> getPromotionDetail(@PathVariable("id") Integer id) {
         try {

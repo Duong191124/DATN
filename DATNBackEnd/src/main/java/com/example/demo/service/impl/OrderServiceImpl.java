@@ -26,6 +26,8 @@ public class OrderServiceImpl implements OrderService {
     private final  StaffRepo staffRepo;
     private final  VoucherRepo voucherRepo;
     private final ProductDetailRepo productDetailRepo;
+    private final CustomerRepo customerRepo;
+
     @Override
     public List<OrderResponse> getAll() {
         List<OrderResponse> orderResponses = orderRepo.findAll().stream().map(OrderResponse::convertOrderResponse).collect(Collectors.toList());
@@ -38,10 +40,12 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponse createdOrder(OrderDTO orderDTO) {
         Staff staff = staffRepo.findById(orderDTO.getStaffId()).orElseThrow(()->new RuntimeException("not found staff with id:"+orderDTO.getStaffId()));
+        Customer customer = customerRepo.findById(orderDTO.getCustomerId()).orElseThrow(()->new RuntimeException("not found staff with id:"+orderDTO.getCustomerId()));
         Orders order = new Orders();
         order.setCode(orderDTO.getCode());
         order.setOrderDate(orderDTO.getOrderDate());
         order.setStaff(staff);
+        order.setCustomer(customer);
         order.setMoneyReceived(orderDTO.getMoneyReceived());
         if (orderDTO.getVoucherId() != null) {
             Voucher voucher = voucherRepo.findById(orderDTO.getVoucherId())

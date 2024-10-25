@@ -5,7 +5,6 @@ import com.example.demo.dto.UserPermissionDTO;
 import com.example.demo.entity.Staff;
 import com.example.demo.response.CustomerResponse;
 import com.example.demo.response.MessageReponse;
-import com.example.demo.response.StaffResponse;
 import com.example.demo.service.impl.StaffServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -85,11 +84,20 @@ public class StaffController {
 
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") Integer id)throws Exception{
-        staffService.deleteById(id);
+    @PutMapping("/update-status/{id}")
+    public ResponseEntity<?> updateStaff(@PathVariable("id") Integer id){
+        String updateStatus = staffService.updateStatus(id);
         return ResponseEntity.ok().body(MessageReponse.builder()
-                .message("xoa staff voi id = " + id +"thanh cong")
+                .message(updateStatus)
+                .status(HttpStatus.OK.value())
+                .build());
+    }
+
+    @PutMapping("/soft-delete/{id}")
+    public ResponseEntity<?> delete(@PathVariable("id") Integer id)throws Exception{
+        String delete = staffService.softDelete(id);
+        return ResponseEntity.ok().body(MessageReponse.builder()
+                .message(delete)
                 .status(HttpStatus.OK.value())
                 .build());
     }

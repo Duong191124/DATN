@@ -1,86 +1,137 @@
-package com.example.demo.service.impl;
+    package com.example.demo.service.impl;
 
-import com.example.demo.dto.PromotionDTO;
-import com.example.demo.entity.ProductDetail;
-import com.example.demo.entity.Promotion;
-import com.example.demo.repository.ProductDetailRepo;
-import com.example.demo.repository.PromotionRepo;
-import com.example.demo.response.PromotionResponse;
-import com.example.demo.service.PromotionService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+    import com.example.demo.dto.PromotionDTO;
+    import com.example.demo.entity.ProductDetail;
+    import com.example.demo.entity.Promotion;
+    import com.example.demo.repository.ProductDetailRepo;
+    import com.example.demo.repository.PromotionRepo;
+    import com.example.demo.response.PromotionResponse;
+    import com.example.demo.service.PromotionService;
+    import lombok.RequiredArgsConstructor;
+    import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+    import java.util.HashSet;
+    import java.util.List;
+    import java.util.Set;
 
-@RequiredArgsConstructor
-@Service
-public class PromotionServiceImpl implements PromotionService {
+    @RequiredArgsConstructor
+    @Service
+    public class PromotionServiceImpl implements PromotionService {
 
-    private final PromotionRepo promotionRepo;
-    private final ProductDetailRepo productDetailRepo;
+        private final PromotionRepo promotionRepo;
+        private final ProductDetailRepo productDetailRepo;
 
-    @Override
-    public List<Promotion> getAll() {
-        return promotionRepo.findAll();
-    }
-
-    @Override
-    public PromotionResponse add(PromotionDTO promotion) {
-        ProductDetail productDetail = null;
-
-        // Kiểm tra nếu productDetailsId không phải là null
-        if (promotion.getProductDetailsId() != null) {
-            productDetail = productDetailRepo.findById(promotion.getProductDetailsId())
-                    .orElse(null);
+        @Override
+        public List<Promotion> getAll() {
+            return promotionRepo.findAll();
         }
 
-        Promotion newPromotion = Promotion.builder()
-                .name(promotion.getName())
-                .description(promotion.getDescription())
-                .discountAmount(promotion.getDiscountAmount())
-                .discountPercent(promotion.getDiscountPercent())
-                .startDate(promotion.getStartDate())
-                .endDate(promotion.getEndDate())
-                .status(promotion.getStatus())
-                .productDetailsId(productDetail != null ? Set.of(productDetail) : Set.of()) // Nếu productDetail là null, không thêm
-                .build();
 
-        Promotion addPromotion = promotionRepo.save(newPromotion);
-        return PromotionResponse.fromPromotionResponse(addPromotion);
+        @Override
+        public PromotionResponse add(PromotionDTO promotionDTO) {
+            Set<ProductDetail> productDetails = new HashSet<>();
+
+            // Nếu danh sách productDetailsIds không rỗng, lấy từng product detail theo ID
+            if (promotionDTO.getProductDetailsIds() != null && !promotionDTO.getProductDetailsIds().isEmpty()) {
+                promotionDTO.getProductDetailsIds().forEach(productDetailId -> {
+                    ProductDetail productDetail = productDetailRepo.findById(productDetailId).orElse(null);
+                    if (productDetail != null) {
+                        productDetails.add(productDetail);
+                    }
+                });
+            }
+
+            // Tạo mới khuyến mãi
+            Promotion newPromotion = Promotion.builder()
+                    .name(promotionDTO.getName())
+                    .description(promotionDTO.getDescription())
+                    .discountAmount(promotionDTO.getDiscountAmount())
+                    .discountPercent(promotionDTO.getDiscountPercent())
+                    .startDate(promotionDTO.getStartDate())
+                    .endDate(promotionDTO.getEndDate())
+                    .status(promotionDTO.getStatus())
+                    .productDetails(productDetails)  // Sử dụng set productDetails
+                    .build();
+
+            Promotion savedPromotion = promotionRepo.save(newPromotion);
+            return PromotionResponse.fromPromotionResponse(savedPromotion);
+        }
+
+
+        @Override
+        public PromotionResponse update(Integer id, PromotionDTO promotionDTO) throws Exception {
+            Promotion existingPromotion = getPromotionById(id);
+            // Giữ nguyên giá trị cũ cho productDetails nếu không có ID mới
+            Set<ProductDetail> productDetails = existingPromotion.getProductDetails();
+
+            // Kiểm tra và cập nhật productDetails nếu có ID mới
+            if (promotionDTO.getProductDetailsIds() != null) {
+                if (!promotionDTO.getProductDetailsIds().isEmpty()) {
+                    productDetails = new HashSet<>();
+                    for (Integer productDetailId : promotionDTO.getProductDetailsIds()) {
+                        ProductDetail productDetail = productDetailRepo.findById(productDetailId).orElse(null);
+                        if (productDetail != null) {
+                            productDetails.add(productDetail);
+                        }
+                    }
+                }
+            }
+
+            // Cập nhật các trường khác của khuyến mãi
+            existingPromotion.setName(promotionDTO.getName());
+            existingPromotion.setDescription(promotionDTO.getDescription());
+            existingPromotion.setDiscountAmount(promotionDTO.getDiscountAmount());
+            existingPromotion.setDiscountPercent(promotionDTO.getDiscountPercent());
+            existingPromotion.setStartDate(promotionDTO.getStartDate());
+            existingPromotion.setEndDate(promotionDTO.getEndDate());
+            existingPromotion.setStatus(promotionDTO.getStatus());
+            existingPromotion.setProductDetails(productDetails);
+
+            Promotion updatedPromotion = promotionRepo.save(existingPromotion);
+
+            // Sử dụng phương thức đã cập nhật
+            return PromotionResponse.fromPromotionResponse(updatedPromotion);
+        }
+
+        @Override
+        public PromotionResponse updateProductDetails(Integer promotionId, List<Integer> productDetailsIds) throws Exception {
+            // Tìm promotion theo ID
+            Promotion existingPromotion = getPromotionById(promotionId);
+
+            // Nếu danh sách productDetailsIds không rỗng, cập nhật lại productDetails
+            Set<ProductDetail> updatedProductDetails = new HashSet<>();
+            if (productDetailsIds != null && !productDetailsIds.isEmpty()) {
+                for (Integer productDetailId : productDetailsIds) {
+                    ProductDetail productDetail = productDetailRepo.findById(productDetailId).orElse(null);
+                    if (productDetail != null) {
+                        updatedProductDetails.add(productDetail);
+                    }
+                }
+            }
+
+            // Cập nhật danh sách productDetails mới cho promotion
+            existingPromotion.setProductDetails(updatedProductDetails);
+
+            // Lưu lại thay đổi vào cơ sở dữ liệu
+            Promotion updatedPromotion = promotionRepo.save(existingPromotion);
+
+            // Trả về đối tượng PromotionResponse đã được cập nhật
+            return PromotionResponse.fromPromotionResponse(updatedPromotion);
+        }
+
+
+
+
+        @Override
+        public Promotion getPromotionById(Integer id) throws Exception {
+            return promotionRepo.findById(id)
+                    .orElseThrow(() -> new Exception("Promotion not found"));
+        }
+
+        @Override
+        public void deletePromotion(Integer id) throws Exception {
+            Promotion existingPromotion = getPromotionById(id);
+            // Chỉ xóa khuyến mãi, không làm ảnh hưởng đến ProductDetail
+            promotionRepo.delete(existingPromotion);
+        }
     }
-
-
-    @Override
-    public PromotionResponse update(Integer id, PromotionDTO promotion) throws Exception {
-        ProductDetail productDetail = productDetailRepo.findById(promotion.getProductDetailsId())
-                .orElseThrow(() -> new Exception(""));
-        Promotion existingPromotion = getPromotionById(id);
-        existingPromotion.setName(promotion.getName());
-        existingPromotion.setDescription(promotion.getDescription());
-        existingPromotion.setDiscountAmount(promotion.getDiscountAmount());
-        existingPromotion.setDiscountPercent(promotion.getDiscountPercent());
-        existingPromotion.setStartDate(promotion.getStartDate());
-        existingPromotion.setEndDate(promotion.getEndDate());
-        existingPromotion.setStatus(promotion.getStatus());
-        Set<ProductDetail> productDetails = new HashSet<>();
-        productDetails.add(productDetail);
-        existingPromotion.setProductDetailsId(productDetails);
-        Promotion updatePromotion = promotionRepo.save(existingPromotion);
-        return PromotionResponse.fromPromotionResponse(updatePromotion);
-    }
-
-    @Override
-    public Promotion getPromotionById(Integer id) throws Exception {
-        return promotionRepo.findById(id).orElseThrow(() -> new Exception(""));
-    }
-
-    @Override
-    public void deletePromotion(Integer id) throws Exception {
-        Promotion existingPromotion = getPromotionById(id);
-
-        // Chỉ xóa khuyến mãi, không làm ảnh hưởng đến ProductDetail
-        promotionRepo.delete(existingPromotion);
-    }
-}

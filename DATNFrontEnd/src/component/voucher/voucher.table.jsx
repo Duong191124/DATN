@@ -1,20 +1,45 @@
 import React, { useEffect, useState } from "react";
 import { Table, Space, Modal, notification } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { fetchDataVoucher, deleteVoucher } from "../../service/api.service";
-import VoucherUpdateModal from "./voucher.update"; // Đổi tên thành Modal để đúng với Ant Design
+import { EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
+import { fetchDataVoucher, deleteVoucher, fetchCustomerList } from "../../service/api.service";
+import VoucherUpdateModal from "./voucher.update";
+import VoucherCustomer from "./voucher.customer";
 
 const VoucherTable = ({ refreshData }) => {
     const [dataVoucher, setDataVoucher] = useState([]);
-    const [selectedVoucherId, setSelectedVoucherId] = useState(null); // Chỉ lưu ID để khi mở modal fetch lại chi tiết voucher
+    const [selectedVoucherId, setSelectedVoucherId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isAddSuccess, setIsAddSuccess] = useState(false);
+    const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
+    const [selectedCustomers, setSelectedCustomers] = useState([]);
+    const [customers, setCustomers] = useState([]);
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 5,
+    });
+
+    // Lấy danh sách khách hàng khi component mount
+    useEffect(() => {
+        const fetchCustomers = async () => {
+            try {
+                const res = await fetchCustomerList();
+                if (res && res.data && res.data.data) {
+                    setCustomers(res.data.data.content);
+                }
+            } catch (error) {
+                notification.error({
+                    message: "Lỗi",
+                    description: "Không thể tải danh sách khách hàng",
+                });
+            }
+        };
+        fetchCustomers();
+    }, []);
 
     const loadData = async () => {
         try {
             const response = await fetchDataVoucher();
-            if (response.data) {
-                setDataVoucher(response.data);
+            if (response.data.data) {
+                setDataVoucher(response.data.data);
             }
         } catch (error) {
             notification.error({
@@ -25,14 +50,8 @@ const VoucherTable = ({ refreshData }) => {
     };
 
     useEffect(() => {
-        loadData(); // Tải dữ liệu lần đầu
-    }, []); // Chỉ tải lần đầu
-
-    useEffect(() => {
-        if (refreshData) {
-            loadData(); // Tải lại dữ liệu khi refreshData thay đổi
-        }
-    }, [refreshData]); // Theo dõi refreshData
+        loadData();
+    }, [refreshData]);
 
     const handleDelete = (id) => {
         Modal.confirm({
@@ -46,7 +65,7 @@ const VoucherTable = ({ refreshData }) => {
                             message: "Xóa Voucher",
                             description: "Xóa voucher thành công."
                         });
-                        loadData(); // Tải lại dữ liệu sau khi xóa
+                        loadData();
                     } else {
                         notification.error({
                             message: "Xóa Voucher",
@@ -64,23 +83,45 @@ const VoucherTable = ({ refreshData }) => {
     };
 
     const handleEdit = (voucher) => {
-        setSelectedVoucherId(voucher.id); // Chỉ lưu ID voucher
-        setIsModalOpen(true); // Mở modal
+        setSelectedVoucherId(voucher.id);
+        setIsModalOpen(true);
     };
 
     const handleUpdateSuccess = () => {
-        setIsModalOpen(false); // Đóng modal sau khi cập nhật thành công
-        loadData(); // Tải lại dữ liệu
+        setIsModalOpen(false);
+        loadData();
+    };
+
+    const handleShowCustomerDetail = (customerIds, voucherId) => {
+        setSelectedVoucherId(voucherId);
+        if (customerIds && customerIds.length > 0) { // Kiểm tra nếu customerIds có dữ liệu
+            const selectedCustomer = customers.filter(customer => customerIds.includes(customer.id)); // Lấy danh sách khách hàng
+            setSelectedCustomers(selectedCustomer);
+            setIsCustomerModalOpen(true);
+        } else {
+            notification.warning({
+                message: "Thông báo",
+                description: "Voucher này chưa áp dụng cho khách hàng nào.",
+            });
+            setSelectedCustomers([]);
+            setIsCustomerModalOpen(true);
+        }
+    };
+
+    const handleApply = (selected) => {
+        console.log("Khách hàng được áp dụng:", selected);
+        loadData();
     };
 
     const columns = [
         {
             title: 'STT',
-            render: (text, record, index) => index + 1,
+            render: (text, record, index) =>
+                (pagination.current - 1) * pagination.pageSize + index + 1,
         },
         {
             title: "ID",
-           dataIndex: 'id', // Hiển thị ID từ cơ sở dữ liệu
+            dataIndex: 'id',
         },
         {
             title: "Mã Voucher",
@@ -95,7 +136,7 @@ const VoucherTable = ({ refreshData }) => {
             dataIndex: "discountAmount",
         },
         {
-            title: "Giảm giá (Phần trăm)",
+            title: "Giảm giá (%)",
             dataIndex: "discountPercent",
         },
         {
@@ -108,14 +149,14 @@ const VoucherTable = ({ refreshData }) => {
             render: (status) => (status === 1 ? "Hoạt động" : "Hết hạn")
         },
         {
-            title: "Khách hàng ID",
-            dataIndex: "customers",
-        },
-        {
             title: "Hành động",
             key: "actions",
             render: (_, record) => (
                 <Space size="middle">
+                    <EyeOutlined
+                        style={{ color: "green", cursor: "pointer" }}
+                        onClick={() => handleShowCustomerDetail(record.customers, record.id)}
+                    />
                     <EditOutlined
                         style={{ color: "blue", cursor: "pointer" }}
                         onClick={() => handleEdit(record)}
@@ -131,23 +172,37 @@ const VoucherTable = ({ refreshData }) => {
 
     return (
         <div>
-            <Table 
-                columns={columns} 
-                dataSource={dataVoucher} 
-                rowKey="id" 
-                pagination={{ pageSize: 2, showSizeChanger: false }}
+            <Table
+                columns={columns}
+                dataSource={dataVoucher}
+                pagination={{
+                    current: pagination.current,
+                    pageSize: pagination.pageSize,
+                    showSizeChanger: false,
+                    onChange: (page, pageSize) => {
+                        setPagination({ current: page, pageSize });
+                    },
+                }}
+                rowKey="id"
             />
-
             {isModalOpen && (
                 <VoucherUpdateModal
                     visible={isModalOpen}
-                    voucherId={selectedVoucherId} // Truyền ID voucher cần chỉnh sửa
-                    onClose={() => setIsModalOpen(false)} // Đóng modal
-                    onSuccess={handleUpdateSuccess} // Thành công thì tải lại dữ liệu
+                    voucherId={selectedVoucherId}
+                    onClose={() => setIsModalOpen(false)}
+                    onSuccess={handleUpdateSuccess}
+                />
+            )}
+            {isCustomerModalOpen && (
+                <VoucherCustomer
+                    appliedCustomers={selectedCustomers}
+                    onClose={() => setIsCustomerModalOpen(false)}
+                    onApply={handleApply}
+                    voucherId={selectedVoucherId}
+                    onRefresh={loadData}
                 />
             )}
         </div>
-        
     );
 };
 
