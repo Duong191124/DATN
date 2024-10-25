@@ -677,7 +677,6 @@ const createVoucher = async (
   minPurchaseAmount,
   maxDiscountAmount,
   termsAndConditions,
-  // status,
   customers
 ) => {
   const URL_BACKEND = "/api/v1/voucher";
@@ -690,11 +689,11 @@ const createVoucher = async (
     minPurchaseAmount: minPurchaseAmount,
     maxDiscountAmount: maxDiscountAmount,
     termsAndConditions: termsAndConditions,
-    // status,
+    status: 1, // Đặt giá trị status luôn là 1
     customers: customers
   };
   return axios.post(URL_BACKEND, data);
-}
+};
 
 
 const deleteVoucher = async (id) => {
@@ -705,7 +704,7 @@ const fetchVoucherById = (id) => {
   const URL_BACKEND = `/api/v1/voucher/detail/${id}`;
   return axios.get(URL_BACKEND);
 };
-const updateVoucher = async (id, { code, quantity, discountAmount, discountPercent, expirationDate, minPurchaseAmount, maxDiscountAmount, termsAndConditions, customers }) => {
+const updateVoucher = async (id, { code, quantity, discountAmount, discountPercent, expirationDate, minPurchaseAmount, maxDiscountAmount, termsAndConditions }) => {
   const URL_BACKEND = `/api/v1/voucher/${id}`;
   const data = {
     code,
@@ -717,7 +716,7 @@ const updateVoucher = async (id, { code, quantity, discountAmount, discountPerce
     maxDiscountAmount,
     termsAndConditions,
     status: 1,// Gán giá trị trạng thái mặc định là 1 (active)
-    customers
+    
   };
   return axios.put(URL_BACKEND, data);
 };

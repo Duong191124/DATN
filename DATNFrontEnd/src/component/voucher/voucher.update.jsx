@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, InputNumber, DatePicker, Button, Select, notification, Row, Col } from "antd";
+import { Modal, Form, Input, InputNumber, DatePicker, Button, notification, Row, Col } from "antd";
 import moment from "moment";
-import { updateVoucher, fetchCustomerList, fetchVoucherById } from "../../service/api.service";
+import { updateVoucher, fetchVoucherById } from "../../service/api.service";
 
 const { TextArea } = Input;
 
 const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
-    const [customers, setCustomers] = useState([]);
 
     useEffect(() => {
         const fetchVoucher = async () => {
@@ -25,14 +24,8 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                         minPurchaseAmount: res.data.data.minPurchaseAmount,
                         maxDiscountAmount: res.data.data.maxDiscountAmount,
                         termsAndConditions: res.data.data.termsAndConditions,
-                        customers: res.data.data.customers,
-                        //startDate: moment(res.data.startDate),
-                        expirationDate: res.data.data.expirationDate ? moment(res.data.data.expirationDate, "DD/MM/YYYY") : null
-
-
+                        expirationDate: res.data.data.expirationDate ? moment(res.data.data.expirationDate, "YYYY-MM-DD") : null // Sửa định dạng cho đúng
                     });
-                    console.log("Expiration Date:", res.data.expirationDate);
-
                 } else {
                     notification.error({
                         message: "Lỗi",
@@ -49,28 +42,7 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
             }
         };
 
-        const fetchCustomers = async () => {
-            try {
-                const res = await fetchCustomerList();
-                console.log("Response from API: ", res);
-                if (res && res.data && res.data.data && res.data.data.content) {
-                    setCustomers(res.data.data.content); // Sử dụng "content" để lấy danh sách khách hàng
-                } else {
-                    notification.error({
-                        message: "Lỗi",
-                        description: "Không thể tải danh sách khách hàng",
-                    });
-                }
-            } catch (error) {
-                notification.error({
-                    message: "Lỗi",
-                    description: "Có lỗi xảy ra khi tải danh sách khách hàng",
-                });
-            }
-        };
-
         fetchVoucher();
-        fetchCustomers();
     }, [voucherId]);
 
     const handleSubmit = async () => {
@@ -78,27 +50,23 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
             const values = form.getFieldsValue();
             const formattedValues = {
                 ...values,
-                discountAmount: Number(values.discountAmount),  // Chuyển đổi thành số
-                discountPercent: Number(values.discountPercent), // Chuyển đổi thành số
-                minPurchaseAmount: Number(values.minPurchaseAmount), // Chuyển đổi thành số
-                maxDiscountAmount: Number(values.maxDiscountAmount), // Chuyển đổi thành số
+                discountAmount: Number(values.discountAmount),
+                discountPercent: Number(values.discountPercent),
+                minPurchaseAmount: Number(values.minPurchaseAmount),
+                maxDiscountAmount: Number(values.maxDiscountAmount),
                 expirationDate: values.expirationDate ? values.expirationDate.format("YYYY-MM-DD") : null,
-                customers: values.customers, // Đảm bảo customers là ID
                 status: 1, // Luôn là 'active'
             };
 
-            console.log("Formatted values before sending:", formattedValues); // Debug
-
             setLoading(true);
             const res = await updateVoucher(voucherId, formattedValues);
-            console.log(res);
             if (res && res.data) {
                 notification.success({
                     message: "Cập nhật Voucher",
                     description: "Cập nhật voucher thành công",
                 });
-                onSuccess(); // Gọi callback sau khi cập nhật thành công
-                onClose(); // Đóng modal
+                onSuccess();
+                onClose();
             } else {
                 notification.error({
                     message: "Cập nhật Voucher",
@@ -145,24 +113,6 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                         </Form.Item>
 
                         <Form.Item
-                            label="Khách hàng"
-                            name="customers"
-                            rules={[{ required: true, message: "Vui lòng chọn khách hàng!" }]}
-                            style={{ width: '100%' }} // Đặt width cho Form.Item
-                        >
-                            <Select placeholder="Chọn khách hàng" allowClear>
-                                {Array.isArray(customers) && customers.length > 0
-                                    ? customers.map(customer => (
-                                        <Select.Option key={customer.id} value={customer.id}>
-                                            {customer.username}
-                                        </Select.Option>
-                                    ))
-                                    : <Select.Option disabled>Không có khách hàng</Select.Option>
-                                }
-                            </Select>
-                        </Form.Item>
-
-                        <Form.Item
                             label="Giảm giá tiền (VNĐ)"
                             name="discountAmount"
                             rules={[{ required: true, message: "Vui lòng nhập số tiền giảm giá!" }]}
@@ -177,14 +127,6 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                         >
                             <InputNumber style={{ width: "100%" }} placeholder="Nhập phần trăm giảm giá" min={0} max={100} />
                         </Form.Item>
-
-                        {/* <Form.Item
-                            label="Ngày bắt đầu"
-                            name="startDate"
-                            rules={[{ required: true, message: "Vui lòng chọn ngày bắt đầu!" }]}
-                        >
-                            <DatePicker style={{ width: "100%" }} />
-                        </Form.Item> */}
 
                         <Form.Item
                             label="Số lượng voucher"
