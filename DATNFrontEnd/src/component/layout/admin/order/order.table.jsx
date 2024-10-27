@@ -32,13 +32,13 @@ import moment from "moment";
 
 import "./order.css";
 import { NavLink } from "react-router-dom";
+import { render } from "react-dom";
 
 const OrderTable = (props) => {
   const { Search } = Input;
   const { TabPane } = Tabs;
   const {
     dataOrder,
-    loadOrder,
     handlePageChange,
     pageSize,
     currentPage,
@@ -305,8 +305,8 @@ const OrderTable = (props) => {
     },
     {
       title: "Tiền khách đưa",
-      dataIndex: "moneyReceived",
       key: "moneyReceived",
+      render: (record) => `${record.moneyReceived.toLocaleString()} VND`,
     },
     {
       title: "Tổng Tiền",
@@ -384,7 +384,7 @@ const OrderTable = (props) => {
       dataIndex: "id",
       key: "id",
       render: (text, record) => (
-        <NavLink to={`/order-detail/${record.id}`}>MP-{record.id}</NavLink>
+        <NavLink to={`/order-detail/${record.id}`}>{record.id}</NavLink>
       ),
     },
     {
@@ -530,7 +530,7 @@ const OrderTable = (props) => {
                         needConfirm
                       />
                     </p>
-                    <p>Khách hàng: chưa cập nhật</p>
+                    <p>Khách hàng: {orderDetails?.customerResponse?.name}</p>
                   </div>
                   <div className="col-4">
                     <p>
