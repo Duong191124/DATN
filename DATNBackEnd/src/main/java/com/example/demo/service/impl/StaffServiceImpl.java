@@ -14,9 +14,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 @Service
 @RequiredArgsConstructor
@@ -106,4 +108,8 @@ public class StaffServiceImpl implements StaffService {
         return staffRepo.save(staff);
     }
 
+    @Override
+    public Page<Staff> searchByUsernameAndPhoneNumber(String username, String phoneNumber, Pageable pageable) {
+        return staffRepo.findByUsernameAndPhoneNumber(username, phoneNumber, pageable);
+    }
 }
