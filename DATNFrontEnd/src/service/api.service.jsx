@@ -565,10 +565,16 @@ const updatePermissionById = (id, name) => {
     API staff
 */
 
-const getAllStaff = (page, size) => {
-  const URL_BACKEND = `/api/v1/staff/getAll?page=${page}&size=${size}`;
-  return axios.get(URL_BACKEND);
-}
+const getAllStaff = async (page, size, username, phoneNumber) => {
+  return axios.get(`/api/v1/staff/getAll`, {
+    params: {
+      page,
+      size,
+      username: username || '',     
+      phoneNumber: phoneNumber || '',
+    }
+  });
+};
 
 const getStaffPermissions = (id) => {
   const URL_BACKEND = `/api/v1/staff/${id}`;

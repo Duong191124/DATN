@@ -1,25 +1,24 @@
 import { Button, Form, Input, Row, Col, Divider, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import { useState} from "react";
+import { useState, useContext} from "react";
 import { loginCustomerAPI } from "../service/api.service";
-// import { AuthContext } from "../component/context/auth.context";
+import { AuthContext } from "../component/context/auth.context";
 
 const LoginPage = () => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    // const { setUser, setStatus } = useContext(AuthContext);
+    const { setUser, setLoginStatus } = useContext(AuthContext);
 
 
     const onFinish = async (values) => {
         setLoading(true)
         try {
             const res = await loginCustomerAPI(values.username, values.password);
-            console.log(res);
             if (res.status === 200 || res.status === 201) {
                 localStorage.setItem("access_token", res.data.token);
-                // setUser(res.data.user)
-                // setStatus(res.status);
+                setUser(res.data.user)
+                setLoginStatus(res.status.toString()); 
                 message.success("Đăng nhập thành công");
                 if (res.status === 200) {
                     navigate("/");
@@ -40,7 +39,7 @@ const LoginPage = () => {
                         errors: ["Username or password is not valid"],
                     },
                 ]);
-            } else {
+            }else {
                 message.error("Đăng nhập thất bại, vui lòng thử lại.");
             }
             setLoading(false);
@@ -68,7 +67,7 @@ const LoginPage = () => {
                             rules={[
                                 {
                                     required: true,
-                                    message: 'Email không được để trống!',
+                                    message: 'username không được để trống!',
                                 },
                             ]}
                         >
