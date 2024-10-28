@@ -27,12 +27,6 @@ const CounterSalesProductDetail = ({
   updateFilter,
   updateUrl,
 }) => {
-  console.log("Received props:", {
-    dataProductDetail,
-    selectedBill,
-    filter,
-    updateFilter,
-  });
   const [selectedRow, setSelectedRow] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [modalVisible, setModalVisible] = useState(false);
@@ -246,7 +240,9 @@ const CounterSalesProductDetail = ({
         }}
       />
       <Modal
-        title={`Nhập số lượng cho sản phẩm ${selectedRow?.productResponse?.name}`}
+        title={`Nhập số lượng cho sản phẩm ${
+          selectedRow?.productResponse?.name || "N/A"
+        }`}
         visible={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={[
@@ -258,30 +254,34 @@ const CounterSalesProductDetail = ({
           </Button>,
         ]}
       >
-        <div>
-          <span>Nhập số lượng: </span>
-          <InputNumber
-            min={1}
-            max={selectedRow?.quantity || 1}
-            value={quantity}
-            onChange={(value) => setQuantity(value)}
-          />
-        </div>
-        <div style={{ marginTop: 10 }}>
-          <span>Thông tin sản phẩm:</span>
+        {selectedRow ? (
           <div>
-            <strong>Mã sản phẩm:</strong> {selectedRow?.code}
+            <span>Nhập số lượng: </span>
+            <InputNumber
+              min={1}
+              max={selectedRow.quantity || 1}
+              value={quantity}
+              onChange={(value) => setQuantity(value)}
+            />
+            <div style={{ marginTop: 10 }}>
+              <span>Thông tin sản phẩm:</span>
+              <div>
+                <strong>Mã sản phẩm:</strong> {selectedRow.code}
+              </div>
+              <div>
+                <strong>Size:</strong> {selectedRow.size?.name || "N/A"}
+              </div>
+              <div>
+                <strong>Màu:</strong> {selectedRow.color?.name || "N/A"}
+              </div>
+              <div>
+                <strong>Giá:</strong> {selectedRow.price?.toLocaleString()} VNĐ
+              </div>
+            </div>
           </div>
-          <div>
-            <strong>Size:</strong> {selectedRow?.size?.name}
-          </div>
-          <div>
-            <strong>Màu:</strong> {selectedRow?.color?.name}
-          </div>
-          <div>
-            <strong>Giá:</strong> {selectedRow?.price?.toLocaleString()} VNĐ
-          </div>
-        </div>
+        ) : (
+          <div>Không có thông tin sản phẩm.</div>
+        )}
       </Modal>
     </>
   );
