@@ -3,11 +3,15 @@ import { DatePicker, Radio, Input, Button } from "antd";
 import OrderTable from "../component/layout/admin/order/order.table";
 import { fetchDataOrders } from "../service/api.service";
 import debounce from "lodash.debounce";
+import { useLocation, useNavigate } from "react-router-dom"; // Thêm import này
 
 const { RangePicker } = DatePicker;
 const { Search } = Input;
 
 const OrderPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [dataOrder, setDataOrder] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -20,13 +24,45 @@ const OrderPage = () => {
     status: "",
     orderCode: "",
   });
+
   // Memoize the filters object to avoid unnecessary re-renders
   const memoizedFilters = useMemo(() => filters, [filters]);
+
+  // Cập nhật URL khi bộ lọc thay đổi
+  const updateUrl = (newFilters) => {
+    const params = new URLSearchParams();
+
+    if (newFilters.staffName) params.append("staffName", newFilters.staffName);
+    if (newFilters.startDate) params.append("startDate", newFilters.startDate);
+    if (newFilters.endDate) params.append("endDate", newFilters.endDate);
+    if (newFilters.status) params.append("orderStatus", newFilters.status);
+    if (newFilters.orderCode) params.append("orderCode", newFilters.orderCode);
+
+    params.append("page", currentPage);
+    params.append("limit", pageSize);
+
+    navigate(`/admin/order?${params.toString()}`);
+  };
+
+  // Lấy tham số từ URL khi tải trang
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const newFilters = {
+      staffName: queryParams.get("staffName") || "",
+      startDate: queryParams.get("startDate") || null,
+      endDate: queryParams.get("endDate") || null,
+      status: queryParams.get("orderStatus") || "",
+      orderCode: queryParams.get("orderCode") || "",
+    };
+
+    setFilters(newFilters);
+    loadOrder(); // Tải lại đơn hàng với bộ lọc từ URL
+  }, [location.search]); // Chạy khi URL thay đổi
 
   // Hàm load dữ liệu với các tham số filter
   const loadOrder = useCallback(
     async (page = 1, pageSize = 10) => {
-      setLoading(true); // Bật loading ngay trước khi bắt đầu tải dữ liệu
+      setLoading(true);
       try {
         const { staffName, startDate, endDate, status, orderCode } =
           memoizedFilters;
@@ -46,9 +82,9 @@ const OrderPage = () => {
         } else {
           console.error("Không có dữ liệu trả về hoặc phản hồi không hợp lệ.");
         }
-        setLoading(false);
       } catch (error) {
         console.error("Lỗi khi tải đơn hàng:", error);
+      } finally {
         setLoading(false); // Tắt loading ngay cả khi có lỗi
       }
     },
@@ -57,11 +93,11 @@ const OrderPage = () => {
 
   // Hàm xử lý thay đổi khoảng thời gian
   const handleDateChange = (dates) => {
-    setFilters({
-      ...filters,
+    setFilters((prevFilters) => ({
+      ...prevFilters,
       startDate: dates ? dates[0].format("YYYY-MM-DD") : null,
       endDate: dates ? dates[1].format("YYYY-MM-DD") : null,
-    });
+    }));
   };
 
   const handleStatusChange = (e) => {
@@ -87,6 +123,7 @@ const OrderPage = () => {
       ...prevFilters,
       [key]: value,
     }));
+    updateUrl({ ...filters, [key]: value }); // Cập nhật URL với bộ lọc mới
   };
 
   // Hàm reset bộ lọc, nhưng không thay đổi giá trị của staffName
@@ -97,18 +134,20 @@ const OrderPage = () => {
       endDate: null,
       status: "",
       orderCode: "",
-      staffName: "", // Reset giá trị staffName về chuỗi rỗng
+      staffName: "",
     }));
+    updateUrl({
+      staffName: "",
+      startDate: null,
+      endDate: null,
+      status: "",
+      orderCode: "",
+    }); // Cập nhật URL khi reset
   };
 
   // Khi giá trị trong filters thay đổi, load lại danh sách đơn hàng
   useEffect(() => {
-    console.log("loadOrder:", loadOrder); // Debugging loadOrder
-    if (typeof loadOrder === "function") {
-      loadOrder(currentPage, pageSize);
-    } else {
-      console.error("loadOrder is not a function");
-    }
+    loadOrder();
   }, [filters, currentPage, pageSize, loadOrder]);
 
   const handlePageChange = useCallback((page, pageSize) => {
@@ -129,8 +168,8 @@ const OrderPage = () => {
               placeholder="Nhập mã đơn hàng ..."
               onSearch={handleOrderCodeSearch}
               enterButton
-              value={filters.orderCode} // Set giá trị cho Search từ filter
-              onChange={(e) => updateFilter("orderCode", e.target.value)} // Cập nhật giá trị khi người dùng gõ
+              value={filters.orderCode}
+              onChange={(e) => updateFilter("orderCode", e.target.value)}
             />
           </div>
           <div className="bill-date">
@@ -171,8 +210,8 @@ const OrderPage = () => {
               placeholder="Nhập tên nhân viên ..."
               onSearch={handleStaffSearch}
               enterButton
-              value={filters.staffName} // Set giá trị cho Search từ filter
-              onChange={(e) => updateFilter("staffName", e.target.value)} // Cập nhật giá trị khi người dùng gõ
+              value={filters.staffName}
+              onChange={(e) => updateFilter("staffName", e.target.value)}
             />
           </div>
           <Button

@@ -31,7 +31,20 @@ const loginCustomerAPI = (username, password) => {
   };
   return axios.post(URL_BACKEND, data);
 };
-
+const getUserInfo = () => {
+  try {
+    const URL_BACKEND = "/api/v1/auth/getInformation";
+    const token = localStorage.getItem("access_token");
+    return axios.get(URL_BACKEND, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Gửi token trong header
+        "Content-Type": "application/json",
+      },
+    });
+  } catch (error) {
+    console.error("Có lỗi xảy ra:", error);
+  }
+};
 /*
   API product
 */
@@ -86,7 +99,7 @@ const updateProductAPI = (
 const uploadImageAPI = (id, formData) => {
   return axios.post(`/api/v1/products/upload/${id}`, formData, {
     headers: {
-      'Content-Type': 'multipart/form-data',
+      "Content-Type": "multipart/form-data",
     },
   });
 };
@@ -120,15 +133,13 @@ const fetchDataCollar = () => {
 };
 
 const fetchDataBrand = () => {
-
-  const URL_BACKEND = "api/v1/brand"
-  return axios.get(URL_BACKEND)
-}
+  const URL_BACKEND = "api/v1/brand";
+  return axios.get(URL_BACKEND);
+};
 
 const checkDuplicateProductAPI = async (type, value) => {
   return await axios.post(`/api/v1/products/check-duplicate`, { type, value });
-
-}
+};
 /* API Order*/
 // const fetchDataOrders = () => {
 //   const URL_BACKEND = "api/v1/orders/list";
@@ -228,6 +239,7 @@ const createOrder = async (
   moneyReceived,
   voucherId,
   staffId,
+  customerId,
   orderDetailRequests
 ) => {
   const URL_BACKEND = "/api/v1/orders/add";
@@ -239,6 +251,7 @@ const createOrder = async (
     moneyReceived: moneyReceived,
     voucherId: voucherId,
     staffId: staffId,
+    customerId: customerId,
     orderDetailRequests: orderDetailRequests,
   };
   const headers = {
@@ -274,17 +287,17 @@ const createPayment = async (paymentDate, paymentMethod, orderId) => {
   API Product detail
 */
 const findByProductId = (productId) => {
-  const URL_BACKEND = `/api/v1/products/${productId}`
-  return axios.get(URL_BACKEND)
-}
+  const URL_BACKEND = `/api/v1/products/${productId}`;
+  return axios.get(URL_BACKEND);
+};
 const upLoadImageForProductDetail = (productId, id, formData) => {
-  const URL_BACKEND = `/api/v1/products/uploadForProductDetail/${productId}/${id}`
+  const URL_BACKEND = `/api/v1/products/uploadForProductDetail/${productId}/${id}`;
   return axios.post(URL_BACKEND, formData, {
     headers: {
-      'Content-Type': 'multipart/form-data',
-    }
-  })
-}
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
 const fetchDataProductDetail = () => {
   const URL_BACKEND = "/api/v1/productDetail/getAllProductDetail";
   return axios.get(URL_BACKEND);
@@ -349,16 +362,14 @@ const fetchDataColor = () => {
   return axios.get(URL_BACKEND);
 };
 const createColorAPI = (code, name, status) => {
-
-  const URL_BACKEND = "/api/v1/color"
+  const URL_BACKEND = "/api/v1/color";
   const data = {
     code: code,
     name: name,
-    status: status
-  }
-  return axios.post(URL_BACKEND, data)
-
-}
+    status: status,
+  };
+  return axios.post(URL_BACKEND, data);
+};
 // const checkCodeExistsAPI = (code, name, status) => {
 //     const URL_BACKEND = "/api/v1/color"
 //     const data = {
@@ -368,7 +379,6 @@ const createColorAPI = (code, name, status) => {
 //     }
 //     return axios.post(URL_BACKEND, data)
 // }
-
 
 const checkCodeExistsAPI = (code, name, status) => {
   const URL_BACKEND = "/api/v1/color";
@@ -539,19 +549,18 @@ export const checkDuplicateSizeAPI = async (type, value) => {
 const getAllPermission = () => {
   const URL_BACKEND = "/api/v1/permission/all";
   return axios.get(URL_BACKEND);
-}
+};
 const getAllPermissionPagination = (page, size) => {
   const URL_BACKEND = `/api/v1/permission/getAll?page=${page}&size=${size}`;
   return axios.get(URL_BACKEND);
 };
 const createNewPermission = (name) => {
-
   const URL_BACKEND = "/api/v1/permission/";
   const data = {
-    name: name
-  }
-  return axios.post(URL_BACKEND, data)
-}
+    name: name,
+  };
+  return axios.post(URL_BACKEND, data);
+};
 
 const deletePermissionById = (id) => {
   const URL_BACKEND = `/api/v1/permission/${id}`;
@@ -565,6 +574,9 @@ const updatePermissionById = (id, name) => {
     API staff
 */
 
+const getAllStaff = (page, size) => {
+  const URL_BACKEND = `/api/v1/staff/getAll?page=${page}&size=${size}`;
+  return axios.get(URL_BACKEND);
 const getAllStaff = async (page, size, username, phoneNumber) => {
   return axios.get(`/api/v1/staff/getAll`, {
     params: {
@@ -584,7 +596,16 @@ const updateStaffPermissions = (id, payload) => {
   const URL_BACKEND = `/api/v1/staff/update-permission/${id}`;
   return axios.put(URL_BACKEND, payload);
 };
-const createNewStaff = (username, password, phoneNumber, email, address, name, gender, dateOfBirth) => {
+const createNewStaff = (
+  username,
+  password,
+  phoneNumber,
+  email,
+  address,
+  name,
+  gender,
+  dateOfBirth
+) => {
   const URL_BACKEND = "/api/v1/staff/register";
   const data = {
     username,
@@ -598,40 +619,54 @@ const createNewStaff = (username, password, phoneNumber, email, address, name, g
   };
   return axios.post(URL_BACKEND, data, {
     headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
+      "Content-Type": "application/json",
+      Accept: "application/json",
     },
   });
-
 };
 const deleteStaff = (id) => {
   const URL_BACKEND = `/api/v1/staff/soft-delete/${id}`;
   return axios.put(URL_BACKEND);
-}
+};
 const updateStatus = (id) => {
   const URL_BACKEND = `/api/v1/staff/update-status/${id}`;
-  return axios.put(URL_BACKEND)
-}
+  return axios.put(URL_BACKEND);
+};
 //API Promotion
 
-
 const fetchDataPromotion = () => {
-  const URL_BACKEND = "/api/v1/promotion"
-  return axios.get(URL_BACKEND)
-}
+  const URL_BACKEND = "/api/v1/promotion";
+  return axios.get(URL_BACKEND);
+};
 
 const createPromotion = async (data) => {
   const URL_BACKEND = "/api/v1/promotion";
 
   try {
-      const response = await axios.post(URL_BACKEND, data);
-      return response; // Trả về phản hồi nếu thành công
+    const response = await axios.post(URL_BACKEND, data);
+    return response; // Trả về phản hồi nếu thành công
   } catch (error) {
-      return { data: null, message: error.response ? error.response.data : error.message }; // Trả về thông tin lỗi
+    return {
+      data: null,
+      message: error.response ? error.response.data : error.message,
+    }; // Trả về thông tin lỗi
   }
 };
 // Hàm cập nhật khuyến mãi
-const updatePromotion = (id, { name, description, startDate, endDate, discountPercent, discountAmount, status, productDetailsIds }) => { // Sửa 'productDetailsId' thành 'productDetailsIds'
+const updatePromotion = (
+  id,
+  {
+    name,
+    description,
+    startDate,
+    endDate,
+    discountPercent,
+    discountAmount,
+    status,
+    productDetailsIds,
+  }
+) => {
+  // Sửa 'productDetailsId' thành 'productDetailsIds'
   const URL_BACKEND = `/api/v1/promotion/${id}`; // Đường dẫn đến API cập nhật khuyến mãi
   const data = {
     name,
@@ -641,38 +676,36 @@ const updatePromotion = (id, { name, description, startDate, endDate, discountPe
     discountPercent,
     discountAmount,
     status,
-    productDetailsIds // Chú ý tên trường ở đây
+    productDetailsIds, // Chú ý tên trường ở đây
   };
 
   return axios.put(URL_BACKEND, data); // Gọi PUT với URL và dữ liệu
 };
 const updatePromotionProduct = async (id, payload) => {
-  const URL_BACKEND = `/api/v1/promotion/${id}/product-details`; 
+  const URL_BACKEND = `/api/v1/promotion/${id}/product-details`;
   try {
     const response = await axios.put(URL_BACKEND, payload);
     return response.data; // Trả về dữ liệu từ phản hồi
   } catch (error) {
-    console.error('Error updating promotion product:', error);
+    console.error("Error updating promotion product:", error);
     throw error; // Ném lỗi để xử lý ở nơi gọi hàm
   }
-}
+};
 
 const detailPromotion = (id) => {
-  const URL_BACKEND = `/api/v1/promotion/detail/${id}`
-  return axios.get(URL_BACKEND)
-}
-
-
+  const URL_BACKEND = `/api/v1/promotion/detail/${id}`;
+  return axios.get(URL_BACKEND);
+};
 
 const deletePromotionAPI = (id) => {
-  const URL_BACKEND = `/api/v1/promotion/${id}`
-  return axios.delete(URL_BACKEND)
-}
+  const URL_BACKEND = `/api/v1/promotion/${id}`;
+  return axios.delete(URL_BACKEND);
+};
 
 // API VOUCHER
 const fetchDataVoucher = () => {
-  const URL_BACKEND = "/api/v1/voucher"
-  return axios.get(URL_BACKEND)
+  const URL_BACKEND = "/api/v1/voucher";
+  return axios.get(URL_BACKEND);
 };
 const createVoucher = async (
   code,
@@ -695,13 +728,16 @@ const createVoucher = async (
     minPurchaseAmount: minPurchaseAmount,
     maxDiscountAmount: maxDiscountAmount,
     termsAndConditions: termsAndConditions,
+    // status,
+    customers: customers,
+  };
+  return axios.post(URL_BACKEND, data);
+};
     status: 1, // Đặt giá trị status luôn là 1
     customers: customers
   };
   return axios.post(URL_BACKEND, data);
 };
-
-
 const deleteVoucher = async (id) => {
   const URL_BACKEND = `/api/v1/voucher/${id}`;
   return axios.delete(URL_BACKEND);
@@ -710,6 +746,20 @@ const fetchVoucherById = (id) => {
   const URL_BACKEND = `/api/v1/voucher/detail/${id}`;
   return axios.get(URL_BACKEND);
 };
+const updateVoucher = async (
+  id,
+  {
+    code,
+    quantity,
+    discountAmount,
+    discountPercent,
+    expirationDate,
+    minPurchaseAmount,
+    maxDiscountAmount,
+    termsAndConditions,
+    customers,
+  }
+) => {
 const updateVoucher = async (id, { code, quantity, discountAmount, discountPercent, expirationDate, minPurchaseAmount, maxDiscountAmount, termsAndConditions }) => {
   const URL_BACKEND = `/api/v1/voucher/${id}`;
   const data = {
@@ -721,13 +771,15 @@ const updateVoucher = async (id, { code, quantity, discountAmount, discountPerce
     minPurchaseAmount,
     maxDiscountAmount,
     termsAndConditions,
+    status: 1, // Gán giá trị trạng thái mặc định là 1 (active)
+    customers,
     status: 1,// Gán giá trị trạng thái mặc định là 1 (active)
-    
   };
   return axios.put(URL_BACKEND, data);
 };
 
 const updateVoucherCustomer = async (id, payload) => {
+  const URL_BACKEND = `/api/v1/voucher/${id}/customer`;
   // Kiểm tra id trước khi xây dựng URL
   if (!id) {
     throw new Error("Voucher ID is required");
@@ -744,6 +796,10 @@ const updateVoucherCustomer = async (id, payload) => {
 
     return response.data; // Trả về dữ liệu từ phản hồi
   } catch (error) {
+    console.error("Error updating promotion product:", error);
+    throw error; // Ném lỗi để xử lý ở nơi gọi hàm
+  }
+};
     console.error('Error updating voucher customer:', error); // Thay đổi thông điệp cho phù hợp
     throw error; // Ném lỗi để xử lý ở nơi gọi hàm
   }
@@ -753,7 +809,7 @@ const updateVoucherCustomer = async (id, payload) => {
 const getAllCustomer = (page, size) => {
   const URL_BACKEND = `/api/v1/customer/getAll?page=${page}&size=${size}`;
   return axios.get(URL_BACKEND);
-}
+};
 
 const updateCustomer = (
   id,
@@ -778,11 +834,11 @@ const updateCustomer = (
     dateOfBirth: dateOfBirth,
     name: name,
     notes: notes,
-    gender: gender
+    gender: gender,
   };
-  const URL_BACKEND = `/api/v1/customer/${id}`
-  return axios.put(URL_BACKEND, data)
-}
+  const URL_BACKEND = `/api/v1/customer/${id}`;
+  return axios.put(URL_BACKEND, data);
+};
 
 const createCustomer = (
   username,
@@ -795,7 +851,7 @@ const createCustomer = (
   notes,
   gender
 ) => {
-  const URL_BACKEND = `/api/v1/customer/register`
+  const URL_BACKEND = `/api/v1/customer/register`;
   const data = {
     username: username,
     password: password,
@@ -803,20 +859,19 @@ const createCustomer = (
     address: address,
     phoneNumber: phoneNumber,
     status: 1,
-    dateOfBirth: dateOfBirth,  // Định dạng YYYY-MM-DD
+    dateOfBirth: dateOfBirth, // Định dạng YYYY-MM-DD
     name: name,
     notes: notes,
-    gender: gender // 1 (male), 2 (female), 3 (other)
+    gender: gender, // 1 (male), 2 (female), 3 (other)
   };
 
   return axios.post(URL_BACKEND, data);
-}
+};
 
 const softDelete = (id) => {
-  const URL_BACKEND = `/api/v1/customer/soft-delete/${id}`
-  return axios.put(URL_BACKEND)
-}
-
+  const URL_BACKEND = `/api/v1/customer/soft-delete/${id}`;
+  return axios.put(URL_BACKEND);
+};
 
 export {
   updateStatus,
@@ -905,4 +960,5 @@ export {
   fetchPageDataProductDetail,
   checkDuplicateProductAPI,
   checkCodeExistsAPI,
+  getUserInfo,
 };
