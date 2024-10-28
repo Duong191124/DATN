@@ -50,7 +50,6 @@ const CounterSales = () => {
   });
   const [staff, setStaff] = useState(null);
   useEffect(() => {
-    // Load nhân viên đã đăng nhập
     loadStaff();
   }, []);
   const loadStaff = useCallback(async () => {
