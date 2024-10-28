@@ -574,20 +574,16 @@ const updatePermissionById = (id, name) => {
     API staff
 */
 
-const getAllStaff = (page, size) => {
-  const URL_BACKEND = `/api/v1/staff/getAll?page=${page}&size=${size}`;
-  return axios.get(URL_BACKEND);
 const getAllStaff = async (page, size, username, phoneNumber) => {
   return axios.get(`/api/v1/staff/getAll`, {
     params: {
       page,
       size,
-      username: username || '',     
-      phoneNumber: phoneNumber || '',
-    }
+      username: username || "",
+      phoneNumber: phoneNumber || "",
+    },
   });
 };
-
 const getStaffPermissions = (id) => {
   const URL_BACKEND = `/api/v1/staff/${id}`;
   return axios.get(URL_BACKEND);
@@ -733,11 +729,6 @@ const createVoucher = async (
   };
   return axios.post(URL_BACKEND, data);
 };
-    status: 1, // Đặt giá trị status luôn là 1
-    customers: customers
-  };
-  return axios.post(URL_BACKEND, data);
-};
 const deleteVoucher = async (id) => {
   const URL_BACKEND = `/api/v1/voucher/${id}`;
   return axios.delete(URL_BACKEND);
@@ -757,10 +748,8 @@ const updateVoucher = async (
     minPurchaseAmount,
     maxDiscountAmount,
     termsAndConditions,
-    customers,
   }
 ) => {
-const updateVoucher = async (id, { code, quantity, discountAmount, discountPercent, expirationDate, minPurchaseAmount, maxDiscountAmount, termsAndConditions }) => {
   const URL_BACKEND = `/api/v1/voucher/${id}`;
   const data = {
     code,
@@ -772,38 +761,33 @@ const updateVoucher = async (id, { code, quantity, discountAmount, discountPerce
     maxDiscountAmount,
     termsAndConditions,
     status: 1, // Gán giá trị trạng thái mặc định là 1 (active)
-    customers,
-    status: 1,// Gán giá trị trạng thái mặc định là 1 (active)
   };
   return axios.put(URL_BACKEND, data);
 };
 
 const updateVoucherCustomer = async (id, payload) => {
-  const URL_BACKEND = `/api/v1/voucher/${id}/customer`;
   // Kiểm tra id trước khi xây dựng URL
   if (!id) {
     throw new Error("Voucher ID is required");
   }
 
-  const URL_BACKEND = `/api/v1/voucher/${id}/customer`; 
+  const URL_BACKEND = `/api/v1/voucher/${id}/customer`;
   try {
     const response = await axios.put(URL_BACKEND, payload);
-    
+
     // Kiểm tra phản hồi
     if (response.status !== 200) {
-      throw new Error(`Failed to update voucher customer: ${response.statusText}`);
+      throw new Error(
+        `Failed to update voucher customer: ${response.statusText}`
+      );
     }
 
     return response.data; // Trả về dữ liệu từ phản hồi
   } catch (error) {
-    console.error("Error updating promotion product:", error);
-    throw error; // Ném lỗi để xử lý ở nơi gọi hàm
+    console.error("Error updating voucher customer:", error); // Thay đổi thông điệp cho phù hợp
+    throw error;
   }
 };
-    console.error('Error updating voucher customer:', error); // Thay đổi thông điệp cho phù hợp
-    throw error; // Ném lỗi để xử lý ở nơi gọi hàm
-  }
-}
 
 //api crud customer
 const getAllCustomer = (page, size) => {

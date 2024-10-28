@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Modal, Table, Button, notification, Pagination } from "antd";
-
 const CounterSaleCustomer = ({
   customerList,
   onCustomerSelect,
@@ -10,8 +9,7 @@ const CounterSaleCustomer = ({
   setPage,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState(null); // Nhân viên đã chọn
-
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const columns = [
     {
       title: "Mã khách hàng",
@@ -29,7 +27,7 @@ const CounterSaleCustomer = ({
           onClick={() => handleCustomerSelect(record)}
           disabled={
             selectedCustomer !== null && selectedCustomer.id !== record.id
-          } // Chỉ cho phép chọn 1 nhân viên
+          }
         >
           {selectedCustomer?.id === record.id ? "Đã chọn" : "Chọn"}
         </Button>
@@ -42,7 +40,7 @@ const CounterSaleCustomer = ({
           type="default"
           danger
           onClick={() => handleCustomerDeselect(record)}
-          disabled={selectedCustomer?.id !== record.id} // Chỉ hiển thị "Hủy chọn" khi nhân viên này đã chọn
+          disabled={selectedCustomer?.id !== record.id}
         >
           Hủy chọn
         </Button>
@@ -65,8 +63,8 @@ const CounterSaleCustomer = ({
   // Hàm xử lý hủy chọn customer
   const handleCustomerDeselect = (customer) => {
     if (selectedCustomer?.id === customer.id) {
-      setSelectedCustomer(null); // Hủy chọn nhân viên hiện tại
-      onCustomerSelect(null); // Thông báo cho component cha rằng không có nhân viên nào được chọn
+      setSelectedCustomer(null);
+      onCustomerSelect(null);
       notification.info({
         message: "Đã hủy chọn khách hàng",
         description: `Khách hàng ${customer.name} đã bị hủy chọn.`,
