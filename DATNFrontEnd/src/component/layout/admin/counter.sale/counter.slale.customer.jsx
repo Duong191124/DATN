@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Modal, Table, Button, notification, Pagination } from "antd";
-
 const CounterSaleCustomer = ({
   customerList,
   onCustomerSelect,
@@ -11,7 +10,6 @@ const CounterSaleCustomer = ({
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-
   const columns = [
     {
       title: "Mã khách hàng",

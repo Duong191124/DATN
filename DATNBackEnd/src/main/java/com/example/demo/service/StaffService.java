@@ -22,4 +22,5 @@ public interface StaffService {
 
     Staff updatePermissions(Integer staffId, UserPermissionDTO permissionDTO);
 
+    Page<Staff> searchByUsernameAndPhoneNumber(String username, String phoneNumber, Pageable pageable);
 }

@@ -38,16 +38,30 @@ public class StaffController {
 
     @GetMapping("/getAll")
     public ResponseEntity<MessageReponse> getAll(
+            @RequestParam(name = "username", required = false) String username,
+            @RequestParam(name = "phoneNumber", required = false) String phoneNumber,
             @RequestParam(name = "page", defaultValue = "1")int page,
             @RequestParam(name = "size", defaultValue = "10")int size
     ){
-        Pageable pageable = PageRequest.of(page-1, size);
-        return ResponseEntity.ok().body(MessageReponse.builder()
-                .message("lay thong tin thanh cong")
-                .status(HttpStatus.OK.value())
-                .data(staffService.getAll(pageable))
-                .build()
-        );
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        try {
+            Page<Staff> staffPage = staffService.searchByUsernameAndPhoneNumber(username, phoneNumber, pageable);
+            return ResponseEntity.ok().body(MessageReponse.builder()
+                    .message("Search completed successfully")
+                    .status(HttpStatus.OK.value())
+                    .data(staffPage)
+                    .build()
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    MessageReponse.builder()
+                            .status(HttpStatus.BAD_REQUEST.value())
+                            .message(e.getMessage())
+                            .data(null)
+                            .build()
+            );
+        }
     }
 
     @PostMapping("/register")
@@ -146,6 +160,7 @@ public class StaffController {
             );
         }
     }
+
 //    @GetMapping("/{id}")
 //    public ResponseEntity<?> findStaffById(@PathVariable Integer id){
 //        try {
