@@ -27,6 +27,12 @@ const CounterSalesProductDetail = ({
   updateFilter,
   updateUrl,
 }) => {
+  console.log("Received props:", {
+    dataProductDetail,
+    selectedBill,
+    filter,
+    updateFilter,
+  });
   const [selectedRow, setSelectedRow] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [modalVisible, setModalVisible] = useState(false);
@@ -135,7 +141,7 @@ const CounterSalesProductDetail = ({
     updateUrl(newFilters);
   };
   const resetFilters = async () => {
-    setLoadingPD(true); // Bắt đầu loading
+    setLoadingPD(true);
     const defaultFilters = {
       productName: "",
       productCode: "",
@@ -144,13 +150,11 @@ const CounterSalesProductDetail = ({
       minPrice: undefined,
       maxPrice: undefined,
     };
-
     // Giả lập thời gian loading 2 giây (nếu cần)
     await new Promise((resolve) => setTimeout(resolve, 2000));
-
     setFilter(defaultFilters);
     updateUrl(defaultFilters);
-    setLoadingPD(false); // Kết thúc loading
+    setLoadingPD(false);
   };
   return (
     <>

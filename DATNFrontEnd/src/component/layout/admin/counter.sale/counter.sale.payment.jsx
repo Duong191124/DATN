@@ -86,17 +86,25 @@ const CounterSalePayment = ({
 
   const handleShowInvoice = async () => {
     const totalPayment = totalAmount - discountAmount;
+    let selectedAccountInfo;
     if (paymentInfo.paymentMethod === "Cash") {
       setQrCodeImg("");
     } else if (paymentInfo.paymentMethod === "Bank Transfer") {
-      const selectedAccountInfo = bankAccounts.find(
+      selectedAccountInfo = bankAccounts.find(
         (account) => account.accountNumber === selectedAccount
       );
+
+      if (!selectedAccountInfo) {
+        message.error("Tài khoản ngân hàng không hợp lệ.");
+        return;
+      }
+
       const qrCodeData = JSON.stringify({
         accountNumber: selectedAccountInfo.accountNumber,
         bankName: selectedAccountInfo.bankName,
         amount: totalPayment,
       });
+
       try {
         const qrCodeDataUrl = await QRCode.toDataURL(qrCodeData);
         setQrCodeImg(qrCodeDataUrl);
