@@ -1,46 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, InputNumber, DatePicker, Button, Select, notification } from 'antd';
+import { Modal, Form, Input, InputNumber, DatePicker, Button, notification } from 'antd';
 import moment from 'moment';
-import { createVoucher, fetchCustomerList, updateVoucherCustomer } from '../../service/api.service';
+import { createVoucher } from '../../service/api.service';
 
 const { TextArea } = Input;
 
 const VoucherForm = (props) => {
   const [form] = Form.useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [customers, setCustomers] = useState([]);
-  const { loadData, onCreate } = props; // Nhận onCreate từ props
+  const { loadData, onCreate } = props;
 
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        const res = await fetchCustomerList();
-        if (res && res.data && res.data.data && res.data.data.content) {
-          setCustomers(res.data.data.content); // Sử dụng "content" để lấy danh sách khách hàng
-        } else {
-          notification.error({
-            message: "Lỗi",
-            description: "Không thể tải danh sách khách hàng",
-          });
-        }
-      } catch (error) {
-        notification.error({
-          message: "Lỗi",
-          description: "Có lỗi xảy ra khi tải danh sách khách hàng",
-        });
-      }
-    };
-    fetchCustomers();
-  }, []);
-
-  // VoucherForm.js
   const handleSubmit = async () => {
     const values = form.getFieldsValue();
     const formattedValues = {
       ...values,
-      expirationDate: values.expirationDate.format("YYYY-MM-DD"),
-      status: Number(values.status),
+      discountAmount: values.discountAmount?.toString(),
+      discountPercent: values.discountPercent?.toString(),
+      minPurchaseAmount: values.minPurchaseAmount?.toString(),
+      maxDiscountAmount: values.maxDiscountAmount?.toString(),
+      // Chuyển đổi expirationDate sang định dạng LocalDateTime
+      expirationDate: values.expirationDate ? moment(values.expirationDate).format("YYYY-MM-DDTHH:mm:ss") : null,
+      customers: null, // Đặt customers luôn là null
     };
+    console.log("Sending data:", formattedValues);
 
     const res = await createVoucher(
       formattedValues.code,
@@ -51,7 +33,7 @@ const VoucherForm = (props) => {
       formattedValues.minPurchaseAmount,
       formattedValues.maxDiscountAmount,
       formattedValues.termsAndConditions,
-      formattedValues.customers
+      formattedValues.customers  // Khách hàng luôn là null
     );
 
     if (res && res.data) {
@@ -92,9 +74,8 @@ const VoucherForm = (props) => {
           layout="vertical"
           onFinish={handleSubmit}
           initialValues={{
-            startDate: moment(),
-            expirationDate: moment().add(1, 'days'),
-            status: 1,
+            expirationDate: moment().startOf('day').add(1, 'days'), // Đặt thời gian giờ phút mặc định
+            status: 1, // Trường này luôn được thiết lập là 1
           }}
         >
           <div style={{ display: 'flex', flexWrap: 'wrap' }}>
@@ -102,30 +83,13 @@ const VoucherForm = (props) => {
               label="Mã Voucher"
               name="code"
               rules={[{ required: true, message: 'Vui lòng nhập mã voucher!' }]}
-              style={{ width: '48%', marginRight: '4%' }} // Đặt width và margin
+              style={{ width: '48%', marginRight: '4%' }}
             >
               <Input />
             </Form.Item>
-
-            <Form.Item
-              label="Khách hàng"
-              name="customers"
-              rules={[{ required: true, message: "Vui lòng chọn khách hàng!" }]}
-              style={{ width: '48%' }} // Đặt width cho Form.Item
-            >
-              <Select placeholder="Chọn khách hàng" allowClear>
-                {Array.isArray(customers) && customers.length > 0
-                  ? customers.map(customer => (
-                    <Select.Option key={customer.id} value={customer.id}>
-                      {customer.username}
-                    </Select.Option>
-                  ))
-                  : <Select.Option disabled>Không có khách hàng</Select.Option>
-                }
-              </Select>
-            </Form.Item>
-
           </div>
+
+          {/* Bỏ trường khách hàng */}
 
           <div style={{ display: 'flex', flexWrap: 'wrap' }}>
             <Form.Item
@@ -140,7 +104,7 @@ const VoucherForm = (props) => {
             <Form.Item
               label="Phần trăm giảm giá (%)"
               name="discountPercent"
-              rules={[
+              rules={[ 
                 { required: true, message: 'Vui lòng nhập phần trăm giảm giá!' },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
@@ -155,7 +119,6 @@ const VoucherForm = (props) => {
             >
               <InputNumber style={{ width: '100%' }} placeholder="Nhập phần trăm giảm giá" min={0} max={100} />
             </Form.Item>
-
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap' }}>
@@ -179,61 +142,28 @@ const VoucherForm = (props) => {
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-            {/* <Form.Item
-              label="Ngày bắt đầu"
-              name="startDate"
-              rules={[{ required: true, message: 'Vui lòng chọn ngày bắt đầu!' }]}
-              style={{ width: '48%', marginRight: '4%' }}
-            >
-              <DatePicker style={{ width: '100%' }} />
-            </Form.Item> */}
-
             <Form.Item
               label="Ngày hết hạn"
               name="expirationDate"
-              rules={[
-                { required: true, message: 'Vui lòng chọn ngày hết hạn!' },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    const startDate = getFieldValue('startDate');
-                    if (value && startDate && value.isBefore(startDate, 'day')) {
-                      return Promise.reject(new Error('Ngày hết hạn không được trước ngày bắt đầu!'));
-                    }
-                    return Promise.resolve();
-                  },
-                }),
-              ]}
+              rules={[{ required: true, message: 'Vui lòng chọn ngày hết hạn!' }]}
               style={{ width: '48%' }}
             >
-              <DatePicker style={{ width: '100%' }} />
+              <DatePicker 
+                showTime 
+                style={{ width: '100%' }} 
+                format={"DD-MM-YYYY HH:mm:ss"} 
+              />
             </Form.Item>
-
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-            <Form.Item
-              label="Số lượng voucher"
-              name="quantity"
-              rules={[{ required: true, message: 'Vui lòng nhập số lượng voucher!' }]}
-              style={{ width: '48%', marginRight: '4%' }}
-            >
-              <InputNumber style={{ width: '100%' }} placeholder="Nhập số lượng voucher" min={1} />
-            </Form.Item>
-
-            {/* <Form.Item
-              label="Trạng thái"
-              name="status"
-              rules={[{ required: true, message: 'Vui lòng chọn trạng thái!' }]}
-            >
-              <Select placeholder="Chọn trạng thái" allowClear>
-                <Select.Option value={1}>Hoạt động</Select.Option>
-                <Select.Option value={0}>Không hoạt động</Select.Option>
-              </Select>
-
-            </Form.Item> */}
-
-
-          </div>
+          <Form.Item
+            label="Số lượng voucher"
+            name="quantity"
+            rules={[{ required: true, message: 'Vui lòng nhập số lượng voucher!' }]}
+            style={{ width: '48%', marginRight: '4%' }}
+          >
+            <InputNumber style={{ width: '100%' }} placeholder="Nhập số lượng voucher" min={1} />
+          </Form.Item>
 
           <Form.Item
             label="Điều khoản và điều kiện"

@@ -3,6 +3,7 @@ package com.example.demo.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -32,7 +33,7 @@ public class  Voucher extends BaseEntity {
     private String discountPercent;
     @Basic
     @Column(name = "expiration_date", nullable = true)
-    private Date expirationDate;
+    private LocalDateTime expirationDate;
     @Basic
     @Column(name = "min_purchase_amount", nullable = true, length = 255)
     private String minPurchaseAmount;

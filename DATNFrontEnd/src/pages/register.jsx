@@ -1,36 +1,44 @@
 import { Button, Input, Form, notification, DatePicker, Row, Col, Divider } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { registerCustomerAPI } from "../service/api.service";
+import { useState } from "react";
 
 
 const RegisterPage = () => {
     const [form] = Form.useForm();
+    const [usernameError, setUsernameError] = useState("");
     const navigate = useNavigate();
 
     const onFinish = async (values) => {
-        //call api
-        const res = await registerCustomerAPI(
-            values.username,
-            values.password,
-            values.confirm_password,
-            values.phone,
-            values.email,
-            values.dateOfBirth
-        );
+        setUsernameError(""); // Reset the username error message before new submission
 
-        console.log(res);
+        try {
+            // Call the API
+            const res = await registerCustomerAPI(
+                values.username,
+                values.password,
+                values.confirm_password,
+                values.phone,
+                values.email,
+                values.dateOfBirth
+            );
 
-        if (res.data) {
-            notification.success({
-                message: "Register user",
-                description: "Đăng ký user thành công"
-            });
-            navigate("/login");
-        } else {
-            notification.error({
-                message: "Register user error",
-                description: JSON.stringify(res.message)
-            })
+            if (res.data) {
+                notification.success({
+                    message: "Register user",
+                    description: "Đăng ký user thành công"
+                });
+                navigate("/login");
+            }
+        } catch (error) {
+            if (error.response && error.response.status === 406 && error.response.data.message.includes("Username has been taken")) {
+                setUsernameError("Username has been taken");
+            } else {
+                notification.error({
+                    message: "Register user error",
+                    description: JSON.stringify(error.message)
+                });
+            }
         }
     }
 
@@ -49,6 +57,8 @@ const RegisterPage = () => {
                     <Form.Item
                         label="Username"
                         name="username"
+                        validateStatus={usernameError ? "error" : ""}
+                        help={usernameError}
                         rules={[
                             {
                                 required: true,
@@ -81,14 +91,25 @@ const RegisterPage = () => {
                     <Form.Item
                         label="Confirm Password"
                         name="confirm_password"
+                        dependencies={['password']}
+                        hasFeedback={false}
+                        validateTrigger="onBlur"
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input your confirm password!',
+                                message: 'Please confirm your password!',
                             },
+                            ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                    if (!value || getFieldValue('password') === value) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error('Passwords do not match!'));
+                                },
+                            }),
                         ]}
                     >
-                        <Input.Password />
+                        <Input.Password onBlur={() => form.validateFields(['confirm_password'])} />
                     </Form.Item>
                 </Col>
             </Row>
