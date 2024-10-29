@@ -2,6 +2,7 @@ import { Button, Input, Modal, notification, Select, Form } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { debounce } from "lodash"; // Import lodash debounce
 import { checkDuplicateProductAPI, createProductAPI, fetchDataBrand, fetchDataCategory, fetchDataCollar, fetchDataSleeve } from "../../service/api.service";
+import { PlusOutlined } from "@ant-design/icons";
 
 const ProductForm = (props) => {
     const [form] = Form.useForm();
@@ -104,8 +105,12 @@ const ProductForm = (props) => {
     return (
         <>
             <div>
-                <Button onClick={() => setIsModalOpen(true)} type="primary">Create Product</Button>
-            </div>
+                <Button
+                    icon={<PlusOutlined />}
+                    onClick={() => setIsModalOpen(true)}
+                    style={{ color: "green" }}
+                >Create Product</Button>
+            </div >
 
             <Modal
                 title="Create Product"
