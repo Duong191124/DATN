@@ -1,90 +1,110 @@
-import { Input, Modal, notification } from "antd"
-import { useEffect, useState } from "react"
-import { updateSizeAPI } from "../../service/api.service"
-
+import { Form, Input, Modal, notification, Select } from "antd"; // Import Select
+import { useEffect } from "react";
+import { updateSizeAPI } from "../../service/api.service";
 
 const SizeUpdate = (props) => {
-    const [id, setId] = useState("")
-    const [code, setCode] = useState("")
-    const [name, setName] = useState("")
-    const [status, setStatus] = useState("")
+    const [form] = Form.useForm(); // Tạo form sử dụng Ant Design
 
-    const { loadSize, idModalUpdateOpen, setIsModalUpdateOpen, dataUpdate, setDataUpdate } = props
+    const { loadSize, idModalUpdateOpen, setIsModalUpdateOpen, dataUpdate, setDataUpdate } = props;
+
     useEffect(() => {
         if (dataUpdate) {
-            setId(dataUpdate.id)
-            setCode(dataUpdate.code)
-            setName(dataUpdate.name)
-            setStatus(dataUpdate.status)
+            form.setFieldsValue({
+                id: dataUpdate.id,
+                code: dataUpdate.code,
+                name: dataUpdate.name,
+                status: dataUpdate.status,
+            });
         }
-    }, [dataUpdate])
+    }, [dataUpdate, form]);
 
-    const handleSubmit = async () => {
-        const res = await updateSizeAPI(id, code, name, status)
+    const handleSubmit = async (values) => {
+        const res = await updateSizeAPI(values.id, values.code, values.name, values.status);
         if (res.data) {
             notification.success({
-                message: "update color",
-                description: "update color successfully"
-            })
-            await loadSize()
-            resetModal
+                message: "Update Size",
+                description: "Update size successfully",
+            });
+            await loadSize();
+            resetModal();
         }
-    }
+    };
+
     const resetModal = () => {
-        setDataUpdate(null)
-        setIsModalUpdateOpen(false)
-    }
+        setDataUpdate(null);
+        setIsModalUpdateOpen(false);
+    };
+
     return (
-        <>
-
-            <Modal
-                title="Basic Modal"
-                open={idModalUpdateOpen}
-                onOk={handleSubmit}
-                onCancel={() => resetModal()}
-                okText="save"
+        <Modal
+            title="Chỉnh sửa kích thước"
+            open={idModalUpdateOpen}
+            onOk={() => { form.submit(); }}
+            onCancel={() => resetModal()}
+            okText="Lưu"
+        >
+            <Form
+                form={form}
+                layout="vertical"
+                onFinish={handleSubmit}
             >
+                <Form.Item
+                    label="ID"
+                    name="id"
+                    rules={[
+                        {
+                            required: true,
+                            message: 'ID không được để trống',
+                        },
+                    ]}
+                >
+                    <Input disabled />
+                </Form.Item>
 
+                <Form.Item
+                    label="Code"
+                    name="code"
+                    rules={[
+                        {
+                            required: true,
+                            message: 'Code không được để trống',
+                        },
+                    ]}
+                >
+                    <Input />
+                </Form.Item>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                <Form.Item
+                    label="Name"
+                    name="name"
+                    rules={[
+                        {
+                            required: true,
+                            message: 'Name không được để trống',
+                        },
+                    ]}
+                >
+                    <Input />
+                </Form.Item>
 
-                    <div>
-                        <span>ID</span>
-                        <Input
-                            value={id}
-                            disabled
-                            onChange={(event) => { setId(event.target.value) }}
-                        />
-                    </div>
+                <Form.Item
+                    label="Status"
+                    name="status"
+                    rules={[
+                        {
+                            required: true,
+                            message: 'Status không được để trống',
+                        },
+                    ]}
+                >
+                    <Select placeholder="Chọn trạng thái" style={{ width: '100%' }}>
+                        <Select.Option value={1}>Đang hoạt động</Select.Option>
+                        <Select.Option value={0}>Ngưng hoạt động</Select.Option>
+                    </Select>
+                </Form.Item>
+            </Form>
+        </Modal>
+    );
+};
 
-                    <div>
-                        <span>Code</span>
-                        <Input
-                            value={code}
-                            onChange={(event) => { setCode(event.target.value) }}
-                        />
-                    </div>
-
-                    <div>
-                        <span>Name</span>
-                        <Input
-                            value={name}
-                            onChange={(event) => { setName(event.target.value) }}
-                        />
-                    </div>
-
-                    <div>
-                        <span>Status</span>
-                        <Input
-                            value={status}
-                            onChange={(event) => { setStatus(event.target.value) }}
-                        />
-                    </div>
-                </div>
-            </Modal>
-        </>
-
-    )
-
-}
-export default SizeUpdate
+export default SizeUpdate;

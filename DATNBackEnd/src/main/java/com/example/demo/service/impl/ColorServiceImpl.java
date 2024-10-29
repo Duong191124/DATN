@@ -3,8 +3,10 @@ package com.example.demo.service.impl;
 import com.example.demo.dto.ColorDTO;
 import com.example.demo.dto.SizeDTO;
 import com.example.demo.entity.Color;
+import com.example.demo.entity.ProductDetail;
 import com.example.demo.entity.Size;
 import com.example.demo.repository.ColorRepo;
+import com.example.demo.repository.ProductDetailRepo;
 import com.example.demo.service.ColorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
@@ -17,6 +19,7 @@ import java.util.List;
 public class ColorServiceImpl implements ColorService {
 
     private final ColorRepo colorRepo;
+    private final ProductDetailRepo productDetailRepo;
 
     @Override
     public List<Color> getAll() {
@@ -47,14 +50,14 @@ public class ColorServiceImpl implements ColorService {
         return colorRepo.findById(id).orElseThrow(() -> new Exception(""));
     }
 
-    @Override
-    public void deleteColor(Integer id) throws Exception {
-        Color existingColor = getColorById(id);
-        colorRepo.delete(existingColor);
-    }
+
+
+
 
     @Override
     public Color findById(Integer id) {
-        return colorRepo.findById(id).orElseThrow(()->new RuntimeException("not found color with id:"+id));
+        return colorRepo.findById(id).orElseThrow(() -> new RuntimeException("not found color with id:" + id));
     }
+
+
 }

@@ -35,7 +35,6 @@ const CollarPage = () => {
                 loadCollar={loadCollar}
                 dataCollar={dataCollar}
             />
-            <Button type="primary"><Link to="/products">Go to product</Link></Button>
         </div>
     )
 }

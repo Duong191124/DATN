@@ -15,4 +15,6 @@ public interface SleeveService {
     Sleeve getSleeveById(Integer id);
 
     void deleteSleeve(Integer id);
+
+    boolean canDeleteSleeve(Integer sleeveId);
 }

@@ -1,4 +1,4 @@
-import { notification, Popconfirm, Table } from "antd";
+import { Button, notification, Popconfirm, Table } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import ColorUpdate from "./category.update";
@@ -10,16 +10,7 @@ const CategoryTable = (props) => {
     const [idModalUpdateOpen, setIsModalUpdateOpen] = useState(false)
     const [dataUpdate, setDataUpdate] = useState("")
 
-    const deleteCategory = async (id) => {
-        const res = await deleteCategoryAPI(id);
-        if (res.data) {
-            notification.success({
-                message: "delete category",
-                description: "delete collar category"
-            })
-            await loadCategory()
-        }
-    }
+
     const columns = [
         {
             title: 'ID',
@@ -34,25 +25,14 @@ const CategoryTable = (props) => {
             key: 'action',
             render: (_, record) => {
                 return (
-                    <div style={{ display: "flex", gap: "20px" }}>
-                        <EditOutlined
-                            style={{ cursor: "pointer", color: "orange" }}
-                            onClick={() => {
-                                setIsModalUpdateOpen(true)
-                                setDataUpdate(record)
-                            }}
-                        />
-                        <Popconfirm
-                            title="Xoá sản phẩm"
-                            description="bạn có chắc chắn muốn xoá sản phẩm này không ?"
-                            onConfirm={() => { deleteCategory(record.id) }}
-                            okText="yes"
-                            cancelText="no"
-                            placement="left"
-                        >
-                            <DeleteOutlined style={{ cursor: "pointer", color: "red" }} />
-                        </Popconfirm>
-                    </div>
+                    <Button
+                        icon={<EditOutlined />}
+                        style={{ cursor: "pointer", color: "orange" }}
+                        onClick={() => {
+                            setIsModalUpdateOpen(true)
+                            setDataUpdate(record)
+                        }}
+                    >Edit</Button>
                 )
             }
         }

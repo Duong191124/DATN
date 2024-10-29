@@ -29,7 +29,7 @@ public class ProductDetailDTO {
 
     private int status;
 
-//    @NotNull(message = "Product is required")
+    //    @NotNull(message = "Product is required")
     private int productId;
 
     @NotNull(message = "Size is required")

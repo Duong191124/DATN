@@ -15,4 +15,8 @@ public interface CollarService {
     Collar getCollarById(Integer id);
 
     void deleteCollar(Integer id);
+
+    boolean canDeleteCollar(Integer collarId);
+
+
 }

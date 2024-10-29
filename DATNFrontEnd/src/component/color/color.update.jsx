@@ -1,12 +1,12 @@
-import { Form, Input, Modal, notification } from "antd"
-import { useEffect } from "react"
-import { updateColorAPI } from "../../service/api.service"
-
+import { Form, Input, Modal, notification, Select } from "antd"; // Import Select
+import { useEffect } from "react";
+import { updateColorAPI } from "../../service/api.service";
 
 const ColorUpdate = (props) => {
-    const [form] = Form.useForm()
+    const [form] = Form.useForm();
 
-    const { loadColor, idModalUpdateOpen, setIsModalUpdateOpen, dataUpdate, setDataUpdate } = props
+    const { loadColor, idModalUpdateOpen, setIsModalUpdateOpen, dataUpdate, setDataUpdate } = props;
+
     useEffect(() => {
         if (dataUpdate) {
             form.setFieldsValue({
@@ -14,35 +14,34 @@ const ColorUpdate = (props) => {
                 code: dataUpdate.code,
                 name: dataUpdate.name,
                 status: dataUpdate.status,
-            })
-
+            });
         }
-    }, [dataUpdate, form])
+    }, [dataUpdate, form]);
 
     const handleSubmit = async (values) => {
-        const res = await updateColorAPI(values.id, values.code, values.name, values.status)
+        const res = await updateColorAPI(values.id, values.code, values.name, values.status);
         if (res.data) {
             notification.success({
-                message: "update color",
-                description: "update color successfully"
-            })
-            await loadColor()
-            resetModal()
+                message: "Update Color",
+                description: "Update color successfully",
+            });
+            await loadColor();
+            resetModal();
         }
-    }
+    };
+
     const resetModal = () => {
-        setDataUpdate("")
-        setIsModalUpdateOpen(false)
-    }
+        setDataUpdate("");
+        setIsModalUpdateOpen(false);
+    };
+
     return (
         <Modal
-            title="Basic Modal"
+            title="Chỉnh sửa màu sắc"
             open={idModalUpdateOpen}
-            onOk={() => { form.submit() }}
+            onOk={() => { form.submit(); }}
             onCancel={() => resetModal()}
         >
-
-
             <Form
                 form={form}
                 layout="vertical"
@@ -74,7 +73,6 @@ const ColorUpdate = (props) => {
                     <Input />
                 </Form.Item>
 
-
                 <Form.Item
                     label="Name"
                     name="name"
@@ -88,7 +86,6 @@ const ColorUpdate = (props) => {
                     <Input />
                 </Form.Item>
 
-
                 <Form.Item
                     label="Status"
                     name="status"
@@ -99,13 +96,14 @@ const ColorUpdate = (props) => {
                         },
                     ]}
                 >
-                    <Input />
+                    <Select placeholder="Chọn trạng thái" style={{ width: '100%' }}>
+                        <Select.Option value={1}>Đang hoạt động</Select.Option>
+                        <Select.Option value={0}>Ngưng hoạt động</Select.Option>
+                    </Select>
                 </Form.Item>
-
             </Form>
-
         </Modal>
-    )
+    );
+};
 
-}
-export default ColorUpdate
+export default ColorUpdate;
