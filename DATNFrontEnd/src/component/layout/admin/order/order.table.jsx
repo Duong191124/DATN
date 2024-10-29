@@ -1,17 +1,10 @@
-import {
-  DeleteOutlined,
-  EditOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
+import { EditOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   Button,
   DatePicker,
   Input,
-  message,
   Modal,
   notification,
-  Popconfirm,
-  Radio,
   Select,
   Space,
   Table,
@@ -24,16 +17,11 @@ import {
   productFindById,
   sizeFindById,
 } from "../../../../service/api.service";
-
 import Highlighter from "react-highlight-words";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+import html2pdf from "html2pdf.js";
 import moment from "moment";
-
 import "./order.css";
 import { NavLink } from "react-router-dom";
-import { render } from "react-dom";
-
 const OrderTable = (props) => {
   const { Search } = Input;
   const { TabPane } = Tabs;
@@ -57,7 +45,7 @@ const OrderTable = (props) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [currentOrderId, setCurrentOrderId] = useState(null);
-
+  console.log("âfaf", orderDetails);
   useEffect(() => {
     const fetchData = async (orderDetailResponses) => {
       if (orderDetailResponses) {
@@ -443,66 +431,143 @@ const OrderTable = (props) => {
       },
     },
   ];
-  const generatePDF = () => {
-    const doc = new jsPDF();
-    doc.setFontSize(20);
-    doc.text("HÓA ĐƠN", 14, 22);
+  const createInvoiceContent = () => {
+    const totalQuantity = getTotalQuantity(
+      orderDetails.orderDetailResponses || []
+    );
+    const orderDetailRows = orderDetails.orderDetailResponses
+      .map(
+        (record) => `
+          <tr>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${
+              record.id
+            }</td>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${
+              record.productDetailId?.code || "N/A"
+            }</td>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${getProductName(
+              record.productDetailId?.productId
+            )}</td>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${
+              record.quantity || "N/A"
+            }</td>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${getSizeName(
+              record.productDetailId?.sizeId
+            )}</td>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${getColorName(
+              record.productDetailId?.colorId
+            )}</td>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${record.price.toLocaleString()} VND</td>
+          </tr>
+        `
+      )
+      .join("");
 
-    if (orderDetails) {
-      doc.setFontSize(12);
-      const orderDetailsInfo = [
-        `Mã hóa đơn: HD-${orderDetails.id}`,
-        `Trạng thái: ${orderDetails.status || "Hóa đơn chờ"}`,
-        `Ngày mua: ${orderDetails.orderDate}`,
-        `Phí giao hàng: ${orderDetails.deliveryFee}`,
-        `Mã nhân viên: ${orderDetails.staffId}`,
-        `Mã voucher: ${orderDetails.voucherId}`,
-        `Tổng tiền: ${new Intl.NumberFormat("vi-VN", {
-          style: "currency",
-          currency: "VND",
-        }).format(orderDetails.totalAmount)}`,
-      ];
+    const pdfContent = `
+      <div id="invoice" style="font-family: Arial, sans-serif; line-height: 1.5; font-size: 14px; padding: 20px;">
+        <div style="text-align:center; margin-bottom: 20px;">
+          <img src="/image/logo.jpg" alt="Logo" style="width: 150px; height: auto;" />
+        </div>
+        <h2 style="text-align: center; font-size: 24px; font-weight: bold;">SPORT SHIRT</h2>
+        <p style="text-align: center; font-size: 16px;">Địa chỉ: - -</p>
+        <p style="text-align: center; font-size: 16px;">Điện thoại: 0999999999</p>
+        <h2 style="text-align: center; font-size: 24px; font-weight: bold;">HÓA ĐƠN BÁN HÀNG</h2>
+        <p style="font-size: 16px;">Mã hóa đơn: ${orderDetails.code}</p>
+        <p style="font-size: 16px;">Ngày: ${orderDetails.orderDate}</p>
+        <p style="font-size: 16px;">Nhân viên: ${
+          orderDetails.staffResponse.name
+        }</p>
+        <p style="font-size: 16px;">Khách hàng: ${
+          orderDetails.customerResponse.name
+        }</p>
+        <p style="font-size: 16px;">SĐT: ${
+          orderDetails.customerResponse.phoneNumber
+        }</p>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <thead>
+            <tr>
+              <th style="border: 1px solid #000; padding: 10px; background-color: #f2f2f2;">Mã HDCT</th>
+              <th style="border: 1px solid #000; padding: 10px; background-color: #f2f2f2;">Mã sản phẩm</th>
+              <th style="border: 1px solid #000; padding: 10px; background-color: #f2f2f2;">Tên sản phẩm</th>
+              <th style="border: 1px solid #000; padding: 10px; background-color: #f2f2f2;">Số lượng</th>
+              <th style="border: 1px solid #000; padding: 10px; background-color: #f2f2f2;">Size</th>
+              <th style="border: 1px solid #000; padding: 10px; background-color: #f2f2f2;">Color</th>
+              <th style="border: 1px solid #000; padding: 10px; background-color: #f2f2f2;">Giá</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${orderDetailRows}
+          </tbody>
+        </table>
+        <div style="margin-top: 20px; display: flex; flex-direction: column;">
+          <div style="width: 250px; border: 1px solid #ddd; padding: 10px;">
+            <div className="result_order_detail">
+              <span>Giảm giá hóa đơn:</span>
+              <span>${orderDetails.voucherId || "0"} VND</span>
+            </div>
+            <div className="result_order_detail">
+              <span>Tổng số lượng:</span>
+              <span>${totalQuantity}</span>
+            </div>
+            <div className="result_order_detail">
+              <span>Tổng tiền hàng:</span>
+              <span>${orderDetails.totalAmount.toLocaleString()} VND</span>
+            </div>
+            <div className="result_order_detail">
+              <span>Trạng thái:</span>
+              <span>
+                ${(() => {
+                  const statusOptions = [
+                    { value: "pending", label: "Chờ xử lý" },
+                    { value: "process", label: "Đang xử lý" },
+                    { value: "delivery", label: "Đang giao" },
+                    { value: "shipped", label: "Đã giao" },
+                    { value: "cancelled", label: "Đã hủy" },
+                  ];
+                  const currentStatus = statusOptions.find(
+                    (option) => option.value === orderDetails.status
+                  );
+                  return currentStatus ? currentStatus.label : "";
+                })()}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
 
-      orderDetailsInfo.forEach((text, index) => {
-        doc.text(text, 14, 40 + index * 10);
-      });
-
-      const tableColumns = [
-        { header: "Mã HDCT", dataKey: "id" },
-        { header: "Mã sản phẩm chi tiết", dataKey: "code" },
-        { header: "Tên sản phẩm", dataKey: "name" },
-        { header: "Số lượng", dataKey: "quantity" },
-        { header: "Size", dataKey: "size" },
-        { header: "Color", dataKey: "color" },
-        { header: "Giá", dataKey: "price" },
-      ];
-
-      const tableRows = orderDetails.orderDetailResponses.map((detail) => ({
-        id: detail.id,
-        code: detail.productDetailId?.code || "N/A",
-        name: getProductName(detail.productDetailId?.productId),
-        quantity: detail.quantity || "N/A",
-        size: getSizeName(detail.productDetailId?.sizeId),
-        color: getColorName(detail.productDetailId?.colorId),
-        price: detail.price ? `${detail.price.toLocaleString()} VND` : "N/A",
-      }));
-
-      doc.autoTable({
-        columns: tableColumns,
-        body: tableRows,
-        startY: 110,
-        theme: "grid",
-      });
-
-      doc.save(`hoa_don_HD-${orderDetails.id}.pdf`);
-    }
+    return pdfContent;
   };
+  const generatePDF = () => {
+    const invoiceContent = createInvoiceContent(); // Lấy nội dung hóa đơn
+    const invoiceElement = document.createElement("div");
+    invoiceElement.innerHTML = invoiceContent; // Đặt nội dung vào phần tử
+    document.body.appendChild(invoiceElement); // Thêm vào DOM
+
+    const options = {
+      margin: 1,
+      filename: "invoice.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+    };
+    // Tạo PDF
+    html2pdf()
+      .from(invoiceElement)
+      .set(options)
+      .save()
+      .then(() => {
+        document.body.removeChild(invoiceElement); // Xóa phần tử sau khi tạo PDF
+      });
+  };
+
   const getTotalQuantity = (orderDetailResponses) => {
     return orderDetailResponses.reduce(
       (total, detail) => total + (detail.quantity || 0),
       0
     );
   };
+
   const expandedRowRender = (record) => {
     const totalQuantity = getTotalQuantity(record.orderDetailResponses || []);
     return (

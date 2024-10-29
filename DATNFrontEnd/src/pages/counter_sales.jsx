@@ -74,7 +74,6 @@ const CounterSales = () => {
       setCartItemsByBill(savedCartItems ? JSON.parse(savedCartItems) : {});
     }
   }, [staff]);
-
   const loadProductDetail = useCallback(
     async (pageProductDetail, pageSizeProductDetail) => {
       setLoading(true);
@@ -416,20 +415,16 @@ const CounterSales = () => {
           paymentDTO.paymentMethod,
           paymentDTO.orderId
         );
-
         if (paymentResponse.status === 201) {
-          debugger;
           await new Promise((resolve) => setTimeout(resolve, 2000));
           notification.success({
             message: "Thanh toán thành công",
             description: `Bạn đã thanh toán thành công`,
           });
-
           // Reset thông tin thanh toán
           setPaymentInfo({ paymentMethod: "" });
           setCustomerPaid(0); // Reset tiền khách đưa
           removeBillWithoutNotification(selectedBill);
-
           const updatedCartItems = { ...cartItemsByBill };
           delete updatedCartItems[selectedBill];
           setCartItemsByBill(updatedCartItems);
@@ -437,7 +432,7 @@ const CounterSales = () => {
             "cartItemsByBill",
             JSON.stringify(updatedCartItems)
           );
-          await updateProductDetailQuantities();
+          updateProductDetailQuantities();
           return { success: true, message: "Thanh toán thành công" };
         }
       }
@@ -586,6 +581,7 @@ const CounterSales = () => {
             paymentInfo={paymentInfo}
             discountAmount={discountAmount}
             selectedBill={selectedBill}
+            billWaiting={billWaiting}
             cartItems={cartItemsByBill[selectedBill] || []}
             setPaymentInfo={setPaymentInfo}
             customerPaid={customerPaid}
