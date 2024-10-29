@@ -112,6 +112,33 @@ const fetchAllProduct = (page, pageSize) => {
   return axios.get(URL_BACKEND);
 };
 
+const fetchDataPageAndFilterProduct = async (
+  category_id,
+  name,
+  sleeve_id,
+  collar_id,
+  brand_id,
+  status, // Thêm status
+  page = 1,
+  pageSize = 3
+) => {
+  const URL_BACKEND = "/api/v1/products";
+  const params = {
+    category_id: category_id,
+    name: name,
+    sleeve_id: sleeve_id,
+    collar_id: collar_id,
+    brand_id: brand_id,
+    status: status, // Thêm status vào params
+    page: page,
+    pageSize: pageSize,
+  };
+  return axios.get(URL_BACKEND, { params });
+};
+
+
+
+
 const fetchDataProductAPI = () => {
   const URL_BACKEND = "/api/v1/products/getAllProduct";
   return axios.get(URL_BACKEND);
@@ -338,7 +365,8 @@ const updateProductDetailAPi = (
   price,
   productId,
   sizeId,
-  colorId
+  colorId,
+  status
 ) => {
   const URL_BACKEND = `/api/v1/productDetail/${id}`;
   const data = {
@@ -348,6 +376,7 @@ const updateProductDetailAPi = (
     productId: productId,
     sizeId: sizeId,
     colorId: colorId,
+    status: status
   };
   return axios.put(URL_BACKEND, data);
 };
@@ -642,10 +671,12 @@ const createPromotion = async (data) => {
     const response = await axios.post(URL_BACKEND, data);
     return response; // Trả về phản hồi nếu thành công
   } catch (error) {
+
     return {
       data: null,
       message: error.response ? error.response.data : error.message,
     }; // Trả về thông tin lỗi
+
   }
 };
 // Hàm cập nhật khuyến mãi
@@ -766,10 +797,12 @@ const updateVoucher = async (
 };
 
 const updateVoucherCustomer = async (id, payload) => {
+
   // Kiểm tra id trước khi xây dựng URL
   if (!id) {
     throw new Error("Voucher ID is required");
   }
+
 
   const URL_BACKEND = `/api/v1/voucher/${id}/customer`;
   try {
@@ -858,6 +891,7 @@ const softDelete = (id) => {
 };
 
 export {
+  fetchDataPageAndFilterProduct,
   updateStatus,
   getAllCustomer,
   updateCustomer,
@@ -944,5 +978,7 @@ export {
   fetchPageDataProductDetail,
   checkDuplicateProductAPI,
   checkCodeExistsAPI,
+
   getUserInfo,
 };
+

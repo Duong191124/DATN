@@ -80,30 +80,26 @@ const UpdateProduct = (props) => {
 
   const loadDataBrand = async () => {
     const res = await fetchDataBrand();
-    if (res.data) {
-      setDataBrand(res.data.data);
-    }
+    const activeBrands = res.data.data.filter(brand => brand.status !== 0); // Lọc các thương hiệu có trạng thái khác 0
+    setDataBrand(activeBrands);
   };
 
   const loadDataSleeve = async () => {
     const res = await fetchDataSleeve();
-    if (res.data) {
-      setDataSleeve(res.data);
-    }
+    const activeSleeves = res.data.filter(sleeve => sleeve.status !== 0); // Lọc các tay áo có trạng thái khác 0
+    setDataSleeve(activeSleeves);
   };
 
   const loadDataCategory = async () => {
     const res = await fetchDataCategory();
-    if (res.data) {
-      setDataCategory(res.data.data);
-    }
+    const activeCategories = res.data.data.filter(category => category.status !== 0); // Lọc các danh mục có trạng thái khác 0
+    setDataCategory(activeCategories);
   };
 
   const loadDataCollar = async () => {
     const res = await fetchDataCollar();
-    if (res.data) {
-      setDataCollar(res.data);
-    }
+    const activeCollars = res.data.filter(collar => collar.status !== 0); // Lọc các cổ áo có trạng thái khác 0
+    setDataCollar(activeCollars);
   };
 
   const resetCloseModal = () => {

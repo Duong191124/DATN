@@ -1,4 +1,4 @@
-import { notification, Popconfirm, Table } from "antd";
+import { Button, notification, Popconfirm, Table } from "antd";
 import { deleteSizeAPI } from "../../service/api.service";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useState } from "react";
@@ -12,16 +12,7 @@ const SizeTable = (props) => {
     const [idModalUpdateOpen, setIsModalUpdateOpen] = useState(false)
     const [dataUpdate, setDataUpdate] = useState("")
 
-    const deleteSize = async (id) => {
-        const res = await deleteSizeAPI(id);
-        if (res.data) {
-            notification.success({
-                message: "create size",
-                description: "create size successfully"
-            })
-            await loadSize()
-        }
-    }
+
     const columns = [
         {
             title: 'ID',
@@ -49,23 +40,17 @@ const SizeTable = (props) => {
             render: (_, record) => {
                 return (
                     <div style={{ display: "flex", gap: "20px" }}>
-                        <EditOutlined
+
+                        <Button
+                            icon={<EditOutlined />}
                             style={{ cursor: "pointer", color: "orange" }}
                             onClick={() => {
                                 setIsModalUpdateOpen(true)
                                 setDataUpdate(record)
                             }}
-                        />
-                        <Popconfirm
-                            title="Xoá sản phẩm"
-                            description="bạn có chắc chắn muốn xoá sản phẩm này không ?"
-                            onConfirm={() => { deleteSize(record.id) }}
-                            okText="yes"
-                            cancelText="no"
-                            placement="left"
                         >
-                            <DeleteOutlined style={{ cursor: "pointer", color: "red" }} />
-                        </Popconfirm>
+                            Edit
+                        </Button>
                     </div>
                 )
             }

@@ -12,21 +12,11 @@ const ProductDetailTable = (props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [dataUpdate, setDataUpdate] = useState(null);
 
-  const handleDeleteProduct = async (id) => {
-    try {
-      const res = await deleteProductDetailAPI(id);
-      if (res.status == 204) {
-        notification.success({
-          message: "delete product-detail",
-          description: "delete product-detail successfully"
-        })
-        await loadProductDetail();
-      }
-    } catch (error) {
-      console.log(error)
-    }
-
-  }
+  // Cập nhật dữ liệu sản phẩm với trạng thái tương ứng
+  const updatedDataProductDetail = dataProductDetail.map(item => ({
+    ...item,
+    status: item.quantity > 0 ? 1 : 0, // Nếu quantity > 0 thì status = 1, ngược lại status = 0
+  }));
 
   const columns = [
     {
@@ -66,6 +56,13 @@ const ProductDetailTable = (props) => {
       },
     },
     {
+      title: "Status",
+      dataIndex: "status",
+      render: (status) => {
+        return status === 1 ? "Còn Hàng" : "Hết Hàng";
+      },
+    },
+    {
       title: "Action",
       key: "action",
       render: (_, record) => {
@@ -78,16 +75,7 @@ const ProductDetailTable = (props) => {
                 setDataUpdate(record);
               }}
             />
-            <Popconfirm
-              title="Delete product"
-              description="Are you sure you want to delete this product?"
-              onConfirm={() => { handleDeleteProduct(record.id) }}
-              okText="Yes"
-              cancelText="No"
-              placement="left"
-            >
-              <DeleteOutlined style={{ cursor: "pointer", color: "red" }} />
-            </Popconfirm>
+
             <UploadOutlined
               style={{ cursor: "pointer" }}
               onClick={() => {
@@ -108,13 +96,13 @@ const ProductDetailTable = (props) => {
     <>
       <h1>{productName}</h1>
 
-      <Table columns={columns} dataSource={dataProductDetail} rowKey={"id"} />
-      <Link to={"/admin/products"}>
-        <div style={{ display: "flex", flexDirection: columns, color: "black" }}>
-          <DoubleLeftOutlined />
-          <h4 style={{ margin: "5px" }}> go to product pages </h4>
-        </div>
-      </Link>
+      <Table
+        columns={columns}
+        dataSource={updatedDataProductDetail}
+        rowKey={"id"}
+      // rowClassName={(record) => (record.price === 0 ? "faded-row" : "")} // Thêm điều kiện để làm mờ
+      />
+
       <ProductDetailUpdate
         isModalUpdateOpen={isModalUpdateOpen}
         setIsModalUpdateOpen={setIsModalUpdateOpen}

@@ -15,4 +15,6 @@ public interface CategoryService {
     Category getCategoryById(Integer id) throws Exception;
 
     void deleteCategory(Integer id) throws Exception;
+
+    boolean canDeleteCategory(Integer categoryId);
 }

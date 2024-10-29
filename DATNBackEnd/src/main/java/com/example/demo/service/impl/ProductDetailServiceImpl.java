@@ -57,7 +57,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
         return productDetailRepo.save(newProductDetail);
     }
-    public ProductDetail pdate(Integer id, ProductDetailDTO productDetailDTO) throws Exception {
+    public ProductDetail update(Integer id, ProductDetailDTO productDetailDTO) throws Exception {
         // Tìm kiếm productDetail dựa trên ID
         ProductDetail existingProductDetail = productDetailRepo.findById(id)
                 .orElseThrow(() -> new Exception("ProductDetail not found"));

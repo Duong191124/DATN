@@ -85,7 +85,10 @@ const CounterSalesProductDetail = ({
     {
       title: "Thêm vào giỏ",
       render: (_, record) => (
-        <Button onClick={() => handleAddToCart(record)}>Thêm vào giỏ</Button>
+        <Button
+          onClick={() => handleAddToCart(record)}
+        >Thêm vào giỏ</Button>
+
       ),
     },
   ];

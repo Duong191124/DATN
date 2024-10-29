@@ -1,67 +1,71 @@
-import { Input, Modal, notification } from "antd"
-import { useEffect, useState } from "react"
-import { updateCategoryAPI } from "../../service/api.service"
-
+import { Form, Input, Modal, notification } from "antd"; // Thêm Form vào import
+import { useEffect } from "react";
+import { updateCategoryAPI } from "../../service/api.service";
 
 const ColorUpdate = (props) => {
-    const [id, setId] = useState("")
-    const [name, setName] = useState("")
+    const { loadCategory, idModalUpdateOpen, setIsModalUpdateOpen, dataUpdate, setDataUpdate } = props;
+    const [form] = Form.useForm(); // Khởi tạo form
 
-    const { loadCategory, idModalUpdateOpen, setIsModalUpdateOpen, dataUpdate, setDataUpdate } = props
     useEffect(() => {
         if (dataUpdate) {
-            setId(dataUpdate.id)
-            setName(dataUpdate.name)
+            form.setFieldsValue({
+                id: dataUpdate.id,
+                name: dataUpdate.name,
+            });
         }
-    }, [dataUpdate])
+    }, [dataUpdate, form]);
 
-    const handleSubmit = async () => {
-        const res = await updateCategoryAPI(id, name)
+    const handleSubmit = async (values) => {
+        const res = await updateCategoryAPI(values.id, values.name); // Lấy giá trị từ form
         if (res.data) {
             notification.success({
-                message: "update collar",
-                description: "update collar successfully"
-            })
-            await loadCategory()
-            resetModal()
+                message: "Update category",
+                description: "Update category successfully",
+            });
+            await loadCategory();
+            resetModal();
         }
-    }
+    };
+
     const resetModal = () => {
-        setDataUpdate("")
-        setIsModalUpdateOpen(false)
-    }
+        setDataUpdate("");
+        setIsModalUpdateOpen(false);
+    };
+
     return (
-        <>
+        <Modal
+            title="Chỉnh sửa danh mục"
+            open={idModalUpdateOpen}
+            onOk={() => { form.submit(); }} // Gọi submit của form
+            onCancel={() => resetModal()}
+        >
+            <Form
+                form={form}
+                layout="vertical"
+                onFinish={handleSubmit} // Gọi hàm handleSubmit khi submit form
+            >
+                <Form.Item
+                    label="ID"
+                    name="id"
+                >
+                    <Input disabled /> {/* ID không thể chỉnh sửa */}
+                </Form.Item>
 
-            <Modal
-                title="Basic Modal"
-                open={idModalUpdateOpen}
-                onOk={handleSubmit}
-                onCancel={() => resetModal()}>
+                <Form.Item
+                    label="Name"
+                    name="name"
+                    rules={[
+                        {
+                            required: true,
+                            message: 'Name cannot be empty',
+                        },
+                    ]}
+                >
+                    <Input />
+                </Form.Item>
+            </Form>
+        </Modal>
+    );
+};
 
-
-                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-
-                    <div>
-                        <span>ID</span>
-                        <Input
-                            value={id}
-                            disabled
-                            onChange={(event) => { setId(event.target.value) }}
-                        />
-                    </div>
-                    <div>
-                        <span>Name</span>
-                        <Input
-                            value={name}
-                            onChange={(event) => { setName(event.target.value) }}
-                        />
-                    </div>
-                </div>
-            </Modal>
-        </>
-
-    )
-
-}
-export default ColorUpdate
+export default ColorUpdate;

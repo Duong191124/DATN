@@ -57,7 +57,7 @@ public class ProductDTO {
                 .name(productDTO.getName())
                 .image(imageUrl)
                 .price(productDTO.getPrice())
-                .status(productDTO.getStatus())
+                .status(1)
                 .collar(collar)
                 .sleeve(sleeve)
                 .description(productDTO.getDescription())

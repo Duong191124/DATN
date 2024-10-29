@@ -1,14 +1,9 @@
 import { Button, Input, Modal, notification, Select, Form } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { debounce } from "lodash"; // Import lodash debounce
-import {
-  checkDuplicateProductAPI,
-  createProductAPI,
-  fetchDataBrand,
-  fetchDataCategory,
-  fetchDataCollar,
-  fetchDataSleeve,
-} from "../../service/api.service";
+
+import { checkDuplicateProductAPI, createProductAPI, fetchDataBrand, fetchDataCategory, fetchDataCollar, fetchDataSleeve } from "../../service/api.service";
+import { PlusOutlined } from "@ant-design/icons";
 
 const ProductForm = (props) => {
   const [form] = Form.useForm();
@@ -57,22 +52,26 @@ const ProductForm = (props) => {
 
   const loadDataBrand = async () => {
     const res = await fetchDataBrand();
-    setBrands(res.data.data);
+    const activeBrands = res.data.data.filter(brand => brand.status !== 0); // Lọc các thương hiệu có trạng thái khác 0
+    setBrands(activeBrands);
   };
 
   const loadDataSleeve = async () => {
     const res = await fetchDataSleeve();
-    setSleeves(res.data);
+    const activeSleeves = res.data.filter(sleeve => sleeve.status !== 0); // Lọc các tay áo có trạng thái khác 0
+    setSleeves(activeSleeves);
   };
 
   const loadDataCategory = async () => {
     const res = await fetchDataCategory();
-    setCategories(res.data.data);
+    const activeCategories = res.data.data.filter(category => category.status !== 0); // Lọc các danh mục có trạng thái khác 0
+    setCategories(activeCategories);
   };
 
   const loadDataCollar = async () => {
     const res = await fetchDataCollar();
-    setCollars(res.data);
+    const activeCollars = res.data.filter(collar => collar.status !== 0); // Lọc các cổ áo có trạng thái khác 0
+    setCollars(activeCollars);
   };
 
   const resetCloseModal = () => {
@@ -108,13 +107,16 @@ const ProductForm = (props) => {
     });
   };
 
+
   return (
     <>
       <div>
-        <Button onClick={() => setIsModalOpen(true)} type="primary">
-          Create Product
-        </Button>
-      </div>
+        <Button
+          icon={<PlusOutlined />}
+          onClick={() => setIsModalOpen(true)}
+          style={{ color: "green" }}
+        >Create Product</Button>
+      </div >
 
       <Modal
         title="Create Product"
@@ -151,6 +153,7 @@ const ProductForm = (props) => {
           >
             <Input />
           </Form.Item>
+
 
           <Form.Item
             label="Name"

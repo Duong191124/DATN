@@ -72,7 +72,7 @@ public class ProductDetailController {
             return new ResponseEntity<>(result.getFieldErrors(), HttpStatus.BAD_REQUEST);
         }
         try {
-            ProductDetail updatedProductDetail = productDetailService.pdate(id, productDetailDTO);
+            ProductDetail updatedProductDetail = productDetailService.update(id, productDetailDTO);
             return new ResponseEntity<>(updatedProductDetail, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
