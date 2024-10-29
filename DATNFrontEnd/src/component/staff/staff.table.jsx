@@ -1,10 +1,13 @@
-import { Button, message, Popconfirm, Space, Table } from 'antd';
+import { Button, message, Popconfirm, Space, Table, Input } from 'antd';
 import { DeleteOutlined, EditOutlined, KeyOutlined } from '@ant-design/icons';
 import React, { Suspense, useEffect } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import CreateStaff from './create.staff';
 import { deleteStaff, getAllStaff, updateStatus } from '../../service/api.service';
+import debounce from 'lodash/debounce';
+
+const { Search } = Input;
 
 const UpdatePermissionForUserModal = React.lazy(() =>
   import("../permission/update.permission.modal")
@@ -15,6 +18,7 @@ const StaffTable = () => {
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
+  const [searchCriteria, setSearchCriteria] = useState({ username: '', phoneNumber: '' });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
@@ -22,10 +26,10 @@ const StaffTable = () => {
 
   useEffect(() => {
     loadStaff();
-  }, [current, pageSize]);
+  }, [current, pageSize, searchCriteria]);
 
   const loadStaff = async () => {
-    const res = await getAllStaff(current, pageSize);
+    const res = await getAllStaff(current, pageSize, searchCriteria.username, searchCriteria.phoneNumber);
     if (res.data) {
       setDataStaff(res.data.data.content);
       setTotal(res.data.data.totalElements);
@@ -40,6 +44,18 @@ const StaffTable = () => {
       setPageSize(pagination.pageSize);
     }
   };
+
+  const handleSearch = debounce((value) => {
+    const isPhoneNumber = /^\d+$/.test(value.trim());
+  
+    if (isPhoneNumber) {
+      setSearchCriteria({ username: '', phoneNumber: value.trim() });
+    } else {
+      setSearchCriteria({ username: value.trim(), phoneNumber: '' });
+    }
+    
+    setCurrent(1);
+  }, 300);
 
   const handleDelete = async (id) => {
     await deleteStaff(id);
@@ -124,13 +140,21 @@ const StaffTable = () => {
         }}
       >
         <h2>Staff Management</h2>
-        <Button
-          type="primary"
-          onClick={() => setIsDrawerOpen(true)}
-          icon={<PlusOutlined />}
-        >
-          New account
-        </Button>
+        <Space>
+        <Search
+            placeholder="Search by Username, Phone Number"
+            onChange={(e) => handleSearch(e.target.value)}
+            style={{ width: 300 }}
+            allowClear
+          />
+          <Button
+            type="primary"
+            onClick={() => setIsDrawerOpen(true)}
+            icon={<PlusOutlined />}
+          >
+            New account
+          </Button>
+        </Space>
       </div>
       <Table
         columns={columns}

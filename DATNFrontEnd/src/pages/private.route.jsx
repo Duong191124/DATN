@@ -4,13 +4,14 @@ import { Link } from "react-router-dom";
 import { AuthContext } from "../component/context/auth.context";
 
 const PrivateRoute = (props) => {
-    const { setUser, loginStatus } = useContext(AuthContext);
+    const { user, loginStatus } = useContext(AuthContext);
 
-    if (user && user.id || loginStatus === 201) {
+    if ((user && user.id) || loginStatus === "201") {
         return (
             <>
                 {props.children}
-            </>)
+            </>
+        );
     }
 
 
