@@ -116,8 +116,8 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public Page<ProductResponse> pageAllProducts(Integer categoryId, String productName, Integer sleeveId, Integer collarId, Integer brandId, Double price, String description, Pageable pageable) {
-        Page<Product> productPage = productRepo.pageAllProducts(categoryId, productName, sleeveId, collarId, brandId, price, description, pageable);
+    public Page<ProductResponse> pageAllProducts(Integer categoryId, String productName, Integer sleeveId, Integer collarId, Integer brandId, Double price, String description,Integer status, Pageable pageable) {
+        Page<Product> productPage = productRepo.pageAllProducts(categoryId, productName, sleeveId, collarId, brandId, price, description, status, pageable);
         return productPage.map(ProductResponse::convertResponse);
     }
 

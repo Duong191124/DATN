@@ -68,6 +68,7 @@ public class ProductController {
             @RequestParam(defaultValue = "", value = "sleeve_id") Integer sleeveId,
             @RequestParam(defaultValue = "", value = "collar_id") Integer collarId,
             @RequestParam(defaultValue = "", value = "brand_id") Integer brandId,
+            @RequestParam(defaultValue = "", value = "status") Integer status,
             @RequestParam(defaultValue = "") Double price,
             @RequestParam(defaultValue = "") String description,
             @RequestParam(defaultValue = "1") int page,
@@ -77,7 +78,7 @@ public class ProductController {
         Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("id").ascending());
 
         Page<ProductResponse> productResponsePage = productService.pageAllProducts(
-                categoryId, productName, sleeveId, collarId, brandId, price, description, pageable);
+                categoryId, productName, sleeveId, collarId, brandId, price, description, status,pageable);
 
         int pageCurrent = productResponsePage.getNumber() + 1; // Cộng thêm 1 để trả về trang bắt đầu từ 1
         int pageSizeCurrent = productResponsePage.getSize();
