@@ -183,12 +183,22 @@ const CounterSales = () => {
       const existingItemIndex = updatedItems.findIndex(
         (item) => item.id === productDetailId.id
       );
+
       if (existingItemIndex > -1) {
-        updatedItems[existingItemIndex].quantity += quantity;
+        const countQuantity = (updatedItems[existingItemIndex].quantity +=
+          quantity);
+        if (countQuantity > productDetailId.quantity) {
+          notification.error({
+            message: "Số lượng không đủ",
+            description: `Sản phẩm trong kho không đủ.`,
+          });
+          return false;
+        }
       } else {
         updatedItems.push({ ...productDetailId, quantity });
       }
       updateCart(updatedItems);
+      return true;
     },
     [cartItemsByBill, selectedBill]
   );
