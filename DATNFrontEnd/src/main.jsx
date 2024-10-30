@@ -22,7 +22,6 @@ import PrivateRoute from "./pages/private.route.jsx";
 import App from "./App.jsx";
 import PermissionPage from "./pages/permission.jsx";
 import CustomerPage from "./pages/customer.jsx";
-import CartDetailPage from "./pages/cart.detail.jsx";
 const router = createBrowserRouter([
   {
     path: "/admin",
@@ -97,10 +96,7 @@ const router = createBrowserRouter([
         path: "customer",
         element: <CustomerPage />,
       },
-      {
-        path: "cart-detail",
-        element: <CartDetailPage />,
-      },
+
     ],
   },
   {
