@@ -1,10 +1,15 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Popconfirm, Table, Space } from "antd"
-import { useEffect } from "react";
+import { Popconfirm, Table, Space, Switch, Button, Input } from "antd";
+import { useEffect, useState } from "react";
 import { softDelete } from "../../service/api.service";
+import debounce from 'lodash/debounce';
 
-const CustomerTable = ({ dataTable, loadData, setPage, setSize, page, size, total, setIsModalOpen, setDataDetail, setIsModalOpenU })=>{
-    
+const { Search } = Input;
+
+const CustomerTable = ({ dataTable, loadData, setPage, setSize, page, size, total, setIsModalOpen, setDataDetail, setIsModalOpenU }) => {
+    const [showActivate, setShowActivate] = useState(true); // State lưu trạng thái của switch
+    const [searchText, setSearchText] = useState(''); // State lưu trữ giá trị tìm kiếm
+
     const columns = [
         {
             title: 'STT',
@@ -42,7 +47,7 @@ const CustomerTable = ({ dataTable, loadData, setPage, setSize, page, size, tota
             title: 'Status',
             key: 'status',
             render: (_, record) => (
-                <p>{record.status == 1? "Activate": "Inactivate"}</p>
+                <p>{record.status === 1 ? "Activate" : "Inactivate"}</p>
             )
         },
         {
@@ -60,7 +65,6 @@ const CustomerTable = ({ dataTable, loadData, setPage, setSize, page, size, tota
             dataIndex: 'notes',
             key: 'notes',
         },
-        ,
         {
             title: 'Gender',
             key: 'gender',
@@ -81,7 +85,7 @@ const CustomerTable = ({ dataTable, loadData, setPage, setSize, page, size, tota
                     <Popconfirm
                         title="Are you sure to disable this task?"
                         onConfirm={() => {
-                            hanleSoftDelete(record.id);
+                            handleSoftDelete(record.id);
                         }}
                         okText="Yes"
                         cancelText="No"
@@ -94,47 +98,77 @@ const CustomerTable = ({ dataTable, loadData, setPage, setSize, page, size, tota
     ];
 
     const onChange = (pagination, filters, sorter, extra) => {
-        console.log('check data onChange ', pagination)
-        if (+page != +pagination.pageSize || +size != pagination.current) {
-            setPage(pagination.current)
-            setSize(pagination.pageSize)
-            console.log("check page: ", page);
-            console.log("check sixe: ", size);
+        if (+page !== +pagination.pageSize || +size !== pagination.current) {
+            setPage(pagination.current);
+            setSize(pagination.pageSize);
         }
     };
 
-    const hanleSoftDelete = async (id)=>{
+    const handleSoftDelete = async (id) => {
         await softDelete(id);
         await loadData();
-    }
+    };
 
-    const handleUpdate = (record)=>{
-        setDataDetail(record)
-        setIsModalOpenU(true)
-    }
+    const handleUpdate = (record) => {
+        setDataDetail(record);
+        setIsModalOpenU(true);
+    };
 
-    const handleGender = (gender)=>{
-        if(gender === 1){
-            return "Male"
-        }else if(gender === 2){
-            return "Female"
-        }else{
-            return 'Other'
+    const handleGender = (gender) => {
+        if (gender === 1) {
+            return "Male";
+        } else if (gender === 2) {
+            return "Female";
+        } else {
+            return "Other";
         }
-    }
-    
+    };
+
+    const handleStatusChange = (checked) => {
+        setShowActivate(checked); // Cập nhật trạng thái của switch
+    };
+
+    // Hàm lọc dữ liệu dựa trên trạng thái của switch và tìm kiếm
+    const filteredData = dataTable.filter((item) => {
+        const isMatch = item.username.toLowerCase().includes(searchText.toLowerCase()) ||
+            item.email.toLowerCase().includes(searchText.toLowerCase()) ||
+            item.phoneNumber.includes(searchText);
+        return showActivate ? (item.status === 1 && isMatch) : (item.status === 0 && isMatch);
+    });
+
+    // Hàm xử lý tìm kiếm
+    const handleSearch = debounce((value) => {
+        setSearchText(value.trim()); // Cập nhật giá trị tìm kiếm
+    }, 300);
+
     useEffect(() => {
         loadData();
-    }, [page, size])
+    }, [page, size, showActivate]); // Load lại dữ liệu khi trang, kích thước trang hoặc trạng thái switch thay đổi
 
-    return(
+    return (
         <>
-         <Table
-                style={{
-                    marginTop: 30,
-                }}
+            {/* Switch để chọn lọc hiển thị Activate hay Inactivate */}
+            <div style={{ marginTop: 20, display: 'flex', justifyContent: 'space-between' }}>
+                <Switch
+                    checked={showActivate}
+                    onChange={handleStatusChange}
+                    checkedChildren="Activate"
+                    unCheckedChildren="Inactivate"
+                />
+                {/* Ô tìm kiếm */}
+                <Search
+                    placeholder="Search by Username, Email, or Phone"
+                    onChange={(e) => handleSearch(e.target.value)}
+                    style={{ width: 300 }}
+                    allowClear
+                />
+            </div>
+
+            {/* Bảng hiển thị */}
+            <Table
+                style={{ marginTop: 30 }}
                 columns={columns}
-                dataSource={dataTable}
+                dataSource={filteredData}  // Dữ liệu đã được lọc
                 rowKey={'id'}
                 pagination={{
                     defaultPageSize: 5,
@@ -142,12 +176,13 @@ const CustomerTable = ({ dataTable, loadData, setPage, setSize, page, size, tota
                     pageSizeOptions: ['5', '10', '20', '30', "50"],
                     current: page,
                     pageSize: size,
-                    showTotal: (total, range) => { return (<div> {range[0]}-{range[1]} trên {total} rows</div>) },
-                    total: total
+                    showTotal: (total, range) => (<div>{range[0]}-{range[1]} trên {total} rows</div>),
+                    total: total,
                 }}
                 onChange={onChange}
             />
         </>
-    )
-}
-export default CustomerTable
+    );
+};
+
+export default CustomerTable;
