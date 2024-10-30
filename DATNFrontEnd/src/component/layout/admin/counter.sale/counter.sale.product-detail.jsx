@@ -10,8 +10,9 @@ import {
   Slider,
   Table,
 } from "antd";
-import { Option } from "antd/es/mentions";
 import { useState } from "react";
+
+const { Option } = Select;
 
 const CounterSalesProductDetail = ({
   dataProductDetail,
@@ -19,10 +20,17 @@ const CounterSalesProductDetail = ({
   selectedBill,
   filter,
   setFilter,
+  page,
+  total,
+  size,
+  setPageProductDetail,
+  updateFilter,
+  updateUrl,
 }) => {
   const [selectedRow, setSelectedRow] = useState(null);
-  const [quantity, setQuantity] = useState(1); // Số lượng sản phẩm
-  const [modalVisible, setModalVisible] = useState(false); // Kiểm tra trạng thái Modal
+  const [quantity, setQuantity] = useState(1);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [loadingPD, setLoadingPD] = useState(false);
 
   const columns = [
     {
@@ -32,9 +40,24 @@ const CounterSalesProductDetail = ({
     {
       title: "Tên sản phẩm",
       dataIndex: "productResponse",
-      render: (text, record) => {
-        return record.productResponse?.name || "Chưa có tên sản phẩm";
-      },
+      render: (text, record) => (
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <div
+            style={{
+              marginRight: 10,
+              width: 80,
+              height: 80,
+              alignItems: "center",
+            }}
+          >
+            <img
+              src={record.image}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          </div>
+          <div>{record.productResponse?.name || "Chưa có tên sản phẩm"}</div>
+        </div>
+      ),
     },
     {
       title: "Số lượng",
@@ -48,50 +71,91 @@ const CounterSalesProductDetail = ({
     {
       title: "Size",
       dataIndex: "size",
-      render: (text, record) => {
-        return record.size?.name || "Chưa có size";
-      },
+      render: (text, record) => record.size?.name || "Chưa có size",
     },
     {
       title: "Màu",
       dataIndex: "color",
-      render: (text, record) => {
-        return record.color?.name || "Chưa có màu";
+      render: (text, record) => record.color?.name || "Chưa có màu",
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+
+      render: (status) => {
+        switch (status) {
+          case 1:
+            return "Còn Hàng";
+          case 0:
+            return "Hết Hàng";
+          case 2:
+            return "Ngừng Hoạt Động";
+          default:
+            return "Trạng Thái Không Xác Định";
+        }
       },
+
+
+
     },
     {
       title: "Thêm vào giỏ",
       render: (_, record) => (
-        <Button onClick={() => handleAddToCart(record)}>Thêm vào giỏ</Button>
+        <Button
+          disabled={record.quantity === 0 || record.status === 2}
+          style={{ opacity: record.quantity === 0 || record.status === 2 ? 0.5 : 1 }}
+          onClick={() => handleAddToCart(record)}
+        >
+          Thêm vào giỏ
+        </Button>
       ),
     },
   ];
 
+  const updatedDataProductDetail = dataProductDetail.map(item => ({
+    ...item,
+    status:
+      item.product?.status === 0 ||
+        item.size?.status === 0 ||
+        item.color?.status === 0 ||
+        item.sleeve?.status === 0 ||
+        item.collar?.status === 0 ||
+        item.brand?.status === 0
+        ? 2
+        : item.quantity > 0
+          ? 1
+          : 0, // Xét điều kiện trạng thái
+  }));
+
   const handleAddToCart = (record) => {
-    if (!selectedBill) {
-      notification.error({
-        message: "Chưa chọn hóa đơn!",
-        description:
-          "Vui lòng chọn hóa đơn trước khi thêm sản phẩm vào giỏ hàng.",
-      });
-      return;
-    }
-    // Nếu đã chọn hóa đơn, mở modal để nhập số lượng
     setSelectedRow(record);
+    setQuantity(1); // Reset quantity when opening modal
     setModalVisible(true);
   };
 
   const handleConfirm = () => {
+    // Kiểm tra xem số lượng nhập vào có lớn hơn số lượng tồn kho không
+    if (quantity > selectedRow.quantity) {
+      notification.warning({
+        message: "Số lượng không đủ",
+        description: `Sản phẩm chỉ còn ${selectedRow.quantity} trong kho. Vui lòng giảm số lượng.`,
+      });
+      return; // Dừng nếu số lượng không hợp lệ
+    }
+
     const productToAdd = {
       ...selectedRow,
       quantity,
     };
+
     if (selectedRow.productResponse && selectedRow.productResponse.name) {
-      onAddToCart(productToAdd, quantity);
-      notification.success({
-        message: "Sản phẩm đã được thêm vào giỏ hàng",
-        description: `${selectedRow.productResponse.name} x ${quantity} đã được thêm vào giỏ hàng.`,
-      });
+      const addCart = onAddToCart(productToAdd, quantity);
+      if (addCart) {
+        notification.success({
+          message: "Thêm sản phẩm",
+          description: `Thêm ${quantity} sản phẩm thành công`,
+        });
+      }
     } else {
       notification.error({
         message: "Lỗi",
@@ -99,8 +163,34 @@ const CounterSalesProductDetail = ({
       });
     }
 
-    setModalVisible(false); // Đóng modal sau khi thêm vào giỏ hàng
-    setQuantity(1); // Reset số lượng về mặc định
+    setModalVisible(false);
+    setQuantity(1);
+  };
+
+  const handlePriceChange = (value) => {
+    const newFilters = {
+      ...filter,
+      minPrice: value[0],
+      maxPrice: value[1],
+    };
+    setFilter(newFilters);
+    updateUrl(newFilters);
+  };
+
+  const resetFilters = async () => {
+    setLoadingPD(true);
+    const defaultFilters = {
+      productName: "",
+      productCode: "",
+      color: "",
+      size: "",
+      minPrice: undefined,
+      maxPrice: undefined,
+    };
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setFilter(defaultFilters);
+    updateUrl(defaultFilters);
+    setLoadingPD(false);
   };
 
   return (
@@ -109,7 +199,12 @@ const CounterSalesProductDetail = ({
         Chi tiết sản phẩm
       </h3>
       <div style={{ marginBottom: "20px" }}>
-        <h4 style={{ marginBottom: "20px" }}>Bộ lọc</h4>
+        <Row justify="space-between" align="middle">
+          <h4 style={{ marginBottom: "20px" }}>Bộ lọc</h4>
+          <Button onClick={resetFilters} type="primary" loading={loadingPD}>
+            Reset
+          </Button>
+        </Row>
         <Row style={{ gap: "20px" }}>
           <Col span={11}>
             <p style={{ marginBottom: "10px", fontSize: "16px" }}>Sản phẩm</p>
@@ -117,17 +212,13 @@ const CounterSalesProductDetail = ({
               <Input
                 placeholder="Tên sản phẩm"
                 value={filter.productName}
-                onChange={(e) =>
-                  setFilter({ ...filter, productName: e.target.value })
-                }
+                onChange={(e) => updateFilter("productName", e.target.value)}
                 style={{ marginBottom: "10px" }}
               />
               <Input
                 placeholder="Mã sản phẩm"
                 value={filter.productCode}
-                onChange={(e) =>
-                  setFilter({ ...filter, productCode: e.target.value })
-                }
+                onChange={(e) => updateFilter("productCode", e.target.value)}
                 style={{ marginBottom: "10px" }}
               />
             </div>
@@ -137,7 +228,7 @@ const CounterSalesProductDetail = ({
             <Select
               placeholder="Chọn màu"
               value={filter.color || undefined}
-              onChange={(value) => setFilter({ ...filter, color: value })}
+              onChange={(value) => updateFilter("color", value)}
               style={{ width: "100%", marginBottom: "10px" }}
             >
               <Option value="red">Đỏ</Option>
@@ -153,9 +244,9 @@ const CounterSalesProductDetail = ({
             <Select
               placeholder="Chọn kích cỡ"
               value={filter.size || undefined}
-              onChange={(value) => setFilter({ ...filter, size: value })}
+              onChange={(value) => updateFilter("size", value)}
               style={{ width: "100%", marginBottom: "10px" }}
-              allowClear // Thêm allowClear để cho phép xóa lựa chọn
+              allowClear
             >
               <Option value="S">S</Option>
               <Option value="M">M</Option>
@@ -168,11 +259,9 @@ const CounterSalesProductDetail = ({
             <Slider
               range
               min={0}
-              max={10000000} // Thay đổi max value theo nhu cầu của bạn
+              max={10000000}
               value={[filter.minPrice || 0, filter.maxPrice || 10000000]}
-              onChange={(value) =>
-                setFilter({ ...filter, minPrice: value[0], maxPrice: value[1] })
-              }
+              onChange={handlePriceChange}
             />
           </Col>
         </Row>
@@ -180,13 +269,22 @@ const CounterSalesProductDetail = ({
       <Table
         rowKey="id"
         columns={columns}
-        dataSource={dataProductDetail}
+        dataSource={updatedDataProductDetail}
         size="small"
         style={{ border: "1px solid #ddd" }}
+        pagination={{
+          current: page,
+          total: total,
+          pageSize: size,
+          onChange: (newPage) => {
+            setPageProductDetail(newPage);
+            updateUrl(filter);
+          },
+        }}
       />
-
       <Modal
-        title={`Nhập số lượng cho sản phẩm ${selectedRow?.productResponse?.name}`}
+        title={`Nhập số lượng cho sản phẩm ${selectedRow?.productResponse?.name || "N/A"
+          }`}
         visible={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={[
@@ -198,30 +296,41 @@ const CounterSalesProductDetail = ({
           </Button>,
         ]}
       >
-        <div>
-          <span>Nhập số lượng: </span>
-          <InputNumber
-            min={1}
-            max={selectedRow?.quantity}
-            value={quantity}
-            onChange={(value) => setQuantity(value)}
-          />
-        </div>
-        <div style={{ marginTop: 10 }}>
-          <span>Thông tin sản phẩm:</span>
+        {selectedRow ? (
           <div>
-            <strong>Mã sản phẩm:</strong> {selectedRow?.code}
+            <span>Nhập số lượng: </span>
+            <InputNumber
+              min={1}
+              value={quantity}
+              onChange={(value) => {
+                setQuantity(value);
+                if (value > selectedRow.quantity) {
+                  notification.warning({
+                    message: "Số lượng không hợp lệ",
+                    description: `Sản phẩm chỉ còn ${selectedRow.quantity} trong kho. Vui lòng giảm số lượng.`,
+                  });
+                }
+              }}
+            />
+            <div style={{ marginTop: 10 }}>
+              <span>Thông tin sản phẩm:</span>
+              <div>
+                <strong>Mã sản phẩm:</strong> {selectedRow.code}
+              </div>
+              <div>
+                <strong>Size:</strong> {selectedRow.size?.name || "N/A"}
+              </div>
+              <div>
+                <strong>Màu:</strong> {selectedRow.color?.name || "N/A"}
+              </div>
+              <div>
+                <strong>Giá:</strong> {selectedRow.price?.toLocaleString()} VNĐ
+              </div>
+            </div>
           </div>
-          <div>
-            <strong>Size:</strong> {selectedRow?.size?.name}
-          </div>
-          <div>
-            <strong>Màu:</strong> {selectedRow?.color?.name}
-          </div>
-          <div>
-            <strong>Giá:</strong> {selectedRow?.price?.toLocaleString()} VNĐ
-          </div>
-        </div>
+        ) : (
+          <div>Không có thông tin sản phẩm.</div>
+        )}
       </Modal>
     </>
   );

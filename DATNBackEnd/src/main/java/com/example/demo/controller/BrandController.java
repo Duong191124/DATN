@@ -7,7 +7,6 @@ import com.example.demo.service.BrandService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -26,7 +25,7 @@ public class BrandController {
     private final MessageSource messageSource;
 
     @GetMapping("")
-    public ResponseEntity<MessageReponse> getAll(){
+    public ResponseEntity<MessageReponse> getAll() {
         List<Brand> brandList = brandService.getAll();
         return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                 .message("Lay thong tin thanh cong")
@@ -36,8 +35,8 @@ public class BrandController {
     }
 
     @PostMapping("")
-    public ResponseEntity<MessageReponse> add(@Valid @RequestBody BrandDTO brandDTO, BindingResult result){
-        if(result.hasErrors()){
+    public ResponseEntity<MessageReponse> add(@Valid @RequestBody BrandDTO brandDTO, BindingResult result) {
+        if (result.hasErrors()) {
             List<String> errorMessage = result.getFieldErrors()
                     .stream()
                     .map(FieldError::getDefaultMessage)
@@ -58,7 +57,7 @@ public class BrandController {
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
-            @RequestBody BrandDTO brandDTO) throws Exception{
+            @RequestBody BrandDTO brandDTO) throws Exception {
         brandService.update(id, brandDTO);
         return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                 .message("update brand success")
@@ -67,12 +66,30 @@ public class BrandController {
                 .build());
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception{
-        brandService.deleteBrand(id);
-        return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
-                .message("delete brand success")
-                .status(HttpStatus.OK.value())
-                .build());
+
+//    @GetMapping("/checkForeignKey/{id}")
+//    public ResponseEntity<String> checkForeignKey(@PathVariable("id") Integer id) {
+//        boolean candelete = brandService.candeleteBrand(id);
+//        if (candelete) {
+//            return ResponseEntity.ok("can delete");
+//        } else {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot delete, foreign key constraint.");
+//        }
+//    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteBrand(@PathVariable("id") Integer id) {
+        try {
+            brandService.deleteBrand(id);
+            return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
+                    .message("delete brand successfully")
+                    .status(HttpStatus.OK.value())
+                    .build());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+
+        }
     }
+
 }

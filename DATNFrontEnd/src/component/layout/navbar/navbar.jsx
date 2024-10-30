@@ -4,7 +4,7 @@ import {
   ProductOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-import { Menu } from "antd";
+import { Button, Menu } from "antd";
 import { Link } from "react-router-dom";
 
 const items = [
@@ -113,14 +113,14 @@ const NavbarAdmin = () => {
     // open
     if (currentOpenKey !== undefined) {
       const repeatIndex = openKeys
-      .filter((key) => key !== currentOpenKey)
-      .findIndex((key) => levelKeys[key] === levelKeys[currentOpenKey]);
+        .filter((key) => key !== currentOpenKey)
+        .findIndex((key) => levelKeys[key] === levelKeys[currentOpenKey]);
       setStateOpenKeys(
         openKeys
-        // remove repeat key
-        .filter((_, index) => index !== repeatIndex)
-        // remove current level all child
-        .filter((key) => levelKeys[key] <= levelKeys[currentOpenKey])
+          // remove repeat key
+          .filter((_, index) => index !== repeatIndex)
+          // remove current level all child
+          .filter((key) => levelKeys[key] <= levelKeys[currentOpenKey])
       );
     } else {
       // close
@@ -133,6 +133,16 @@ const NavbarAdmin = () => {
   };
   return (
     <>
+      {/* <Button
+        onClick={toggleCollapsed}
+        style={{
+          margin: '16px',
+          backgroundColor: '#1890ff',
+          color: 'white',
+        }}
+      >
+        {collapsed ? 'Expand Menu' : 'Collapse Menu'}
+      </Button> */}
       <Menu
         mode="inline"
         defaultSelectedKeys={["123"]}

@@ -62,25 +62,15 @@ const ProductDetailUpdate = (props) => {
     };
 
     const loadDataColor = async () => {
-        try {
-            const res = await fetchDataColorAPI();
-            if (res.data.data) {
-                setDataColor(res.data.data);
-            }
-        } catch (error) {
-            console.log(error);
-        }
+        const res = await fetchDataColorAPI();
+        const activeColor = res.data.data.filter(colors => colors.status != 0)
+        setDataColor(activeColor)
     };
 
     const loadDataSize = async () => {
-        try {
-            const res = await fetchDataSize();
-            if (res.data.data) {
-                setDataSize(res.data.data);
-            }
-        } catch (error) {
-            console.log(error);
-        }
+        const res = await fetchDataSize();
+        const activeSize = res.data.data.filter(sizes => sizes.status != 0)
+        setDataSize(activeSize)
     };
 
     const resetCloseModal = () => {

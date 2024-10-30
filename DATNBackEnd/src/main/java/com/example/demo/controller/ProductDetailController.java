@@ -32,12 +32,12 @@ public class ProductDetailController {
                                                   @RequestParam(required = false) String sizeName,
                                                   @RequestParam(required = false) Double minPrice,
                                                   @RequestParam(required = false) Double maxPrice,
+                                                  @RequestParam(required = false) Integer status,
                                                   @RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "10") int limit
                                                   ) {
         Pageable pageable = PageRequest.of(page,limit, Sort.by("id").ascending());
-        Page<ProductDetailResponse> productDetailResponsePage = productDetailService.pageAndFilterWithProductDetailResponse(productName,code,colorName,sizeName,minPrice,maxPrice,pageable);
-        List<ProductDetailResponse> productDetailResponses = productDetailResponsePage.getContent();
+        Page<ProductDetailResponse> productDetailResponses = productDetailService.pageAndFilterWithProductDetailResponse(productName,code,colorName,sizeName,minPrice,maxPrice,status,pageable);
         return ResponseEntity.ok(new MessageReponse("successfully",200,productDetailResponses));
     }
 
@@ -73,7 +73,7 @@ public class ProductDetailController {
             return new ResponseEntity<>(result.getFieldErrors(), HttpStatus.BAD_REQUEST);
         }
         try {
-            ProductDetail updatedProductDetail = productDetailService.pdate(id, productDetailDTO);
+            ProductDetail updatedProductDetail = productDetailService.update(id, productDetailDTO);
             return new ResponseEntity<>(updatedProductDetail, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

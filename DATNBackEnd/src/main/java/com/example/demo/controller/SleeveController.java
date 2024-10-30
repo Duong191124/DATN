@@ -6,6 +6,7 @@ import com.example.demo.response.MessageReponse;
 import com.example.demo.service.SleeveService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -76,7 +77,10 @@ public class SleeveController {
     public ResponseEntity<?> deleteSleeve(@PathVariable Integer id) {
         try {
             sleeveService.deleteSleeve(id);
-            return ResponseEntity.ok(new MessageReponse("delete successfully", 1, null));
+            return ResponseEntity.ok().body(MessageReponse.builder()
+                    .message("delete product successdully")
+                    .status(HttpStatus.OK.value())
+                    .build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

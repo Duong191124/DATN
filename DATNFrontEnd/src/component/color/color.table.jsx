@@ -1,4 +1,4 @@
-import { notification, Popconfirm, Table } from "antd";
+import { Button, notification, Popconfirm, Table } from "antd";
 import { deleteColorAPI } from "../../service/api.service";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useState } from "react";
@@ -9,16 +9,6 @@ const ColorTable = (props) => {
   const [idModalUpdateOpen, setIsModalUpdateOpen] = useState(false);
   const [dataUpdate, setDataUpdate] = useState("");
 
-  const deleteColor = async (id) => {
-    const res = await deleteColorAPI(id);
-    if (res.data) {
-      notification.success({
-        message: "delete color",
-        description: "delete color successfully",
-      });
-      await loadColor();
-    }
-  };
   const columns = [
     {
       title: "ID",
@@ -45,25 +35,15 @@ const ColorTable = (props) => {
       render: (_, record) => {
         return (
           <div style={{ display: "flex", gap: "20px" }}>
-            <EditOutlined
+
+            <Button
+              icon={<EditOutlined />}
               style={{ cursor: "pointer", color: "orange" }}
               onClick={() => {
                 setIsModalUpdateOpen(true);
                 setDataUpdate(record);
               }}
-            />
-            <Popconfirm
-              title="Xoá sản phẩm"
-              description="bạn có chắc chắn muốn xoá sản phẩm này không ?"
-              onConfirm={() => {
-                deleteColor(record.id);
-              }}
-              okText="yes"
-              cancelText="no"
-              placement="left"
-            >
-              <DeleteOutlined style={{ cursor: "pointer", color: "red" }} />
-            </Popconfirm>
+            >Edit</Button>
           </div>
         );
       },

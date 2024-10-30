@@ -1,6 +1,8 @@
 import { Button, Input, Modal, notification, Select, Form } from "antd";
 import { useEffect, useState } from "react";
 import { createProductDetailAPi, fetchDataColorAPI, fetchDataSize } from "../../service/api.service";
+import { Link } from "react-router-dom";
+import { DoubleLeftOutlined, PlusOutlined } from "@ant-design/icons";
 
 const ProDuctDetailForm = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,12 +30,14 @@ const ProDuctDetailForm = (props) => {
 
     const loadDataColor = async () => {
         const res = await fetchDataColorAPI();
-        setColors(res.data.data); // Dữ liệu màu sắc
+        const activeColor = res.data.data.filter(colors => colors.status != 0)
+        setColors(activeColor)
     };
 
     const loadDataSize = async () => {
         const res = await fetchDataSize();
-        setSizes(res.data.data); // Dữ liệu size
+        const activeSize = res.data.data.filter(sizes => sizes.status != 0)
+        setSizes(activeSize)
     };
 
     useEffect(() => {
@@ -49,8 +53,16 @@ const ProDuctDetailForm = (props) => {
     return (
         <>
             <div>
-                <Button onClick={() => setIsModalOpen(true)} type="primary">Create Product-Detail</Button>
-            </div>
+                <Link to={"/admin/products"}>
+                    <Button icon={<DoubleLeftOutlined />} style={{ color: "blue" }}>
+                        Go to product
+                    </Button>
+                </Link>
+                <Button
+                    style={{ color: "green" }}
+                    icon={<PlusOutlined />}
+                    onClick={() => setIsModalOpen(true)} >Create Product-Detail</Button>
+            </div >
 
             <Modal
                 title="Create Product Detail"

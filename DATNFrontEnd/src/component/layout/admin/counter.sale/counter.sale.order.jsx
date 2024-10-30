@@ -7,7 +7,6 @@ const CounterSaleBillWaiting = ({
   onRemoveBill,
   onSelectBill,
   selectedBill,
-  onAddTempBill, // Thêm hóa đơn vào danh sách tạm chờ
   onMoveBillToTemp, // Chuyển hóa đơn từ danh sách chờ sang tạm chờ
   onSwapBills, // Hoán đổi giữa hóa đơn tạm chờ và chờ
   setSelectedBill,
@@ -15,8 +14,6 @@ const CounterSaleBillWaiting = ({
 }) => {
   const [selectedTempBill, setSelectedTempBill] = useState(null);
   const [selectedWaitingBill, setSelectedWaitingBill] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false); // Modal state
-  const [selectedBillDetails, setSelectedBillDetails] = useState(null); // Details of the selected bill
   const [isTempBillModalVisible, setIsTempBillModalVisible] = useState(false); // Modal for temp bills
 
   useEffect(() => {}, [selectedTempBill, selectedWaitingBill]);
@@ -28,7 +25,6 @@ const CounterSaleBillWaiting = ({
       onOk: () => onRemoveBill(billId),
     });
   };
-
   const handleSwapBills = () => {
     if (!selectedTempBill || !selectedWaitingBill) {
       message.error(
@@ -36,16 +32,15 @@ const CounterSaleBillWaiting = ({
       );
       return;
     }
-
     // Hoán đổi logic ở đây
     onSwapBills(selectedTempBill, selectedWaitingBill);
-
     // Reset lại lựa chọn sau khi hoán đổi
     setSelectedTempBill(null);
     setSelectedWaitingBill(null);
     message.success("Hoán đổi hóa đơn thành công.");
+    setSelectedWaitingBill(null);
+    setSelectedBill(null);
   };
-
   // Hàm để thay đổi trạng thái chọn hóa đơn
   const handleCheckboxChange = (billId, type) => {
     if (type === "waiting") {
@@ -61,9 +56,9 @@ const CounterSaleBillWaiting = ({
       return;
     }
     onMoveBillToTemp(selectedWaitingBill);
-    setSelectedWaitingBill(null); // Reset lựa chọn sau khi chuyển
+    setSelectedWaitingBill(null);
+    setSelectedBill(null);
   };
-
   const handleMoveToWaiting = () => {
     if (!selectedTempBill) {
       message.error("Vui lòng chọn hóa đơn từ danh sách tạm chờ.");
@@ -71,15 +66,8 @@ const CounterSaleBillWaiting = ({
     }
     onMoveBillToWaiting(selectedTempBill);
     setSelectedTempBill(null); // Reset lựa chọn sau khi chuyển
-    setSelectedWaitingBill(null);
+    setSelectedBill(null);
   };
-
-  // Hàm đóng modal
-  const handleCancel = () => {
-    setIsModalVisible(false);
-    setSelectedBillDetails(null);
-  };
-
   // Hàm mở modal "Hóa đơn tạm chờ"
   const openTempBillsModal = () => {
     setIsTempBillModalVisible(true);
@@ -101,8 +89,13 @@ const CounterSaleBillWaiting = ({
     },
     { title: "Mã hóa đơn", dataIndex: "billId", key: "billId" },
     {
+      title: "Khách hàng",
+      key: "customer.name",
+      render: (text, record) =>
+        record.customer ? record.customer.name : "Chưa có khách hàng",
+    },
+    {
       title: "Nhân viên",
-      dataIndex: "staff.name",
       key: "staff.name",
       render: (text, record) =>
         record.staff ? record.staff.name : "Chưa có nhân viên",
@@ -135,6 +128,12 @@ const CounterSaleBillWaiting = ({
       ),
     },
     { title: "Mã hóa đơn", dataIndex: "billId", key: "billId" },
+    {
+      title: "Khách hàng",
+      key: "customer.name",
+      render: (text, record) =>
+        record.customer ? record.customer.name : "Chưa có khách hàng",
+    },
     {
       title: "Nhân viên",
       dataIndex: "staff.name",
@@ -178,7 +177,7 @@ const CounterSaleBillWaiting = ({
       <Button
         type="default"
         onClick={openTempBillsModal}
-        style={{ marginTop: "20px" }}
+        style={{ margin: "20px 0px 0px 20px" }}
       >
         Hóa đơn tạm chờ
       </Button>
@@ -188,6 +187,7 @@ const CounterSaleBillWaiting = ({
         title="Hóa đơn tạm chờ"
         visible={isTempBillModalVisible}
         onCancel={() => setIsTempBillModalVisible(false)}
+        width={1000}
         footer={[
           <Button key="cancel" onClick={() => setIsTempBillModalVisible(false)}>
             Đóng
@@ -199,7 +199,10 @@ const CounterSaleBillWaiting = ({
           columns={tempColumns}
           dataSource={tempBillItems}
           pagination={false}
-          style={{ border: "1px solid #ddd", marginBottom: "20px" }}
+          style={{
+            border: "1px solid #ddd",
+            marginBottom: "20px",
+          }}
         />
         <Button
           type="primary"
@@ -208,37 +211,6 @@ const CounterSaleBillWaiting = ({
         >
           Hoán đổi hóa đơn
         </Button>
-      </Modal>
-
-      {/* Modal hiển thị chi tiết hóa đơn tạm chờ */}
-      <Modal
-        title="Chi tiết hóa đơn tạm chờ"
-        visible={isModalVisible}
-        onCancel={handleCancel}
-        footer={[
-          <Button key="cancel" onClick={handleCancel}>
-            Đóng
-          </Button>,
-        ]}
-      >
-        {selectedBillDetails ? (
-          <div>
-            <p>
-              <strong>Mã hóa đơn:</strong> {selectedBillDetails.billId}
-            </p>
-            <p>
-              <strong>Nhân viên:</strong>{" "}
-              {selectedBillDetails.staff
-                ? selectedBillDetails.staff.name
-                : "Chưa có nhân viên"}
-            </p>
-            <p>
-              <strong>Thời gian:</strong> {selectedBillDetails.time}
-            </p>
-          </div>
-        ) : (
-          <p>Đang tải...</p>
-        )}
       </Modal>
     </>
   );

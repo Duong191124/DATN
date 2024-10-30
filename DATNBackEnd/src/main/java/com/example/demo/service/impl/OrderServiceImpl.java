@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -68,6 +67,9 @@ public class OrderServiceImpl implements OrderService {
             if(productDetail.getQuantity()<=0|| productDetail.getQuantity() - orderDetailRequest.getQuantity() <0){
                 throw new RuntimeException("Số lượng sản phẩm tồn kho không đủ hoặc sản phẩm hết hàng.");
             }
+            if(productDetail.getQuantity() - orderDetailRequest.getQuantity()==0){
+                productDetail.setStatus(0);
+            }
             productDetail.setQuantity(productDetail.getQuantity() - orderDetailRequest.getQuantity());
             productDetailUpdate.add(productDetail);
             OrderDetail orderDetail = new OrderDetail();
@@ -89,12 +91,14 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse updatedOrder(int id,OrderDTO orderDTO) {
         Optional<Orders> ordersOptional = orderRepo.findById(id);
         Staff staff = staffRepo.findById(orderDTO.getStaffId()).orElseThrow(()->new RuntimeException("not found staff with id:"+orderDTO.getStaffId()));
+        Customer customer = customerRepo.findById(orderDTO.getCustomerId()).orElseThrow(()->new RuntimeException("not found customer with id:"+orderDTO.getCustomerId()));
         Voucher voucher = voucherRepo.findById(orderDTO.getVoucherId()).orElseThrow(()->new RuntimeException("not found voucher with id:"+orderDTO.getVoucherId()));
         if(ordersOptional.isEmpty()){
             throw new RuntimeException("not valid");
         }
         Orders orders = ordersOptional.get();
         orders.setStaff(staff);
+        orders.setCustomer(customer);
         orders.setStatus(orderDTO.getStatus());
         orders.setDeliveryFee(orderDTO.getDeliveryFee());
         orders.setTotalAmount(orderDTO.getTotalAmount());
