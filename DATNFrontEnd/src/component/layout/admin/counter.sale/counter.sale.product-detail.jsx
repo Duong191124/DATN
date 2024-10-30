@@ -95,7 +95,7 @@ const CounterSalesProductDetail = ({
         }
       },
 
-      render: (text, record) => (record.status <= 0 ? "Hết hàng" : "Còn hàng"),
+
 
     },
     {
@@ -105,13 +105,27 @@ const CounterSalesProductDetail = ({
           disabled={record.quantity === 0 || record.status === 2}
           style={{ opacity: record.quantity === 0 || record.status === 2 ? 0.5 : 1 }}
           onClick={() => handleAddToCart(record)}
-          disabled={record.quantity <= 0}
         >
           Thêm vào giỏ
         </Button>
       ),
     },
   ];
+
+  const updatedDataProductDetail = dataProductDetail.map(item => ({
+    ...item,
+    status:
+      item.product?.status === 0 ||
+        item.size?.status === 0 ||
+        item.color?.status === 0 ||
+        item.sleeve?.status === 0 ||
+        item.collar?.status === 0 ||
+        item.brand?.status === 0
+        ? 2
+        : item.quantity > 0
+          ? 1
+          : 0, // Xét điều kiện trạng thái
+  }));
 
   const handleAddToCart = (record) => {
     setSelectedRow(record);
@@ -255,7 +269,7 @@ const CounterSalesProductDetail = ({
       <Table
         rowKey="id"
         columns={columns}
-        dataSource={dataProductDetail}
+        dataSource={updatedDataProductDetail}
         size="small"
         style={{ border: "1px solid #ddd" }}
         pagination={{
@@ -269,9 +283,8 @@ const CounterSalesProductDetail = ({
         }}
       />
       <Modal
-        title={`Nhập số lượng cho sản phẩm ${
-          selectedRow?.productResponse?.name || "N/A"
-        }`}
+        title={`Nhập số lượng cho sản phẩm ${selectedRow?.productResponse?.name || "N/A"
+          }`}
         visible={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={[
