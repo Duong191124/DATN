@@ -27,16 +27,11 @@ const CounterSalesProductDetail = ({
   updateFilter,
   updateUrl,
 }) => {
-  console.log("Received props:", {
-    dataProductDetail,
-    selectedBill,
-    filter,
-    updateFilter,
-  });
   const [selectedRow, setSelectedRow] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [modalVisible, setModalVisible] = useState(false);
   const [loadingPD, setLoadingPD] = useState(false);
+
   const columns = [
     {
       title: "Mã sản phẩm",
@@ -86,6 +81,7 @@ const CounterSalesProductDetail = ({
     {
       title: "Trạng thái",
       dataIndex: "status",
+
       render: (status) => {
         switch (status) {
           case 1:
@@ -98,6 +94,9 @@ const CounterSalesProductDetail = ({
             return "Trạng Thái Không Xác Định";
         }
       },
+
+      render: (text, record) => (record.status <= 0 ? "Hết hàng" : "Còn hàng"),
+
     },
     {
       title: "Thêm vào giỏ",
@@ -106,36 +105,43 @@ const CounterSalesProductDetail = ({
           disabled={record.quantity === 0 || record.status === 2}
           style={{ opacity: record.quantity === 0 || record.status === 2 ? 0.5 : 1 }}
           onClick={() => handleAddToCart(record)}
-        >Thêm vào giỏ</Button>
-
+          disabled={record.quantity <= 0}
+        >
+          Thêm vào giỏ
+        </Button>
       ),
     },
   ];
 
   const handleAddToCart = (record) => {
-    if (!selectedBill) {
-      notification.error({
-        message: "Chưa chọn hóa đơn!",
-        description:
-          "Vui lòng chọn hóa đơn trước khi thêm sản phẩm vào giỏ hàng.",
-      });
-      return;
-    }
     setSelectedRow(record);
+    setQuantity(1); // Reset quantity when opening modal
     setModalVisible(true);
   };
 
   const handleConfirm = () => {
+    // Kiểm tra xem số lượng nhập vào có lớn hơn số lượng tồn kho không
+    if (quantity > selectedRow.quantity) {
+      notification.warning({
+        message: "Số lượng không đủ",
+        description: `Sản phẩm chỉ còn ${selectedRow.quantity} trong kho. Vui lòng giảm số lượng.`,
+      });
+      return; // Dừng nếu số lượng không hợp lệ
+    }
+
     const productToAdd = {
       ...selectedRow,
       quantity,
     };
+
     if (selectedRow.productResponse && selectedRow.productResponse.name) {
-      onAddToCart(productToAdd, quantity);
-      notification.success({
-        message: "Sản phẩm đã được thêm vào giỏ hàng",
-        description: `${selectedRow.productResponse.name} x ${quantity} đã được thêm vào giỏ hàng.`,
-      });
+      const addCart = onAddToCart(productToAdd, quantity);
+      if (addCart) {
+        notification.success({
+          message: "Thêm sản phẩm",
+          description: `Thêm ${quantity} sản phẩm thành công`,
+        });
+      }
     } else {
       notification.error({
         message: "Lỗi",
@@ -156,6 +162,7 @@ const CounterSalesProductDetail = ({
     setFilter(newFilters);
     updateUrl(newFilters);
   };
+
   const resetFilters = async () => {
     setLoadingPD(true);
     const defaultFilters = {
@@ -166,12 +173,12 @@ const CounterSalesProductDetail = ({
       minPrice: undefined,
       maxPrice: undefined,
     };
-    // Giả lập thời gian loading 2 giây (nếu cần)
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setFilter(defaultFilters);
     updateUrl(defaultFilters);
     setLoadingPD(false);
   };
+
   return (
     <>
       <h3 style={{ marginBottom: "20px", borderBottom: "1px solid #ddd" }}>
@@ -257,12 +264,14 @@ const CounterSalesProductDetail = ({
           pageSize: size,
           onChange: (newPage) => {
             setPageProductDetail(newPage);
-            updateUrl(filter); // Cập nhật URL khi thay đổi trang
+            updateUrl(filter);
           },
         }}
       />
       <Modal
-        title={`Nhập số lượng cho sản phẩm ${selectedRow?.productResponse?.name}`}
+        title={`Nhập số lượng cho sản phẩm ${
+          selectedRow?.productResponse?.name || "N/A"
+        }`}
         visible={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={[
@@ -274,30 +283,41 @@ const CounterSalesProductDetail = ({
           </Button>,
         ]}
       >
-        <div>
-          <span>Nhập số lượng: </span>
-          <InputNumber
-            min={1}
-            max={selectedRow?.quantity || 1}
-            value={quantity}
-            onChange={(value) => setQuantity(value)}
-          />
-        </div>
-        <div style={{ marginTop: 10 }}>
-          <span>Thông tin sản phẩm:</span>
+        {selectedRow ? (
           <div>
-            <strong>Mã sản phẩm:</strong> {selectedRow?.code}
+            <span>Nhập số lượng: </span>
+            <InputNumber
+              min={1}
+              value={quantity}
+              onChange={(value) => {
+                setQuantity(value);
+                if (value > selectedRow.quantity) {
+                  notification.warning({
+                    message: "Số lượng không hợp lệ",
+                    description: `Sản phẩm chỉ còn ${selectedRow.quantity} trong kho. Vui lòng giảm số lượng.`,
+                  });
+                }
+              }}
+            />
+            <div style={{ marginTop: 10 }}>
+              <span>Thông tin sản phẩm:</span>
+              <div>
+                <strong>Mã sản phẩm:</strong> {selectedRow.code}
+              </div>
+              <div>
+                <strong>Size:</strong> {selectedRow.size?.name || "N/A"}
+              </div>
+              <div>
+                <strong>Màu:</strong> {selectedRow.color?.name || "N/A"}
+              </div>
+              <div>
+                <strong>Giá:</strong> {selectedRow.price?.toLocaleString()} VNĐ
+              </div>
+            </div>
           </div>
-          <div>
-            <strong>Size:</strong> {selectedRow?.size?.name}
-          </div>
-          <div>
-            <strong>Màu:</strong> {selectedRow?.color?.name}
-          </div>
-          <div>
-            <strong>Giá:</strong> {selectedRow?.price?.toLocaleString()} VNĐ
-          </div>
-        </div>
+        ) : (
+          <div>Không có thông tin sản phẩm.</div>
+        )}
       </Modal>
     </>
   );
