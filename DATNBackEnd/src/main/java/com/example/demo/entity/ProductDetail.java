@@ -11,7 +11,8 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Getter @Setter
+@Getter
+@Setter
 public class ProductDetail extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -48,4 +49,12 @@ public class ProductDetail extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "promotion_id")
     )
     private Set<Promotion> promotions;
+
+
+    @PostLoad
+    public void updateStatusBasedOnRelatedEntities() {
+        if (product.getStatus() == 0 || color.getStatus() == 0 || size.getStatus() == 0) {
+            this.status = 2;
+        }
+    }
 }
