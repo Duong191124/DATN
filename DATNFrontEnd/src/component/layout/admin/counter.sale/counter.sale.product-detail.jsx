@@ -86,12 +86,25 @@ const CounterSalesProductDetail = ({
     {
       title: "Trạng thái",
       dataIndex: "status",
-      render: (text, record) => (record.status === 0 ? "Hết hàng" : "Còn hàng"),
+      render: (status) => {
+        switch (status) {
+          case 1:
+            return "Còn Hàng";
+          case 0:
+            return "Hết Hàng";
+          case 2:
+            return "Ngừng Hoạt Động";
+          default:
+            return "Trạng Thái Không Xác Định";
+        }
+      },
     },
     {
       title: "Thêm vào giỏ",
       render: (_, record) => (
         <Button
+          disabled={record.quantity === 0 || record.status === 2}
+          style={{ opacity: record.quantity === 0 || record.status === 2 ? 0.5 : 1 }}
           onClick={() => handleAddToCart(record)}
         >Thêm vào giỏ</Button>
 
