@@ -4,11 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 
 
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Getter @Setter
+@Getter
+@Setter
 @Entity
 @Table(name = "product")
 public class Product extends BaseEntity {
@@ -32,7 +32,7 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "collar_id", referencedColumnName = "id")
     private Collar collar;
     @ManyToOne
-    @JoinColumn(name = "sleeve_id",referencedColumnName = "id")
+    @JoinColumn(name = "sleeve_id", referencedColumnName = "id")
     private Sleeve sleeve;
     @Basic
     @Column(name = "description", nullable = true, length = 255)
@@ -46,4 +46,12 @@ public class Product extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "brand_id", referencedColumnName = "id")
     private Brand brand;
+
+    @PostLoad
+    public void updateStatusBasedOnRelatedEntities() {
+        if (sleeve.getStatus() == 0 ||
+                collar.getStatus() == 0 || brand.getStatus() == 0) {
+            this.status = 0;
+        }
+    }
 }

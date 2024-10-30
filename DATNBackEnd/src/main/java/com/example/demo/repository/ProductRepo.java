@@ -24,7 +24,7 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
             "(:productName IS NULL OR p.name LIKE CONCAT('%', :productName, '%')) AND " +
             "(:price IS NULL OR p.price = :price) AND " +
             "(:description IS NULL OR p.description LIKE CONCAT('%', :description, '%')) AND " +
-            "(:status IS NULL OR p.status = :status)") // Thêm điều kiện lọc theo status
+            "(:status IS NULL OR (p.status * s.status*col.status*b.status) = :status)") // Thêm điều kiện lọc theo status
     Page<Product> pageAllProducts(@Param("categoryId") Integer categoryId,
                                   @Param("productName") String productName,
                                   @Param("sleeveId") Integer sleeveId,
