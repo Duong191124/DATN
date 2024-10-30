@@ -77,10 +77,11 @@ const updateProductAPI = (
   name,
   description,
   price,
-  selectValueSleeve,
-  selectedValueBrand,
-  selectedValueCategory,
-  selectedValueCollar
+  sleeve_id,
+  category_id,
+  brand_id,
+  collar_id,
+  status
 ) => {
   const URL_BACKEND = `/api/v1/products/${id}`;
   const data = {
@@ -89,10 +90,11 @@ const updateProductAPI = (
     name: name,
     price: price,
     description: description,
-    sleeve_id: selectValueSleeve,
-    category_id: selectedValueBrand,
-    brand_id: selectedValueCategory,
-    collar_id: selectedValueCollar,
+    sleeve_id: sleeve_id,
+    category_id: category_id,
+    brand_id: brand_id,
+    collar_id: collar_id,
+    status: status
   };
   return axios.put(URL_BACKEND, data);
 };
@@ -890,7 +892,14 @@ const softDelete = (id) => {
   return axios.put(URL_BACKEND);
 };
 
+//Cart Detail
+const fetchDataAPICartDetail = () => {
+  const URL_BACKEND = "/api/v1/cartDetail";
+  return axios.get(URL_BACKEND)
+}
+
 export {
+  fetchDataAPICartDetail,
   fetchDataPageAndFilterProduct,
   updateStatus,
   getAllCustomer,

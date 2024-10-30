@@ -74,29 +74,39 @@ const ProductTable = (props) => {
       title: 'Action',
       key: 'action',
       render: (_, record) => {
+        const isDisabled = record.status === 0; // Kiểm tra điều kiện để vô hiệu hóa
+
         return (
           <div style={{ display: "flex", gap: "20px" }}>
             <EditOutlined
-              style={{ cursor: "pointer", color: "orange" }}
+              style={{ cursor: isDisabled ? "not-allowed" : "pointer", color: "orange" }}
               onClick={() => {
-                setIsModalUpdateOpen(true);
-                setDataUpdate(record);
+                if (!isDisabled) {
+                  setIsModalUpdateOpen(true);
+                  setDataUpdate(record);
+                }
               }}
             />
             <UploadOutlined
-              style={{ cursor: "pointer" }}
+              style={{ cursor: isDisabled ? "not-allowed" : "pointer" }}
               onClick={() => {
-                setDataUpdate(record.id);
-                setIsModalOpen(true);
+                if (!isDisabled) {
+                  setDataUpdate(record.id);
+                  setIsModalOpen(true);
+                }
               }}
             />
             <Link to={`/admin/products/${record.id}`}>
-              <Button style={{ color: "blue" }}>Product-detail</Button>
+              <Button style={{ color: "blue" }} disabled={isDisabled}> {/* Vô hiệu hóa nút nếu status = 0 */}
+                Product-detail
+              </Button>
             </Link>
           </div>
         );
       }
     }
+
+
   ];
 
   const onChange = (pagination, filters, sorter, extra) => {

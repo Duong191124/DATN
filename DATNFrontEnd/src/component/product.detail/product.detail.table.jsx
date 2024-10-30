@@ -15,8 +15,19 @@ const ProductDetailTable = (props) => {
   // Cập nhật dữ liệu sản phẩm với trạng thái tương ứng
   const updatedDataProductDetail = dataProductDetail.map(item => ({
     ...item,
-    status: item.quantity > 0 ? 1 : 0, // Nếu quantity > 0 thì status = 1, ngược lại status = 0
+    status:
+      item.product?.status === 0 ||
+        item.size?.status === 0 ||
+        item.color?.status === 0 ||
+        item.sleeve?.status === 0 ||
+        item.collar?.status === 0 ||
+        item.brand?.status === 0
+        ? 2
+        : item.quantity > 0
+          ? 1
+          : 0, // Xét điều kiện trạng thái
   }));
+
 
   const columns = [
     {
@@ -59,7 +70,16 @@ const ProductDetailTable = (props) => {
       title: "Status",
       dataIndex: "status",
       render: (status) => {
-        return status === 1 ? "Còn Hàng" : "Hết Hàng";
+        switch (status) {
+          case 1:
+            return "Còn Hàng";
+          case 0:
+            return "Hết Hàng";
+          case 2:
+            return "Ngừng Hoạt Động";
+          default:
+            return "Trạng Thái Không Xác Định";
+        }
       },
     },
     {
