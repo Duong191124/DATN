@@ -10,7 +10,7 @@ const CustomerPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenU, setIsModalOpenU] = useState(false);
   const [page, setPage] = useState(1);
-  const [size, setSize] = useState(5);
+  const [size, setSize] = useState(10);
   const [total, setTotal] = useState(0);
   const [dataDetail, setDataDetail] = useState(null);
 
