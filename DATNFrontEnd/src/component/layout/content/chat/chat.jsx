@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import "./chat.css";
 import { CloseOutlined, MessageOutlined } from "@ant-design/icons";
 import { ChatService } from "../../../../service/chat.service/chat.service";
+import { message } from "antd";
 
 const ChatBox = () => {
   const [messages, setMessages] = useState([
@@ -11,6 +12,7 @@ const ChatBox = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [typingUser, setTypingUser] = useState(false);
   const [typingBot, setTypingBot] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const chatboxRef = useRef(null);
   const messagesEndRef = useRef(null);
 
@@ -30,6 +32,7 @@ const ChatBox = () => {
     setInput("");
     setTypingUser(false);
     setTypingBot(true);
+
     try {
       const response = await ChatService(messageContent);
       const botMessage = response.data;
@@ -87,19 +90,20 @@ const ChatBox = () => {
                 {msg.content}
               </div>
             ))}
-            {typingUser && (
+            {/* {typingUser && (
               <>
                 <div className="typing-user">
                   <span className="typing-load-send">texting</span>
                   <span className="typing-indicator"> ...</span>
                 </div>
               </>
-            )}
+            )} */}
             {typingBot && (
               <>
-                <div className="chatbox-message bot"></div>
-                <div className="typing-boot">
-                  Texting <span className="typing-indicator">...</span>
+                <div className="chatbox-message bot">
+                  <div className="typing-boot">
+                    Texting <span className="typing-indicator">...</span>
+                  </div>
                 </div>
               </>
             )}
@@ -109,29 +113,43 @@ const ChatBox = () => {
           </div>
           <div className="chatbox-bottom">
             <div className="chatbox-suggestions">
-              <button onClick={() => sendMessage("help")}>Help</button>
-              <button onClick={() => sendMessage("order problem")}>
-                Order problem
-              </button>
-              <button onClick={() => sendMessage("support")}>Support</button>
+              <button onClick={() => sendMessage("How long does it take shipping?")}>shipping</button>
+              <button onClick={() => sendMessage("Can I change my order after it has been placed")}>Order</button>
+              <button onClick={() => sendMessage("What are your customer service hours?")}>Service</button>
+              <button onClick={() => sendMessage("Hey! Need any help?")}>Support</button>
             </div>
             <div className="chatbox-input">
               <input
+                disabled={typingBot || isLoading}
                 type="text"
                 value={input}
                 onChange={(e) => {
                   setInput(e.target.value);
-                  setTypingUser(true); // Hiển thị thông báo đang soạn khi người dùng nhập
+                  setTypingUser(true);
                 }}
                 placeholder="Send text."
-                onBlur={() => setTypingUser(false)} // Ngừng hiển thị khi rời khỏi input
+                onBlur={() => setTypingUser(false)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !typingBot && input.trim() !== "") {
+                    setIsLoading(true);
+                    sendMessage(input).finally(() => {
+                      setIsLoading(false);
+                    });
+                  }
+                }}
               />
               <button
+                disabled={typingBot || isLoading || input.trim() === ""}
                 onClick={() => {
-                  sendMessage(input);
+                  if (!typingBot && input.trim() !== "") {
+                    setIsLoading(true);
+                    sendMessage(input).finally(() => {
+                      setIsLoading(false);
+                    });
+                  }
                 }}
               >
-                Gửi
+                Send
               </button>
             </div>
           </div>
