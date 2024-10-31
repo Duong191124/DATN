@@ -51,7 +51,13 @@ const Home = () => {
         <div className="product-image">
           <img src={product.image} alt={product.title} />
         </div>
-        <div className="product-content">
+        <div
+          className="product-content"
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}
+        >
           <div className="product-title">{product.title}</div>
           <div className="product-price">{product.price} VNĐ</div>
           <div className="product-size">
@@ -71,9 +77,8 @@ const Home = () => {
             {colors.map((color) => (
               <span
                 key={color}
-                className={`product-color-${color} ${
-                  activeColor === color ? "active" : ""
-                }`}
+                className={`product-color-${color} ${activeColor === color ? "active" : ""
+                  }`}
                 onClick={() => setActiveColor(color)}
                 style={{
                   display: "inline-block",
@@ -228,7 +233,7 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <ChatBox /> {}
+      <ChatBox /> { }
     </>
   );
 };

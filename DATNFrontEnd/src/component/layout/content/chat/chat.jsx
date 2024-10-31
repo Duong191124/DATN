@@ -99,7 +99,7 @@ const ChatBox = () => {
               <>
                 <div className="chatbox-message bot"></div>
                 <div className="typing-boot">
-                  ai đó đang soạn <span className="typing-indicator">...</span>
+                  Texting <span className="typing-indicator">...</span>
                 </div>
               </>
             )}
@@ -123,7 +123,7 @@ const ChatBox = () => {
                   setInput(e.target.value);
                   setTypingUser(true); // Hiển thị thông báo đang soạn khi người dùng nhập
                 }}
-                placeholder="Nhập tin nhắn..."
+                placeholder="Send text."
                 onBlur={() => setTypingUser(false)} // Ngừng hiển thị khi rời khỏi input
               />
               <button
