@@ -6,7 +6,7 @@ import { message } from "antd";
 
 const ChatBox = () => {
   const [messages, setMessages] = useState([
-    { content: "Hello!Can I help you?", sender: "bot" },
+    { content: "Hello! Can I help you?", sender: "bot" },
   ]);
   const [input, setInput] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -16,9 +16,22 @@ const ChatBox = () => {
   const chatboxRef = useRef(null);
   const messagesEndRef = useRef(null);
 
+  // Lấy dữ liệu chat từ local storage khi khởi tạo component
+  useEffect(() => {
+    const savedMessages = localStorage.getItem("chatMessages");
+    if (savedMessages) {
+      setMessages(JSON.parse(savedMessages));
+    }
+  }, []);
+
+  // Lưu dữ liệu chat vào local storage mỗi khi messages thay đổi
+  useEffect(() => {
+    localStorage.setItem("chatMessages", JSON.stringify(messages));
+  }, [messages]);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    console.log("scroll: ")
+    console.log("scroll: ");
   };
 
   const toggleChatBox = () => {
@@ -50,11 +63,13 @@ const ChatBox = () => {
       setTypingBot(false);
     }
   };
+
   const handleClickOutside = (event) => {
     if (chatboxRef.current && !chatboxRef.current.contains(event.target)) {
       setIsOpen(false);
     }
   };
+
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
@@ -82,34 +97,20 @@ const ChatBox = () => {
       </div>
       {isOpen && (
         <div className="chatbox-content">
-          <div
-            className="chatbox-messages"
-          >
+          <div className="chatbox-messages">
             {messages.map((msg, index) => (
               <div key={index} className={`chatbox-message ${msg.sender}`}>
                 {msg.content}
               </div>
             ))}
-            {/* {typingUser && (
-              <>
-                <div className="typing-user">
-                  <span className="typing-load-send">texting</span>
-                  <span className="typing-indicator"> ...</span>
-                </div>
-              </>
-            )} */}
             {typingBot && (
-              <>
-                <div className="chatbox-message bot">
-                  <div className="typing-boot">
-                    Texting <span className="typing-indicator">...</span>
-                  </div>
+              <div className="chatbox-message bot">
+                <div className="typing-boot">
+                  Texting <span className="typing-indicator">...</span>
                 </div>
-              </>
+              </div>
             )}
-            <div ref={messagesEndRef} style={{
-              marginTop: 140
-            }} />
+            <div ref={messagesEndRef} style={{ marginTop: 140 }} />
           </div>
           <div className="chatbox-bottom">
             <div className="chatbox-suggestions">
