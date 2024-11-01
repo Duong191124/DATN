@@ -1,4 +1,4 @@
-import { notification, Popconfirm, Table } from "antd";
+import { Button, notification, Popconfirm, Table } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import ColorUpdate from "./brand.update";
@@ -10,16 +10,7 @@ const BrandTable = (props) => {
     const [idModalUpdateOpen, setIsModalUpdateOpen] = useState(false)
     const [dataUpdate, setDataUpdate] = useState("")
 
-    const deleteBrand = async (id) => {
-        const res = await deleteBrandAPI(id);
-        if (res.data) {
-            notification.success({
-                message: "delete brand",
-                description: "delete brand successfully"
-            })
-            await loadBrand()
-        }
-    }
+
     const columns = [
         {
             title: 'ID',
@@ -45,25 +36,14 @@ const BrandTable = (props) => {
             key: 'action',
             render: (_, record) => {
                 return (
-                    <div style={{ display: "flex", gap: "20px" }}>
-                        <EditOutlined
-                            style={{ cursor: "pointer", color: "orange" }}
-                            onClick={() => {
-                                setIsModalUpdateOpen(true)
-                                setDataUpdate(record)
-                            }}
-                        />
-                        <Popconfirm
-                            title="Xoá sản phẩm"
-                            description="bạn có chắc chắn muốn xoá sản phẩm này không ?"
-                            onConfirm={() => { deleteBrand(record.id) }}
-                            okText="yes"
-                            cancelText="no"
-                            placement="left"
-                        >
-                            <DeleteOutlined style={{ cursor: "pointer", color: "red" }} />
-                        </Popconfirm>
-                    </div>
+                    <Button
+                        icon={<EditOutlined />}
+                        style={{ cursor: "pointer", color: "orange" }}
+                        onClick={() => {
+                            setIsModalUpdateOpen(true)
+                            setDataUpdate(record)
+                        }}
+                    >Edit Brand</Button>
                 )
             }
         }

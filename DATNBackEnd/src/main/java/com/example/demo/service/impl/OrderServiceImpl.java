@@ -67,6 +67,9 @@ public class OrderServiceImpl implements OrderService {
             if(productDetail.getQuantity()<=0|| productDetail.getQuantity() - orderDetailRequest.getQuantity() <0){
                 throw new RuntimeException("Số lượng sản phẩm tồn kho không đủ hoặc sản phẩm hết hàng.");
             }
+            if(productDetail.getQuantity() - orderDetailRequest.getQuantity()==0){
+                productDetail.setStatus(0);
+            }
             productDetail.setQuantity(productDetail.getQuantity() - orderDetailRequest.getQuantity());
             productDetailUpdate.add(productDetail);
             OrderDetail orderDetail = new OrderDetail();

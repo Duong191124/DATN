@@ -3,9 +3,9 @@
   justify-content: center;
   width: 100%;
   margin: 0 auto;
-  background: rgba(225, 225, 225, 0.7);
+  background: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  height: 100px;
+  height: 70px;
   position: fixed;
   z-index: 1000;
   top: 0;
@@ -27,8 +27,8 @@
 }
 
 .logo {
-  width: 80px;
-  height: 80px;
+  width: 50px;
+  height: 50px;
   margin-right: 30px;
 }
 
@@ -58,9 +58,10 @@
   cursor: pointer;
   text-decoration: none;
   color: #000;
-  font-size: 18px;
+  font-size: 10px;
   font-weight: 500;
 }
+
 .menu ul li a::after {
   content: "";
   width: 100%;
@@ -73,18 +74,22 @@
   opacity: 0;
   transition: transform 0.3s ease-in, opacity 0.3s ease-in;
 }
+
 .menu ul li a:hover::after {
   transform: translateX(0);
   opacity: 1;
 }
+
 .menu ul li a:hover {
   color: #777373;
 }
+
 .input-search {
   flex: 2;
   display: flex;
   justify-content: space-between;
-  box-sizing: border-box; /* Đảm bảo tính toán kích thước đúng */
+  box-sizing: border-box;
+  /* Đảm bảo tính toán kích thước đúng */
 }
 
 .icon-right {

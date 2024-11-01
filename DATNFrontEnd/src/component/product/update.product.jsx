@@ -28,6 +28,7 @@ const UpdateProduct = (props) => {
         collar: dataUpdate.collarName,
         brand: dataUpdate.brandName,
         category: dataUpdate.categoryName,
+        status: dataUpdate.status,
         sleeve: dataUpdate.sleeveName,
       });
     }
@@ -50,6 +51,7 @@ const UpdateProduct = (props) => {
         sleeve ? sleeve.id : null,
         brand ? brand.id : null,
         category ? category.id : null,
+        values.status,
         collar ? collar.id : null
       );
 
@@ -80,35 +82,31 @@ const UpdateProduct = (props) => {
 
   const loadDataBrand = async () => {
     const res = await fetchDataBrand();
-    if (res.data) {
-      setDataBrand(res.data.data);
-    }
+    const activeBrands = res.data.data.filter(brand => brand.status !== 0); // Lọc các thương hiệu có trạng thái khác 0
+    setDataBrand(activeBrands);
   };
 
   const loadDataSleeve = async () => {
     const res = await fetchDataSleeve();
-    if (res.data) {
-      setDataSleeve(res.data);
-    }
+    const activeSleeves = res.data.filter(sleeve => sleeve.status !== 0);
+    setDataSleeve(activeSleeves)
   };
 
   const loadDataCategory = async () => {
     const res = await fetchDataCategory();
-    if (res.data) {
-      setDataCategory(res.data.data);
-    }
+    const activeCategories = res.data.data.filter(category => category.status !== 0);
+    setDataCategory(activeCategories);
   };
 
   const loadDataCollar = async () => {
     const res = await fetchDataCollar();
-    if (res.data) {
-      setDataCollar(res.data);
-    }
+    const activeCollars = res.data.filter(collar => collar.status !== 0);
+    setDataCollar(activeCollars);
   };
 
   const resetCloseModal = () => {
     setIsModalUpdateOpen(false);
-    form.resetFields(); // Reset lại các trường trong form
+    form.resetFields();
     setDataUpdate(null);
   };
 
@@ -216,6 +214,30 @@ const UpdateProduct = (props) => {
             }
             options={dataCategory}
             fieldNames={{ label: "name", value: "id" }}
+          />
+        </Form.Item>
+
+
+        <Form.Item
+          name="status"
+          label="Status"
+          rules={[
+            {
+              required: true, message: "Please select a status!",
+            },
+          ]}
+        >
+          <Select
+            showSearch
+            placeholder="Select a status"
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+            options={[
+              { label: "Đang Hoạt Động", value: 1 }, // Giá trị cho Đang Hoạt Động
+              { label: "Ngừng Hoạt Động", value: 0 }, // Giá trị cho Ngừng Hoạt Động
+            ]}
+            fieldNames={{ label: "label", value: "value" }} // Tùy chọn này có thể không cần thiết nếu bạn đã định nghĩa đúng trong options
           />
         </Form.Item>
 

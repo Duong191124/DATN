@@ -1,7 +1,9 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dto.SizeDTO;
+import com.example.demo.entity.ProductDetail;
 import com.example.demo.entity.Size;
+import com.example.demo.repository.ProductDetailRepo;
 import com.example.demo.repository.SizeRepo;
 import com.example.demo.service.SizeService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import java.util.List;
 public class SizeServiceImpl implements SizeService {
 
     private final SizeRepo sizeRepo;
+    private final ProductDetailRepo productDetailRepo;
 
     @Override
     public List<Size> getAll() {
@@ -55,14 +58,14 @@ public class SizeServiceImpl implements SizeService {
         return sizeRepo.findById(id).orElseThrow(() -> new Exception(""));
     }
 
-    @Override
-    public void deleteSize(Integer id) throws Exception {
-        Size existingSize = getSizeById(id);
-        sizeRepo.delete(existingSize);
-    }
+
+
+
 
     @Override
     public Size findById(Integer id) {
-        return sizeRepo.findById(id).orElseThrow(()->new RuntimeException("not found size with id:"+id));
+        return sizeRepo.findById(id).orElseThrow(() -> new RuntimeException("not found size with id:" + id));
     }
+
+
 }

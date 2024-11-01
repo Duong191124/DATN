@@ -6,6 +6,7 @@ import com.example.demo.response.MessageReponse;
 import com.example.demo.service.CollarService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -72,7 +73,11 @@ public class CollarController {
     public ResponseEntity<?> deleteCollar(@PathVariable Integer id) {
         try {
             collarService.deleteCollar(id);
-            return ResponseEntity.ok(new MessageReponse("delete successfully", 1, null));
+            return ResponseEntity.ok().body(MessageReponse.builder()
+                    .message("delete collar successfully")
+                    .status(HttpStatus.OK.value())
+                    .build());
+
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }

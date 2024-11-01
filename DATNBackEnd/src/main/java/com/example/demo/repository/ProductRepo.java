@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ProductRepo extends JpaRepository<Product, Integer> {
     @Query("SELECT p FROM Product p " +
@@ -21,7 +23,8 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
             "(:brandId IS NULL OR :brandId = 0 OR b.id = :brandId) AND " +
             "(:productName IS NULL OR p.name LIKE CONCAT('%', :productName, '%')) AND " +
             "(:price IS NULL OR p.price = :price) AND " +
-            "(:description IS NULL OR p.description LIKE CONCAT('%', :description, '%'))")
+            "(:description IS NULL OR p.description LIKE CONCAT('%', :description, '%')) AND " +
+            "(:status IS NULL OR (p.status * s.status*col.status*b.status) = :status)") // Thêm điều kiện lọc theo status
     Page<Product> pageAllProducts(@Param("categoryId") Integer categoryId,
                                   @Param("productName") String productName,
                                   @Param("sleeveId") Integer sleeveId,
@@ -29,8 +32,19 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
                                   @Param("brandId") Integer brandId,
                                   @Param("price") Double price,
                                   @Param("description") String description,
+                                  @Param("status") Integer status, // Tham số status
                                   Pageable pageable);
 
+
     boolean existsByCode(String code);
+
     boolean existsByName(String name);
+
+    List<Product> findByBrandId(Integer brandId);
+
+    List<Product> findByCollarId(Integer collarId);
+
+    List<Product> findBySleeveId(Integer sleeveId);
+
+    List<Product> findByCategoryId(Integer categoryId);
 }

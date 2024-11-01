@@ -2,7 +2,9 @@ package com.example.demo.service.impl;
 
 import com.example.demo.dto.BrandDTO;
 import com.example.demo.entity.Brand;
+import com.example.demo.entity.Product;
 import com.example.demo.repository.BrandRepo;
+import com.example.demo.repository.ProductRepo;
 import com.example.demo.service.BrandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,8 @@ import java.util.List;
 public class BrandServiceImpl implements BrandService {
 
     private final BrandRepo brandRepo;
+
+    private final ProductRepo productRepo;
 
     @Override
     public List<Brand> getAll() {
@@ -44,9 +48,25 @@ public class BrandServiceImpl implements BrandService {
         return brandRepo.findById(id).orElseThrow(() -> new Exception(""));
     }
 
+//    @Override
+//    public void deleteBrand(Integer id) throws Exception {
+//        Brand existingBrand = getBrandById(id);
+//        brandRepo.delete(existingBrand);
+//    }
+
     @Override
-    public void deleteBrand(Integer id) throws Exception {
-        Brand existingBrand = getBrandById(id);
-        brandRepo.delete(existingBrand);
+    public boolean candeleteBrand(Integer brandId) {
+        //Kiểm tra xem có product nào liên quan đến brand không
+        List<Product> relateProduct = productRepo.findByBrandId(brandId);
+        return relateProduct.isEmpty();//trả về true nếu không có liên kết
+    }
+
+    @Override
+    public void deleteBrand(Integer brandId) throws Exception {
+        if (candeleteBrand(brandId)) {
+            brandRepo.deleteById(brandId);
+        } else {
+            throw new IllegalStateException("Cannot delete brand, it has related products.");
+        }
     }
 }

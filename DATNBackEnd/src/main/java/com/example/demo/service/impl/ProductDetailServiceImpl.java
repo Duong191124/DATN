@@ -57,7 +57,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
         return productDetailRepo.save(newProductDetail);
     }
-    public ProductDetail pdate(Integer id, ProductDetailDTO productDetailDTO) throws Exception {
+    public ProductDetail update(Integer id, ProductDetailDTO productDetailDTO) throws Exception {
         // Tìm kiếm productDetail dựa trên ID
         ProductDetail existingProductDetail = productDetailRepo.findById(id)
                 .orElseThrow(() -> new Exception("ProductDetail not found"));
@@ -89,6 +89,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         productDetailRepo.delete(productDetail);
     }
 
+
+
     @Override
     public ProductDetail uploadImageForProductDetail(Integer ProductId, Integer productDetailId, MultipartFile file) throws Exception {
         String imageUrl = cloudinaryService.uploadImage(file);
@@ -101,8 +103,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     }
 
     @Override
-    public Page<ProductDetailResponse> pageAndFilterWithProductDetailResponse(String productName, String code, String colorName, String sizeName, Double minPrice,Double maxPrice, Pageable pageable) {
-        Page<ProductDetail> productDetailPage = productDetailRepo.pageAndFilterProductDetail(productName,code,colorName,sizeName,minPrice,maxPrice,pageable);
+    public Page<ProductDetailResponse> pageAndFilterWithProductDetailResponse(String productName, String code, String colorName, String sizeName, Double minPrice, Double maxPrice, Integer status, Pageable pageable) {
+        Page<ProductDetail> productDetailPage = productDetailRepo.pageAndFilterProductDetail(productName,code,colorName,sizeName,minPrice,maxPrice,status,pageable);
         return productDetailPage.map(ProductDetailResponse::fromProductDetailResponse);
     }
 

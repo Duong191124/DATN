@@ -15,4 +15,8 @@ public interface BrandService {
     Brand getBrandById(Integer id) throws Exception;
 
     void deleteBrand(Integer id) throws Exception;
+
+
+    boolean candeleteBrand(Integer brandId);
+
 }
