@@ -26,10 +26,10 @@ public class VoucherController {
     public ResponseEntity<MessageReponse> getAllVouchers() {
         List<VoucherResponse> voucherList = voucherService.getAll()
                 .stream()
-                .map(VoucherResponse::fromVoucherResponse)
+                .map(VoucherResponse::fromVoucher)
                 .toList();
         return ResponseEntity.ok().body(MessageReponse.builder()
-                .message("lay thong tin thanh cong")
+                .message("Lấy thông tin thành công")
                 .status(HttpStatus.OK.value())
                 .data(voucherList)
                 .build()
@@ -38,7 +38,7 @@ public class VoucherController {
 
     @PostMapping("")
     public ResponseEntity<?> createVoucher(@Valid @RequestBody VoucherDTO voucherDTO, BindingResult result) {
-        if(result.hasErrors()){
+        if (result.hasErrors()) {
             List<String> errorMessages = result.getFieldErrors().stream()
                     .map(FieldError::getDefaultMessage)
                     .collect(Collectors.toList());
@@ -56,7 +56,7 @@ public class VoucherController {
     public ResponseEntity<?> updateVoucher(@PathVariable("id") Integer id,
                                            @Valid @RequestBody VoucherDTO voucherDTO,
                                            BindingResult result) {
-        if(result.hasErrors()){
+        if (result.hasErrors()) {
             List<String> errorMessages = result.getFieldErrors().stream()
                     .map(FieldError::getDefaultMessage)
                     .collect(Collectors.toList());
@@ -78,23 +78,28 @@ public class VoucherController {
             );
         }
     }
-    @PutMapping("/{id}/customer")
-    public ResponseEntity<?> updateCustomer(@PathVariable Integer id, @RequestBody VoucherDTO VoucherDTO) throws Exception {
-        Integer customerId = VoucherDTO.getCustomers();
 
+    @PutMapping("/{id}/customer")
+    public ResponseEntity<?> updateCustomer(@PathVariable Integer id, @RequestBody VoucherDTO voucherDTO) throws Exception {
+        if (voucherDTO.getCustomers() == null || voucherDTO.getCustomers().isEmpty()) {
+            return ResponseEntity.badRequest().body(MessageReponse.builder()
+                    .message("Customer ID không được để trống")
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .build());
+        }
+
+        Integer customerId = voucherDTO.getCustomers().get(0); // Giả sử chỉ cập nhật một customer
         VoucherResponse updatedVoucher = voucherService.updateCustomer(id, customerId);
         return ResponseEntity.ok(updatedVoucher);
     }
-
-
 
     @GetMapping("detail/{id}")
     public ResponseEntity<MessageReponse> getVoucherById(@PathVariable("id") Integer id) {
         try {
             Voucher voucher = voucherService.getById(id);
-            VoucherResponse voucherResponse = VoucherResponse.fromVoucherResponse(voucher);
+            VoucherResponse voucherResponse = VoucherResponse.fromVoucher(voucher);
             return ResponseEntity.ok().body(MessageReponse.builder()
-                    .message("lay thong tin thanh cong")
+                    .message("Lấy thông tin thành công")
                     .status(HttpStatus.OK.value())
                     .data(voucherResponse)
                     .build());

@@ -52,6 +52,12 @@ public class Customer extends BaseEntity {
     @Basic
     @Column(name = "gender")
     private int gender;
-
+    @ManyToMany(fetch = FetchType.EAGER) // Loại bỏ cascade
+    @JoinTable(
+            name = "customer_voucher", // Tên bảng trung gian
+            joinColumns = @JoinColumn(name = "customer_id"), // Khóa ngoại tới bảng Promotion
+            inverseJoinColumns = @JoinColumn(name = "voucher_id") // Khóa ngoại tới bảng ProductDetail
+    )
+    private Set<Voucher> vouchers;
 
 }

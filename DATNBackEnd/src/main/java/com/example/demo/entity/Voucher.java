@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 
@@ -46,7 +47,11 @@ public class  Voucher extends BaseEntity {
     @Basic
     @Column(name = "status")
     private int status;
-    @ManyToOne
-    @JoinColumn(name = "customer_id",referencedColumnName = "id")
-    private Customer customer;
+    @ManyToMany(fetch = FetchType.EAGER) // Loại bỏ cascade
+    @JoinTable(
+            name = "customer_voucher", // Tên bảng trung gian
+            joinColumns = @JoinColumn(name = "voucher_id"), // Khóa ngoại tới bảng Promotion
+            inverseJoinColumns = @JoinColumn(name = "customer_id") // Khóa ngoại tới bảng ProductDetail
+    )
+    private Set<Customer> customers;
 }
