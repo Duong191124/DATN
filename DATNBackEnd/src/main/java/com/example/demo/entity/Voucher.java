@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -47,11 +48,13 @@ public class  Voucher extends BaseEntity {
     @Basic
     @Column(name = "status")
     private int status;
-    @ManyToMany(fetch = FetchType.EAGER) // Loại bỏ cascade
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "customer_voucher", // Tên bảng trung gian
-            joinColumns = @JoinColumn(name = "voucher_id"), // Khóa ngoại tới bảng Promotion
-            inverseJoinColumns = @JoinColumn(name = "customer_id") // Khóa ngoại tới bảng ProductDetail
+            name = "customer_voucher",
+            joinColumns = @JoinColumn(name = "voucher_id"),
+            inverseJoinColumns = @JoinColumn(name = "customer_id")
     )
+    @JsonManagedReference
     private Set<Customer> customers;
+
 }

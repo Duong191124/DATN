@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Table, Space, Modal, notification } from "antd";
-import { EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
-import { fetchDataVoucher, deleteVoucher, fetchCustomerList } from "../../service/api.service";
+import { EditOutlined, DeleteOutlined, EyeOutlined, CheckCircleOutlined } from "@ant-design/icons"; // hoặc ExclamationCircleOutlined
+import { fetchDataVoucher, deleteVoucher, fetchCustomerList, chandleStatus } from "../../service/api.service";
 import VoucherUpdateModal from "./voucher.update";
 import VoucherCustomer from "./voucher.customer";
 
@@ -38,8 +38,18 @@ const VoucherTable = ({ refreshData }) => {
     const loadData = async () => {
         try {
             const response = await fetchDataVoucher();
+            console.log("Dữ liệu voucher:", response.data.data);
+
             if (response.data.data) {
-                setDataVoucher(response.data.data);
+                const currentDate = new Date(); // Lấy ngày hiện tại
+                const updatedVouchers = response.data.data.map(voucher => {
+                    const expirationDate = new Date(voucher.expirationDate);
+                    if (expirationDate < currentDate) {
+                        return { ...voucher, status: 0 }; // Thay đổi status thành 0 (Hết hạn)
+                    }
+                    return voucher;
+                });
+                setDataVoucher(updatedVouchers);
             }
         } catch (error) {
             notification.error({
@@ -53,7 +63,16 @@ const VoucherTable = ({ refreshData }) => {
         loadData();
     }, [refreshData]);
 
-    const handleDelete = (id) => {
+    const handleDelete = (id, customers) => {
+        if (customers && customers.length > 0) {
+            // Nếu voucher có khách hàng áp dụng, không cho phép xóa
+            notification.warning({
+                message: "Không thể xóa",
+                description: "Voucher này đã áp dụng cho khách hàng và không thể xóa.",
+            });
+            return;
+        }
+
         Modal.confirm({
             title: "Xác nhận xóa",
             content: "Bạn có chắc chắn muốn xóa voucher này?",
@@ -81,6 +100,7 @@ const VoucherTable = ({ refreshData }) => {
             }
         });
     };
+
 
     const handleEdit = (voucher) => {
         setSelectedVoucherId(voucher.id);
@@ -111,6 +131,31 @@ const VoucherTable = ({ refreshData }) => {
     const handleApply = (selected) => {
         console.log("Khách hàng được áp dụng:", selected);
         loadData();
+    };
+
+    const handleChangeStatus = async (id) => {
+        try {
+            const res = await chandleStatus(id); // Gọi hàm chandleStatus
+
+            // Kiểm tra trạng thái phản hồi
+            if (res.status === 200 || res.status === 204) {
+                notification.success({
+                    message: "Cập nhật trạng thái",
+                    description: "Cập nhật trạng thái voucher thành công."
+                });
+                loadData(); // Tải lại dữ liệu sau khi cập nhật
+            } else {
+                notification.error({
+                    message: "Cập nhật trạng thái",
+                    description: "Đã có lỗi xảy ra khi cập nhật trạng thái voucher."
+                });
+            }
+        } catch (error) {
+            notification.error({
+                message: "Cập nhật trạng thái",
+                description: "Đã có lỗi xảy ra khi cập nhật trạng thái voucher."
+            });
+        }
     };
 
     const columns = [
@@ -163,7 +208,11 @@ const VoucherTable = ({ refreshData }) => {
                     />
                     <DeleteOutlined
                         style={{ color: "red", cursor: "pointer" }}
-                        onClick={() => handleDelete(record.id)}
+                        onClick={() => handleDelete(record.id, record.customers)} // Gọi handleDelete với customers
+                    />
+                    <CheckCircleOutlined // Hoặc ExclamationCircleOutlined
+                        style={{ color: "orange", cursor: "pointer" }}
+                        onClick={() => handleChangeStatus(record.id)}
                     />
                 </Space>
             )

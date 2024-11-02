@@ -1,12 +1,13 @@
 // VoucherCustomer.jsx
 import React, { useEffect, useState } from 'react';
-import { Button, Modal, notification, Table, Radio } from 'antd';
-import { fetchCustomerList, fetchDataVoucher, updateVoucherCustomer } from '../../service/api.service';
+import { Button, Modal, notification, Table, Checkbox } from 'antd';
+import { fetchCustomerList, updateVoucherCustomer } from '../../service/api.service';
 
-const VoucherCustomer = ({  appliedCustomers, onApply, onClose, voucherId, onRefresh}) => {
+const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefresh }) => {
     const [customers, setCustomers] = useState([]);
-    const [selectedCustomer, setSelectedCustomer] = useState(null);
-    const [voucherDetails, setVoucherDetails] = useState(null);
+    const [selectedCustomers, setSelectedCustomers] = useState([]);
+    const [genderFilter, setGenderFilter] = useState(''); // Trạng thái cho giới tính
+    const [selectAll, setSelectAll] = useState(false); // Trạng thái cho chọn tất cả
 
     useEffect(() => {
         const fetchCustomers = async () => {
@@ -15,8 +16,12 @@ const VoucherCustomer = ({  appliedCustomers, onApply, onClose, voucherId, onRef
                 if (res && res.data && res.data.data) {
                     const customerData = res.data.data.content || [];
                     setCustomers(customerData);
-                    if (appliedCustomers.length > 0) {
-                        setSelectedCustomer(appliedCustomers[0].id);
+
+                    if (appliedCustomers && appliedCustomers.length > 0) {
+                        const appliedCustomerIds = appliedCustomers.map(customer => customer.id);
+                        setSelectedCustomers(appliedCustomerIds);
+                    } else {
+                        setSelectedCustomers([]); 
                     }
                 } else {
                     notification.error({
@@ -31,42 +36,34 @@ const VoucherCustomer = ({  appliedCustomers, onApply, onClose, voucherId, onRef
                 });
             }
         };
-        fetchCustomers();
+
+        if (appliedCustomers !== undefined) {
+            fetchCustomers();
+        }
     }, [appliedCustomers]);
 
-    const fetchVoucherDetails = async (customerId) => {
-        try {
-            const res = await fetchDataVoucher(customerId);
-            console.log("Data: ", res);
-            if (res && res.data.data) {
-                setVoucherDetails(res.data.data);
-            } else {
-                setVoucherDetails(null);
-                notification.info({
-                    message: 'Thông báo',
-                    description: 'Không có voucher cho khách hàng này',
-                });
-            }
-        } catch (error) {
-            setVoucherDetails(null);
-            notification.error({
-                message: 'Lỗi',
-                description: 'Có lỗi xảy ra khi tải chi tiết voucher',
-            });
+    const handleGender = (gender) => {
+        if (gender === 1) {
+            return "Nam";
+        } else if (gender === 2) {
+            return "Nữ";
+        } else {
+            return "Khác";
         }
     };
 
     const handleSelect = (customerId) => {
-        setSelectedCustomer(customerId);
-        fetchVoucherDetails(customerId);
+        setSelectedCustomers(prev => {
+            const newSelected = prev.includes(customerId) 
+                ? prev.filter(id => id !== customerId) 
+                : [...prev, customerId]; 
+            return newSelected;
+        });
     };
 
     const handleApply = async () => {
         try {
-            const payload = { customers: selectedCustomer };
-            console.log('Payload:', payload);
-            console.log('Voucher ID:', voucherId);
-
+            const payload = { customers: selectedCustomers.length > 0 ? selectedCustomers : [] };
             if (!voucherId) {
                 throw new Error("Voucher ID is required");
             }
@@ -76,18 +73,39 @@ const VoucherCustomer = ({  appliedCustomers, onApply, onClose, voucherId, onRef
                 description: 'Đã áp dụng voucher cho khách hàng thành công',
             });
 
-            const selectedCustomerDetail = customers.find(customer => customer.id === selectedCustomer);
-            onApply(selectedCustomerDetail); // Gọi hàm onApply
-            onRefresh(); // Gọi hàm loadData từ VoucherTable
+            const selectedCustomerDetails = customers.filter(customer => selectedCustomers.includes(customer.id));
+            onApply(selectedCustomerDetails);
+            onRefresh();
             onClose();
         } catch (error) {
-            console.error('Error details:', error.response ? error.response.data : error);
             notification.error({
                 message: 'Lỗi',
                 description: 'Có lỗi xảy ra khi áp dụng voucher cho khách hàng',
             });
         }
     };
+
+    // Xử lý thay đổi bộ lọc giới tính
+    const handleGenderFilterChange = (value) => {
+        if (genderFilter === value) {
+            setGenderFilter(''); // Bỏ chọn khi chọn lại giới tính hiện tại
+        } else {
+            setGenderFilter(value);
+        }
+        setSelectAll(false); // Đặt lại chọn tất cả khi thay đổi bộ lọc
+    };
+
+    // Xử lý chọn tất cả
+    const handleSelectAllChange = (e) => {
+        const { checked } = e.target;
+        setSelectAll(checked);
+        if (checked) {
+            setSelectedCustomers(customers.map(customer => customer.id));
+        } else {
+            setSelectedCustomers([]);
+        }
+    };
+    
 
     const columns = [
         {
@@ -101,16 +119,29 @@ const VoucherCustomer = ({  appliedCustomers, onApply, onClose, voucherId, onRef
             key: 'username',
         },
         {
+            title: 'Giới tính',
+            key: 'gender',
+            render: (_, record) => (
+                <p>{handleGender(record.gender)}</p>
+            )
+        },
+        {
             title: 'Chọn',
             key: 'select',
             render: (_, record) => (
-                <Radio
-                    checked={selectedCustomer === record.id}
+                <Checkbox
+                    checked={selectedCustomers.includes(record.id)}
                     onChange={() => handleSelect(record.id)}
                 />
             ),
         },
     ];
+
+    const filteredCustomers = customers.filter(customer => {
+        if (genderFilter === 'male') return customer.gender === 1;
+        if (genderFilter === 'female') return customer.gender === 2;
+        return true; // Trả về tất cả nếu không có bộ lọc
+    });
 
     return (
         <Modal
@@ -121,17 +152,27 @@ const VoucherCustomer = ({  appliedCustomers, onApply, onClose, voucherId, onRef
                 <Button key="cancel" onClick={onClose}>
                     Hủy
                 </Button>,
-                <Button key="apply" type="primary" onClick={handleApply} disabled={!selectedCustomer}>
+                <Button key="apply" type="primary" onClick={handleApply}>
                     Áp dụng
                 </Button>,
             ]}
         >
-            <Table
-                rowKey="id"
-                columns={columns}
-                dataSource={customers}
-                pagination={{ pageSize: 5 }}
-            />
+            <div>
+                <div>
+                    <Checkbox checked={selectAll} onChange={handleSelectAllChange}>Chọn tất cả</Checkbox>
+                </div>
+                <div>
+                    <Checkbox checked={genderFilter === 'male'} onChange={() => handleGenderFilterChange('male')}>Nam</Checkbox>
+                    <Checkbox checked={genderFilter === 'female'} onChange={() => handleGenderFilterChange('female')}>Nữ</Checkbox>
+                    <Checkbox checked={genderFilter === ''} onChange={() => handleGenderFilterChange('')}>Tất cả giới tính</Checkbox> {/* Checkbox cho Tất cả giới tính */}
+                </div>
+                <Table
+                    rowKey="id"
+                    columns={columns}
+                    dataSource={filteredCustomers} // Sử dụng danh sách khách hàng đã lọc
+                    pagination={{ pageSize: 5 }}
+                />
+            </div>
         </Modal>
     );
 };

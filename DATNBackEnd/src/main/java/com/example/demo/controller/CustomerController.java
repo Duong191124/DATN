@@ -36,6 +36,7 @@ public class CustomerController {
         );
     }
 
+
     @PostMapping("/register")
     public ResponseEntity<MessageReponse> add(
             @RequestBody CustomerDTO customer,

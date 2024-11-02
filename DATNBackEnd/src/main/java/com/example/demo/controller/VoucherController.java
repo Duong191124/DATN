@@ -81,17 +81,22 @@ public class VoucherController {
 
     @PutMapping("/{id}/customer")
     public ResponseEntity<?> updateCustomer(@PathVariable Integer id, @RequestBody VoucherDTO voucherDTO) throws Exception {
-        if (voucherDTO.getCustomers() == null || voucherDTO.getCustomers().isEmpty()) {
-            return ResponseEntity.badRequest().body(MessageReponse.builder()
-                    .message("Customer ID không được để trống")
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .build());
-        }
-
-        Integer customerId = voucherDTO.getCustomers().get(0); // Giả sử chỉ cập nhật một customer
-        VoucherResponse updatedVoucher = voucherService.updateCustomer(id, customerId);
+        // Gửi toàn bộ danh sách customerIds tới service, cho phép null hoặc trống
+        VoucherResponse updatedVoucher = voucherService.updateCustomer(id, voucherDTO.getCustomers());
         return ResponseEntity.ok(updatedVoucher);
     }
+    
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> changeStatus(@PathVariable Integer id) {
+        try {
+            VoucherResponse updatedVoucher = voucherService.changeStatus(id);
+            return ResponseEntity.ok(updatedVoucher);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+
 
     @GetMapping("detail/{id}")
     public ResponseEntity<MessageReponse> getVoucherById(@PathVariable("id") Integer id) {

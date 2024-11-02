@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
@@ -52,12 +53,14 @@ public class Customer extends BaseEntity {
     @Basic
     @Column(name = "gender")
     private int gender;
-    @ManyToMany(fetch = FetchType.EAGER) // Loại bỏ cascade
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "customer_voucher", // Tên bảng trung gian
-            joinColumns = @JoinColumn(name = "customer_id"), // Khóa ngoại tới bảng Promotion
-            inverseJoinColumns = @JoinColumn(name = "voucher_id") // Khóa ngoại tới bảng ProductDetail
+            name = "customer_voucher",
+            joinColumns = @JoinColumn(name = "customer_id"),
+            inverseJoinColumns = @JoinColumn(name = "voucher_id")
     )
+    @JsonBackReference
     private Set<Voucher> vouchers;
+
 
 }

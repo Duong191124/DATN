@@ -8,6 +8,7 @@ import com.example.demo.repository.CustomerRepo;
 import com.example.demo.repository.StaffRepo;
 import com.example.demo.repository.VoucherRepo;
 import com.example.demo.response.CustomerResponse;
+import com.example.demo.response.ProductDetailResponse;
 import com.example.demo.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,7 +17,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -24,6 +27,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final VoucherRepo voucherRepo;
     private final CustomerRepo customerRepo;
     private final StaffRepo staffRepo;
+
     @Override
     public Page<Customer> getALl(Pageable pageable) {
         return customerRepo.findAll(pageable);

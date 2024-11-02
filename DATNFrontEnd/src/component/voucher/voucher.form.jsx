@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, InputNumber, DatePicker, Button, notification } from 'antd';
+import { Modal, Form, Input, InputNumber, DatePicker, Button, notification, Radio } from 'antd';
 import moment from 'moment';
 import { createVoucher } from '../../service/api.service';
 
@@ -9,6 +9,18 @@ const VoucherForm = (props) => {
   const [form] = Form.useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { loadData, onCreate } = props;
+  const [discountType, setDiscountType] = useState('amount'); // Mặc định là 'amount'
+
+  const handleDiscountTypeChange = (e) => {
+    const type = e.target.value;
+    setDiscountType(type); // Cập nhật discountType
+
+    if (type === "amount") {
+      form.setFieldsValue({ discountPercent: 0 }); // Đặt phần trăm giảm giá là 0
+    } else if (type === "percent") {
+      form.setFieldsValue({ discountAmount: 0 }); // Đặt tiền giảm giá là 0
+    }
+  };
 
   const handleSubmit = async () => {
     const values = form.getFieldsValue();
@@ -18,9 +30,9 @@ const VoucherForm = (props) => {
       discountPercent: values.discountPercent?.toString(),
       minPurchaseAmount: values.minPurchaseAmount?.toString(),
       maxDiscountAmount: values.maxDiscountAmount?.toString(),
-      // Chuyển đổi expirationDate sang định dạng LocalDateTime
       expirationDate: values.expirationDate ? moment(values.expirationDate).format("YYYY-MM-DDTHH:mm:ss") : null,
-      customers: null, // Đặt customers luôn là null
+      customers: null,
+      status: 1, // Đặt status tự động là 1
     };
     console.log("Sending data:", formattedValues);
 
@@ -33,7 +45,7 @@ const VoucherForm = (props) => {
       formattedValues.minPurchaseAmount,
       formattedValues.maxDiscountAmount,
       formattedValues.termsAndConditions,
-      formattedValues.customers  // Khách hàng luôn là null
+      formattedValues.customers
     );
 
     if (res && res.data) {
@@ -42,7 +54,7 @@ const VoucherForm = (props) => {
         description: "Tạo voucher thành công"
       });
       resetCloseModal();
-      onCreate(formattedValues); // Gọi onCreate để tải lại dữ liệu sau khi tạo thành công
+      onCreate(formattedValues);
     } else {
       notification.error({
         message: "Tạo Voucher",
@@ -50,6 +62,7 @@ const VoucherForm = (props) => {
       });
     }
   };
+
 
   const resetCloseModal = () => {
     setIsModalOpen(false);
@@ -74,8 +87,10 @@ const VoucherForm = (props) => {
           layout="vertical"
           onFinish={handleSubmit}
           initialValues={{
-            expirationDate: moment().startOf('day').add(1, 'days'), // Đặt thời gian giờ phút mặc định
-            status: 1, // Trường này luôn được thiết lập là 1
+            expirationDate: moment().startOf('day').add(1, 'days'),
+            status: 1,
+            discountAmount: 0,
+            discountPercent: 0,
           }}
         >
           <div style={{ display: 'flex', flexWrap: 'wrap' }}>
@@ -89,7 +104,13 @@ const VoucherForm = (props) => {
             </Form.Item>
           </div>
 
-          {/* Bỏ trường khách hàng */}
+          {/* Chọn loại giảm giá */}
+          <Form.Item label="Loại Giảm Giá" name="discountType" rules={[{ required: true, message: 'Vui lòng chọn loại giảm giá!' }]}>
+            <Radio.Group onChange={handleDiscountTypeChange} value={discountType}>
+              <Radio value="amount">Giảm Giá Tiền</Radio>
+              <Radio value="percent">Giảm Giá Phần Trăm</Radio>
+            </Radio.Group>
+          </Form.Item>
 
           <div style={{ display: 'flex', flexWrap: 'wrap' }}>
             <Form.Item
@@ -98,13 +119,18 @@ const VoucherForm = (props) => {
               rules={[{ required: true, message: 'Vui lòng nhập số tiền giảm giá!' }]}
               style={{ width: '48%', marginRight: '4%' }}
             >
-              <InputNumber style={{ width: '100%' }} placeholder="Nhập số tiền giảm giá" min={0} />
+              <InputNumber
+                style={{ width: '100%' }}
+                placeholder="Nhập số tiền giảm giá"
+                min={0}
+                disabled={discountType === "percent"} // Disable nếu là phần trăm
+              />
             </Form.Item>
 
             <Form.Item
               label="Phần trăm giảm giá (%)"
               name="discountPercent"
-              rules={[ 
+              rules={[
                 { required: true, message: 'Vui lòng nhập phần trăm giảm giá!' },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
@@ -117,7 +143,13 @@ const VoucherForm = (props) => {
               ]}
               style={{ width: '48%' }}
             >
-              <InputNumber style={{ width: '100%' }} placeholder="Nhập phần trăm giảm giá" min={0} max={100} />
+              <InputNumber
+                style={{ width: '100%' }}
+                placeholder="Nhập phần trăm giảm giá"
+                min={0}
+                max={100}
+                disabled={discountType === "amount"} // Disable nếu là tiền
+              />
             </Form.Item>
           </div>
 
@@ -148,10 +180,10 @@ const VoucherForm = (props) => {
               rules={[{ required: true, message: 'Vui lòng chọn ngày hết hạn!' }]}
               style={{ width: '48%' }}
             >
-              <DatePicker 
-                showTime 
-                style={{ width: '100%' }} 
-                format={"DD-MM-YYYY HH:mm:ss"} 
+              <DatePicker
+                showTime
+                style={{ width: '100%' }}
+                format={"DD-MM-YYYY HH:mm:ss"}
               />
             </Form.Item>
           </div>
@@ -168,8 +200,7 @@ const VoucherForm = (props) => {
           <Form.Item
             label="Điều khoản và điều kiện"
             name="termsAndConditions"
-            rules={[{ required: true, message: 'Vui lòng nhập điều khoản và điều kiện!' }]}
-          >
+            rules={[{ required: true, message: 'Vui lòng nhập điều khoản và điều kiện!' }]}>
             <TextArea rows={4} placeholder="Nhập điều khoản và điều kiện sử dụng voucher" />
           </Form.Item>
         </Form>

@@ -13,6 +13,6 @@ public interface VoucherService {
     VoucherResponse update(Integer id, VoucherDTO voucherDTO) throws Exception;
     Voucher getById(Integer id) throws Exception;
     void delete(Integer id) throws Exception;
-    VoucherResponse updateCustomer(Integer id, Integer customerId) throws Exception;
-
+    VoucherResponse updateCustomer(Integer id, List<Integer> customerIds) throws Exception;
+    VoucherResponse changeStatus(Integer id) throws Exception;
 }

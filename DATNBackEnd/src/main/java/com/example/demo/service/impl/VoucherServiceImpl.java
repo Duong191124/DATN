@@ -47,7 +47,7 @@ public class VoucherServiceImpl implements VoucherService {
                 .minPurchaseAmount(voucherDTO.getMinPurchaseAmount())
                 .maxDiscountAmount(voucherDTO.getMaxDiscountAmount())
                 .termsAndConditions(voucherDTO.getTermsAndConditions())
-                .status(voucherDTO.getStatus())
+                .status(1)
                 .customers(customers) // Gán danh sách khách hàng
                 .build();
 
@@ -87,22 +87,44 @@ public class VoucherServiceImpl implements VoucherService {
     }
 
     @Override
-    public VoucherResponse updateCustomer(Integer id, Integer customerId) throws Exception {
-        Customer existingCustomer = customerRepository.findById(customerId).orElse(null);
+    public VoucherResponse updateCustomer(Integer id, List<Integer> customerIds) throws Exception {
         Voucher existingVoucher = getById(id); // Kiểm tra nếu voucher tồn tại
+        Set<Customer> customers = new HashSet<>();
 
-        // Thiết lập khách hàng nếu tồn tại
-        if (existingCustomer != null) {
-            Set<Customer> customers = existingVoucher.getCustomers();
-            customers.add(existingCustomer); // Thêm khách hàng vào danh sách
-            existingVoucher.setCustomers(customers);
+        if (customerIds != null && !customerIds.isEmpty()) {
+            // Duyệt qua danh sách customerIds để thêm từng khách hàng
+            for (Integer customerId : customerIds) {
+                Customer existingCustomer = customerRepository.findById(customerId).orElse(null);
+                if (existingCustomer != null) {
+                    customers.add(existingCustomer); // Thêm khách hàng vào danh sách
+                } else {
+                    throw new Exception("Customer not found with id: " + customerId);
+                }
+            }
+        }
+
+        // Nếu customerIds là null hoặc rỗng, xóa tất cả khách hàng liên kết với voucher
+        if (customerIds == null || customerIds.isEmpty()) {
+            existingVoucher.setCustomers(new HashSet<>()); // Đặt danh sách khách hàng thành rỗng
         } else {
-            throw new Exception("Customer not found with id: " + customerId);
+            // Cập nhật danh sách khách hàng của voucher
+            existingVoucher.setCustomers(customers);
         }
 
         Voucher updatedVoucher = voucherRepository.save(existingVoucher);
         return VoucherResponse.fromVoucher(updatedVoucher);
     }
+
+    @Override
+    public VoucherResponse changeStatus(Integer id) throws Exception {
+        Voucher existingVoucher = getById(id); // Kiểm tra nếu voucher tồn tại
+        int newStatus = existingVoucher.getStatus() == 1 ? 0 : 1; // Đổi trạng thái từ 1 sang 0 và ngược lại
+        existingVoucher.setStatus(newStatus);
+
+        Voucher updatedVoucher = voucherRepository.save(existingVoucher);
+        return VoucherResponse.fromVoucher(updatedVoucher);
+    }
+
 
     @Override
     public Voucher getById(Integer id) throws Exception {
