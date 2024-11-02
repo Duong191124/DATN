@@ -134,7 +134,7 @@ const PromotionUpdate = (props) => {
                               },
                          ]}
                     >
-                         <Input type="number" />
+                         <Input type="text" />
                     </Form.Item>
 
                     <Form.Item

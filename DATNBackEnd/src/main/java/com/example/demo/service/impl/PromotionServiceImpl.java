@@ -92,7 +92,6 @@
             // Sử dụng phương thức đã cập nhật
             return PromotionResponse.fromPromotionResponse(updatedPromotion);
         }
-
         @Override
         public PromotionResponse updateProductDetails(Integer promotionId, List<Integer> productDetailsIds) throws Exception {
             // Tìm promotion theo ID
@@ -118,9 +117,6 @@
             // Trả về đối tượng PromotionResponse đã được cập nhật
             return PromotionResponse.fromPromotionResponse(updatedPromotion);
         }
-
-
-
 
         @Override
         public Promotion getPromotionById(Integer id) throws Exception {

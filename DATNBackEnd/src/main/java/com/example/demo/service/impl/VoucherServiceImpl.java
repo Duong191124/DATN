@@ -21,7 +21,6 @@ public class VoucherServiceImpl implements VoucherService {
     private final VoucherRepo voucherRepository;
     private final CustomerRepo customerRepository;
 
-
     @Override
     public List<Voucher> getAll() {
         return voucherRepository.findAll();
@@ -29,6 +28,16 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Override
     public VoucherResponse add(VoucherDTO voucherDTO) {
+        Set<Customer> customers = new HashSet<>();
+        if (voucherDTO.getCustomers() != null && !voucherDTO.getCustomers().isEmpty()) {
+            voucherDTO.getCustomers().forEach(customerId -> {
+                Customer customer = customerRepository.findById(customerId).orElse(null);
+                if (customer != null) {
+                    customers.add(customer);
+                }
+            });
+        }
+
         Voucher newVoucher = Voucher.builder()
                 .code(voucherDTO.getCode())
                 .quantity(voucherDTO.getQuantity())
@@ -38,25 +47,20 @@ public class VoucherServiceImpl implements VoucherService {
                 .minPurchaseAmount(voucherDTO.getMinPurchaseAmount())
                 .maxDiscountAmount(voucherDTO.getMaxDiscountAmount())
                 .termsAndConditions(voucherDTO.getTermsAndConditions())
-                .status(voucherDTO.getStatus())
+                .status(1)
+                .customers(customers) // Gán danh sách khách hàng
                 .build();
 
-        // Nếu customers là null thì không cần thiết lập
-        if (voucherDTO.getCustomers() != null) {
-            Customer existingCustomer = customerRepository.findById(voucherDTO.getCustomers()).orElse(null);
-            if (existingCustomer != null) {
-                newVoucher.setCustomer(existingCustomer);
-            }
-        }
-
-        Voucher addVoucher = voucherRepository.save(newVoucher);
-        return VoucherResponse.fromVoucherResponse(addVoucher);
+        Voucher savedVoucher = voucherRepository.save(newVoucher);
+        return VoucherResponse.fromVoucher(savedVoucher); // Sửa tên phương thức từ `fromVoucherResponse`
     }
 
     @Override
     public VoucherResponse update(Integer id, VoucherDTO voucherDTO) throws Exception {
         Voucher existingVoucher = getById(id); // Kiểm tra nếu voucher tồn tại
+        Set<Customer> customers = new HashSet<>();
 
+        // Cập nhật thông tin voucher
         existingVoucher.setCode(voucherDTO.getCode());
         existingVoucher.setQuantity(voucherDTO.getQuantity());
         existingVoucher.setDiscountAmount(voucherDTO.getDiscountAmount());
@@ -67,33 +71,60 @@ public class VoucherServiceImpl implements VoucherService {
         existingVoucher.setTermsAndConditions(voucherDTO.getTermsAndConditions());
         existingVoucher.setStatus(voucherDTO.getStatus());
 
-        // Thiết lập khách hàng nếu tồn tại
+        // Cập nhật danh sách khách hàng
         if (voucherDTO.getCustomers() != null) {
-            Customer existingCustomer = customerRepository.findById(voucherDTO.getCustomers()).orElse(null);
-            if (existingCustomer != null) {
-                existingVoucher.setCustomer(existingCustomer);
+            for (Integer customerId : voucherDTO.getCustomers()) {
+                Customer customer = customerRepository.findById(customerId).orElse(null);
+                if (customer != null) {
+                    customers.add(customer);
+                }
             }
         }
+        existingVoucher.setCustomers(customers); // Thiết lập lại danh sách khách hàng
 
-        Voucher updateVoucher = voucherRepository.save(existingVoucher);
-        return VoucherResponse.fromVoucherResponse(updateVoucher);
+        Voucher updatedVoucher = voucherRepository.save(existingVoucher);
+        return VoucherResponse.fromVoucher(updatedVoucher);
     }
 
     @Override
-    public VoucherResponse updateCustomer(Integer id, Integer customerId) throws Exception {
-        Customer existingCustomer = customerRepository.findById(customerId).orElse(null);
+    public VoucherResponse updateCustomer(Integer id, List<Integer> customerIds) throws Exception {
         Voucher existingVoucher = getById(id); // Kiểm tra nếu voucher tồn tại
+        Set<Customer> customers = new HashSet<>();
 
-        // Thiết lập khách hàng nếu tồn tại
-        if (existingCustomer != null) {
-            existingVoucher.setCustomer(existingCustomer);
+        if (customerIds != null && !customerIds.isEmpty()) {
+            // Duyệt qua danh sách customerIds để thêm từng khách hàng
+            for (Integer customerId : customerIds) {
+                Customer existingCustomer = customerRepository.findById(customerId).orElse(null);
+                if (existingCustomer != null) {
+                    customers.add(existingCustomer); // Thêm khách hàng vào danh sách
+                } else {
+                    throw new Exception("Customer not found with id: " + customerId);
+                }
+            }
+        }
+
+        // Nếu customerIds là null hoặc rỗng, xóa tất cả khách hàng liên kết với voucher
+        if (customerIds == null || customerIds.isEmpty()) {
+            existingVoucher.setCustomers(new HashSet<>()); // Đặt danh sách khách hàng thành rỗng
         } else {
-            throw new Exception("Customer not found with id: " + customerId);
+            // Cập nhật danh sách khách hàng của voucher
+            existingVoucher.setCustomers(customers);
         }
 
         Voucher updatedVoucher = voucherRepository.save(existingVoucher);
-        return VoucherResponse.fromVoucherResponse(updatedVoucher);
+        return VoucherResponse.fromVoucher(updatedVoucher);
     }
+
+    @Override
+    public VoucherResponse changeStatus(Integer id) throws Exception {
+        Voucher existingVoucher = getById(id); // Kiểm tra nếu voucher tồn tại
+        int newStatus = existingVoucher.getStatus() == 1 ? 0 : 1; // Đổi trạng thái từ 1 sang 0 và ngược lại
+        existingVoucher.setStatus(newStatus);
+
+        Voucher updatedVoucher = voucherRepository.save(existingVoucher);
+        return VoucherResponse.fromVoucher(updatedVoucher);
+    }
+
 
     @Override
     public Voucher getById(Integer id) throws Exception {
@@ -107,5 +138,4 @@ public class VoucherServiceImpl implements VoucherService {
                 .orElseThrow(() -> new Exception("Voucher not found with id: " + id));
         voucherRepository.delete(voucher);
     }
-
 }

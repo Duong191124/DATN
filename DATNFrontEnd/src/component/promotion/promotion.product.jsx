@@ -1,85 +1,95 @@
 import { Modal, Button, Table, Checkbox, Pagination, notification } from 'antd';
 import { useState, useEffect } from 'react';
-import { fetchDataProductDetail, updatePromotionProduct } from '../../service/api.service';
+import { fetchDataProductDetail, updatePromotionProduct, detailPromotion } from '../../service/api.service';
 
 const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onApply, id, loadData }) => {
     const [productDetails, setProductDetails] = useState([]);
-    const [selectedDetails, setSelectedDetails] = useState([]);
+    const [selectedDetails, setSelectedDetails] = useState(selectedProductDetails || []);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const [promotion, setPromotion] = useState(null);
 
-    // Fetch all product details when the modal is opened
     useEffect(() => {
-        const fetchProductDetails = async () => {
+        const fetchProductDetailsAndPromotion = async () => {
             try {
-                const res = await fetchDataProductDetail();
-                if (res && res.data && res.data.data) {
-                    setProductDetails(res.data.data); // Lưu tất cả chi tiết sản phẩm vào state
-                    setSelectedDetails(selectedProductDetails || []); // Cập nhật selectedDetails từ props
+                const productDetailsRes = await fetchDataProductDetail();
+                if (productDetailsRes?.data?.data) {
+                    setProductDetails(productDetailsRes.data.data);
                 } else {
                     throw new Error('Dữ liệu không hợp lệ');
                 }
+
+                if (id) {
+                    const promotionRes = await detailPromotion(id);
+                    if (promotionRes?.data) {
+                        setPromotion(promotionRes.data);
+                    } else {
+                        throw new Error('Không thể lấy thông tin khuyến mãi');
+                    }
+                }
             } catch (error) {
-                console.error('Error fetching product details:', error);
+                console.error('Error fetching product details or promotion:', error);
                 notification.error({
                     message: "Lỗi",
-                    description: "Không thể tải danh sách chi tiết sản phẩm",
+                    description: "Không thể tải danh sách chi tiết sản phẩm hoặc khuyến mãi",
                 });
             }
         };
 
-        if (isVisible) { // Chỉ fetch khi modal mở
-            fetchProductDetails();
+        if (isVisible) {
+            fetchProductDetailsAndPromotion();
+            setSelectedDetails(selectedProductDetails || []); // Cập nhật selectedDetails từ props
         }
-    }, [isVisible, selectedProductDetails]);
+    }, [isVisible, id, selectedProductDetails]);
 
-    // Handle selecting product details
-    const handleSelect = (productId) => {
-        setSelectedDetails((prevSelected) => {
-            if (prevSelected.includes(productId)) {
-                return prevSelected.filter(id => id !== productId); // Bỏ chọn nếu đã chọn
-            } else {
-                return [...prevSelected, productId]; // Thêm vào danh sách chọn
-            }
-        });
+    const calculateDiscountedPrice = (price,promotion) => {
+        if (!promotion) return price;
+        console.log(promotion)
+        const discountAmount = parseInt(promotion.discountAmount) || 0;
+        const discountPercent = parseInt(promotion.discountPercent) || 0;
+
+        let discountedPrice = price;
+        
+        if (discountAmount > 0) {
+            discountedPrice -= discountAmount;
+        }
+        
+        if (discountPercent > 0) {
+            discountedPrice -= (price * (discountPercent / 100));
+        }
+
+        return Math.max(discountedPrice, 0);
     };
 
-    // Handle applying promotion
-    const handleApply = async () => {
-        if (selectedDetails.length === 0) {
-            notification.warning({
-                message: "Chưa chọn chi tiết sản phẩm",
-                description: "Vui lòng chọn ít nhất một chi tiết sản phẩm trước khi áp dụng.",
-            });
-            return;
-        }
+    const handleSelect = (productId) => {
+        setSelectedDetails((prevSelected) => 
+            prevSelected.includes(productId) 
+                ? prevSelected.filter(id => id !== productId) 
+                : [...prevSelected, productId]
+        );
+    };
 
+    const handleApply = async () => {
         try {
             if (!id) {
                 throw new Error("Promotion ID không hợp lệ.");
             }
 
-            // Gọi API để cập nhật chỉ trường productDetailsIds
-            const payload = {
-                productDetailsIds: selectedDetails // Chỉ gửi trường cần cập nhật
-            };
+            const payload = { productDetailsIds: selectedDetails };
 
-            // Gọi API để cập nhật khuyến mãi
             const res = await updatePromotionProduct(id, payload);
 
-            // Kiểm tra phản hồi từ API
-            if (res && res.data) {
+            if (res?.data) {
                 notification.success({
                     message: "Thành công",
                     description: "Áp dụng khuyến mãi thành công!",
                 });
-                
-                onApply(selectedDetails); // Trả về danh sách đã chọn cho component cha
-                onClose(); // Đóng modal sau khi cập nhật thành công
 
-                // Gọi lại hàm loadData để cập nhật dữ liệu mới từ server
+                onApply(selectedDetails);
+                onClose();
+
                 if (loadData) {
-                    loadData(); // Gọi lại để lấy lại dữ liệu mới
+                    loadData();
                 }
             } else {
                 throw new Error("Không thể cập nhật khuyến mãi.");
@@ -88,15 +98,13 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             console.error('Error applying promotion:', error);
             notification.error({
                 message: "Lỗi",
-                description: error.response && error.response.data.message ? error.response.data.message : "Không thể áp dụng khuyến mãi",
+                description: error.response?.data?.message || "Không thể áp dụng khuyến mãi",
             });
         }
     };
 
-    // Paginate current data
     const currentData = productDetails.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-    // Define columns for the table
     const columns = [
         {
             title: 'Tên Sản Phẩm',
@@ -108,22 +116,16 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             dataIndex: "quantity",
         },
         {
-            title: "Giá",
+            title: "Giá Gốc",
             dataIndex: "price",
+            render: (price) => <span>{price} VND</span>,
         },
         {
-            title: "Kích Cỡ",
-            dataIndex: "size",
-            render: (text, record) => {
-                return record.size?.name || "Chưa có kích cỡ";
-            },
-        },
-        {
-            title: "Màu",
-            dataIndex: "color",
-            render: (text, record) => {
-                return record.color?.name || "Chưa có màu";
-            },
+            title: "Giá Sau Khuyến Mãi",
+            dataIndex: "discountedPrice",
+            render: (_, record) => (
+                <span>{calculateDiscountedPrice(record.price,record.promotion)} VND</span>
+            ),
         },
         {
             title: 'Chọn',

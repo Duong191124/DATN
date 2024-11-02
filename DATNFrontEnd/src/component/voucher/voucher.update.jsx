@@ -15,7 +15,6 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
             setLoading(true);
             try {
                 const res = await fetchVoucherById(voucherId);
-                console.log(res);
                 if (res && res.data.data) {
                     form.setFieldsValue({
                         code: res.data.data.code,
@@ -25,8 +24,7 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                         minPurchaseAmount: res.data.data.minPurchaseAmount,
                         maxDiscountAmount: res.data.data.maxDiscountAmount,
                         termsAndConditions: res.data.data.termsAndConditions,
-                        // Cập nhật để sử dụng moment với LocalDateTime
-                        expirationDate: res.data.data.expirationDate ? moment(res.data.data.expirationDate) : null
+                        expirationDate: res.data.data.expirationDate ? moment(res.data.data.expirationDate) : null,
                     });
                 } else {
                     notification.error({
@@ -47,6 +45,16 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
         fetchVoucher();
     }, [voucherId]);
 
+    const validateDiscount = (_, value) => {
+        const discountAmount = form.getFieldValue("discountAmount");
+        const discountPercent = form.getFieldValue("discountPercent");
+
+        if ((value && value > 0 && discountAmount > 0) || (discountPercent > 0 && discountAmount > 0)) {
+            return Promise.reject(new Error("Chỉ được chọn một trong hai: Giảm giá (Số tiền) hoặc Giảm giá (Phần trăm) phải bằng 0."));
+        }
+        return Promise.resolve();
+    };
+
     const handleSubmit = async () => {
         try {
             const values = form.getFieldsValue();
@@ -56,14 +64,12 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                 discountPercent: Number(values.discountPercent),
                 minPurchaseAmount: Number(values.minPurchaseAmount),
                 maxDiscountAmount: Number(values.maxDiscountAmount),
-                // Cập nhật định dạng để phù hợp với LocalDateTime
                 expirationDate: values.expirationDate ? values.expirationDate.format("YYYY-MM-DDTHH:mm:ss") : null,
                 status: 1, // Luôn là 'active'
             };
 
             setLoading(true);
             const res = await updateVoucher(voucherId, formattedValues);
-            console.log("dataupdate: ", res);
             if (res && res.data) {
                 notification.success({
                     message: "Cập nhật Voucher",
@@ -112,14 +118,28 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item name="discountAmount" label="Giảm giá (Số tiền)" rules={[{ required: true, message: 'Vui lòng nhập số tiền giảm giá!' }]}>
+                        <Form.Item
+                            name="discountAmount"
+                            label="Giảm giá (Số tiền)"
+                            rules={[
+                                { required: true, message: 'Vui lòng nhập số tiền giảm giá!' },
+                                { validator: validateDiscount }
+                            ]}
+                        >
                             <InputNumber min={0} />
                         </Form.Item>
                     </Col>
                 </Row>
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item name="discountPercent" label="Giảm giá (Phần trăm)" rules={[{ required: true, message: 'Vui lòng nhập phần trăm giảm giá!' }]}>
+                        <Form.Item
+                            name="discountPercent"
+                            label="Giảm giá (Phần trăm)"
+                            rules={[
+                                { required: true, message: 'Vui lòng nhập phần trăm giảm giá!' },
+                                { validator: validateDiscount }
+                            ]}
+                        >
                             <InputNumber min={0} max={100} />
                         </Form.Item>
                     </Col>
