@@ -116,11 +116,12 @@ const PromotionForm = (props) => {
                         name="discountType"
                         rules={[{ required: true, message: 'Vui lòng chọn loại giảm giá!' }]}
                     >
-                        <Select onChange={(value) => setDiscountType(value)}>
+                        <Select placeholder="Chọn Loại Giảm Giá" onChange={(value) => setDiscountType(value)}>
                             <Select.Option value="percent">Phần Trăm</Select.Option>
                             <Select.Option value="amount">Tiền Mặt</Select.Option>
                         </Select>
                     </Form.Item>
+
 
                     {discountType === "percent" ? (
                         <Form.Item

@@ -99,12 +99,24 @@ const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefr
     const handleSelectAllChange = (e) => {
         const { checked } = e.target;
         setSelectAll(checked);
+    
         if (checked) {
-            setSelectedCustomers(customers.map(customer => customer.id));
+            // Chọn tất cả dựa trên bộ lọc giới tính
+            const filteredCustomerIds = customers
+                .filter(customer => {
+                    if (genderFilter === 'male') return customer.gender === 1;
+                    if (genderFilter === 'female') return customer.gender === 2;
+                    return true; // Nếu không có bộ lọc, chọn tất cả
+                })
+                .map(customer => customer.id);
+    
+            setSelectedCustomers(filteredCustomerIds);
         } else {
+            // Bỏ chọn tất cả
             setSelectedCustomers([]);
         }
     };
+    
     
 
     const columns = [

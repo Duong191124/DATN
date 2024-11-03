@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Table, Space, Modal, notification } from "antd";
-import { EditOutlined, DeleteOutlined, EyeOutlined, CheckCircleOutlined } from "@ant-design/icons"; // hoặc ExclamationCircleOutlined
+import { EditOutlined, DeleteOutlined, EyeOutlined, PlusCircleOutlined,RetweetOutlined } from "@ant-design/icons"; // hoặc ExclamationCircleOutlined
 import { fetchDataVoucher, deleteVoucher, fetchCustomerList, chandleStatus } from "../../service/api.service";
 import VoucherUpdateModal from "./voucher.update";
 import VoucherCustomer from "./voucher.customer";
@@ -38,8 +38,6 @@ const VoucherTable = ({ refreshData }) => {
     const loadData = async () => {
         try {
             const response = await fetchDataVoucher();
-            console.log("Dữ liệu voucher:", response.data.data);
-
             if (response.data.data) {
                 const currentDate = new Date(); // Lấy ngày hiện tại
                 const updatedVouchers = response.data.data.map(voucher => {
@@ -133,17 +131,27 @@ const VoucherTable = ({ refreshData }) => {
         loadData();
     };
 
-    const handleChangeStatus = async (id) => {
-        try {
-            const res = await chandleStatus(id); // Gọi hàm chandleStatus
+    const handleChangeStatus = async (voucher) => {
+        const expirationDate = new Date(voucher.expirationDate);
+        const currentDate = new Date();
 
-            // Kiểm tra trạng thái phản hồi
+        // Kiểm tra nếu voucher đã hết hạn
+        if (expirationDate < currentDate) {
+            notification.warning({
+                message: "Không thể kích hoạt lại voucher",
+                description: "Voucher đã hết hạn. Vui lòng cập nhật ngày hết hạn để kích hoạt lại.",
+            });
+            return; // Dừng lại nếu voucher đã hết hạn
+        }
+
+        try {
+            const res = await chandleStatus(voucher.id);
             if (res.status === 200 || res.status === 204) {
                 notification.success({
                     message: "Cập nhật trạng thái",
                     description: "Cập nhật trạng thái voucher thành công."
                 });
-                loadData(); // Tải lại dữ liệu sau khi cập nhật
+                loadData();
             } else {
                 notification.error({
                     message: "Cập nhật trạng thái",
@@ -157,6 +165,7 @@ const VoucherTable = ({ refreshData }) => {
             });
         }
     };
+
 
     const columns = [
         {
@@ -177,7 +186,7 @@ const VoucherTable = ({ refreshData }) => {
             dataIndex: "quantity",
         },
         {
-            title: "Giảm giá (Số tiền)",
+            title: "Giảm giá (VNĐ)",
             dataIndex: "discountAmount",
         },
         {
@@ -191,17 +200,26 @@ const VoucherTable = ({ refreshData }) => {
         {
             title: "Trạng thái",
             dataIndex: "status",
-            render: (status) => (status === 1 ? "Hoạt động" : "Hết hạn")
+            filters: [
+                { text: 'Hoạt động', value: 1 },
+                { text: 'Hết hạn', value: 0 },
+            ],
+            onFilter: (value, record) => record.status === value,
+            render: (status) => {
+                const statusText = status === 1 ? "Hoạt động" : "Hết hạn";
+                const statusColor = status === 1 ? "green" : "red"; // Đặt màu sắc tương ứng
+                return (
+                    <span style={{ color: statusColor }}>
+                        {statusText}
+                    </span>
+                );
+            }
         },
         {
             title: "Hành động",
             key: "actions",
             render: (_, record) => (
                 <Space size="middle">
-                    <EyeOutlined
-                        style={{ color: "green", cursor: "pointer" }}
-                        onClick={() => handleShowCustomerDetail(record.customers, record.id)}
-                    />
                     <EditOutlined
                         style={{ color: "blue", cursor: "pointer" }}
                         onClick={() => handleEdit(record)}
@@ -210,14 +228,19 @@ const VoucherTable = ({ refreshData }) => {
                         style={{ color: "red", cursor: "pointer" }}
                         onClick={() => handleDelete(record.id, record.customers)} // Gọi handleDelete với customers
                     />
-                    <CheckCircleOutlined // Hoặc ExclamationCircleOutlined
-                        style={{ color: "orange", cursor: "pointer" }}
-                        onClick={() => handleChangeStatus(record.id)}
+                     <PlusCircleOutlined
+                        style={{ color: "green", cursor: "pointer" }}
+                        onClick={() => handleShowCustomerDetail(record.customers, record.id)}
+                    />
+                    <RetweetOutlined // Hoặc ExclamationCircleOutlined
+                        style={{ color: "aqua", cursor: "pointer" }}
+                        onClick={() => handleChangeStatus(record)}
                     />
                 </Space>
             )
         }
     ];
+
 
     return (
         <div>

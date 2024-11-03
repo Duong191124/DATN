@@ -4,6 +4,7 @@ import com.example.demo.dto.PromotionDTO;
 import com.example.demo.entity.Promotion;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.PromotionResponse;
+import com.example.demo.response.VoucherResponse;
 import com.example.demo.service.impl.PromotionServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -101,6 +102,15 @@ public class PromotionController {
                 .status(HttpStatus.OK.value())
                 .data(updatedPromotion)
                 .build());
+    }
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> changeStatus(@PathVariable Integer id) {
+        try {
+            PromotionResponse promotionResponse = promotionService.changeStatus(id);
+            return ResponseEntity.ok(promotionResponse);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
 

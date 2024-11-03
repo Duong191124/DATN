@@ -3,9 +3,11 @@
     import com.example.demo.dto.PromotionDTO;
     import com.example.demo.entity.ProductDetail;
     import com.example.demo.entity.Promotion;
+    import com.example.demo.entity.Voucher;
     import com.example.demo.repository.ProductDetailRepo;
     import com.example.demo.repository.PromotionRepo;
     import com.example.demo.response.PromotionResponse;
+    import com.example.demo.response.VoucherResponse;
     import com.example.demo.service.PromotionService;
     import lombok.RequiredArgsConstructor;
     import org.springframework.stereotype.Service;
@@ -129,5 +131,14 @@
             Promotion existingPromotion = getPromotionById(id);
             // Chỉ xóa khuyến mãi, không làm ảnh hưởng đến ProductDetail
             promotionRepo.delete(existingPromotion);
+        }
+        @Override
+        public PromotionResponse changeStatus(Integer id) throws Exception {
+            Promotion promotion = getPromotionById(id); // Kiểm tra nếu voucher tồn tại
+            int newStatus = promotion.getStatus() == 1 ? 0 : 1; // Đổi trạng thái từ 1 sang 0 và ngược lại
+            promotion.setStatus(newStatus);
+
+            Promotion updatedPromotion = promotionRepo.save(promotion);
+            return PromotionResponse.fromPromotionResponse(updatedPromotion);
         }
     }
