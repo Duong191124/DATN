@@ -93,10 +93,10 @@ const Home = () => {
             ))}
           </div>
           <div className="product-action">
-            <button className="buy">Mua ngay</button>
+            <button className="buy">Detail</button>
             <button className="cart">
               <ShoppingCartOutlined />
-              Thêm vào giỏ
+              Add to cart
             </button>
           </div>
         </div>
