@@ -2,6 +2,8 @@ import { ShoppingCartOutlined, UserOutlined } from "@ant-design/icons";
 import { Badge, Button, Dropdown, Input, Menu } from "antd";
 import "./header.css";
 import { Link, NavLink } from "react-router-dom";
+import CartDrawer from "../../../cart/cart.drawer";
+import { useState } from "react";
 const items = [
   {
     key: "1",
@@ -27,6 +29,8 @@ const users = [
   },
 ];
 const Header = () => {
+
+  const [openCart, setOpenCart] = useState(false);
   const userMenu = (
     <Menu>
       {users.map((user) => (
@@ -34,6 +38,7 @@ const Header = () => {
       ))}
     </Menu>
   );
+
   return (
     <>
       <div className="header">
@@ -74,7 +79,11 @@ const Header = () => {
           <div className="input-search">
             <Input.Search placeholder="Tìm kiếm sản phẩm" />
             <div className="icon-right">
-              <Badge count={99}>
+              <Badge
+                onClick={() => {
+                  setOpenCart(true);
+                }}
+                count={99}>
                 <Button
                   type="text"
                   className="icon-right-btn"
@@ -92,6 +101,10 @@ const Header = () => {
           </div>
         </div>
       </div>
+      <CartDrawer
+        openCart={openCart}
+        setOpenCart={setOpenCart}
+      />
     </>
   );
 };
