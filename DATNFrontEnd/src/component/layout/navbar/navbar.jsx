@@ -133,7 +133,7 @@ const NavbarAdmin = () => {
   };
   return (
     <>
-      {/* <Button
+      <Button
         onClick={toggleCollapsed}
         style={{
           margin: '16px',
@@ -142,7 +142,7 @@ const NavbarAdmin = () => {
         }}
       >
         {collapsed ? 'Expand Menu' : 'Collapse Menu'}
-      </Button> */}
+      </Button>
       <Menu
         mode="inline"
         defaultSelectedKeys={["123"]}

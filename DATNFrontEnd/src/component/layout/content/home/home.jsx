@@ -71,9 +71,8 @@ const Home = () => {
             {colors.map((color) => (
               <span
                 key={color}
-                className={`product-color-${color} ${
-                  activeColor === color ? "active" : ""
-                }`}
+                className={`product-color-${color} ${activeColor === color ? "active" : ""
+                  }`}
                 onClick={() => setActiveColor(color)}
                 style={{
                   display: "inline-block",
@@ -228,7 +227,7 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <ChatBox /> {}
+      <ChatBox /> { }
     </>
   );
 };
