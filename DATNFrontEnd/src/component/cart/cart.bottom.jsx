@@ -1,7 +1,9 @@
 import React from 'react';
 import { Button } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
 const CartBottom = () => {
+    const navigate = useNavigate();
     return (
         <div style={{
             display: 'flex',
@@ -23,6 +25,9 @@ const CartBottom = () => {
                     borderRadius: '0',
                     height: 'auto',
                     fontWeight: 'bold'
+                }}
+                onClick={() => {
+                    navigate("/checkout")
                 }}
             >
                 CHECK OUT

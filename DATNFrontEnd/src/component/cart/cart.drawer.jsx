@@ -3,6 +3,7 @@ import { Button, Drawer } from 'antd';
 import CartItem from './cart.item';
 import CartBottom from './cart.bottom';
 import './cart.style.css'
+import { ClearOutlined, CloseOutlined } from '@ant-design/icons';
 const CartDrawer = ({ openCart, setOpenCart }) => {
 
     const showDrawer = () => {
@@ -20,7 +21,16 @@ const CartDrawer = ({ openCart, setOpenCart }) => {
                 onClose={onClose}
                 open={openCart}
                 extra={
-                    <Button>
+                    <Button
+                        type="text"
+                        icon={<ClearOutlined />}
+                        style={{
+                            border: '1px solid black',
+                            borderRadius: '4px',
+                            padding: '4px 12px',
+                            marginLeft: 10
+                        }}
+                    >
                         Clear all
                     </Button>
                 }
@@ -44,6 +54,16 @@ const CartDrawer = ({ openCart, setOpenCart }) => {
                             msOverflowStyle: 'none'
                         }}
                     >
+                        <CartItem />
+                        <CartItem />
+                        <CartItem />
+                        <CartItem />
+                        <CartItem />
+                        <CartItem />
+                        <CartItem />
+                        <CartItem />
+                        <CartItem />
+                        <CartItem />
                         <CartItem />
                         <CartItem />
                         <CartItem />

@@ -22,6 +22,7 @@ import PrivateRoute from "./pages/private.route.jsx";
 import App from "./App.jsx";
 import PermissionPage from "./pages/permission.jsx";
 import CustomerPage from "./pages/customer.jsx";
+import CheckoutPage from "./pages/checkout.jsx";
 const router = createBrowserRouter([
   {
     path: "/admin",
@@ -116,6 +117,10 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <RegisterPage />,
+  },
+  {
+    path: "/checkout",
+    element: <CheckoutPage />,
   },
 ]);
 createRoot(document.getElementById("root")).render(
