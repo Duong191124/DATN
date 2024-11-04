@@ -720,6 +720,10 @@ const updatePromotionProduct = async (id, payload) => {
     throw error; // Ném lỗi để xử lý ở nơi gọi hàm
   }
 };
+const chandleStatusPromotion = (id) =>{
+  const URL_BACKEND = `/api/v1/promotion/${id}/status`;
+  return  axios.put(URL_BACKEND);
+}
 
 const detailPromotion = (id) => {
   const URL_BACKEND = `/api/v1/promotion/detail/${id}`;
@@ -913,6 +917,7 @@ export {
   uploadImageAPI,
   fetchDataPromotion,
   createPromotion,
+  chandleStatusPromotion,
   deletePromotionAPI,
   updatePromotion,
   updatePromotionProduct,

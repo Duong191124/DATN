@@ -35,6 +35,8 @@
   transform: translate(0, -50%);
   border-radius: 20px;
   box-shadow: 0 30px 50px #505050;
+  margin-top: 70px;
+  margin-bottom: 30px;
 }
 
 .item:nth-child(1),
