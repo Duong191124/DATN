@@ -4,6 +4,7 @@ import com.example.demo.dto.PromotionDTO;
 import com.example.demo.entity.Promotion;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.PromotionResponse;
+import com.example.demo.response.VoucherResponse;
 import com.example.demo.service.impl.PromotionServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -78,13 +79,23 @@ public class PromotionController {
     @PutMapping("/{id}/product-details")
     public ResponseEntity<?> updatePromotionProductDetails(
             @PathVariable("id") Integer id,
-            @RequestBody PromotionDTO promotionDTO) throws Exception {
+            @RequestBody @Valid PromotionDTO promotionDTO,
+            BindingResult result) throws Exception {
 
-        // Lấy danh sách productDetailsIds từ promotionDTO
-        List<Integer> productDetailsIds = promotionDTO.getProductDetailsIds();
+        // Kiểm tra lỗi validation
+        if (result.hasErrors()) {
+            List<String> errorMessage = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(MessageReponse.builder()
+                    .message("Lỗi dữ liệu: " + errorMessage.toString())
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .build());
+        }
 
         // Gọi phương thức cập nhật trong service với danh sách ID đã lấy
-        PromotionResponse updatedPromotion = promotionService.updateProductDetails(id, productDetailsIds);
+        PromotionResponse updatedPromotion = promotionService.updateProductDetails(id, promotionDTO.getProductDetailsIds());
 
         return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                 .message("Cập nhật product details thành công")
@@ -92,6 +103,17 @@ public class PromotionController {
                 .data(updatedPromotion)
                 .build());
     }
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> changeStatus(@PathVariable Integer id) {
+        try {
+            PromotionResponse promotionResponse = promotionService.changeStatus(id);
+            return ResponseEntity.ok(promotionResponse);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+
 
     @GetMapping("detail/{id}")
     public ResponseEntity<?> getPromotionDetail(@PathVariable("id") Integer id) {

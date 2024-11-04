@@ -12,6 +12,7 @@ const HeaderAdmin = () => {
 
   const handleLogOut = () => {
     localStorage.removeItem("access_token")
+    localStorage.removeItem("loginStatus")
     message.success("Logout")
     navigate('/login')
   }

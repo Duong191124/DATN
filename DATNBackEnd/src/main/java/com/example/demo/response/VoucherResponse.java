@@ -5,7 +5,7 @@ import com.example.demo.entity.Voucher;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,30 +15,19 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class VoucherResponse {
     private int id;
-
     private String code;
-
     private int quantity;
-
     private String discountAmount;
-
     private String discountPercent;
-
     private LocalDateTime expirationDate;
-
     private String minPurchaseAmount;
-
     private String maxDiscountAmount;
-
     private String termsAndConditions;
-
     private int status;
+    private List<Integer> customers;
 
-    private Integer customers;
-
-    public static VoucherResponse fromVoucherResponse(Voucher voucher) {
-        return VoucherResponse
-                .builder()
+    public static VoucherResponse fromVoucher(Voucher voucher) {
+        VoucherResponse response = VoucherResponse.builder()
                 .id(voucher.getId())
                 .code(voucher.getCode())
                 .quantity(voucher.getQuantity())
@@ -49,8 +38,20 @@ public class VoucherResponse {
                 .maxDiscountAmount(voucher.getMaxDiscountAmount())
                 .termsAndConditions(voucher.getTermsAndConditions())
                 .status(voucher.getStatus())
-                .customers(voucher.getCustomer() != null ? voucher.getCustomer().getId() : null) // Nếu customer không null
                 .build();
+
+        // Kiểm tra và gán danh sách khách hàng
+        if (voucher.getCustomers() != null && !voucher.getCustomers().isEmpty()) {
+            response.setCustomers(
+                    voucher.getCustomers() // Giả sử thuộc tính là getCustomers()
+                            .stream()
+                            .map(Customer::getId)
+                            .collect(Collectors.toList()));
+        } else {
+            response.setCustomers(new ArrayList<>()); // Trả về một mảng rỗng
+        }
+
+        return response;
     }
 
 
