@@ -23,6 +23,8 @@ import App from "./App.jsx";
 import PermissionPage from "./pages/permission.jsx";
 import CustomerPage from "./pages/customer.jsx";
 import CheckoutPage from "./pages/checkout.jsx";
+import Header from "./component/layout/user/header/header.jsx";
+import { Footer } from "antd/es/layout/layout.js";
 const router = createBrowserRouter([
   {
     path: "/admin",
@@ -120,7 +122,14 @@ const router = createBrowserRouter([
   },
   {
     path: "/checkout",
-    element: <CheckoutPage />,
+    element:
+      (
+        <>
+          <Header />
+          <CheckoutPage />
+        </>
+      )
+    ,
   },
 ]);
 createRoot(document.getElementById("root")).render(
