@@ -21,11 +21,15 @@ const items = [
 const users = [
   {
     key: "1",
-    label: <NavLink to={"/login"}>Đăng nhập</NavLink>,
+    label: <NavLink to={"/login"}>Login</NavLink>,
   },
   {
     key: "2",
-    label: <NavLink to={"/register"}>Đăng ký</NavLink>,
+    label: <NavLink to={"/register"}>Register</NavLink>,
+  },
+  {
+    key: "2",
+    label: <NavLink to={"/my-profile"}>View account</NavLink>,
   },
 ];
 const Header = () => {
