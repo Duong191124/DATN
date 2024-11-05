@@ -11,11 +11,11 @@
     background-color: #0b111a;
 }
 
-:where(.css-dev-only-do-not-override-apn68).ant-btn {
+/* .btn-checkout {
     font-size: 14px;
     line-height: 1.5714285714285714;
     height: 50px;
     width: 100px;
     padding: 4px 15px;
     border-radius: 6px;
-}
+} */
