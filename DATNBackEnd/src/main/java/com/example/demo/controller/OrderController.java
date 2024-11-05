@@ -1,11 +1,13 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.OrderDTO;
+import com.example.demo.entity.Notice;
 import com.example.demo.entity.OrderStatus;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.OrderPageResponse;
 import com.example.demo.response.OrderResponse;
 import com.example.demo.service.OrderService;
+import com.example.demo.service.impl.NoticeServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +29,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class  OrderController {
     private final OrderService orderService;
+    private final NoticeServiceImpl noticeService;
     @GetMapping("/list")
     public ResponseEntity<?> getAllOrders(){
         List<OrderResponse> lstOrderResponses = orderService.getAll();
@@ -74,6 +77,7 @@ public class  OrderController {
                     ResponseEntity.ok(new MessageReponse("orderDto null",0,null));
                 }
                 OrderResponse OrderResponse = orderService.createdOrder(orderDTO);
+                noticeService.create(new Notice(null,"New order", "new order id: " + OrderResponse.getId(), "/admin/order", 0));
                 return ResponseEntity.status(HttpStatus.CREATED).body(new MessageReponse("order to added successfully",201,OrderResponse));
             }catch (Exception e){
                return ResponseEntity.badRequest().body(e.getMessage());
