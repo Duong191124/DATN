@@ -1,7 +1,7 @@
 .chatbox {
   position: fixed;
-  bottom: 100px;
-  right: 20px;
+  bottom: 30px;
+  right: 10px;
   border: none;
   background-color: #fff;
   transition: all 0.3s ease;

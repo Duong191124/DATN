@@ -1,0 +1,92 @@
+import React, { useState } from 'react';
+import { Button } from 'antd';
+import { MinusOutlined, PlusOutlined, CloseOutlined } from '@ant-design/icons';
+
+const CartItem = () => {
+    // State to keep track of the quantity
+    const [quantity, setQuantity] = useState(1);
+
+    // Function to increase the quantity
+    const increaseQuantity = () => {
+        setQuantity(prevQuantity => prevQuantity + 1);
+    };
+
+    // Function to decrease the quantity, but not allowing it to go below 1
+    const decreaseQuantity = () => {
+        setQuantity(prevQuantity => (prevQuantity > 1 ? prevQuantity - 1 : 1));
+    };
+
+    return (
+        <div
+            style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                border: '1px solid #ddd',
+                padding: '16px',
+                marginBottom: '16px'
+            }}
+        >
+            {/* Hình ảnh sản phẩm */}
+            <div style={{ display: 'flex', alignItems: 'center', width: '150px' }}>
+                <img
+                    src="https://via.placeholder.com/100" // Thay bằng URL của hình ảnh thực tế
+                    alt="product"
+                    style={{ width: '80px', height: 'auto' }}
+                />
+            </div>
+
+            {/* Thông tin sản phẩm */}
+            <div style={{ flexGrow: 1, paddingLeft: '16px' }}>
+                <div style={{ fontWeight: 'bold', fontSize: '16px' }}>Kulangot</div>
+                <div style={{ display: 'flex', gap: '24px', color: 'gray', marginTop: '8px' }}>
+                    <div>
+                        <div>Quantity</div>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <Button
+                                onClick={decreaseQuantity}
+                                icon={<MinusOutlined />}
+                                size="small"
+                                style={{ marginRight: '8px' }}
+                            />
+                            <span>{quantity}</span>
+                            <Button
+                                onClick={increaseQuantity}
+                                icon={<PlusOutlined />}
+                                size="small"
+                                style={{ marginLeft: '8px' }}
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <div>Size</div>
+                        <div>28 mm</div>
+                    </div>
+                    <div>
+                        <div>Color</div>
+                        <div style={{ width: '20px', height: '20px', backgroundColor: 'black', borderRadius: '50%' }}></div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Giá tiền */}
+            <div style={{ fontWeight: 'bold', fontSize: '18px' }}>$67.00</div>
+
+            {/* Nút Xóa */}
+            <div>
+                <Button
+                    type="text"
+                    icon={<CloseOutlined />}
+                    style={{
+                        border: '1px solid black',
+                        borderRadius: '4px',
+                        padding: '4px 12px',
+                        marginLeft: 10
+                    }}
+                />
+            </div>
+        </div>
+    );
+};
+
+export default CartItem;
