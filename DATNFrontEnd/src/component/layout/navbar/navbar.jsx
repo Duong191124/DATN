@@ -3,6 +3,8 @@ import {
   TeamOutlined,
   ProductOutlined,
   SettingOutlined,
+  MenuUnfoldOutlined,
+  MenuFoldOutlined,
 } from "@ant-design/icons";
 import { Button, Menu } from "antd";
 import { Link } from "react-router-dom";
@@ -133,28 +135,28 @@ const NavbarAdmin = () => {
   };
   return (
     <>
-      {/* <Button
+      <Button
         onClick={toggleCollapsed}
         style={{
           margin: '16px',
           backgroundColor: '#1890ff',
           color: 'white',
+          zIndex: 1000,
         }}
       >
-        {collapsed ? 'Expand Menu' : 'Collapse Menu'}
-      </Button> */}
-      <Menu
-        mode="inline"
-        defaultSelectedKeys={["123"]}
-        openKeys={stateOpenKeys}
-        onOpenChange={onOpenChange}
-        style={{
-          width: 256,
-        }}
-        inlineCollapsed={collapsed}
-        className="menu-sidebar"
-        items={items}
-      />
+        {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+      </Button>
+      <div >
+        <Menu
+          mode="inline"
+          defaultSelectedKeys={["123"]}
+          openKeys={stateOpenKeys}
+          onOpenChange={onOpenChange}
+          inlineCollapsed={collapsed}
+          className="menu-sidebar"
+          items={items}
+        />
+      </div>
     </>
   );
 };
