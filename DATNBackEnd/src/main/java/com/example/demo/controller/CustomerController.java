@@ -1,9 +1,11 @@
 package com.example.demo.controller;
 import com.example.demo.dto.CustomerDTO;
 import com.example.demo.entity.Customer;
+import com.example.demo.entity.Notice;
 import com.example.demo.response.CustomerResponse;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.service.impl.CustomerServiceImpl;
+import com.example.demo.service.impl.NoticeServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +22,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomerController {
     private final CustomerServiceImpl customerService;
+    private final NoticeServiceImpl noticeService;
+
 
     @GetMapping("/getAll")
     public ResponseEntity<MessageReponse> getAll(
@@ -36,7 +40,6 @@ public class CustomerController {
         );
     }
 
-
     @PostMapping("/register")
     public ResponseEntity<MessageReponse> add(
             @RequestBody CustomerDTO customer,
@@ -47,6 +50,7 @@ public class CustomerController {
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
+            noticeService.create(new Notice(null,"New customer", "new customer just register account", "/admin/customer", 0));
             return ResponseEntity.badRequest().body(MessageReponse.builder()
                     .message(errorMessage.toString())
                     .status(HttpStatus.BAD_REQUEST.value())
@@ -55,6 +59,7 @@ public class CustomerController {
         }
             try{
                 CustomerResponse newCustomer =customerService.add(customer);
+
                 return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
                         .message("them thanh cong")
                         .status(HttpStatus.OK.value())

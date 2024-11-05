@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
-public class NoticeImpl implements NoticeService {
+public class NoticeServiceImpl implements NoticeService {
     @Autowired
     NoticeRepo noticeRepo;
     @Override
