@@ -29,7 +29,6 @@ const NoticeDrawer = ({ openNotice, setOpenNotice }) => {
 
     const fetchNoticeData = async () => {
         const res = await fetchDataNotice();
-        console.log("check data notice: ", res.data.data.content);
         setNotices(res.data.data.content);
     }
 

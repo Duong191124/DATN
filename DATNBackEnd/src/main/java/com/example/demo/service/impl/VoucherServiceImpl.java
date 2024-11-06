@@ -89,8 +89,7 @@ public class VoucherServiceImpl implements VoucherService {
     @Override
     public VoucherResponse updateCustomer(Integer id, List<Integer> customerIds) throws Exception {
         Voucher existingVoucher = getById(id); // Kiểm tra nếu voucher tồn tại
-        Set<Customer> customers = new HashSet<>();
-
+        Set<Customer> customers = new HashSet<>();  
         if (customerIds != null && !customerIds.isEmpty()) {
             // Duyệt qua danh sách customerIds để thêm từng khách hàng
             for (Integer customerId : customerIds) {
@@ -102,7 +101,6 @@ public class VoucherServiceImpl implements VoucherService {
                 }
             }
         }
-
         // Nếu customerIds là null hoặc rỗng, xóa tất cả khách hàng liên kết với voucher
         if (customerIds == null || customerIds.isEmpty()) {
             existingVoucher.setCustomers(new HashSet<>()); // Đặt danh sách khách hàng thành rỗng
@@ -110,7 +108,6 @@ public class VoucherServiceImpl implements VoucherService {
             // Cập nhật danh sách khách hàng của voucher
             existingVoucher.setCustomers(customers);
         }
-
         Voucher updatedVoucher = voucherRepository.save(existingVoucher);
         return VoucherResponse.fromVoucher(updatedVoucher);
     }
