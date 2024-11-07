@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.ConfirmResetDTO;
 import com.example.demo.dto.LoginDTO;
 import com.example.demo.entity.Customer;
 import com.example.demo.entity.PasswordResetRequest;
@@ -22,6 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
@@ -238,6 +240,73 @@ public class AuthController {
 
 
     }
+
+    @PostMapping("/confirm-set-password")
+    public ResponseEntity<?> confirm(
+            @Validated @RequestBody ConfirmResetDTO confirmResetDTO,
+            BindingResult result
+    ){
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        // Validate class
+        if (result.hasErrors()) {
+            List<String> errorMessage = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(MessageReponse.builder()
+                    .message(errorMessage.toString())
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .build());
+        }
+
+        // Find account
+        if (customerRepo.existsByEmail(confirmResetDTO.getEmail())) {
+            Customer customer = customerRepo.findByEmail(confirmResetDTO.getEmail());
+            System.out.println("check code: " + confirmResetDTO.getCode() + " and :" +customer.getPasswordResetRequest().getResetCode() );
+            if(customer.getPasswordResetRequest().getResetCode().equals( confirmResetDTO.getCode())){
+                customer.setPassword(passwordEncoder.encode(confirmResetDTO.getNewPassword()));
+                customerRepo.save(customer);
+                return ResponseEntity.ok().body(MessageReponse.builder()
+                        .message("reset password successfully")
+                        .status(HttpStatus.OK.value())
+                        .data("updated password for: " + confirmResetDTO.getEmail())
+                        .build());
+            }else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MessageReponse.builder()
+                        .message("code reset invalid")
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .data(null)
+                        .build());
+            }
+        } else if (staffRepo.existsByEmail(confirmResetDTO.getEmail())) {
+            Staff staff = staffRepo.findByEmail(confirmResetDTO.getEmail());
+            if(staff.getPasswordResetRequest().getResetCode().equals(confirmResetDTO.getCode())) {
+                staff.setPassword(passwordEncoder.encode(confirmResetDTO.getNewPassword()));
+                staffRepo.save(staff);
+
+                return ResponseEntity.ok().body(MessageReponse.builder()
+                        .message("reset password successfully")
+                        .status(HttpStatus.OK.value())
+                        .data("updated password for: " + confirmResetDTO.getEmail())
+                        .build());
+            }else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MessageReponse.builder()
+                        .message("code reset invalid")
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .data(null)
+                        .build());
+            }
+        } else {
+            // if not found
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(MessageReponse.builder()
+                    .message("Account not found")
+                    .status(HttpStatus.NOT_FOUND.value())
+                    .data("No customer or staff found with email: " + confirmResetDTO.getEmail())
+                    .build());
+        }
+
+    }
+
 
     public static int generateResetCode() {
         int min = 284123;
