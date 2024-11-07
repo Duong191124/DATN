@@ -50,7 +50,6 @@ public class CustomerController {
                     .stream()
                     .map(FieldError::getDefaultMessage)
                     .toList();
-            noticeService.create(new Notice(null,"New customer", "new customer just register account", "/admin/customer", 0));
             return ResponseEntity.badRequest().body(MessageReponse.builder()
                     .message(errorMessage.toString())
                     .status(HttpStatus.BAD_REQUEST.value())
@@ -59,7 +58,7 @@ public class CustomerController {
         }
             try{
                 CustomerResponse newCustomer =customerService.add(customer);
-
+                noticeService.create(new Notice(null,"New customer hihi", "new customer just register account", "/admin/customer", 0));
                 return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
                         .message("them thanh cong")
                         .status(HttpStatus.OK.value())

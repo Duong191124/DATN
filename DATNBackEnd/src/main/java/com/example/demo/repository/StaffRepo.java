@@ -21,6 +21,8 @@ public interface StaffRepo extends JpaRepository<Staff, Integer> {
                                              Pageable pageable);
 
     public boolean existsByUsername(String usename);
-
+    public boolean existsByEmail(String email);
     public Staff findByUsername(String username);
+    public Staff findByEmail(String email);
+
 }
