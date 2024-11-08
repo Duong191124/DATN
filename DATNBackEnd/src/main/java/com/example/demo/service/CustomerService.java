@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.CustomerDTO;
 import com.example.demo.entity.Customer;
 import com.example.demo.response.CustomerResponse;
+import com.example.demo.response.ProductDetailResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

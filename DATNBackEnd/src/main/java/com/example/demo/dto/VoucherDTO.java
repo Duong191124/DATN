@@ -40,6 +40,6 @@ public class VoucherDTO {
 
     private int status;
 
-    private Integer customers;
+    private List<Integer> customers;
 
 }

@@ -148,10 +148,10 @@ const CustomerTable = ({
       : item.status === 0 && isMatch;
   });
 
-  // Hàm xử lý tìm kiếm
-  const handleSearch = debounce((value) => {
-    setSearchText(value.trim()); // Cập nhật giá trị tìm kiếm
-  }, 300);
+    // Hàm xử lý tìm kiếm
+    const handleSearch = debounce((value) => {
+        setSearchText(value.trim()); // Cập nhật giá trị tìm kiếm
+    }, 300);
 
   useEffect(() => {
     loadData();
