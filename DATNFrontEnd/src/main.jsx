@@ -27,6 +27,8 @@ import Header from "./component/layout/user/header/header.jsx";
 import { Footer } from "antd/es/layout/layout.js";
 import HomePage from "./component/layout/content/home/index/index.jsx";
 import ProductDetailPage from "./component/layout/content/home/index/product.detail.page.jsx";
+import RequestForgotPassword from "./pages/request.forgot.password.jsx";
+import ResetPassword from "./pages/reset.password.jsx";
 const router = createBrowserRouter([
   {
     path: "/admin",
@@ -131,6 +133,14 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <RegisterPage />,
+  },
+  {
+    path: "/forgot-password",
+    element: <RequestForgotPassword />,
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPassword />,
   },
   {
     path: "/checkout",

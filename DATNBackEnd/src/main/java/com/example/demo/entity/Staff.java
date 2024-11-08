@@ -55,4 +55,9 @@ public class Staff extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "permission_id") // Khóa ngoại tới bảng Permition
     )
     private List<Permission> permission;
+
+    @OneToOne
+    @JoinColumn(name = "reset_request_id", referencedColumnName = "id")
+    private PasswordResetRequest passwordResetRequest;
+
 }

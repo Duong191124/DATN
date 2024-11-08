@@ -908,8 +908,34 @@ const findByProductDetailId = (id) => {
   return axios.get(URL_BACKEND);
 };
 
+//API notice
+
+const fetchDataNotice = () => {
+  const URL_BACKEND = "/api/v1/notice/getAll";
+  return axios.get(URL_BACKEND);
+}
+//API for forgot password
+const requetsForgotPassword = (email) => {
+  const URL_BACKEND = "/api/v1/auth/request-reset-password";
+  return axios.post(URL_BACKEND, {
+    email
+  });
+}
+
+const updatePassword = (email, code, newPassword) => {
+  const URL_BACKEND = "/api/v1/auth/confirm-set-password";
+  return axios.post(URL_BACKEND, {
+    email,
+    code,
+    newPassword
+  });
+}
+
 export {
   findByProductDetailId,
+  updatePassword,
+  requetsForgotPassword,
+  fetchDataNotice,
   fetchDataAPICartDetail,
   fetchDataPageAndFilterProduct,
   updateStatus,

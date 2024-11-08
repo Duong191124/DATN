@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import "./chat.css";
 import { CloseOutlined, MessageOutlined } from "@ant-design/icons";
 import { ChatService } from "../../../../service/chat.service/chat.service";
-import { message } from "antd";
 
 const ChatBox = () => {
   const [messages, setMessages] = useState([
