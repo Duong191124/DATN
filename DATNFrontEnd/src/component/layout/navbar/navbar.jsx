@@ -135,6 +135,7 @@ const NavbarAdmin = () => {
   };
   return (
     <>
+      <div></div>
       <Button
         onClick={toggleCollapsed}
         style={{
@@ -146,17 +147,15 @@ const NavbarAdmin = () => {
       >
         {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
       </Button>
-      <div >
-        <Menu
-          mode="inline"
-          defaultSelectedKeys={["123"]}
-          openKeys={stateOpenKeys}
-          onOpenChange={onOpenChange}
-          inlineCollapsed={collapsed}
-          className="menu-sidebar"
-          items={items}
-        />
-      </div>
+      <Menu
+        mode="inline"
+        defaultSelectedKeys={["123"]}
+        openKeys={stateOpenKeys}
+        onOpenChange={onOpenChange}
+        inlineCollapsed={collapsed}
+        className="menu-sidebar"
+        items={items}
+      />
     </>
   );
 };
