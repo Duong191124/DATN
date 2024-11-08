@@ -8,12 +8,16 @@ import {
 import { NavLink } from "react-router-dom";
 import "./home.css";
 import ChatBox from "../chat/chat";
+import { fetchDataProduct } from "../../../../service/api.service";
+import { useCart } from "../../../context/cart.context";
 
 const Home = () => {
+  const { addToCart } = useCart();
   const slideRef = useRef(null);
   const intervalRef = useRef(null);
   const [activeSize, setActiveSize] = useState(null);
   const [activeColor, setActiveColor] = useState(null);
+  const [product, setProduct] = useState([]);
   const sizes = ["S", "M", "L", "XL"];
   const colors = ["green", "red", "black"];
 
@@ -38,6 +42,23 @@ const Home = () => {
       clearInterval(intervalRef.current);
     };
   }, []);
+
+  const fetchProduct = async () => {
+    try {
+      const response = await fetchDataProduct();
+      console.log(response);
+      const products = response.data.data || [];
+      setProduct(products);
+      setProduct(products);
+    }
+    catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    fetchProduct()
+  }, [])
 
   const renderProductCard = (product) => (
     <div className="card" key={product.id}>
@@ -94,7 +115,7 @@ const Home = () => {
           </div>
           <div className="product-action">
             <button className="buy">Detail</button>
-            <button className="cart">
+            <button className="cart" onClick={() => addToCart(product)}>
               <ShoppingCartOutlined />
               Add to cart
             </button>
@@ -103,82 +124,6 @@ const Home = () => {
       </div>
     </div>
   );
-
-  const newProducts = [
-    {
-      id: 1,
-      title: "Áo Manchester United",
-      price: "390.000 VNĐ",
-      image:
-        "https://www.sporter.vn/wp-content/uploads/2017/06/Vn-mu-do-2024-1-400x400.jpg",
-      onSale: false,
-    },
-    {
-      id: 2,
-      title: "Áo Manchester United",
-      price: "390.000 VNĐ",
-      image:
-        "https://www.sporter.vn/wp-content/uploads/2017/06/Vn-mu-do-2024-1-400x400.jpg",
-      onSale: false,
-    },
-    {
-      id: 3,
-      title: "Áo Manchester United",
-      price: "390.000 VNĐ",
-      image:
-        "https://www.sporter.vn/wp-content/uploads/2017/06/Vn-mu-do-2024-1-400x400.jpg",
-      onSale: false,
-    },
-    {
-      id: 4,
-      title: "Áo Manchester United",
-      price: "390.000 VNĐ",
-      image:
-        "https://www.sporter.vn/wp-content/uploads/2017/06/Vn-mu-do-2024-1-400x400.jpg",
-      onSale: false,
-    },
-    // Thêm sản phẩm mới khác
-  ];
-
-  const saleProducts = [
-    {
-      id: 1,
-      title: "Áo Manchester United Mua gia 2023",
-      price: "390.000 VNĐ",
-      image:
-        "https://cdn.yousport.vn/Media/Products/280224114618543/lvplm0002_wh_large.jpg?width=284&height=213&quality=99&scale=downscaleonly",
-      onSale: true,
-      salePercent: 20,
-    },
-    {
-      id: 2,
-      title: "Áo Manchester United Mua gia 2023",
-      price: "390.000 VNĐ",
-      image:
-        "https://cdn.yousport.vn/Media/Products/280224114618543/lvplm0002_wh_large.jpg?width=284&height=213&quality=99&scale=downscaleonly",
-      onSale: true,
-      salePercent: 20,
-    },
-    {
-      id: 3,
-      title: "Áo Manchester United Mua gia 2023",
-      price: "390.000 VNĐ",
-      image:
-        "https://cdn.yousport.vn/Media/Products/280224114618543/lvplm0002_wh_large.jpg?width=284&height=213&quality=99&scale=downscaleonly",
-      onSale: true,
-      salePercent: 20,
-    },
-    {
-      id: 4,
-      title: "Áo Manchester United Mua gia 2023",
-      price: "390.000 VNĐ",
-      image:
-        "https://cdn.yousport.vn/Media/Products/280224114618543/lvplm0002_wh_large.jpg?width=284&height=213&quality=99&scale=downscaleonly",
-      onSale: true,
-      salePercent: 20,
-    },
-    // Thêm sản phẩm giảm giá khác
-  ];
 
   return (
     <>
@@ -213,7 +158,7 @@ const Home = () => {
             <h1>Sản phẩm mới nhất</h1>
           </div>
           <div className="product-body">
-            {newProducts.map(renderProductCard)}
+            {product.map(renderProductCard)}
             <div className="show-more">
               <NavLink to={"/"} className={"btn"}>
                 Xem thêm
@@ -225,7 +170,7 @@ const Home = () => {
             <h1>SALE</h1>
           </div>
           <div className="product-sale">
-            {saleProducts.map(renderProductCard)}
+            {product.map(renderProductCard)}
             <div className="show-more">
               <NavLink to={"/"} className={"btn"}>
                 Xem thêm

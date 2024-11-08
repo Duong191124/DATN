@@ -113,6 +113,10 @@ const fetchAllProduct = (page, pageSize) => {
   const URL_BACKEND = `/api/v1/products?page=${page}&pageSize=${pageSize}`;
   return axios.get(URL_BACKEND);
 };
+const fetchDataProduct = () => {
+  const URL_BACKEND = `/api/v1/products/getAllProduct`;
+  return axios.get(URL_BACKEND);
+}
 
 const fetchDataPageAndFilterProduct = async (
   category_id,
@@ -720,9 +724,9 @@ const updatePromotionProduct = async (id, payload) => {
     throw error; // Ném lỗi để xử lý ở nơi gọi hàm
   }
 };
-const chandleStatusPromotion = (id) =>{
+const chandleStatusPromotion = (id) => {
   const URL_BACKEND = `/api/v1/promotion/${id}/status`;
-  return  axios.put(URL_BACKEND);
+  return axios.put(URL_BACKEND);
 }
 
 const detailPromotion = (id) => {
@@ -832,9 +836,9 @@ const getAllCustomer = (page, size) => {
   const URL_BACKEND = `/api/v1/customer/getAll?page=${page}&size=${size}`;
   return axios.get(URL_BACKEND);
 };
-const chandleStatus = (id) =>{
+const chandleStatus = (id) => {
   const URL_BACKEND = `/api/v1/voucher/${id}/status`;
-  return  axios.put(URL_BACKEND);
+  return axios.put(URL_BACKEND);
 }
 const updateCustomer = (
   id,
@@ -905,6 +909,7 @@ const fetchDataAPICartDetail = () => {
 }
 
 export {
+  fetchDataProduct,
   fetchDataAPICartDetail,
   fetchDataPageAndFilterProduct,
   updateStatus,

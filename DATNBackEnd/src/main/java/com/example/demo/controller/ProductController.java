@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.ProductDTO;
+import com.example.demo.entity.Brand;
 import com.example.demo.entity.Product;
 import com.example.demo.entity.ProductDetail;
 import com.example.demo.response.MessageReponse;
@@ -51,13 +52,13 @@ public class ProductController {
     }
 
     @GetMapping("/getAllProduct")
-    public ResponseEntity<MessageReponse> getAllProduct() {
-        List<ProductResponse> productResponseList = productService.getAll();
-        if (productResponseList.isEmpty()) {
-            return ResponseEntity.ok(new MessageReponse("failed", 0, null));
-        } else {
-            return ResponseEntity.ok(new MessageReponse("success", 1, productResponseList));
-        }
+    public ResponseEntity<?> getAllProduct() {
+        List<Product> products = productService.getAll();
+        return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
+                .message("Lay thong tin thanh cong")
+                .status(HttpStatus.OK.value())
+                .data(products)
+                .build());
     }
 
 
