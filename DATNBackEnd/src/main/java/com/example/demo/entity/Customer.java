@@ -6,8 +6,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.ServiceLoader;
 import java.util.Set;
 
 @Entity
@@ -61,6 +59,8 @@ public class Customer extends BaseEntity {
     )
     @JsonBackReference
     private Set<Voucher> vouchers;
-
+    @OneToOne
+    @JoinColumn(name = "reset_request_id", referencedColumnName = "id")
+    private PasswordResetRequest passwordResetRequest;
 
 }

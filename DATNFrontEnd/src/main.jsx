@@ -25,13 +25,15 @@ import CustomerPage from "./pages/customer.jsx";
 import CheckoutPage from "./pages/checkout.jsx";
 import Header from "./component/layout/user/header/header.jsx";
 import { Footer } from "antd/es/layout/layout.js";
+import RequestForgotPassword from "./pages/request.forgot.password.jsx";
+import ResetPassword from "./pages/reset.password.jsx";
 const router = createBrowserRouter([
   {
     path: "/admin",
     element: (
-     // <PrivateRoute>
-        <AppAdmin />
-     // </PrivateRoute>
+      // <PrivateRoute>
+      <AppAdmin />
+      // </PrivateRoute>
       // <AppAdmin />
     ),
     children: [
@@ -119,6 +121,14 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <RegisterPage />,
+  },
+  {
+    path: "/forgot-password",
+    element: <RequestForgotPassword />,
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPassword />,
   },
   {
     path: "/checkout",

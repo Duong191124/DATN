@@ -54,6 +54,12 @@ const CheckoutStep = () => {
                             backgroundColor: 'black',
                             borderColor: 'black',
                             color: 'white',
+                            fontSize: "14px",
+                            lineHeight: 1.5714285714285714,
+                            height: "50px",
+                            width: "100px",
+                            padding: "4px 15px",
+                            borderRadius: "6px",
                         }}
                         onClick={() => prev()}
                     >
@@ -63,16 +69,36 @@ const CheckoutStep = () => {
                 {current < steps.length - 1 && (
                     <Button
                         type="primary"
-                        style={{ backgroundColor: 'black', borderColor: 'black', color: 'white' }}
                         onClick={() => next()}
+                        style={{
+                            backgroundColor: 'black',
+                            borderColor: 'black',
+                            color: 'white',
+                            fontSize: "14px",
+                            lineHeight: 1.5714285714285714,
+                            height: "50px",
+                            width: "100px",
+                            padding: "4px 15px",
+                            borderRadius: "6px",
+                        }}
                     >
                         Next
                     </Button>
                 )}
                 {current === steps.length - 1 && (
                     <Button
+                        style={{
+                            backgroundColor: 'black',
+                            borderColor: 'black',
+                            color: 'white',
+                            fontSize: "14px",
+                            lineHeight: 1.5714285714285714,
+                            height: "50px",
+                            width: "100px",
+                            padding: "4px 15px",
+                            borderRadius: "6px",
+                        }}
                         type="primary"
-                        style={{ backgroundColor: 'black', borderColor: 'black', color: 'white' }}
                         onClick={() => message.success('Processing complete!')}
                     >
                         Confirm

@@ -1,13 +1,26 @@
-import { Modal, Button, Table, Checkbox, Pagination, notification } from 'antd';
+import { Modal, Button, Table, Checkbox, Pagination, notification, Select } from 'antd';
 import { useState, useEffect } from 'react';
 import { fetchDataProductDetail, updatePromotionProduct, detailPromotion } from '../../service/api.service';
 
+const { Option } = Select;
+
 const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onApply, id, loadData }) => {
+
+//     <ProductDetailModal
+//     isVisible={isProductDetailModalVisible}
+//     onClose={() => setIsProductDetailModalVisible(false)}
+//     selectedProductDetails={selectedProductIds}
+//     onApply={handleApplyProductDetails}
+//     id={promotionId}
+//     loadData={loadData}
+// />
     const [productDetails, setProductDetails] = useState([]);
     const [selectedDetails, setSelectedDetails] = useState(selectedProductDetails || []);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [promotion, setPromotion] = useState(null);
+    const [selectedSize, setSelectedSize] = useState(null); // State cho kích thước đã chọn
+    const [allSelected, setAllSelected] = useState(false); // State để kiểm tra trạng thái chọn tất cả
 
     useEffect(() => {
         const fetchProductDetailsAndPromotion = async () => {
@@ -21,8 +34,9 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
 
                 if (id) {
                     const promotionRes = await detailPromotion(id);
-                    if (promotionRes?.data) {
-                        setPromotion(promotionRes.data);
+                    console.log("PromotionProduct: ",promotionRes)
+                    if (promotionRes?.data.data) {
+                        setPromotion(promotionRes.data.data);
                     } else {
                         throw new Error('Không thể lấy thông tin khuyến mãi');
                     }
@@ -38,33 +52,35 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
 
         if (isVisible) {
             fetchProductDetailsAndPromotion();
-            setSelectedDetails(selectedProductDetails || []); // Cập nhật selectedDetails từ props
+            setSelectedDetails(selectedProductDetails || []);
+            
         }
     }, [isVisible, id, selectedProductDetails]);
+    const calculateDiscountedPrice = (price, id,promotion) => {
 
-    const calculateDiscountedPrice = (price,promotion) => {
-        if (!promotion) return price;
-        console.log(promotion)
+        if (!selectedDetails.includes(id)) return price;
+        
         const discountAmount = parseInt(promotion.discountAmount) || 0;
         const discountPercent = parseInt(promotion.discountPercent) || 0;
-
+        console.log(discountAmount, discountPercent);
         let discountedPrice = price;
-        
+
         if (discountAmount > 0) {
             discountedPrice -= discountAmount;
         }
-        
+
         if (discountPercent > 0) {
             discountedPrice -= (price * (discountPercent / 100));
         }
 
         return Math.max(discountedPrice, 0);
+        
     };
 
     const handleSelect = (productId) => {
-        setSelectedDetails((prevSelected) => 
-            prevSelected.includes(productId) 
-                ? prevSelected.filter(id => id !== productId) 
+        setSelectedDetails((prevSelected) =>
+            prevSelected.includes(productId)
+                ? prevSelected.filter(id => id !== productId)
                 : [...prevSelected, productId]
         );
     };
@@ -103,7 +119,29 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
         }
     };
 
-    const currentData = productDetails.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    const handleSelectAll = () => {
+        const filteredIds = productDetails
+            .filter(item => selectedSize === null || item.size?.name === selectedSize)
+            .map(item => item.id);
+
+        // Kiểm tra nếu tất cả đã được chọn => bỏ chọn tất cả, ngược lại chọn tất cả
+        if (allSelected) {
+            setSelectedDetails(prev => prev.filter(id => !filteredIds.includes(id)));
+            setAllSelected(false);
+        } else {
+            setSelectedDetails(prev => [...new Set([...prev, ...filteredIds])]);
+            setAllSelected(true);
+        }
+    };
+
+    const handleSizeChange = (size) => {
+        setSelectedSize(size);
+        setAllSelected(false); // Đặt lại nút chọn tất cả khi thay đổi kích thước
+    };
+
+    const currentData = productDetails
+        .filter(item => selectedSize === null || item.size?.name === selectedSize)
+        .slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     const columns = [
         {
@@ -116,6 +154,13 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             dataIndex: "quantity",
         },
         {
+            title: "Size",
+            dataIndex: "size",
+            render: (text, record) => {
+                return record.size?.name || "Chưa có size";
+            },
+        },
+        {
             title: "Giá Gốc",
             dataIndex: "price",
             render: (price) => <span>{price} VND</span>,
@@ -124,7 +169,8 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             title: "Giá Sau Khuyến Mãi",
             dataIndex: "discountedPrice",
             render: (_, record) => (
-                <span>{calculateDiscountedPrice(record.price,record.promotion)} VND</span>
+                <span>{calculateDiscountedPrice(record.price,record.id,promotion)} VND</span>
+                
             ),
         },
         {
@@ -153,6 +199,22 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 </Button>,
             ]}
         >
+            <Select
+                placeholder="Chọn Size"
+                style={{ width: 200, marginBottom: 16 }}
+                onChange={handleSizeChange}
+                allowClear
+            >
+                <Option key="all" value={null}>Tất cả</Option>
+                {[...new Set(productDetails.map(item => item.size?.name).filter(Boolean))].map(size => (
+                    <Option key={size} value={size}>
+                        {size}
+                    </Option>
+                ))}
+            </Select>
+            <Button onClick={handleSelectAll} style={{ marginBottom: 16, marginLeft: 8 }}>
+                {allSelected ? "Bỏ Chọn Tất Cả" : "Chọn Tất Cả"}
+            </Button>
             <Table
                 dataSource={currentData}
                 columns={columns}
