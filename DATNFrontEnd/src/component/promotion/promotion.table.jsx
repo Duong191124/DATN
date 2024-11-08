@@ -142,10 +142,10 @@ const PromotionTable = (props) => {
             render: (text, record, index) =>
                 (pagination.current - 1) * pagination.pageSize + index + 1,
         },
-        {
-            title: 'ID',
-            dataIndex: 'id',
-        },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        // },
         {
             title: 'Tên',
             dataIndex: 'name',
