@@ -262,7 +262,13 @@ public class AuthController {
         // Find account
         if (customerRepo.existsByEmail(confirmResetDTO.getEmail())) {
             Customer customer = customerRepo.findByEmail(confirmResetDTO.getEmail());
-            System.out.println("check code: " + confirmResetDTO.getCode() + " and :" +customer.getPasswordResetRequest().getResetCode() );
+            if(customer.getPasswordResetRequest().getExpirationDate().isBefore(LocalDateTime.now())){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MessageReponse.builder()
+                        .message("The code has expired")
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .data(null)
+                        .build());
+            }
             if(customer.getPasswordResetRequest().getResetCode().equals( confirmResetDTO.getCode())){
                 customer.setPassword(passwordEncoder.encode(confirmResetDTO.getNewPassword()));
                 customerRepo.save(customer);
@@ -280,6 +286,13 @@ public class AuthController {
             }
         } else if (staffRepo.existsByEmail(confirmResetDTO.getEmail())) {
             Staff staff = staffRepo.findByEmail(confirmResetDTO.getEmail());
+            if(staff.getPasswordResetRequest().getExpirationDate().isBefore(LocalDateTime.now())){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(MessageReponse.builder()
+                        .message("The code has expired")
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .data(null)
+                        .build());
+            }
             if(staff.getPasswordResetRequest().getResetCode().equals(confirmResetDTO.getCode())) {
                 staff.setPassword(passwordEncoder.encode(confirmResetDTO.getNewPassword()));
                 staffRepo.save(staff);
@@ -306,8 +319,6 @@ public class AuthController {
         }
 
     }
-
-
     public static int generateResetCode() {
         int min = 284123;
         int max = 999999;
