@@ -81,12 +81,12 @@ public class ProductDetailController {
     }
 
     @GetMapping("detail/{id}")
-    public ResponseEntity<ProductDetail> getProductDetailById(@PathVariable("id") Integer id) {
+    public ResponseEntity<?> getProductDetailById(@PathVariable("id") Integer id) {
         try {
-            ProductDetail productDetail = productDetailService.getPDById(id);
-            return new ResponseEntity<>(productDetail, HttpStatus.OK);
+            ProductDetailResponse productDetail = productDetailService.getPDById(id);
+            return ResponseEntity.ok(new MessageReponse("find product detail successfully with id:"+id,200,productDetail));
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return  ResponseEntity.badRequest().body(HttpStatus.NOT_FOUND);
         }
     }
 

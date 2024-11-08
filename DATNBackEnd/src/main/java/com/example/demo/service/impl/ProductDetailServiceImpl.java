@@ -77,9 +77,10 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     }
 
     @Override
-    public ProductDetail getPDById(Integer id) throws Exception {
-        return productDetailRepo.findById(id)
+    public ProductDetailResponse getPDById(Integer id) throws Exception {
+        ProductDetail productDetail =productDetailRepo.findById(id)
                 .orElseThrow(() -> new Exception("ProductDetail not found with id: " + id));
+        return ProductDetailResponse.fromProductDetailResponse(productDetail);
     }
 
     @Override

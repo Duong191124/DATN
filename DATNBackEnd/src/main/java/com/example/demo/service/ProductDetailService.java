@@ -16,7 +16,7 @@ public interface ProductDetailService {
 
     ProductDetail update(Integer id, ProductDetailDTO pdd) throws  Exception;
 
-    ProductDetail getPDById(Integer id) throws Exception;
+    ProductDetailResponse getPDById(Integer id) throws Exception;
 
     void deletePD(Integer id) throws Exception;
 

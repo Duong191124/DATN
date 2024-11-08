@@ -3,14 +3,15 @@ import { Table, Checkbox, Button, Modal, message } from "antd";
 
 const CounterSaleBillWaiting = ({
   billItems,
-  tempBillItems, // Hóa đơn tạm chờ
+  tempBillItems,
   onRemoveBill,
   onSelectBill,
   selectedBill,
-  onMoveBillToTemp, // Chuyển hóa đơn từ danh sách chờ sang tạm chờ
-  onSwapBills, // Hoán đổi giữa hóa đơn tạm chờ và chờ
+  onMoveBillToTemp,
+  onSwapBills,
   setSelectedBill,
-  onMoveBillToWaiting, // Chuyển hóa đơn từ tạm chờ sang chờ
+  onMoveBillToWaiting,
+  canceledOrder,
 }) => {
   const [selectedTempBill, setSelectedTempBill] = useState(null);
   const [selectedWaitingBill, setSelectedWaitingBill] = useState(null);
@@ -18,13 +19,6 @@ const CounterSaleBillWaiting = ({
 
   useEffect(() => {}, [selectedTempBill, selectedWaitingBill]);
 
-  const handleRemoveBill = (billId) => {
-    Modal.confirm({
-      title: "Xác nhận",
-      content: "Bạn có chắc chắn muốn xóa hóa đơn này không?",
-      onOk: () => onRemoveBill(billId),
-    });
-  };
   const handleSwapBills = () => {
     if (!selectedTempBill || !selectedWaitingBill) {
       message.error(
@@ -42,12 +36,12 @@ const CounterSaleBillWaiting = ({
     setSelectedBill(null);
   };
   // Hàm để thay đổi trạng thái chọn hóa đơn
-  const handleCheckboxChange = (billId, type) => {
+  const handleCheckboxChange = (code, type) => {
     if (type === "waiting") {
-      setSelectedWaitingBill(billId === selectedWaitingBill ? null : billId);
-      setSelectedBill(billId === selectedBill ? null : billId);
+      setSelectedWaitingBill(code === selectedWaitingBill ? null : code);
+      setSelectedBill(code === selectedBill ? null : code);
     } else if (type === "temp") {
-      setSelectedTempBill(billId === selectedTempBill ? null : billId);
+      setSelectedTempBill(code === selectedTempBill ? null : code);
     }
   };
   const handleMoveToTemp = () => {
@@ -65,7 +59,7 @@ const CounterSaleBillWaiting = ({
       return;
     }
     onMoveBillToWaiting(selectedTempBill);
-    setSelectedTempBill(null); // Reset lựa chọn sau khi chuyển
+    setSelectedTempBill(null);
     setSelectedBill(null);
   };
   // Hàm mở modal "Hóa đơn tạm chờ"
@@ -79,38 +73,42 @@ const CounterSaleBillWaiting = ({
       key: "select",
       render: (_, record) => (
         <Checkbox
-          checked={selectedBill === record.billId}
+          checked={selectedBill === record.code}
           onChange={() => {
-            onSelectBill(record.billId);
-            handleCheckboxChange(record.billId, "waiting");
+            onSelectBill(record.code);
+            handleCheckboxChange(record.code, "waiting");
           }}
         />
       ),
     },
-    { title: "Mã hóa đơn", dataIndex: "billId", key: "billId" },
+    { title: "Mã hóa đơn", dataIndex: "code", key: "code" },
     {
       title: "Khách hàng",
       key: "customer.name",
       render: (text, record) =>
-        record.customer ? record.customer.name : "Chưa có khách hàng",
+        record.customerResponse
+          ? record.customerResponse.name
+          : "Chưa có khách hàng",
     },
     {
       title: "Nhân viên",
       key: "staff.name",
       render: (text, record) =>
-        record.staff ? record.staff.name : "Chưa có nhân viên",
+        record.staffResponse ? record.staffResponse.name : "Chưa có nhân viên",
     },
-    { title: "Thời gian", dataIndex: "time", key: "time" },
+    { title: "Thời gian", dataIndex: "orderDate", key: "orderDate" },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
+      render: (text) => (text === "pending" ? "Chờ xử lý" : text),
+    },
     {
       title: "Thao tác",
       key: "action",
       render: (_, record) => (
-        <Button
-          size="small"
-          danger
-          onClick={() => handleRemoveBill(record.billId)}
-        >
-          Xóa
+        <Button size="small" danger onClick={() => canceledOrder(record.id)}>
+          Hủy
         </Button>
       ),
     },
@@ -121,27 +119,41 @@ const CounterSaleBillWaiting = ({
       title: "Chọn",
       key: "select",
       render: (_, record) => (
-        <Checkbox
-          checked={selectedTempBill === record.billId}
-          onChange={() => handleCheckboxChange(record.billId, "temp")}
-        />
+        console.log("reccc", record),
+        (
+          <Checkbox
+            checked={selectedTempBill === record.code}
+            onChange={() => handleCheckboxChange(record.code, "temp")}
+          />
+        )
       ),
     },
-    { title: "Mã hóa đơn", dataIndex: "billId", key: "billId" },
+    {
+      title: "Mã hóa đơn",
+      key: "code",
+      render: (text, record) =>
+        record.code ? record.code : "Chưa có mã hóa đơn",
+    },
     {
       title: "Khách hàng",
       key: "customer.name",
       render: (text, record) =>
-        record.customer ? record.customer.name : "Chưa có khách hàng",
+        record.customerResponse
+          ? record.customerResponse.name
+          : "Chưa có khách hàng",
     },
     {
       title: "Nhân viên",
-      dataIndex: "staff.name",
       key: "staff.name",
       render: (text, record) =>
-        record.staff ? record.staff.name : "Chưa có nhân viên",
+        record.staffResponse ? record.staffResponse.name : "Chưa có nhân viên",
     },
-    { title: "Thời gian", dataIndex: "time", key: "time" },
+    {
+      title: "Thời gian",
+      key: "time",
+      render: (text, record) =>
+        record.orderDate ? record.orderDate : "Chưa có thời gian",
+    },
     {
       title: "Thao tác",
       key: "action",
@@ -159,9 +171,10 @@ const CounterSaleBillWaiting = ({
         Hóa đơn chờ
       </h3>
       <Table
-        rowKey="billId"
+        rowKey="code"
         columns={columns}
-        dataSource={billItems}
+        // dataSource={billItems}
+        dataSource={Array.isArray(billItems) ? billItems : []}
         pagination={false}
         style={{ border: "1px solid #ddd", marginBottom: "20px" }}
       />
@@ -195,7 +208,7 @@ const CounterSaleBillWaiting = ({
         ]}
       >
         <Table
-          rowKey="billId"
+          rowKey="code"
           columns={tempColumns}
           dataSource={tempBillItems}
           pagination={false}

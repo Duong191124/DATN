@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Repository
 public interface OrderRepo extends JpaRepository<Orders, Integer> {
@@ -28,4 +29,8 @@ public interface OrderRepo extends JpaRepository<Orders, Integer> {
                          @Param("orderCode") String orderCode,
                          Pageable pageable);
 
+    @Query("SELECT o FROM Orders o WHERE o.status = 'PENDING' AND o.staff.id = :staffId")
+    List<Orders> findPendingOrdersByStaffId(@Param("staffId") Integer staffId);
+
+    Orders findByCode(String code);
 }
