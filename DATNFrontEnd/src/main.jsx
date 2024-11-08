@@ -25,6 +25,8 @@ import CustomerPage from "./pages/customer.jsx";
 import CheckoutPage from "./pages/checkout.jsx";
 import Header from "./component/layout/user/header/header.jsx";
 import { Footer } from "antd/es/layout/layout.js";
+import HomePage from "./component/layout/content/home/index/index.jsx";
+import ProductDetailPage from "./component/layout/content/home/index/product.detail.page.jsx";
 import RequestForgotPassword from "./pages/request.forgot.password.jsx";
 import ResetPassword from "./pages/reset.password.jsx";
 const router = createBrowserRouter([
@@ -111,7 +113,17 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Home />
-      }
+      },
+      {
+        path: "/home-page",
+        element: <HomePage />
+      },
+      {
+        path: "/product/:productId",
+        element: <ProductDetailPage />
+      },
+
+
     ]
   },
   {
