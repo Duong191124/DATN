@@ -1,6 +1,6 @@
 import { Button, Form, Input, Row, Col, Divider, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useContext} from "react";
+import { useState, useContext } from "react";
 import { loginCustomerAPI } from "../service/api.service";
 import { AuthContext } from "../component/context/auth.context";
 
@@ -18,7 +18,7 @@ const LoginPage = () => {
             if (res.status === 200 || res.status === 201) {
                 localStorage.setItem("access_token", res.data.token);
                 setUser(res.data.user)
-                setLoginStatus(res.status.toString()); 
+                setLoginStatus(res.status.toString());
                 message.success("Đăng nhập thành công");
                 if (res.status === 200) {
                     navigate("/");
@@ -27,7 +27,7 @@ const LoginPage = () => {
                 }
             }
             setLoading(false)
-        }catch (error) {
+        } catch (error) {
             if (error.response && error.response.status === 401) {
                 form.setFields([
                     {
@@ -39,7 +39,7 @@ const LoginPage = () => {
                         errors: ["Username or password is not valid"],
                     },
                 ]);
-            }else {
+            } else {
                 message.error("Đăng nhập thất bại, vui lòng thử lại.");
             }
             setLoading(false);
@@ -106,6 +106,19 @@ const LoginPage = () => {
                     <Divider />
                     <div style={{ textAlign: "center" }}>
                         Chưa có tài khoản? <Link to={"/register"}>Đăng ký tại đây</Link>
+                    </div>
+                    <div
+                        style={{
+                            textAlign: 'center'
+                        }}
+                    >
+                        <Link
+                            to={"/forgot-password"}
+                            style={{
+                                color: 'blue'
+                            }}
+                        >
+                            Forgot password</Link>
                     </div>
                 </fieldset>
             </Col>

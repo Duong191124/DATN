@@ -54,4 +54,26 @@ public class Orders extends BaseEntity {
     private List<OrderDetail> orderDetails = new ArrayList<>();
     @OneToMany(mappedBy = "orders",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Payment> payments = new ArrayList<>();
+    public void addOrderDetail(OrderDetail orderDetail) {
+        orderDetails.add(orderDetail);
+        orderDetail.setOrders(this);
+    }
+
+    // Xóa OrderDetail
+    public void removeOrderDetail(OrderDetail orderDetail) {
+        orderDetails.remove(orderDetail);
+        orderDetail.setOrders(null);
+    }
+
+    // Thêm Payment
+    public void addPayment(Payment payment) {
+        payments.add(payment);
+        payment.setOrders(this);
+    }
+
+    // Xóa Payment
+    public void removePayment(Payment payment) {
+        payments.remove(payment);
+        payment.setOrders(null);
+    }
 }

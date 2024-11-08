@@ -60,7 +60,7 @@ const items = [
         icon: <SettingOutlined />,
         label: <Link to="/admin/sleeves">Sleeve Management</Link>,
       },
-    ]
+    ],
   },
   {
     key: "10",
@@ -86,6 +86,11 @@ const items = [
     key: "14",
     icon: <SettingOutlined />,
     label: <Link to="/admin/customer">Customer Management</Link>,
+  },
+  {
+    key: "14",
+    icon: <SettingOutlined />,
+    label: <Link to="/admin/ecommer"> Management</Link>,
   },
 ];
 const getLevelKeys = (items1) => {
@@ -146,17 +151,15 @@ const NavbarAdmin = () => {
       >
         {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
       </Button>
-      <div >
-        <Menu
-          mode="inline"
-          defaultSelectedKeys={["123"]}
-          openKeys={stateOpenKeys}
-          onOpenChange={onOpenChange}
-          inlineCollapsed={collapsed}
-          className="menu-sidebar"
-          items={items}
-        />
-      </div>
+      <Menu
+        mode="inline"
+        defaultSelectedKeys={["123"]}
+        openKeys={stateOpenKeys}
+        onOpenChange={onOpenChange}
+        inlineCollapsed={collapsed}
+        className="menu-sidebar"
+        items={items}
+      />
     </>
   );
 };
