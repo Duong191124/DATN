@@ -169,7 +169,7 @@ const CounterSalePayment = ({
 
   const handleShowInvoice = async () => {
     const totalPayment = totalAmount - discountAmount;
-    const billCode = billWaiting.find((bill) => bill.billId === selectedBill);
+    const billCode = billWaiting.find((bill) => bill.code === selectedBill);
     let selectedAccountInfo;
     if (paymentInfo.paymentMethod === "Cash") {
       setQrCodeImg("");
@@ -207,7 +207,7 @@ const CounterSalePayment = ({
         <p style="text-align: center;">Địa chỉ: - -</p>
         <p style="text-align: center;">Điện thoại: 0999999999</p>
         <h2 style="text-align: center;">HÓA ĐƠN BÁN HÀNG</h2>
-        <p>Số HĐ: ${billCode?.billId}</p>
+        <p>Số HĐ: ${billCode?.code}</p>
         <p>Ngày: ${new Date().toLocaleDateString()}</p>
         <p>Thời gian thanh toán: ${new Date().toLocaleTimeString()}</p>
         <p>Nhân viên: ${billCode?.staff?.name}</p>
@@ -397,14 +397,16 @@ const CounterSalePayment = ({
             <Form.Item label="Tiền khách đưa" required>
               <Input
                 type="text"
-                value={customerPaid.toLocaleString()}
+                value={customerPaid.toLocaleString()} // Định dạng số khi hiển thị
                 onChange={(e) => {
-                  const value = e.target.value.replace(/\./g, "");
-                  setCustomerPaid(Number(value) || 0);
+                  let value = e.target.value.replace(/,/g, ""); // Loại bỏ dấu phẩy
+                  if (value === "") value = "0"; // Nếu không có giá trị, gán về 0
+                  setCustomerPaid(Number(value) || 0); // Cập nhật giá trị số
                 }}
                 placeholder="Nhập số tiền..."
               />
             </Form.Item>
+
             {change !== 0 && (
               <Form.Item>
                 <h4>Tiền thừa: {change.toLocaleString()} VNĐ</h4>

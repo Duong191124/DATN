@@ -171,8 +171,58 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public OrderResponse findByCode(String code) {
+        return OrderResponse.convertOrderResponse(orderRepo.findByCode(code));
+    }
+
+    @Override
+    public OrderResponse updatedOrderWithProductDetail(Integer id, List<OrderDetailRequest> orderDetailRequests) {
+        // Tìm đơn hàng
+        Orders order = orderRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // Tạo danh sách các OrderDetail mới từ yêu cầu
+        List<OrderDetail> orderDetailsToSave = new ArrayList<>();
+
+        // Xử lý danh sách sản phẩm
+        for (OrderDetailRequest detailRequest : orderDetailRequests) {
+            ProductDetail productDetail = productDetailRepo.findById(detailRequest.getProductDetailId())
+                    .orElseThrow(() -> new RuntimeException("Product detail not found"));
+
+            if (detailRequest.getQuantity() > productDetail.getQuantity()) {
+                throw new RuntimeException("Insufficient quantity for product detail ID " + detailRequest.getProductDetailId());
+            }
+
+            productDetail.setQuantity(productDetail.getQuantity() - detailRequest.getQuantity());
+            productDetailRepo.save(productDetail);
+
+            // Thêm OrderDetail vào danh sách
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setOrders(order);
+            orderDetail.setProductDetail(productDetail);
+            orderDetail.setQuantity(detailRequest.getQuantity());
+
+            // Đảm bảo rằng OrderDetail được thêm vào đúng collection trong Orders
+            order.getOrderDetails().add(orderDetail);
+            orderDetailsToSave.add(orderDetail);
+        }
+
+        // Lưu lại đơn hàng đã được cập nhật (Hibernate sẽ tự động xử lý việc thêm các OrderDetail vào collection)
+        orderRepo.save(order);
+
+        // Trả về phản hồi
+        return OrderResponse.convertOrderResponse(order);
+    }
+
+    @Override
     public Page<OrderResponse> pageAll(String staffName, LocalDate  startDate, LocalDate endDate, OrderStatus orderStatus, String orderCode, Pageable pageable) {
         Page<Orders> ordersPage = orderRepo.pageAll(staffName,startDate,endDate,orderStatus,orderCode,pageable);
         return ordersPage.map(OrderResponse::convertOrderResponse);
+    }
+
+    @Override
+    public List<OrderResponse> getPendingOrdersByStaff(Integer staffId) {
+        List<Orders> ordersList = orderRepo.findPendingOrdersByStaffId(staffId);
+        return ordersList.stream().map(OrderResponse::convertOrderResponse).toList();
     }
 }

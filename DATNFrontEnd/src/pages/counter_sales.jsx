@@ -9,11 +9,15 @@ import {
   createOrder,
   createPayment,
   fetchPageDataProductDetail,
+  fetchPendingOrders,
+  findByProductDetailId,
   getAllCustomer,
   getUserInfo,
   orderProductDetail,
+  updateProductDetailWithOrder,
+  updateStatusOrder,
 } from "../service/api.service";
-import CounterSaleCustomer from "../component/layout/admin/counter.sale/counter.slale.customer";
+import CounterSaleCustomer from "../component/layout/admin/counter.sale/counter.sale.customer";
 import { useNavigate } from "react-router-dom";
 const CounterSales = () => {
   const navigate = useNavigate();
@@ -58,22 +62,6 @@ const CounterSales = () => {
     }
     setStaff(staffFromStorage.data.data);
   }, []);
-  useEffect(() => {
-    if (staff) {
-      const staffId = staff.id;
-      // Lấy hóa đơn chờ từ localStorage dựa trên ID nhân viên
-      const savedBillWaiting = localStorage.getItem(`billWaiting_${staffId}`);
-      setBillWaiting(savedBillWaiting ? JSON.parse(savedBillWaiting) : []);
-
-      // Lấy hóa đơn tạm từ localStorage
-      const savedTempBills = localStorage.getItem(`tempBillItems_${staffId}`);
-      setTempBillItems(savedTempBills ? JSON.parse(savedTempBills) : []);
-
-      // Lấy giỏ hàng từ localStorage
-      const savedCartItems = localStorage.getItem(`cartItemsByBill_${staffId}`);
-      setCartItemsByBill(savedCartItems ? JSON.parse(savedCartItems) : {});
-    }
-  }, [staff]);
   const loadProductDetail = useCallback(
     async (pageProductDetail, pageSizeProductDetail) => {
       setLoading(true);
@@ -131,21 +119,34 @@ const CounterSales = () => {
     },
     [filter, updateUrl]
   );
-  const updateProductDetailQuantities = async () => {
+  useEffect(() => {
+    if (staff) {
+      const staffId = staff.id;
+      fetchPendingBills();
+      // Lấy hóa đơn tạm từ localStorage
+      const savedTempBills = localStorage.getItem(`tempBillItems_${staffId}`);
+      setTempBillItems(savedTempBills ? JSON.parse(savedTempBills) : []);
+      // Lấy giỏ hàng từ localStorage
+      const savedCartItems = localStorage.getItem(`cartItemsByBill_${staffId}`);
+      setCartItemsByBill(savedCartItems ? JSON.parse(savedCartItems) : {});
+    }
+  }, [staff]);
+  const fetchPendingBills = async () => {
     try {
-      const response = await orderProductDetail();
-      if (response.data) {
-        setDataProductDetail(response.data);
-      }
+      const getBillWaiting = await fetchPendingOrders(staff.id);
+      setBillWaiting(getBillWaiting.data.data);
     } catch (error) {
-      console.error("Error updating product details", error);
+      console.error("Lỗi khi lấy hóa đơn chờ:", error);
     }
   };
-  const loadCustomerList = async (page = 1, size = 10) => {
+  const loadCustomerList = async () => {
     try {
-      const response = await getAllCustomer(page, size);
+      const response = await getAllCustomer(1, 1000);
       if (response.data?.data) {
-        setCustomerList(response.data.data.content);
+        const filteredCustomers = response.data.data.content.filter(
+          (customer) => customer.name && customer.email && customer.phoneNumber
+        );
+        setCustomerList(filteredCustomers);
         setTotalCustomer(response.data.data.totalElements);
       }
     } catch (error) {
@@ -174,20 +175,22 @@ const CounterSales = () => {
     [cartItemsByBill, selectedBill, calculateTotalAmount]
   );
   const addToCart = useCallback(
-    (productDetailId, quantity) => {
+    async (productDetailId, quantity) => {
       if (!selectedBill) {
         notification.error({ message: "Vui lòng chọn hóa đơn để mua hàng!" });
-        return;
+        return false;
       }
       const updatedItems = [...(cartItemsByBill[selectedBill] || [])];
       const existingItemIndex = updatedItems.findIndex(
         (item) => item.id === productDetailId.id
       );
-
+      const countProductDetailId = await findByProductDetailId(
+        productDetailId.id
+      );
       if (existingItemIndex > -1) {
         const countQuantity = (updatedItems[existingItemIndex].quantity +=
           quantity);
-        if (countQuantity > productDetailId.quantity) {
+        if (countQuantity > countProductDetailId.data.data.quantity) {
           notification.error({
             message: "Số lượng không đủ",
             description: `Sản phẩm trong kho không đủ.`,
@@ -221,7 +224,6 @@ const CounterSales = () => {
   useEffect(() => {
     if (staff) {
       const staffId = staff.id;
-      // Lưu hóa đơn chờ vào localStorage
       localStorage.setItem(
         `billWaiting_${staffId}`,
         JSON.stringify(billWaiting)
@@ -237,65 +239,135 @@ const CounterSales = () => {
     }
   }, [billWaiting, tempBillItems, cartItemsByBill, staff]);
   const handleCreateBillWaiting = useCallback(async () => {
-    if (!selectedCustomer) {
-      notification.error({ message: "Chưa chọn khách hàng!" });
-      return;
-    }
-    if (billWaiting.length >= 5) {
-      notification.error({
-        message: "Đã đạt giới hạn tối đa 5 hóa đơn!",
-        description: "Không thể tạo thêm hóa đơn khi đã có 5 hóa đơn chờ.",
-      });
-      return;
-    }
+    const defaultCustomerId = 1;
     const randomCode = generateInvoiceCode();
     const now = new Date();
+    const customerId = selectedCustomer
+      ? selectedCustomer.id
+      : defaultCustomerId;
     const newBill = {
-      billId: `HD-${randomCode}`,
-      customer: selectedCustomer,
+      code: `HD-${randomCode}`,
+      customer: {
+        id: customerId,
+        name: selectedCustomer ? selectedCustomer.name : "Khách hàng lẻ",
+      },
       staff: staff,
       time: now.toLocaleString(),
       orderDate: now.toISOString(),
     };
-    const updatedBillWaiting = [...billWaiting, newBill];
-    setBillWaiting(updatedBillWaiting);
-    localStorage.setItem("billWaiting", JSON.stringify(updatedBillWaiting));
-    notification.success({
-      message: "Hóa đơn chờ đã được tạo thành công",
-      description: `Hóa đơn chờ đã được tạo bởi nhân viên ${staff.name}.`,
-    });
-  }, [billWaiting, selectedCustomer, staff, cartItemsByBill]);
-
-  const handleMoveBillToTemp = (billId) => {
-    const billToMove = billWaiting.find((bill) => bill.billId === billId);
+    const orderData = {
+      code: newBill.code,
+      deliveryFee: 0,
+      totalAmount: totalAmount,
+      moneyReceived: customerPaid,
+      orderDate: moment().format("YYYY-MM-DD"),
+      voucherId: "",
+      staffId: staff.id,
+      customerId: customerId,
+      orderDetailRequests: [],
+    };
+    try {
+      setLoading(true);
+      if (billWaiting.length >= 5) {
+        notification.error({
+          message: "Đã đạt giới hạn tối đa 5 hóa đơn!",
+          description: "Không thể tạo thêm hóa đơn khi đã có 5 hóa đơn chờ.",
+        });
+        return;
+      }
+      const response = await createOrder(
+        orderData.code,
+        orderData.orderDate,
+        orderData.deliveryFee,
+        orderData.totalAmount,
+        orderData.moneyReceived,
+        orderData.voucherId,
+        orderData.staffId,
+        orderData.customerId,
+        orderData.orderDetailRequests
+      );
+      if (response.status === 201) {
+        notification.success({
+          message: "Hóa đơn đã được tạo thành công",
+          description: `Hóa đơn đã được tạo bởi nhân viên ${staff.name}.`,
+        });
+        setBillWaiting((prevBills) => [...prevBills, response.data]);
+      }
+    } catch (error) {
+      notification.error({
+        message: "Tạo hóa đơn thất bại",
+        description:
+          error.response?.data.message ||
+          "Đã có lỗi xảy ra trong quá trình tạo hóa đơn.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedCustomer, staff, customerPaid, totalAmount, billWaiting]);
+  const canceledOrder = useCallback(
+    async (orderId) => {
+      const status = "cancelled"; // Set the status to cancelled
+      if (!selectedBill) {
+        notification.error({ message: "Vui lòng chọn hóa đơn để hủy!" });
+        return;
+      }
+      try {
+        setLoading(true);
+        const response = await updateStatusOrder(orderId, status);
+        if (response.status === 200) {
+          // Handle success - update the bill waiting state and show success notification
+          const updatedBillWaiting = billWaiting.filter(
+            (bill) => bill.id !== orderId
+          );
+          setBillWaiting(updatedBillWaiting);
+          notification.success({
+            message: "Hủy hóa đơn thành công",
+            description: `Hóa đơn ID: ${orderId} đã được hủy.`,
+          });
+          setSelectedBill(null);
+        }
+      } catch (error) {
+        // Handle error if the API call fails
+        notification.error({
+          message: "Hủy hóa đơn thất bại",
+          description:
+            error.response?.data.message ||
+            "Đã có lỗi xảy ra trong quá trình hủy hóa đơn.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [selectedBill, billWaiting]
+  );
+  const handleMoveBillToTemp = (code) => {
+    const billToMove = billWaiting.find((bill) => bill.code === code);
     if (!billToMove) {
       notification.error({
         message: "Lỗi",
-        description: `Không tìm thấy hóa đơn với mã ${billId}.`,
+        description: `Không tìm thấy hóa đơn với mã ${code}.`,
       });
       return;
     }
     // Loại bỏ hóa đơn khỏi billWaiting và thêm vào tempBillItems
-    setBillWaiting(billWaiting.filter((bill) => bill.billId !== billId));
+    setBillWaiting(billWaiting.filter((bill) => bill.code !== code));
     setTempBillItems([...tempBillItems, billToMove]);
     notification.success({
       message: "Chuyển hóa đơn thành công",
-      description: `Hóa đơn ${billId} đã được chuyển sang tạm chờ.`,
+      description: `Hóa đơn ${code} đã được chuyển sang tạm chờ.`,
     });
   };
   // Hàm chuyển hóa đơn từ chờ sang tạm chờ
   const handleSwapBills = (tempBillId, waitingBillId) => {
-    const tempBill = tempBillItems.find((bill) => bill.billId === tempBillId);
-    const waitingBill = billWaiting.find(
-      (bill) => bill.billId === waitingBillId
-    );
+    const tempBill = tempBillItems.find((bill) => bill.code === tempBillId);
+    const waitingBill = billWaiting.find((bill) => bill.code === waitingBillId);
     if (tempBill && waitingBill) {
       // Logic hoán đổi
       const updatedTempBills = tempBillItems.map((bill) =>
-        bill.billId === tempBillId ? waitingBill : bill
+        bill.code === tempBillId ? waitingBill : bill
       );
       const updatedBillItems = billWaiting.map((bill) =>
-        bill.billId === waitingBillId ? tempBill : bill
+        bill.code === waitingBillId ? tempBill : bill
       );
       setTempBillItems(updatedTempBills);
       setBillWaiting(updatedBillItems);
@@ -304,7 +376,7 @@ const CounterSales = () => {
       localStorage.setItem("billItems", JSON.stringify(updatedBillItems));
     }
   };
-  const handleMoveBillToWaiting = (billId) => {
+  const handleMoveBillToWaiting = (code) => {
     if (billWaiting.length >= 5) {
       // Nếu danh sách chờ đã có 5 hóa đơn, không cho phép thêm
       notification.error({
@@ -314,28 +386,25 @@ const CounterSales = () => {
       });
       return;
     }
-    const billToMove = tempBillItems.find((bill) => bill.billId === billId);
+    const billToMove = tempBillItems.find((bill) => bill.code === code);
     if (!billToMove) return;
     // Remove from tempBillItems and add to billWaiting
-    setTempBillItems(tempBillItems.filter((bill) => bill.billId !== billId));
+    setTempBillItems(tempBillItems.filter((bill) => bill.code !== code));
     setBillWaiting([...billWaiting, billToMove]);
     notification.success({
       message: "Chuyển hóa đơn thành công",
-      description: `Hóa đơn ${billId} đã được chuyển từ tạm chờ sang chờ.`,
+      description: `Hóa đơn ${code} đã được chuyển từ tạm chờ sang chờ.`,
     });
   };
-  const handleRemoveBill = (billId) => {
-    const updatedBillWaiting = billWaiting.filter(
-      (bill) => bill.billId !== billId
-    );
+  const handleRemoveBill = (code) => {
+    const updatedBillWaiting = billWaiting.filter((bill) => bill.code !== code);
     setBillWaiting(updatedBillWaiting);
     localStorage.setItem("billWaiting", JSON.stringify(updatedBillWaiting));
     notification.success({ message: "Hóa đơn đã được xóa" });
   };
   const handlePayment = useCallback(async () => {
     const cartItems = cartItemsByBill[selectedBill] || [];
-    const billCode = billWaiting.find((bill) => bill.billId === selectedBill);
-
+    const billCode = billWaiting.find((bill) => bill.code === selectedBill);
     if (cartItems.length === 0) {
       notification.error({
         message: "Giỏ hàng rỗng",
@@ -343,8 +412,6 @@ const CounterSales = () => {
       });
       return;
     }
-
-    // Kiểm tra thông tin thanh toán
     const { paymentMethod } = paymentInfo;
     if (!paymentMethod) {
       notification.error({
@@ -353,10 +420,7 @@ const CounterSales = () => {
       });
       return;
     }
-
     const totalAmountWithDiscount = totalAmount - discountAmount;
-
-    // Kiểm tra số tiền khách đưa chỉ khi phương thức thanh toán là "Cash"
     if (paymentMethod === "Cash" && customerPaid < totalAmountWithDiscount) {
       notification.error({
         message: "Thanh toán không đủ",
@@ -364,62 +428,33 @@ const CounterSales = () => {
       });
       return;
     }
-
-    const excessAmount = customerPaid - totalAmountWithDiscount;
-
-    // Chuẩn bị dữ liệu gửi lên backend
-    const isoString = billCode.orderDate;
-    const orderDate = new Date(isoString);
-    const formatDateToYMD = (date) => {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-      const newCart = { ...cartItemsByBill, [newBill.billId]: [] };
-      setCartItemsByBill(newCart);
-      localStorage.setItem("cartItemsByBill", JSON.stringify(newCart));
-
-      notification.success({
-        message: "Hóa đơn chờ đã được tạo thành công",
-        description: `Hóa đơn chờ đã được tạo bởi nhân viên ${selectedStaff.name}.`,
-      });
-    };
-    const formattedOrderDate = formatDateToYMD(orderDate);
-    const orderDTO = {
-      code: billCode.billId,
-      deliveryFee: 0,
-      totalAmount: totalAmountWithDiscount,
-      moneyReceived: customerPaid,
-      orderDate: formattedOrderDate,
-      voucherId: null,
-      staffId: billCode.staff.id,
-      customerId: billCode.customer.id,
-      orderDetailRequests: cartItems.map((item) => ({
-        product_detail_id: item.id,
-        quantity: item.quantity,
-      })),
+    // Chuẩn bị dữ liệu cho việc cập nhật chi tiết sản phẩm
+    const productDetailUpdateDTO = {
+      orderDetailRequests: Array.isArray(cartItems)
+        ? cartItems.map((item) => ({
+            product_detail_id: item.id,
+            quantity: item.quantity,
+          }))
+        : [],
     };
     try {
       setLoading(true);
-      const orderResponse = await createOrder(
-        orderDTO.code,
-        orderDTO.orderDate,
-        orderDTO.deliveryFee,
-        orderDTO.totalAmount,
-        orderDTO.moneyReceived,
-        orderDTO.voucherId,
-        orderDTO.staffId,
-        orderDTO.customerId,
-        orderDTO.orderDetailRequests
+      // Gọi API để cập nhật chi tiết sản phẩm trong hóa đơn
+      console.log(
+        "dđ",
+        billCode.id,
+        productDetailUpdateDTO.orderDetailRequests
       );
-
-      if (orderResponse.status === 201) {
+      const orderResponse = await updateProductDetailWithOrder(
+        billCode.id,
+        productDetailUpdateDTO.orderDetailRequests
+      );
+      if (orderResponse.data.status === 201) {
         const paymentDTO = {
           paymentDate: moment().format("DD/MM/YYYY"),
           paymentMethod: paymentInfo.paymentMethod,
-          orderId: orderResponse.data.id,
+          orderId: orderResponse.data.data.id,
         };
-
         const paymentResponse = await createPayment(
           paymentDTO.paymentDate,
           paymentDTO.paymentMethod,
@@ -434,7 +469,6 @@ const CounterSales = () => {
           // Reset thông tin thanh toán
           setPaymentInfo({ paymentMethod: "" });
           setCustomerPaid(0); // Reset tiền khách đưa
-          removeBillWithoutNotification(selectedBill);
           const updatedCartItems = { ...cartItemsByBill };
           delete updatedCartItems[selectedBill];
           setCartItemsByBill(updatedCartItems);
@@ -442,14 +476,14 @@ const CounterSales = () => {
             "cartItemsByBill",
             JSON.stringify(updatedCartItems)
           );
-          updateProductDetailQuantities();
           return { success: true, message: "Thanh toán thành công" };
         }
       }
     } catch (error) {
+      console.log("errr", error);
       notification.error({
-        message: "Thanh toán thất bại",
-        description: "Đã có lỗi xảy ra trong quá trình thanh toán.",
+        message: "Cập nhật chi tiết sản phẩm thất bại",
+        description: "Đã có lỗi xảy ra trong quá trình cập nhật.",
       });
     } finally {
       setLoading(false);
@@ -457,36 +491,26 @@ const CounterSales = () => {
   }, [
     cartItemsByBill,
     selectedBill,
-    selectedCustomer,
     totalAmount,
     discountAmount,
     customerPaid,
     paymentInfo,
-    handleRemoveBill,
   ]);
-
-  const removeBillWithoutNotification = (billId) => {
-    const updatedBillWaiting = billWaiting.filter(
-      (bill) => bill.billId !== billId
-    );
-    setBillWaiting(updatedBillWaiting);
-    localStorage.setItem("billWaiting", JSON.stringify(updatedBillWaiting));
-  };
-  const handleMoveBillFromTempToWaiting = (billId) => {
-    const billToMove = tempBillItems.find((bill) => bill.billId === billId);
+  const handleMoveBillFromTempToWaiting = (code) => {
+    const billToMove = tempBillItems.find((bill) => bill.code === code);
     if (!billToMove) return;
     // Remove from tempBillItems and add to billWaiting
-    setTempBillItems(tempBillItems.filter((bill) => bill.billId !== billId));
+    setTempBillItems(tempBillItems.filter((bill) => bill.code !== code));
     setBillWaiting([...billWaiting, billToMove]);
     notification.success({
       message: "Hóa đơn đã được lấy ra",
-      description: `Hóa đơn ${billId} đã được chuyển về hóa đơn chờ.`,
+      description: `Hóa đơn ${code} đã được chuyển về hóa đơn chờ.`,
     });
 
     // Cập nhật localStorage
     localStorage.setItem(
       "tempBillItems",
-      JSON.stringify(tempBillItems.filter((bill) => bill.billId !== billId))
+      JSON.stringify(tempBillItems.filter((bill) => bill.code !== code))
     );
     localStorage.setItem(
       "billWaiting",
@@ -509,6 +533,7 @@ const CounterSales = () => {
     loadProductDetail(pageProductDetail, pageSizeProductDetail);
     calculateTotalAmount();
     loadCustomerList(page, size);
+    fetchPendingBills();
   }, [
     selectedBill,
     cartItemsByBill,
@@ -518,6 +543,7 @@ const CounterSales = () => {
     filter,
     pageProductDetail,
     pageSizeProductDetail,
+    staff,
   ]);
   return (
     <div
@@ -548,12 +574,15 @@ const CounterSales = () => {
             setSelectedBill={setSelectedBill}
             onMoveBillFromTempToWaiting={handleMoveBillFromTempToWaiting}
             onMoveBillToWaiting={handleMoveBillToWaiting}
+            canceledOrder={canceledOrder}
           />
         </div>
         <div style={{ width: "48%", display: "flex", flexDirection: "column" }}>
           <CounterSaleCustomer
             onCustomerSelect={(customer) => setSelectedCustomer(customer)}
             customerList={customerList}
+            setCustomerList={setCustomerList}
+            loadCustomerList={loadCustomerList}
             page={page}
             total={totalCustomer}
             size={size}

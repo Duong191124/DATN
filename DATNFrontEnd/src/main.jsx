@@ -103,7 +103,6 @@ const router = createBrowserRouter([
         path: "customer",
         element: <CustomerPage />,
       },
-
     ],
   },
   {
@@ -122,8 +121,6 @@ const router = createBrowserRouter([
         path: "/product/:productId",
         element: <ProductDetailPage />
       },
-
-
     ]
   },
   {
