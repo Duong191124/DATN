@@ -1,0 +1,21 @@
+:where(.css-dev-only-do-not-override-apn68).ant-steps .ant-steps-item-process .ant-steps-item-icon {
+    background-color: black;
+    border-color: black;
+}
+
+:where(.css-dev-only-do-not-override-apn68).ant-steps .ant-steps-item-finish .ant-steps-item-icon>.ant-steps-icon {
+    color: black;
+}
+
+:where(.css-dev-only-do-not-override-apn68).ant-steps .ant-steps-item-finish>.ant-steps-item-container>.ant-steps-item-content>.ant-steps-item-title::after {
+    background-color: #0b111a;
+}
+
+/* .btn-checkout {
+    font-size: 14px;
+    line-height: 1.5714285714285714;
+    height: 50px;
+    width: 100px;
+    padding: 4px 15px;
+    border-radius: 6px;
+} */

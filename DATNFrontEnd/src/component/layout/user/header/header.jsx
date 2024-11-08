@@ -65,7 +65,7 @@ const Header = () => {
                   </Dropdown>
                 </li>
                 <li>
-                  <NavLink to={"/san-pham"}>SẢN PHẨM</NavLink>
+                  <NavLink to={"/home-page"}>SẢN PHẨM</NavLink>
                 </li>
                 <li>
                   <a>THÔNG TIN</a>

@@ -10,3 +10,9 @@
 div::-webkit-scrollbar {
     display: none;
 }
+
+:where(.css-dev-only-do-not-override-apn68).ant-btn-sm.ant-btn-icon-only {
+    width: 24px;
+    padding-inline: 0;
+    height: 25px;
+}

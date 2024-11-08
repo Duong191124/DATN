@@ -9,14 +9,14 @@ const ProDuctDetailForm = (props) => {
     const [sizes, setSizes] = useState([]);       // Dữ liệu danh sách size
     const [colors, setColors] = useState([]);     // Dữ liệu danh sách màu
 
-    const { productId, loadProductDetail } = props;  // Lấy productId từ props
+    const { productId, loadProductDetail, productPrice } = props;  // Lấy productId từ props
 
     const [form] = Form.useForm();  // Khởi tạo form từ Ant Design
 
     const handleSubmit = async (values) => {
-        const { code, quantity, price, size, color } = values;
+        const { code, quantity, size, color } = values;
         const res = await createProductDetailAPi(
-            code, quantity, price, productId, size, color  // Truyền productId từ props
+            code, quantity, productPrice, productId, size, color  // Truyền productId từ props
         );
         if (res.data) {
             notification.success({
@@ -92,13 +92,13 @@ const ProDuctDetailForm = (props) => {
                         <Input />
                     </Form.Item>
 
-                    <Form.Item
+                    {/* <Form.Item
                         label="Price"
                         name="price"
                         rules={[{ required: true, message: "Please input price!" }]}
                     >
                         <Input />
-                    </Form.Item>
+                    </Form.Item> */}
 
                     <Form.Item
                         label="Color"
