@@ -135,7 +135,6 @@ const NavbarAdmin = () => {
   };
   return (
     <>
-      <div></div>
       <Button
         onClick={toggleCollapsed}
         style={{

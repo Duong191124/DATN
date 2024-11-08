@@ -903,6 +903,10 @@ const fetchDataAPICartDetail = () => {
   const URL_BACKEND = "/api/v1/cartDetail";
   return axios.get(URL_BACKEND)
 }
+const findByProductDetailId = (id) => {
+  const URL_BACKEND = `/api/v1/productDetail/detail/${id}`;
+  return axios.get(URL_BACKEND);
+};
 
 //API notice
 
@@ -928,6 +932,7 @@ const updatePassword = (email, code, newPassword) => {
 }
 
 export {
+  findByProductDetailId,
   updatePassword,
   requetsForgotPassword,
   fetchDataNotice,
