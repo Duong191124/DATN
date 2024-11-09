@@ -80,7 +80,8 @@ public class PromotionController {
     public ResponseEntity<?> updatePromotionProductDetails(
             @PathVariable("id") Integer id,
             @RequestBody @Valid PromotionDTO promotionDTO,
-            BindingResult result) throws Exception {
+            BindingResult result,
+            @RequestParam("applyPromotion") boolean applyPromotion) throws Exception {
 
         // Kiểm tra lỗi validation
         if (result.hasErrors()) {
@@ -94,8 +95,8 @@ public class PromotionController {
                     .build());
         }
 
-        // Gọi phương thức cập nhật trong service với danh sách ID đã lấy
-        PromotionResponse updatedPromotion = promotionService.updateProductDetails(id, promotionDTO.getProductDetailsIds());
+        // Gọi phương thức cập nhật trong service với danh sách ID đã lấy và trạng thái áp dụng khuyến mãi
+        PromotionResponse updatedPromotion = promotionService.updateProductDetails(id, promotionDTO.getProductDetailsIds(), applyPromotion);
 
         return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                 .message("Cập nhật product details thành công")
@@ -103,6 +104,7 @@ public class PromotionController {
                 .data(updatedPromotion)
                 .build());
     }
+
     @PutMapping("/{id}/status")
     public ResponseEntity<?> changeStatus(@PathVariable Integer id) {
         try {
