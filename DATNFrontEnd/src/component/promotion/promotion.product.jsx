@@ -56,26 +56,26 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             
         }
     }, [isVisible, id, selectedProductDetails]);
-    const calculateDiscountedPrice = (price, id,promotion) => {
+    // const calculateDiscountedPrice = (price, id,promotion) => {
 
-        if (!selectedDetails.includes(id)) return price;
+    //     if (!selectedDetails.includes(id)) return price;
         
-        const discountAmount = parseInt(promotion.discountAmount) || 0;
-        const discountPercent = parseInt(promotion.discountPercent) || 0;
-        console.log(discountAmount, discountPercent);
-        let discountedPrice = price;
+    //     const discountAmount = parseInt(promotion.discountAmount) || 0;
+    //     const discountPercent = parseInt(promotion.discountPercent) || 0;
+    //     console.log(discountAmount, discountPercent);
+    //     let discountedPrice = price;
 
-        if (discountAmount > 0) {
-            discountedPrice -= discountAmount;
-        }
+    //     if (discountAmount > 0) {
+    //         discountedPrice -= discountAmount;
+    //     }
 
-        if (discountPercent > 0) {
-            discountedPrice -= (price * (discountPercent / 100));
-        }
+    //     if (discountPercent > 0) {
+    //         discountedPrice -= (price * (discountPercent / 100));
+    //     }
 
-        return Math.max(discountedPrice, 0);
+    //     return Math.max(discountedPrice, 0);
         
-    };
+    // };
 
     const handleSelect = (productId) => {
         setSelectedDetails((prevSelected) =>
@@ -84,32 +84,38 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 : [...prevSelected, productId]
         );
     };
-
+    
     const handleApply = async () => {
         try {
             if (!id) {
                 throw new Error("Promotion ID không hợp lệ.");
             }
-
+    
             const payload = { productDetailsIds: selectedDetails };
-
+    
+            // Gọi API để áp dụng khuyến mãi
             const res = await updatePromotionProduct(id, payload);
-
+    
             if (res?.data) {
                 notification.success({
                     message: "Thành công",
                     description: "Áp dụng khuyến mãi thành công!",
                 });
-
+    
+            const payload = { productDetailsIds: selectedDetails };
                 onApply(selectedDetails);
-                onClose();
 
+                onClose();
+    
+                // Nếu có hàm loadData, gọi lại để làm mới dữ liệu
                 if (loadData) {
                     loadData();
                 }
+
             } else {
                 throw new Error("Không thể cập nhật khuyến mãi.");
             }
+
         } catch (error) {
             console.error('Error applying promotion:', error);
             notification.error({
@@ -118,6 +124,31 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             });
         }
     };
+    
+    const calculateDiscountedPrice = (price, id, promotion) => {
+        // Nếu sản phẩm chưa được chọn, không cần tính toán
+        if (!selectedDetails.includes(id)) return price;
+    
+        // Lấy giá trị giảm giá từ khuyến mãi (giảm giá cố định hoặc theo tỷ lệ phần trăm)
+        const discountAmount = parseInt(promotion.discountAmount) || 0;
+        const discountPercent = parseInt(promotion.discountPercent) || 0;
+    
+        // Tính giá sau khuyến mãi
+        let discountedPrice = price;
+    
+        if (discountAmount > 0) {
+            discountedPrice -= discountAmount;  // Giảm giá cố định
+        }
+    
+        if (discountPercent > 0) {
+            discountedPrice -= (price * (discountPercent / 100));  // Giảm giá theo tỷ lệ phần trăm
+        }
+    
+        // Đảm bảo giá không âm
+        return Math.max(discountedPrice, 0);
+    };
+    
+    
 
     const handleSelectAll = () => {
         const filteredIds = productDetails
@@ -143,47 +174,49 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
         .filter(item => selectedSize === null || item.size?.name === selectedSize)
         .slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-    const columns = [
-        {
-            title: 'Tên Sản Phẩm',
-            dataIndex: 'code',
-            key: 'code',
-        },
-        {
-            title: "Số Lượng",
-            dataIndex: "quantity",
-        },
-        {
-            title: "Size",
-            dataIndex: "size",
-            render: (text, record) => {
-                return record.size?.name || "Chưa có size";
+        const columns = [
+            {
+                title: 'Tên Sản Phẩm',
+                dataIndex: 'code',
+                key: 'code',
             },
-        },
-        {
-            title: "Giá Gốc",
-            dataIndex: "price",
-            render: (price) => <span>{price} VND</span>,
-        },
-        {
-            title: "Giá Sau Khuyến Mãi",
-            dataIndex: "discountedPrice",
-            render: (_, record) => (
-                <span>{calculateDiscountedPrice(record.price,record.id,promotion)} VND</span>
-                
-            ),
-        },
-        {
-            title: 'Chọn',
-            key: 'select',
-            render: (_, record) => (
-                <Checkbox
-                    checked={selectedDetails.includes(record.id)}
-                    onChange={() => handleSelect(record.id)}
-                />
-            ),
-        },
-    ];
+            {
+                title: "Số Lượng",
+                dataIndex: "quantity",
+            },
+            {
+                title: "Size",
+                dataIndex: "size",
+                render: (text, record) => {
+                    return record.size?.name || "Chưa có size";
+                },
+            },
+            {
+                title: "Giá Gốc",
+                dataIndex: "defaultPrice",
+                render: (price) => <span>{price} VND</span>,
+            },
+            {
+                title: "Giá Sau Khuyến Mãi",
+                dataIndex: "discountPrice",
+                render: (_, record) => {
+                    // Tính giá sau khuyến mãi cho mỗi sản phẩm
+                    const discountedPrice = calculateDiscountedPrice(record.defaultPrice, record.id, promotion);
+                    return <span>{discountedPrice} VND</span>;
+                },
+            },
+            {
+                title: 'Chọn',
+                key: 'select',
+                render: (_, record) => (
+                    <Checkbox
+                        checked={selectedDetails.includes(record.id)}
+                        onChange={() => handleSelect(record.id)}
+                    />
+                ),
+            },
+        ];
+        
 
     return (
         <Modal

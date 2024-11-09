@@ -15,7 +15,8 @@ public class ProductDetailResponse {
     private Integer id;
     private String code;
     private int quantity;
-    private Double price;
+    private Double defaultPrice;
+    private Double discountPrice;
     private String image;
     private int status;
     private ProductResponse productResponse;
@@ -28,7 +29,8 @@ public class ProductDetailResponse {
                 .code(productDetail.getCode())
                 .status(productDetail.getStatus())
                 .quantity(productDetail.getQuantity())
-                .price(productDetail.getPrice())
+                .defaultPrice(productDetail.getDefaultPrice())
+                .discountPrice(productDetail.getDiscountPrice())
                 .image(productDetail.getImage())
                 .productResponse(ProductResponse.convertResponse(productDetail.getProduct()))
                 .size(productDetail.getSize())

@@ -76,9 +76,9 @@ public class OrderServiceImpl implements OrderService {
             orderDetail.setOrders(order);
             orderDetail.setQuantity(orderDetailRequest.getQuantity());
             orderDetail.setProductDetail(productDetail);
-            orderDetail.setPrice(productDetail.getPrice());
+            orderDetail.setPrice(productDetail.getDiscountPrice());
             orderDetailUpdate.add(orderDetail);
-            totalAmount += productDetail.getPrice() * orderDetailRequest.getQuantity();
+            totalAmount += productDetail.getDiscountPrice() * orderDetailRequest.getQuantity();
         }
         order.setTotalAmount(totalAmount);
         orderRepo.save(order);

@@ -25,8 +25,11 @@ public class ProductDetail extends BaseEntity {
     @Column(name = "quantity", nullable = true, length = 255)
     private int quantity;
     @Basic
-    @Column(name = "price", nullable = true, precision = 0)
-    private Double price;
+    @Column(name = "default_price", nullable = true, precision = 0)
+    private Double defaultPrice;
+    @Basic
+    @Column(name = "discount_price", nullable = true, precision = 0)
+    private Double discountPrice;
     @Basic
     @Column(name = "image", nullable = true, length = 255)
     private String image;

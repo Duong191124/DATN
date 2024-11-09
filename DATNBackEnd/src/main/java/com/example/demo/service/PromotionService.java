@@ -18,7 +18,7 @@ public interface PromotionService {
 
     void deletePromotion(Integer id) throws Exception;
 
-    PromotionResponse updateProductDetails(Integer promotionId, List<Integer> productDetailsIds) throws Exception;
+    PromotionResponse updateProductDetails(Integer promotionId, List<Integer> productDetailsIds,boolean applyPromotion) throws Exception;
 
     PromotionResponse changeStatus(Integer id) throws Exception;
 

@@ -738,10 +738,18 @@ const updatePromotionProduct = async (id, payload) => {
     const response = await axios.put(URL_BACKEND, payload);
     return response.data; // Trả về dữ liệu từ phản hồi
   } catch (error) {
-    console.error("Error updating promotion product:", error);
+    // In chi tiết lỗi từ Axios để giúp debug dễ dàng hơn
+    if (error.response) {
+      console.error("Error response:", error.response.data);
+    } else if (error.request) {
+      console.error("Error request:", error.request);
+    } else {
+      console.error("Error message:", error.message);
+    }
     throw error; // Ném lỗi để xử lý ở nơi gọi hàm
   }
 };
+
 const chandleStatusPromotion = (id) => {
   const URL_BACKEND = `/api/v1/promotion/${id}/status`;
   return axios.put(URL_BACKEND);
@@ -923,10 +931,6 @@ const fetchDataAPICartDetail = () => {
   const URL_BACKEND = "/api/v1/cartDetail";
   return axios.get(URL_BACKEND);
 };
-const findByProductDetailId = (id) => {
-  const URL_BACKEND = `/api/v1/productDetail/detail/${id}`;
-  return axios.get(URL_BACKEND);
-};
 
 //API notice
 
@@ -1049,6 +1053,5 @@ export {
   getUserInfo,
   updateProductDetailWithOrder,
   fetchPendingOrders,
-  findByProductDetailId,
   orderFindByCode,
 };

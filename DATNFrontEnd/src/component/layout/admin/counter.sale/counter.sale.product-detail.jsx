@@ -63,8 +63,13 @@ const CounterSalesProductDetail = ({
       dataIndex: "quantity",
     },
     {
-      title: "Giá",
-      dataIndex: "price",
+      title: "Giá Mặc Định",
+      dataIndex: "defaultPrice",
+      render: (text) => `${text?.toLocaleString()} VNĐ` || "Chưa có giá",
+    },
+    {
+      title: "Giá Khuyến Mãi",
+      dataIndex: "discountPrice",
       render: (text) => `${text?.toLocaleString()} VNĐ` || "Chưa có giá",
     },
     {
@@ -326,7 +331,7 @@ const CounterSalesProductDetail = ({
                 <strong>Màu:</strong> {selectedRow.color?.name || "N/A"}
               </div>
               <div>
-                <strong>Giá:</strong> {selectedRow.price?.toLocaleString()} VNĐ
+                <strong>Giá:</strong> {selectedRow.defaultPrice?.toLocaleString()} VNĐ
               </div>
             </div>
           </div>
