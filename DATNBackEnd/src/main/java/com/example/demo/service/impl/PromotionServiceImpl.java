@@ -94,60 +94,47 @@
             // Sử dụng phương thức đã cập nhật
             return PromotionResponse.fromPromotionResponse(updatedPromotion);
         }
-        @Override
-        public PromotionResponse updateProductDetails(Integer promotionId, List<Integer> productDetailsIds, boolean applyPromotion) throws Exception {
-            // Tìm promotion theo ID
-            Promotion existingPromotion = getPromotionById(promotionId);
 
-            // Nếu danh sách productDetailsIds không rỗng, cập nhật lại productDetails
+        @Override
+        public PromotionResponse updateProductDetails(Integer promotionId, List<Integer> productDetailsIds, Boolean applyPromotion) throws Exception {
+            Promotion existingPromotion = getPromotionById(promotionId);
             Set<ProductDetail> updatedProductDetails = new HashSet<>();
+
             if (productDetailsIds != null && !productDetailsIds.isEmpty()) {
                 for (Integer productDetailId : productDetailsIds) {
                     ProductDetail productDetail = productDetailRepo.findById(productDetailId).orElse(null);
                     if (productDetail != null) {
-                        // Nếu áp dụng khuyến mãi, tính toán giá giảm
-                        if (applyPromotion) {
-                            double discountPrice = productDetail.getDefaultPrice(); // Bắt đầu từ giá gốc
+                        if (Boolean.TRUE.equals(applyPromotion)) {
+                            // Áp dụng khuyến mãi
+                            double discountPrice = productDetail.getDefaultPrice();
 
-                            // Nếu khuyến mãi có discountPercent, tính toán giá theo tỷ lệ phần trăm
-                            if (existingPromotion.getDiscountPercent() != null && !existingPromotion.getDiscountPercent().isEmpty()) {
-                                double percent = Double.parseDouble(existingPromotion.getDiscountPercent());
-                                discountPrice = discountPrice - (discountPrice * (percent / 100));
-                            }
-
-                            // Nếu khuyến mãi có discountAmount, trừ số tiền cố định
-                            if (existingPromotion.getDiscountAmount() != null && !existingPromotion.getDiscountAmount().isEmpty()) {
+                            if (existingPromotion.getDiscountAmount() != null && Double.parseDouble(existingPromotion.getDiscountAmount()) > 0) {
+                                // Fixed amount discount
                                 double amount = Double.parseDouble(existingPromotion.getDiscountAmount());
-                                discountPrice = discountPrice - amount;
+                                discountPrice = Math.max(discountPrice - amount, 0);
+                            } else if (existingPromotion.getDiscountPercent() != null && Double.parseDouble(existingPromotion.getDiscountPercent()) > 0) {
+                                // Percentage discount
+                                double percent = Double.parseDouble(existingPromotion.getDiscountPercent());
+                                discountPrice = Math.max(discountPrice * (1 - (percent / 100)), 0);
                             }
 
-                            // Đảm bảo giá không nhỏ hơn 0
-                            discountPrice = Math.max(discountPrice, 0);
-
-                            // Cập nhật giá giảm vào discountPrice của ProductDetail
                             productDetail.setDiscountPrice(discountPrice);
                         } else {
-                            // Nếu không áp dụng khuyến mãi, hoàn trả lại giá gốc
+                            // Restore original price if not applying promotion
                             productDetail.setDiscountPrice(productDetail.getDefaultPrice());
                         }
 
-                        // Thêm ProductDetail vào tập hợp đã cập nhật
                         updatedProductDetails.add(productDetail);
+                        productDetailRepo.save(productDetail); // Save each updated product detail
                     }
                 }
             }
 
-            // Cập nhật danh sách productDetails mới cho promotion
             existingPromotion.setProductDetails(updatedProductDetails);
+            promotionRepo.save(existingPromotion);
+            productDetailRepo.saveAll(updatedProductDetails); // Save all updated product details
 
-            // Lưu lại thay đổi vào cơ sở dữ liệu
-            Promotion updatedPromotion = promotionRepo.save(existingPromotion);
-
-            // Cập nhật ProductDetail trong cơ sở dữ liệu
-            productDetailRepo.saveAll(updatedProductDetails);
-
-            // Trả về đối tượng PromotionResponse đã được cập nhật
-            return PromotionResponse.fromPromotionResponse(updatedPromotion);
+            return PromotionResponse.fromPromotionResponse(existingPromotion);
         }
 
         @Override

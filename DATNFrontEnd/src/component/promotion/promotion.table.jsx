@@ -108,7 +108,6 @@ const PromotionTable = (props) => {
         try {
             // Gọi API để cập nhật trạng thái
             const response = await chandleStatusPromotion(id);
-            console.log(response); // Kiểm tra phản hồi từ API
             if (response.status === 200 || response.status === 204) {
                 // Cập nhật trạng thái trong danh sách khuyến mãi
                 loadData(); // Gọi lại hàm loadData để tải lại dữ liệu từ server
