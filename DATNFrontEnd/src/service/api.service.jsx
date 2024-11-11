@@ -146,6 +146,12 @@ const fetchDataProductAPI = () => {
   return axios.get(URL_BACKEND);
 };
 
+
+const fetchDataProductById = (id) => {
+  const URL_BACKEND = `/api/v1/products/productId/${id}`
+  return axios.get(URL_BACKEND)
+}
+
 const fetchDataSleeve = () => {
   const URL_BACKEND = "/api/v1/sleeves";
   return axios.get(URL_BACKEND);
@@ -932,6 +938,7 @@ const updatePassword = (email, code, newPassword) => {
 }
 
 export {
+  fetchDataProductById,
   findByProductDetailId,
   updatePassword,
   requetsForgotPassword,
