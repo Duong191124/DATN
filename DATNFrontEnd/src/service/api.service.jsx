@@ -935,12 +935,17 @@ const updatePassword = (email, code, newPassword) => {
   });
 }
 
+/*
+  API cartDetail
+*/
+
+// const getCartDetailByCustomerId = (customerId) => {
+//   const URL_BACKEND = `/api/v1/`
+// }
+
 export {
-<<<<<<< HEAD
   fetchDataProduct,
-=======
   findByProductDetailId,
->>>>>>> 7f4ca02bd386777527b90ecbf002c8a22477eb43
   updatePassword,
   requetsForgotPassword,
   fetchDataNotice,

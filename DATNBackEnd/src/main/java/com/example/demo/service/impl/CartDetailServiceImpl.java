@@ -22,8 +22,8 @@ public class CartDetailServiceImpl implements CartDetailService {
     private final OrderRepo orderRepo;
 
     @Override
-    public List<CartDetail> getAll() {
-        return cartDetailRepo.findAll();
+    public List<CartDetail> getAll(int customerId) {
+        return cartDetailRepo.findByCustomerId(customerId);
     }
 
     @Override
@@ -33,10 +33,16 @@ public class CartDetailServiceImpl implements CartDetailService {
         ProductDetail existingProductDetail = productDetailRepo.findById(cartDetailDTO.getProductDetailId())
                 .orElse(null);
 
+        if (existingProductDetail.getQuantity() < cartDetailDTO.getQuantity()) {
+            throw new Exception("Không đủ số lượng sản phẩm trong kho.");
+        }
+
+        double totalPrice = cartDetailDTO.getQuantity() * existingProductDetail.getPrice();
+
         CartDetail newCartDetail = CartDetail.builder()
                 .quantity(cartDetailDTO.getQuantity())
                 .price(cartDetailDTO.getPrice())
-                .totalPrice(cartDetailDTO.getTotalPrice())
+                .totalPrice(totalPrice)
                 .customer(existingCustomer)
                 .productDetail(existingProductDetail)
                 .build();
@@ -50,10 +56,15 @@ public class CartDetailServiceImpl implements CartDetailService {
                 .orElseThrow(() -> new Exception(""));
         ProductDetail existingProductDetail = productDetailRepo.findById(cartDetailDTO.getProductDetailId())
                 .orElse(null);
+
+        if (existingProductDetail.getQuantity() < cartDetailDTO.getQuantity()) {
+            throw new Exception("Không đủ số lượng sản phẩm trong kho.");
+        }
+
         CartDetail cartDetail = getCartById(id);
         cartDetail.setQuantity(cartDetailDTO.getQuantity());
         cartDetail.setPrice(cartDetailDTO.getPrice());
-        cartDetail.setTotalPrice(cartDetailDTO.getTotalPrice());
+        cartDetail.setTotalPrice(cartDetailDTO.getQuantity() * existingProductDetail.getPrice());
         cartDetail.setCustomer(existingCustomer);
         cartDetail.setProductDetail(existingProductDetail);
         CartDetail updateCartDetail = cartDetailRepo.save(cartDetail);

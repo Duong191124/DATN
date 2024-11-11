@@ -29,6 +29,9 @@ import HomePage from "./component/layout/content/home/index/index.jsx";
 import ProductDetailPage from "./component/layout/content/home/index/product.detail.page.jsx";
 import RequestForgotPassword from "./pages/request.forgot.password.jsx";
 import ResetPassword from "./pages/reset.password.jsx";
+import './i18n.jsx';
+
+
 const router = createBrowserRouter([
   {
     path: "/admin",
