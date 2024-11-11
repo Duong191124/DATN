@@ -34,7 +34,8 @@ const Home = () => {
                 const product = res.data.data.map(item => ({
                     title: item.name,        // Lấy tên sản phẩm từ API
                     price: item.price,       // Lấy giá sản phẩm từ API
-                    image: item.image
+                    image: item.image,
+                    id: item.id
                 }));
                 setListProduct(product)
             }

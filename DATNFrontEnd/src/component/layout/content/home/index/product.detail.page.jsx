@@ -1,31 +1,25 @@
-import { fetchDataColor, fetchDataProductAPI, fetchDataSize } from '../../../../../service/api.service';
+import { useParams } from 'react-router-dom';
+import { fetchDataColor, fetchDataProductAPI, fetchDataProductById, fetchDataSize } from '../../../../../service/api.service';
 import './product.detail.page.css';
 import React, { useEffect, useState } from 'react';
 
 const ProductDetailPage = () => {
+    const { id } = useParams();
     const [product, setProduct] = useState([])
     const [size, setSize] = useState([])
     const [color, setColor] = useState([])
 
-    // const product = {
-    //     name: "Jack & Jones Men's T-Shirt",
-    //     description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Excepturi illo possimus quae tenetur.",
-    //     price: 39.99,
-    //     originalPrice: 59.99,
-    //     imageUrl: "https://via.placeholder.com/300",
-    //     sizes: ["XXL", "XL", "L"],
-    //     colors: ["Blue", "White", "Green"], // Example colors
-    // };
     const initProduct = async () => {
-        const res = await fetchDataProductAPI();
+        const res = await fetchDataProductById(id);
         setProduct(res.data.data)
-
+        console.log("check res", res)
     }
 
 
     const initSize = async () => {
         const res = await fetchDataSize();
         setSize(res.data.data)
+
     }
 
     const initColor = async () => {
@@ -43,7 +37,7 @@ const ProductDetailPage = () => {
     const [selectedSize, setSelectedSize] = useState('');
     const [selectedColor, setSelectedColor] = useState('');
     const [quantity, setQuantity] = useState(1);
-
+    // console.log("Check product", product)
     return (
         <div className="product-detail">
             <div className="product-info">
