@@ -4,38 +4,6 @@ import "./header.css";
 import { Link, NavLink } from "react-router-dom";
 import CartDrawer from "../../../cart/cart.drawer";
 import { useState } from "react";
-<<<<<<< HEAD
-const items = [
-  {
-    key: "1",
-    label: <NavLink to={"/"}>Bóng chuyền</NavLink>,
-  },
-  {
-    key: "2",
-    label: <NavLink to={"/"}>Bóng đá</NavLink>,
-  },
-  {
-    key: "3",
-    label: <NavLink to={"/"}>Chạy ban</NavLink>,
-  },
-];
-const users = [
-  {
-    key: "1",
-    label: <NavLink to={"/login"}>Login</NavLink>,
-  },
-  {
-    key: "2",
-    label: <NavLink to={"/register"}>Register</NavLink>,
-  },
-  {
-    key: "2",
-    label: <NavLink to={"/my-profile"}>View account</NavLink>,
-  },
-];
-const Header = () => {
-=======
->>>>>>> c3853d9 (option language)
 
 const items = [
   { key: "1", label: <NavLink to={"/"}>Bóng chuyền</NavLink> },
