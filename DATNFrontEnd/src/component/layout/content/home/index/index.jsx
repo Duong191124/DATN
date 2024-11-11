@@ -1,5 +1,5 @@
 import { FilterTwoTone, ReloadOutlined } from '@ant-design/icons';
-import { Row, Col, Form, Checkbox, Divider, InputNumber, Button } from 'antd';
+import { Row, Col, Form, Checkbox, Divider, InputNumber, Button, Empty } from 'antd'; // Thêm Empty từ Ant Design
 import { useEffect, useState } from 'react';
 import './home.css';
 import { fetchDataCategory, fetchDataProductAPI } from '../../../../../service/api.service';
@@ -32,11 +32,12 @@ const Home = () => {
             const res = await fetchDataProductAPI();
             if (res.data && res.data.data) {
                 const product = res.data.data.map(item => ({
-                    title: item.name,        // Lấy tên sản phẩm từ API
-                    price: item.price,       // Lấy giá sản phẩm từ API
-                    image: item.image
+                    title: item.name,
+                    price: item.price,
+                    image: item.image,
+                    id: item.id
                 }));
-                setListProduct(product)
+                setListProduct(product);
             }
         };
         initProduct();
@@ -100,7 +101,7 @@ const Home = () => {
                                             </Form.Item>
                                         </Col>
                                         <Col xl={2} md={0}>
-                                            <div > - </div>
+                                            <div> - </div>
                                         </Col>
                                         <Col xl={11} md={24}>
                                             <Form.Item name={["range", 'to']} >
@@ -123,19 +124,25 @@ const Home = () => {
                     </Col>
                     <Col md={20} sm={24} xs={24}>
                         <div className="customize-row" style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '5px' }}>
-                            {listProduct?.map((product, index) => (
-                                <div className="column" key={index}>
-                                    <div className="wrapper">
-                                        <Link to={`/product/${product.id}`}>
-                                            <img src={product.image} alt="product" />
-                                        </Link>
-                                        <div className="text">{product.title}</div>
-                                        <div className="price">
-                                            {product.price} đ
+                            {listProduct?.length === 0 ? (
+                                <div className="empty-message-container">
+                                    <Empty description="Không có sản phẩm" />
+                                </div>
+                            ) : (
+                                listProduct?.map((product, index) => (
+                                    <div className="column" key={index}>
+                                        <div className="wrapper">
+                                            <Link to={`/product/${product.id}`}>
+                                                <img src={product.image} alt="product" />
+                                            </Link>
+                                            <div className="text">{product.title}</div>
+                                            <div className="price">
+                                                {product.price} đ
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))
+                            )}
                         </div>
                     </Col>
                 </Row>

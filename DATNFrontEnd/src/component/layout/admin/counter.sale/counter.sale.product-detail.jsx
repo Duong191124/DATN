@@ -17,7 +17,6 @@ const { Option } = Select;
 const CounterSalesProductDetail = ({
   dataProductDetail,
   onAddToCart,
-  selectedBill,
   filter,
   setFilter,
   page,
@@ -64,8 +63,13 @@ const CounterSalesProductDetail = ({
       dataIndex: "quantity",
     },
     {
-      title: "Giá",
-      dataIndex: "price",
+      title: "Giá Mặc Định",
+      dataIndex: "defaultPrice",
+      render: (text) => `${text?.toLocaleString()} VNĐ` || "Chưa có giá",
+    },
+    {
+      title: "Giá Khuyến Mãi",
+      dataIndex: "discountPrice",
       render: (text) => `${text?.toLocaleString()} VNĐ` || "Chưa có giá",
     },
     {
@@ -94,17 +98,21 @@ const CounterSalesProductDetail = ({
             return "Trạng Thái Không Xác Định";
         }
       },
-
-
-
     },
     {
       title: "Thêm vào giỏ",
       render: (_, record) => (
         <Button
           disabled={record.quantity === 0 || record.status === 2}
-          style={{ opacity: record.quantity === 0 || record.status === 2 ? 0.5 : 1 }}
-          onClick={() => handleAddToCart(record)}
+          style={{
+            opacity: record.quantity === 0 || record.status === 2 ? 0.5 : 1,
+          }}
+          onClick={() => {
+            const addToCart = handleAddToCart(record);
+            if (addToCart) {
+              handleConfirm();
+            }
+          }}
         >
           Thêm vào giỏ
         </Button>
@@ -112,44 +120,43 @@ const CounterSalesProductDetail = ({
     },
   ];
 
-  const updatedDataProductDetail = dataProductDetail.map(item => ({
+  const updatedDataProductDetail = dataProductDetail.map((item) => ({
     ...item,
     status:
       item.product?.status === 0 ||
-        item.size?.status === 0 ||
-        item.color?.status === 0 ||
-        item.sleeve?.status === 0 ||
-        item.collar?.status === 0 ||
-        item.brand?.status === 0
+      item.size?.status === 0 ||
+      item.color?.status === 0 ||
+      item.sleeve?.status === 0 ||
+      item.collar?.status === 0 ||
+      item.brand?.status === 0
         ? 2
         : item.quantity > 0
-          ? 1
-          : 0, // Xét điều kiện trạng thái
+        ? 1
+        : 0, // Xét điều kiện trạng thái
   }));
 
   const handleAddToCart = (record) => {
     setSelectedRow(record);
-    setQuantity(1); // Reset quantity when opening modal
-    setModalVisible(true);
+    setQuantity(1);
+    return true;
+    // setModalVisible(true);
+    // handleConfirm();
   };
 
-  const handleConfirm = () => {
-    // Kiểm tra xem số lượng nhập vào có lớn hơn số lượng tồn kho không
+  const handleConfirm = async () => {
     if (quantity > selectedRow.quantity) {
       notification.warning({
         message: "Số lượng không đủ",
         description: `Sản phẩm chỉ còn ${selectedRow.quantity} trong kho. Vui lòng giảm số lượng.`,
       });
-      return; // Dừng nếu số lượng không hợp lệ
+      return false;
     }
-
     const productToAdd = {
       ...selectedRow,
       quantity,
     };
-
     if (selectedRow.productResponse && selectedRow.productResponse.name) {
-      const addCart = onAddToCart(productToAdd, quantity);
+      const addCart = await onAddToCart(productToAdd, quantity);
       if (addCart) {
         notification.success({
           message: "Thêm sản phẩm",
@@ -162,8 +169,7 @@ const CounterSalesProductDetail = ({
         description: "Sản phẩm không có thông tin hợp lệ.",
       });
     }
-
-    setModalVisible(false);
+    // setModalVisible(false);
     setQuantity(1);
   };
 
@@ -283,8 +289,9 @@ const CounterSalesProductDetail = ({
         }}
       />
       <Modal
-        title={`Nhập số lượng cho sản phẩm ${selectedRow?.productResponse?.name || "N/A"
-          }`}
+        title={`Nhập số lượng cho sản phẩm ${
+          selectedRow?.productResponse?.name || "N/A"
+        }`}
         visible={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={[
@@ -324,7 +331,7 @@ const CounterSalesProductDetail = ({
                 <strong>Màu:</strong> {selectedRow.color?.name || "N/A"}
               </div>
               <div>
-                <strong>Giá:</strong> {selectedRow.price?.toLocaleString()} VNĐ
+                <strong>Giá:</strong> {selectedRow.defaultPrice?.toLocaleString()} VNĐ
               </div>
             </div>
           </div>

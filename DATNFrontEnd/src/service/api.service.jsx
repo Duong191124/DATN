@@ -94,7 +94,7 @@ const updateProductAPI = (
     category_id: category_id,
     brand_id: brand_id,
     collar_id: collar_id,
-    status: status
+    status: status,
   };
   return axios.put(URL_BACKEND, data);
 };
@@ -142,13 +142,20 @@ const fetchDataPageAndFilterProduct = async (
   return axios.get(URL_BACKEND, { params });
 };
 
-
-
-
 const fetchDataProductAPI = () => {
   const URL_BACKEND = "/api/v1/products/getAllProduct";
   return axios.get(URL_BACKEND);
 };
+
+
+const fetchDataProductById = (id) => {
+  const URL_BACKEND = `/api/v1/products/productId/${id}`
+  return axios.get(URL_BACKEND)
+}
+
+
+
+
 
 const fetchDataSleeve = () => {
   const URL_BACKEND = "/api/v1/sleeves";
@@ -178,6 +185,10 @@ const checkDuplicateProductAPI = async (type, value) => {
 //   const URL_BACKEND = "api/v1/orders/list";
 //   return axios.get(URL_BACKEND);
 // };
+const fetchPendingOrders = (staffId) => {
+  const URL_BACKEND = `api/v1/orders/pending?staffId=${staffId}`;
+  return axios.get(URL_BACKEND);
+};
 const fetchPageDataProductDetail = async (
   productName,
   code,
@@ -252,8 +263,27 @@ const updateStatusOrder = (orderId, status) => {
   };
   return axios.put(URL_BACKEND, data);
 };
+const updateProductDetailWithOrder = (orderId, productDetail) => {
+  const URL_BACKEND = `api/v1/orders/update-productDetail/${orderId}`;
+  const data = productDetail.map(
+    (item) => (
+      console.log("item", item),
+      {
+        product_detail_id: item.product_detail_id,
+        quantity: item.quantity,
+      }
+    )
+  );
+  console.log("Request Data:", data);
+  return axios.put(URL_BACKEND, data);
+};
+
 const orderStaffFindById = (staffId) => {
   const URL_BACKEND = `api/v1/staff/${staffId}`;
+  return axios.get(URL_BACKEND);
+};
+const orderFindByCode = (code) => {
+  const URL_BACKEND = `api/v1/orders/find?code=${code}`;
   return axios.get(URL_BACKEND);
 };
 const orderProductDetail = () => {
@@ -347,7 +377,7 @@ const fetchDataSize = () => {
 const createProductDetailAPi = (
   code,
   quantity,
-  price,
+  defaultPrice,
   productId,
   sizeId,
   colorId
@@ -356,7 +386,7 @@ const createProductDetailAPi = (
   const data = {
     code: code,
     quantity: quantity,
-    price: price,
+    defaultPrice: defaultPrice,
     productId: productId,
     sizeId: sizeId,
     colorId: colorId,
@@ -368,7 +398,7 @@ const updateProductDetailAPi = (
   id,
   code,
   quantity,
-  price,
+  defaultPrice,
   productId,
   sizeId,
   colorId,
@@ -378,11 +408,11 @@ const updateProductDetailAPi = (
   const data = {
     code: code,
     quantity: quantity,
-    price: price,
+    defaultPrice: defaultPrice,
     productId: productId,
     sizeId: sizeId,
     colorId: colorId,
-    status: status
+    status: status,
   };
   return axios.put(URL_BACKEND, data);
 };
@@ -390,6 +420,10 @@ const updateProductDetailAPi = (
 const deleteProductDetailAPI = (id) => {
   const URL_BACKEND = `/api/v1/productDetail/${id}`;
   return axios.delete(URL_BACKEND);
+};
+const findByProductDetailId = (id) => {
+  const URL_BACKEND = `/api/v1/productDetail/detail/${id}`;
+  return axios.get(URL_BACKEND);
 };
 //API color
 const fetchDataColor = () => {
@@ -677,12 +711,10 @@ const createPromotion = async (data) => {
     const response = await axios.post(URL_BACKEND, data);
     return response; // Trả về phản hồi nếu thành công
   } catch (error) {
-
     return {
       data: null,
       message: error.response ? error.response.data : error.message,
     }; // Trả về thông tin lỗi
-
   }
 };
 // Hàm cập nhật khuyến mãi
@@ -720,10 +752,18 @@ const updatePromotionProduct = async (id, payload) => {
     const response = await axios.put(URL_BACKEND, payload);
     return response.data; // Trả về dữ liệu từ phản hồi
   } catch (error) {
-    console.error("Error updating promotion product:", error);
+    // In chi tiết lỗi từ Axios để giúp debug dễ dàng hơn
+    if (error.response) {
+      console.error("Error response:", error.response.data);
+    } else if (error.request) {
+      console.error("Error request:", error.request);
+    } else {
+      console.error("Error message:", error.message);
+    }
     throw error; // Ném lỗi để xử lý ở nơi gọi hàm
   }
 };
+
 const chandleStatusPromotion = (id) => {
   const URL_BACKEND = `/api/v1/promotion/${id}/status`;
   return axios.put(URL_BACKEND);
@@ -807,12 +847,10 @@ const updateVoucher = async (
 };
 
 const updateVoucherCustomer = async (id, payload) => {
-
   // Kiểm tra id trước khi xây dựng URL
   if (!id) {
     throw new Error("Voucher ID is required");
   }
-
 
   const URL_BACKEND = `/api/v1/voucher/${id}/customer`;
   try {
@@ -905,10 +943,6 @@ const softDelete = (id) => {
 //Cart Detail
 const fetchDataAPICartDetail = () => {
   const URL_BACKEND = "/api/v1/cartDetail";
-  return axios.get(URL_BACKEND)
-}
-const findByProductDetailId = (id) => {
-  const URL_BACKEND = `/api/v1/productDetail/detail/${id}`;
   return axios.get(URL_BACKEND);
 };
 
@@ -945,6 +979,7 @@ const updatePassword = (email, code, newPassword) => {
 
 export {
   fetchDataProduct,
+  fetchDataProductById,
   findByProductDetailId,
   updatePassword,
   requetsForgotPassword,
@@ -1039,7 +1074,8 @@ export {
   fetchPageDataProductDetail,
   checkDuplicateProductAPI,
   checkCodeExistsAPI,
-
   getUserInfo,
+  updateProductDetailWithOrder,
+  fetchPendingOrders,
+  orderFindByCode,
 };
-

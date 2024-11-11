@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.OrderDTO;
 import com.example.demo.entity.Notice;
 import com.example.demo.entity.OrderStatus;
+import com.example.demo.request.OrderDetailRequest;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.OrderPageResponse;
 import com.example.demo.response.OrderResponse;
@@ -39,6 +40,11 @@ public class  OrderController {
         else {
             return ResponseEntity.ok(new MessageReponse("success",200,lstOrderResponses));
         }
+    }
+    @GetMapping("/pending")
+        public ResponseEntity<?> getPendingOrdersByStaff(@RequestParam Integer staffId) {
+        List<OrderResponse> pendingOrders = orderService.getPendingOrdersByStaff(staffId);
+        return ResponseEntity.ok(new MessageReponse("successful",200,pendingOrders));
     }
     @GetMapping("/get-page")
     public ResponseEntity<OrderPageResponse> getOrdersByKeyword(
@@ -94,11 +100,23 @@ public class  OrderController {
                 ResponseEntity.ok(new MessageReponse("orderDto null",400,null));
             }
             OrderResponse OrderResponse = orderService.updatedOrder(id,orderDTO);
-            return ResponseEntity.ok(new MessageReponse("updated to ordered successfully",200,OrderResponse));
+            return ResponseEntity.ok(new MessageReponse("updated to ordered successfully",201,OrderResponse));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    @PutMapping("/update-productDetail/{id}")
+    public ResponseEntity<?> updateOrderWithProductDetail(
+            @PathVariable int id,
+            @RequestBody List<OrderDetailRequest> orderDetailRequests) {
+        try {
+            OrderResponse orderResponse = orderService.updatedOrderWithProductDetail(id, orderDetailRequests);
+            return ResponseEntity.ok(new MessageReponse("Updated order successfully", 201, orderResponse));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PutMapping("update-status/{id}")
     public ResponseEntity<?> updateOrder(@PathVariable int id, @RequestBody Map<String, String> payload){
         String status = payload.get("status");
@@ -125,9 +143,9 @@ public class  OrderController {
         }
     }
     @GetMapping("/find")
-    public ResponseEntity<?> findByIdOrder(@RequestParam int id){
+    public ResponseEntity<?> findByIdOrder(@RequestParam String code){
         try {
-            OrderResponse orderDTOFind = orderService.findById(id);
+            OrderResponse orderDTOFind = orderService.findByCode(code);
             return ResponseEntity.ok(new MessageReponse("found success",200,orderDTOFind));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
