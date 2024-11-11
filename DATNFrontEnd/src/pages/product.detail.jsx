@@ -21,6 +21,7 @@ const ProductDetail = () => {
     }
   };
 
+
   useEffect(() => {
     loadProductDetail();
   }, [productId]);
