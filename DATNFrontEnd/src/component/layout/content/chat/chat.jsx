@@ -5,18 +5,32 @@ import { ChatService } from "../../../../service/chat.service/chat.service";
 
 const ChatBox = () => {
   const [messages, setMessages] = useState([
-    { content: "Hello!Can I help you?", sender: "bot" },
+    { content: "Hello! Can I help you?", sender: "bot" },
   ]);
   const [input, setInput] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [typingUser, setTypingUser] = useState(false);
   const [typingBot, setTypingBot] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const chatboxRef = useRef(null);
   const messagesEndRef = useRef(null);
 
+  // Lấy dữ liệu chat từ local storage khi khởi tạo component
+  useEffect(() => {
+    const savedMessages = localStorage.getItem("chatMessages");
+    if (savedMessages) {
+      setMessages(JSON.parse(savedMessages));
+    }
+  }, []);
+
+  // Lưu dữ liệu chat vào local storage mỗi khi messages thay đổi
+  useEffect(() => {
+    localStorage.setItem("chatMessages", JSON.stringify(messages));
+  }, [messages]);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    console.log("scroll: ")
+    console.log("scroll: ");
   };
 
   const toggleChatBox = () => {
@@ -30,6 +44,7 @@ const ChatBox = () => {
     setInput("");
     setTypingUser(false);
     setTypingBot(true);
+
     try {
       const response = await ChatService(messageContent);
       const botMessage = response.data;
@@ -47,11 +62,13 @@ const ChatBox = () => {
       setTypingBot(false);
     }
   };
+
   const handleClickOutside = (event) => {
     if (chatboxRef.current && !chatboxRef.current.contains(event.target)) {
       setIsOpen(false);
     }
   };
+
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
@@ -79,59 +96,60 @@ const ChatBox = () => {
       </div>
       {isOpen && (
         <div className="chatbox-content">
-          <div
-            className="chatbox-messages"
-          >
+          <div className="chatbox-messages">
             {messages.map((msg, index) => (
               <div key={index} className={`chatbox-message ${msg.sender}`}>
                 {msg.content}
               </div>
             ))}
-            {typingUser && (
-              <>
-                <div className="typing-user">
-                  <span className="typing-load-send">texting</span>
-                  <span className="typing-indicator"> ...</span>
-                </div>
-              </>
-            )}
             {typingBot && (
-              <>
-                <div className="chatbox-message bot"></div>
+              <div className="chatbox-message bot">
                 <div className="typing-boot">
-                  ai đó đang soạn <span className="typing-indicator">...</span>
+                  Texting <span className="typing-indicator">...</span>
                 </div>
-              </>
+              </div>
             )}
-            <div ref={messagesEndRef} style={{
-              marginTop: 140
-            }} />
+            <div ref={messagesEndRef} style={{ marginTop: 140 }} />
           </div>
           <div className="chatbox-bottom">
             <div className="chatbox-suggestions">
-              <button onClick={() => sendMessage("help")}>Help</button>
-              <button onClick={() => sendMessage("order problem")}>
-                Order problem
-              </button>
-              <button onClick={() => sendMessage("support")}>Support</button>
+              <button onClick={() => sendMessage("How long does it take shipping?")}>shipping</button>
+              <button onClick={() => sendMessage("Can I change my order after it has been placed")}>Order</button>
+              <button onClick={() => sendMessage("What are your customer service hours?")}>Service</button>
+              <button onClick={() => sendMessage("Hey! Need any help?")}>Support</button>
             </div>
             <div className="chatbox-input">
               <input
+                disabled={typingBot || isLoading}
                 type="text"
                 value={input}
                 onChange={(e) => {
                   setInput(e.target.value);
-                  setTypingUser(true); // Hiển thị thông báo đang soạn khi người dùng nhập
+                  setTypingUser(true);
                 }}
-                placeholder="Nhập tin nhắn..."
-                onBlur={() => setTypingUser(false)} // Ngừng hiển thị khi rời khỏi input
+                placeholder="Send text."
+                onBlur={() => setTypingUser(false)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !typingBot && input.trim() !== "") {
+                    setIsLoading(true);
+                    sendMessage(input).finally(() => {
+                      setIsLoading(false);
+                    });
+                  }
+                }}
               />
               <button
+                disabled={typingBot || isLoading || input.trim() === ""}
                 onClick={() => {
-                  sendMessage(input);
+                  if (!typingBot && input.trim() !== "") {
+                    setIsLoading(true);
+                    sendMessage(input).finally(() => {
+                      setIsLoading(false);
+                    });
+                  }
                 }}
               >
-                Gửi
+                Send
               </button>
             </div>
           </div>

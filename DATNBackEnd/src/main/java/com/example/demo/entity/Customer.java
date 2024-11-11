@@ -1,12 +1,11 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.ServiceLoader;
 import java.util.Set;
 
 @Entity
@@ -52,6 +51,16 @@ public class Customer extends BaseEntity {
     @Basic
     @Column(name = "gender")
     private int gender;
-
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "customer_voucher",
+            joinColumns = @JoinColumn(name = "customer_id"),
+            inverseJoinColumns = @JoinColumn(name = "voucher_id")
+    )
+    @JsonBackReference
+    private Set<Voucher> vouchers;
+    @OneToOne
+    @JoinColumn(name = "reset_request_id", referencedColumnName = "id")
+    private PasswordResetRequest passwordResetRequest;
 
 }

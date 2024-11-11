@@ -146,6 +146,12 @@ const fetchDataProductAPI = () => {
   return axios.get(URL_BACKEND);
 };
 
+
+const fetchDataProductById = (id) => {
+  const URL_BACKEND = `/api/v1/products/productId/${id}`
+  return axios.get(URL_BACKEND)
+}
+
 const fetchDataSleeve = () => {
   const URL_BACKEND = "/api/v1/sleeves";
   return axios.get(URL_BACKEND);
@@ -720,6 +726,10 @@ const updatePromotionProduct = async (id, payload) => {
     throw error; // Ném lỗi để xử lý ở nơi gọi hàm
   }
 };
+const chandleStatusPromotion = (id) => {
+  const URL_BACKEND = `/api/v1/promotion/${id}/status`;
+  return axios.put(URL_BACKEND);
+}
 
 const detailPromotion = (id) => {
   const URL_BACKEND = `/api/v1/promotion/detail/${id}`;
@@ -823,13 +833,15 @@ const updateVoucherCustomer = async (id, payload) => {
     throw error;
   }
 };
-
 //api crud customer
 const getAllCustomer = (page, size) => {
   const URL_BACKEND = `/api/v1/customer/getAll?page=${page}&size=${size}`;
   return axios.get(URL_BACKEND);
 };
-
+const chandleStatus = (id) => {
+  const URL_BACKEND = `/api/v1/voucher/${id}/status`;
+  return axios.put(URL_BACKEND);
+}
 const updateCustomer = (
   id,
   username,
@@ -897,8 +909,40 @@ const fetchDataAPICartDetail = () => {
   const URL_BACKEND = "/api/v1/cartDetail";
   return axios.get(URL_BACKEND)
 }
+const findByProductDetailId = (id) => {
+  const URL_BACKEND = `/api/v1/productDetail/detail/${id}`;
+  return axios.get(URL_BACKEND);
+};
+
+//API notice
+
+const fetchDataNotice = () => {
+  const URL_BACKEND = "/api/v1/notice/getAll";
+  return axios.get(URL_BACKEND);
+}
+//API for forgot password
+const requetsForgotPassword = (email) => {
+  const URL_BACKEND = "/api/v1/auth/request-reset-password";
+  return axios.post(URL_BACKEND, {
+    email
+  });
+}
+
+const updatePassword = (email, code, newPassword) => {
+  const URL_BACKEND = "/api/v1/auth/confirm-set-password";
+  return axios.post(URL_BACKEND, {
+    email,
+    code,
+    newPassword
+  });
+}
 
 export {
+  fetchDataProductById,
+  findByProductDetailId,
+  updatePassword,
+  requetsForgotPassword,
+  fetchDataNotice,
   fetchDataAPICartDetail,
   fetchDataPageAndFilterProduct,
   updateStatus,
@@ -911,6 +955,7 @@ export {
   uploadImageAPI,
   fetchDataPromotion,
   createPromotion,
+  chandleStatusPromotion,
   deletePromotionAPI,
   updatePromotion,
   updatePromotionProduct,
@@ -921,6 +966,7 @@ export {
   fetchVoucherById,
   updateVoucher,
   updateVoucherCustomer,
+  chandleStatus,
   updateStaffPermissions,
   deleteStaff,
   registerCustomerAPI,

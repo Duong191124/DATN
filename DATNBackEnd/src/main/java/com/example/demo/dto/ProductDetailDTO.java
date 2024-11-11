@@ -20,8 +20,8 @@ public class ProductDetailDTO {
     @Min(value = 0, message = "Quantity must be at least 0")
     private int quantity;
 
-    @NotNull(message = "Price is required")
-    @Positive(message = "Price must be greater than 0")
+//    @NotNull(message = "Price is required")
+//    @Positive(message = "Price must be greater than 0")
     private double price;
 
     @Size(max = 255, message = "Image path cannot exceed 255 characters")

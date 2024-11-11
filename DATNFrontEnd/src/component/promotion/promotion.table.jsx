@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Table, Space, Modal, notification, Button } from "antd";
-import { EditOutlined, DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
-import { deletePromotionAPI, fetchDataProductDetail } from '../../service/api.service';
+import { Table, Space, Modal, notification, DatePicker, Button, Input } from 'antd';
+import { SearchOutlined, EditOutlined, DeleteOutlined, PlusCircleOutlined, RetweetOutlined } from '@ant-design/icons';
+import { chandleStatusPromotion, deletePromotionAPI, fetchDataProductDetail } from '../../service/api.service';
 import PromotionUpdate from "./promotion.update";
-import ProductDetailModal from './promotion.product'; // Import modal chi tiết sản phẩm
+import ProductDetailModal from './promotion.product';
 
 const PromotionTable = (props) => {
     const { loadData, dataPromotion } = props;
@@ -17,22 +17,35 @@ const PromotionTable = (props) => {
         current: 1,
         pageSize: 5,
     });
-    const [promotionId, setPromotionId] = useState(null); // Định nghĩa promotionId
-    const [selectedDetails, setSelectedDetails] = useState([]); // Định nghĩa selectedDetails
+    const [promotionId, setPromotionId] = useState(null);
+    const [selectedDetails, setSelectedDetails] = useState([]);
 
+    const isPromotionActive = (endDate) => {
+        const currentDate = new Date();
+        const promotionEndDate = new Date(endDate);
+        return promotionEndDate >= currentDate;
+    };
 
-    const showDeleteConfirm = (id) => {
+    const showDeleteConfirm = (id, productDetailsIds) => {
         Modal.confirm({
             title: 'Bạn có muốn xóa khuyến mãi này không?',
             content: 'Sau khi xóa, bạn sẽ không thể phục hồi dữ liệu này.',
             okText: 'Có',
             okType: 'danger',
             cancelText: 'Không',
-            onOk: () => handleDelete(id),
+            onOk: () => handleDelete(id, productDetailsIds),
         });
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (id, productDetailsIds) => {
+        if (productDetailsIds && productDetailsIds.length > 0) {
+            notification.warning({
+                message: "Xóa Khuyến Mại",
+                description: "Không thể xóa khuyến mãi đang được áp dụng cho sản phẩm.",
+            });
+            return;
+        }
+
         try {
             const res = await deletePromotionAPI(id);
             if (res.status === 200) {
@@ -40,7 +53,7 @@ const PromotionTable = (props) => {
                     message: "Xóa Khuyến Mại",
                     description: "Xóa khuyến mại thành công."
                 });
-                loadData(); // Gọi lại hàm loadData sau khi xóa thành công
+                loadData();
             } else {
                 notification.error({
                     message: "Xóa Khuyến Mại",
@@ -55,19 +68,19 @@ const PromotionTable = (props) => {
         }
     };
 
-    // Hiển thị modal chi tiết sản phẩm
     const showProductDetails = async (productDetailsIds, promotionId) => {
+        
         try {
             const res = await fetchDataProductDetail();
             if (res && res.data.data) {
-                // Lọc chỉ sản phẩm có id trong productDetailsIds
                 const filteredProductDetails = res.data.data.filter(product =>
                     productDetailsIds.includes(product.id)
                 );
-                setProductDetails(filteredProductDetails); // Cập nhật danh sách chi tiết sản phẩm
-                setSelectedProductIds(productDetailsIds); // Lưu lại product details đã được chọn
-                setPromotionId(promotionId); // Lưu promotionId
-                setIsProductDetailModalVisible(true); // Hiển thị modal
+                setProductDetails(filteredProductDetails);
+                setSelectedProductIds(productDetailsIds);
+                setPromotionId(promotionId);
+               
+                setIsProductDetailModalVisible(true);
             }
         } catch (error) {
             notification.error({
@@ -77,10 +90,50 @@ const PromotionTable = (props) => {
         }
     };
 
-    // Cập nhật modal chi tiết sản phẩm sau khi người dùng áp dụng thay đổi
+    const isEndDateValid = (endDate) => {
+        const currentDate = new Date();
+        const promotionEndDate = new Date(endDate);
+        return promotionEndDate > currentDate;
+    };
+
+    const handleChangeStatus = async (id, endDate) => {
+        if (!isEndDateValid(endDate)) {
+            notification.warning({
+                message: "Không thể thay đổi trạng thái",
+                description: "Khuyến mãi không thể thay đổi trạng thái vì ngày kết thúc đã qua.",
+            });
+            return;
+        }
+
+        try {
+            // Gọi API để cập nhật trạng thái
+            const response = await chandleStatusPromotion(id);
+            console.log(response); // Kiểm tra phản hồi từ API
+            if (response.status === 200 || response.status === 204) {
+                // Cập nhật trạng thái trong danh sách khuyến mãi
+                loadData(); // Gọi lại hàm loadData để tải lại dữ liệu từ server
+                notification.success({
+                    message: "Cập nhật trạng thái",
+                    description: `Thay đổi trạng thái khuyến mãi thành công.`,
+                });
+            } else {
+                notification.error({
+                    message: "Cập nhật trạng thái",
+                    description: "Đã có lỗi xảy ra khi thay đổi trạng thái khuyến mãi.",
+                });
+            }
+        } catch (error) {
+            notification.error({
+                message: "Cập nhật trạng thái",
+                description: "Đã có lỗi xảy ra khi thay đổi trạng thái khuyến mãi.",
+            });
+        }
+    };
+
+
     const handleApplyProductDetails = (selectedIds) => {
         setSelectedProductIds(selectedIds);
-        setIsProductDetailModalVisible(false); // Đóng modal sau khi áp dụng
+        setIsProductDetailModalVisible(false);
     };
 
     const columns = [
@@ -96,6 +149,37 @@ const PromotionTable = (props) => {
         {
             title: 'Tên',
             dataIndex: 'name',
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                <div style={{ padding: 8 }}>
+                    <Input
+                        placeholder="Nhập tên"
+                        value={selectedKeys[0] || ''}
+                        onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                        style={{ marginBottom: 8, display: 'block' }}
+                    />
+                    <Space>
+                        <Button
+                            type="primary"
+                            onClick={() => confirm()}
+                            icon={<SearchOutlined />}
+                            size="small"
+                            style={{ width: 90 }}
+                        >
+                            Tìm kiếm
+                        </Button>
+                        <Button
+                            onClick={() => clearFilters()}
+                            size="small"
+                            style={{ width: 90 }}
+                        >
+                            Xóa
+                        </Button>
+                    </Space>
+                </div>
+            ),
+            onFilter: (value, record) => {
+                return record.name.toLowerCase().includes(value[0].toLowerCase());
+            },
         },
         {
             title: 'Mô tả',
@@ -104,25 +188,164 @@ const PromotionTable = (props) => {
         {
             title: 'Ngày bắt đầu',
             dataIndex: 'startDate',
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                <div style={{ padding: 8 }}>
+                    <DatePicker.RangePicker
+                        onChange={(dates) => {
+                            if (dates) {
+                                const [start, end] = dates;
+                                setSelectedKeys([[start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD')]]);
+                            } else {
+                                setSelectedKeys([]);
+                            }
+                        }}
+                        style={{ width: '100%' }}
+                    />
+                    <Space style={{ marginTop: '8px' }}>
+                        <Button
+                            type="primary"
+                            onClick={() => confirm()}
+                            icon={<SearchOutlined />}
+                            size="small"
+                            style={{ borderRadius: '5px', marginRight: '8px' }}
+                        >
+                            Tìm kiếm
+                        </Button>
+                    </Space>
+                </div>
+            ),
+            onFilter: (value, record) => {
+                if (!value || value.length === 0) return true; // Thêm điều kiện này
+                const [startDate, endDate] = value;
+                const recordDate = new Date(record.startDate);
+                return recordDate >= new Date(startDate) && recordDate <= new Date(endDate);
+            },
         },
         {
             title: 'Ngày kết thúc',
             dataIndex: 'endDate',
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                <div style={{ padding: 8 }}>
+                    <DatePicker.RangePicker
+                        onChange={(dates) => {
+                            if (dates) {
+                                const [start, end] = dates;
+                                setSelectedKeys([[start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD')]]);
+                            } else {
+                                setSelectedKeys([]);
+                            }
+                        }}
+                        style={{ width: '100%' }}
+                    />
+                    <Space style={{ marginTop: '8px' }}>
+                        <Button
+                            type="primary"
+                            onClick={() => confirm()}
+                            icon={<SearchOutlined />}
+                            size="small"
+                            style={{ borderRadius: '5px', marginRight: '8px' }}
+                        >
+                            Tìm kiếm
+                        </Button>
+                    </Space>
+                </div>
+            ),
+            onFilter: (value, record) => {
+                if (!value || value.length === 0) return true; // Thêm điều kiện này
+                const [startDate, endDate] = value;
+                const recordDate = new Date(record.endDate);
+                return recordDate >= new Date(startDate) && recordDate <= new Date(endDate);
+            },
         },
         {
             title: 'Phần trăm giảm giá(%)',
             dataIndex: 'discountPercent',
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                <div style={{ padding: 8 }}>
+                    <Input
+                        placeholder="Nhập phần trăm"
+                        value={selectedKeys[0] || ''}
+                        onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                        style={{ marginBottom: 8, display: 'block' }}
+                    />
+                    <Space>
+                        <Button
+                            type="primary"
+                            onClick={() => confirm()}
+                            icon={<SearchOutlined />}
+                            size="small"
+                            style={{ width: 90 }}
+                        >
+                            Tìm kiếm
+                        </Button>
+                        <Button
+                            onClick={() => clearFilters()}
+                            size="small"
+                            style={{ width: 90 }}
+                        >
+                            Xóa
+                        </Button>
+                    </Space>
+                </div>
+            ),
+            onFilter: (value, record) => {
+                const filterValue = parseFloat(value);
+                return record.discountPercent >= filterValue; // Hiển thị các bản ghi có discountPercent lớn hơn hoặc bằng giá trị lọc
+            },
         },
         {
             title: 'Số tiền giảm giá(VNĐ)',
             dataIndex: 'discountAmount',
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                <div style={{ padding: 8 }}>
+                    <Input
+                        placeholder="Nhập số tiền"
+                        value={selectedKeys[0] || ''}
+                        onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                        style={{ marginBottom: 8, display: 'block' }}
+                    />
+                    <Space>
+                        <Button
+                            type="primary"
+                            onClick={() => confirm()}
+                            icon={<SearchOutlined />}
+                            size="small"
+                            style={{ width: 90 }}
+                        >
+                            Tìm kiếm
+                        </Button>
+                        <Button
+                            onClick={() => clearFilters()}
+                            size="small"
+                            style={{ width: 90 }}
+                        >
+                            Xóa
+                        </Button>
+                    </Space>
+                </div>
+            ),
+            onFilter: (value, record) => {
+                const filterValue = parseFloat(value);
+                return record.discountAmount >= filterValue; // Hiển thị các bản ghi có discountAmount lớn hơn hoặc bằng giá trị lọc
+            },
         },
         {
             title: 'Trạng thái',
             dataIndex: 'status',
-            render: (status) => (
-                status === 1 ? 'Hoạt động' : 'Ngừng hoạt động'
-            ),
+            filters: [
+                { text: 'Hoạt động', value: 1 },
+                { text: 'Hết hạn', value: 0 },
+            ],
+            onFilter: (value, record) => record.status === value,
+            render: (status) => {
+                const statusText = status === 1 ? "Hoạt động" : "Hết hạn";
+                const statusColor = status === 1 ? "green" : "red"; // Đặt màu sắc tương ứng
+                return (
+                    <span style={{ color: statusColor }}>
+                        {statusText}
+                    </span>
+                );
+            },
         },
         {
             title: 'Thao tác',
@@ -138,17 +361,21 @@ const PromotionTable = (props) => {
                     />
                     <DeleteOutlined
                         style={{ color: 'red', cursor: 'pointer' }}
-                        onClick={() => showDeleteConfirm(record.id)}
+                        onClick={() => showDeleteConfirm(record.id, record.productDetailsId)}
                     />
-                    <InfoCircleOutlined
-                        style={{ color: 'orange', cursor: 'pointer' }}
-                        onClick={() => showProductDetails(record.productDetailsId, record.id)} // Đảm bảo promotionId có giá trị
+                    <PlusCircleOutlined
+                        style={{ color: 'green', cursor: 'pointer' }}
+                        onClick={() => showProductDetails(record.productDetailsId, record.id)}
                     />
-
+                    <RetweetOutlined
+                        style={{ color: 'aqua', cursor: 'pointer' }}
+                        onClick={() => handleChangeStatus(record.id, record.endDate)}
+                    />
                 </Space>
             ),
         },
     ];
+
 
     return (
         <>
@@ -172,14 +399,13 @@ const PromotionTable = (props) => {
                 dataUpdate={dataUpdate}
                 loadData={loadData}
             />
-            {/* Modal chi tiết sản phẩm */}
             <ProductDetailModal
                 isVisible={isProductDetailModalVisible}
                 onClose={() => setIsProductDetailModalVisible(false)}
                 selectedProductDetails={selectedProductIds}
                 onApply={handleApplyProductDetails}
                 id={promotionId}
-                loadData={loadData} // Truyền loadData vào đây
+                loadData={loadData}
             />
         </>
     );

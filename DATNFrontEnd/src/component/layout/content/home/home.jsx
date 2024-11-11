@@ -51,7 +51,13 @@ const Home = () => {
         <div className="product-image">
           <img src={product.image} alt={product.title} />
         </div>
-        <div className="product-content">
+        <div
+          className="product-content"
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}
+        >
           <div className="product-title">{product.title}</div>
           <div className="product-price">{product.price} VNĐ</div>
           <div className="product-size">
@@ -71,9 +77,8 @@ const Home = () => {
             {colors.map((color) => (
               <span
                 key={color}
-                className={`product-color-${color} ${
-                  activeColor === color ? "active" : ""
-                }`}
+                className={`product-color-${color} ${activeColor === color ? "active" : ""
+                  }`}
                 onClick={() => setActiveColor(color)}
                 style={{
                   display: "inline-block",
@@ -88,10 +93,10 @@ const Home = () => {
             ))}
           </div>
           <div className="product-action">
-            <button className="buy">Mua ngay</button>
+            <button className="buy">Detail</button>
             <button className="cart">
               <ShoppingCartOutlined />
-              Thêm vào giỏ
+              Add to cart
             </button>
           </div>
         </div>
@@ -178,7 +183,7 @@ const Home = () => {
   return (
     <>
       <div className="home-container">
-        <div id="slide" ref={slideRef}>
+        <div className="slide" ref={slideRef}>
           {Array.from({ length: 5 }, (_, i) => (
             <div className={`item slide${i + 1}`} key={i}>
               <div className="content">
@@ -192,6 +197,7 @@ const Home = () => {
             </div>
           ))}
         </div>
+
         <div className="button">
           <button id="prev" onClick={prevSlide}>
             <LeftOutlined />
@@ -228,7 +234,7 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <ChatBox /> {}
+      <ChatBox /> { }
     </>
   );
 };

@@ -20,7 +20,7 @@ const PrivateRoute = (props) => {
         <Result
             status="403"
             title="Unauthorize!"
-            subTitle="Bạn cần đăng nhập để truy cập nguồn tài nguyên này."
+            subTitle="bạn không có quyền truy cập!."
             extra={<Button type="primary">
                 <Link to="/">
                     <span>Back to homepage</span>

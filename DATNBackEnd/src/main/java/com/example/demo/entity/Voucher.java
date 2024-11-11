@@ -1,10 +1,12 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 
@@ -46,7 +48,13 @@ public class  Voucher extends BaseEntity {
     @Basic
     @Column(name = "status")
     private int status;
-    @ManyToOne
-    @JoinColumn(name = "customer_id",referencedColumnName = "id")
-    private Customer customer;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "customer_voucher",
+            joinColumns = @JoinColumn(name = "voucher_id"),
+            inverseJoinColumns = @JoinColumn(name = "customer_id")
+    )
+    @JsonManagedReference
+    private Set<Customer> customers;
+
 }
