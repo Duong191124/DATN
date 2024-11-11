@@ -373,7 +373,7 @@ const fetchDataSize = () => {
 const createProductDetailAPi = (
   code,
   quantity,
-  price,
+  defaultPrice,
   productId,
   sizeId,
   colorId
@@ -382,7 +382,7 @@ const createProductDetailAPi = (
   const data = {
     code: code,
     quantity: quantity,
-    price: price,
+    defaultPrice: defaultPrice,
     productId: productId,
     sizeId: sizeId,
     colorId: colorId,
@@ -394,7 +394,7 @@ const updateProductDetailAPi = (
   id,
   code,
   quantity,
-  price,
+  defaultPrice,
   productId,
   sizeId,
   colorId,
@@ -404,7 +404,7 @@ const updateProductDetailAPi = (
   const data = {
     code: code,
     quantity: quantity,
-    price: price,
+    defaultPrice: defaultPrice,
     productId: productId,
     sizeId: sizeId,
     colorId: colorId,
