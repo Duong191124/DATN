@@ -4,7 +4,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.OrderDTO;
 import com.example.demo.entity.OrderStatus;
-import com.example.demo.request.OrderDetailRequest;
+import com.example.demo.request.OrderWithVoucherAndOrderDetailRequest;
 import com.example.demo.response.OrderResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +20,9 @@ public interface OrderService {
     void deletedOrder(Integer id);
     OrderResponse findById(Integer id);
     OrderResponse findByCode(String code);
-    OrderResponse updatedOrderWithProductDetail(Integer id,List<OrderDetailRequest> orderDetailRequests);
+    OrderResponse updatedOrderWithProductDetail(Integer id, OrderWithVoucherAndOrderDetailRequest orderUpdateRequest);
     Page<OrderResponse> pageAll(String staffName, LocalDate startDate, LocalDate  endDate, OrderStatus orderStatus, String orderCode, Pageable pageable);
     List<OrderResponse> getPendingOrdersByStaff(Integer staffId);
+    boolean hasCustomerExitVoucher(int customerId, int voucherId);
+    boolean hasCustomerUsedVoucher(int customerId, int voucherId);
 }

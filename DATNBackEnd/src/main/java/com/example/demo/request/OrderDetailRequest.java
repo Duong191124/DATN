@@ -14,4 +14,6 @@ public class OrderDetailRequest {
     private Integer productDetailId;
     @JsonProperty("quantity")
     private int quantity;
+    @JsonProperty("price")
+    private double price;
 }

@@ -17,8 +17,10 @@ public interface ProductDetailService {
     ProductDetail update(Integer id, ProductDetailDTO pdd) throws  Exception;
 
     ProductDetailResponse getPDById(Integer id) throws Exception;
+    ProductDetailResponse getPDByCode(String code);
 
     void deletePD(Integer id) throws Exception;
+
 
     Page<ProductDetailResponse> pageAndFilterWithProductDetailResponse(String productName, String code, String colorName, String sizeName, Double minPrice,Double maxPrice,Integer status, Pageable pageable);
   

@@ -33,4 +33,6 @@ public interface OrderRepo extends JpaRepository<Orders, Integer> {
     List<Orders> findPendingOrdersByStaffId(@Param("staffId") Integer staffId);
 
     Orders findByCode(String code);
+    List<Orders> findByCustomerId(int customerId);
+    Long countByCustomerIdAndVoucherId(int customerId, int voucherId);
 }

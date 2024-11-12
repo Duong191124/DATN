@@ -37,6 +37,9 @@ public class ProductDetailController {
                                                   @RequestParam(defaultValue = "10") int limit
                                                   ) {
         Pageable pageable = PageRequest.of(page,limit, Sort.by("id").ascending());
+        if (status != null && status == 2) {
+            status = null;
+        }
         Page<ProductDetailResponse> productDetailResponses = productDetailService.pageAndFilterWithProductDetailResponse(productName,code,colorName,sizeName,minPrice,maxPrice,status,pageable);
         return ResponseEntity.ok(new MessageReponse("successfully",200,productDetailResponses));
     }
@@ -85,6 +88,14 @@ public class ProductDetailController {
         try {
             ProductDetailResponse productDetail = productDetailService.getPDById(id);
             return ResponseEntity.ok(new MessageReponse("find product detail successfully with id:"+id,200,productDetail));
+        } catch (Exception e) {
+            return  ResponseEntity.badRequest().body(HttpStatus.NOT_FOUND);
+        }
+    } @GetMapping("detailCode/{code}")
+    public ResponseEntity<?> getProductDetailById(@PathVariable("code") String code) {
+        try {
+            ProductDetailResponse productDetail = productDetailService.getPDByCode(code);
+            return ResponseEntity.ok(new MessageReponse("find product detail successfully with code:"+code,200,productDetail));
         } catch (Exception e) {
             return  ResponseEntity.badRequest().body(HttpStatus.NOT_FOUND);
         }
