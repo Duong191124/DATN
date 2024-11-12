@@ -24,6 +24,7 @@ public class CustomJwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
         // Chuyển đổi danh sách authorities thành danh sách GrantedAuthority
         return authorities.stream()
                 .map(authority -> (Map<String, Object>) authority.get("arg$1")) // Lấy đối tượng quyền
+                .filter(arg -> arg != null && arg.get("name") != null) // Kiểm tra null trước khi lấy quyền
                 .map(arg -> new SimpleGrantedAuthority((String) arg.get("name"))) // Lấy tên quyền
                 .collect(Collectors.toList());
     }

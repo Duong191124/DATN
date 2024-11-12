@@ -37,7 +37,7 @@ public class CartDetailServiceImpl implements CartDetailService {
             throw new Exception("Không đủ số lượng sản phẩm trong kho.");
         }
 
-        double totalPrice = cartDetailDTO.getQuantity() * existingProductDetail.getPrice();
+        double totalPrice = cartDetailDTO.getQuantity() * existingProductDetail.getDefaultPrice();
 
         CartDetail newCartDetail = CartDetail.builder()
                 .quantity(cartDetailDTO.getQuantity())
@@ -64,7 +64,7 @@ public class CartDetailServiceImpl implements CartDetailService {
         CartDetail cartDetail = getCartById(id);
         cartDetail.setQuantity(cartDetailDTO.getQuantity());
         cartDetail.setPrice(cartDetailDTO.getPrice());
-        cartDetail.setTotalPrice(cartDetailDTO.getQuantity() * existingProductDetail.getPrice());
+        cartDetail.setTotalPrice(cartDetailDTO.getQuantity() * existingProductDetail.getDefaultPrice());
         cartDetail.setCustomer(existingCustomer);
         cartDetail.setProductDetail(existingProductDetail);
         CartDetail updateCartDetail = cartDetailRepo.save(cartDetail);

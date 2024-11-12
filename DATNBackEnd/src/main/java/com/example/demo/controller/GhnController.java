@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.GhnDTO;
+import com.example.demo.dto.ServiceGhnDTO;
 import com.example.demo.service.impl.GhnServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,13 +23,14 @@ public class GhnController {
         return ghnService.getDistricts(provinceId);
     }
 
+
     @GetMapping("/wards")
     public String getWards(@RequestParam int districtId) {
         return ghnService.getWards(districtId);
     }
 
     @PostMapping("/shipping-fee")
-    public String getShippingFee(@RequestParam String fromDistrictId, @RequestParam String toDistrictId, @RequestParam String toWardCode) {
-        return ghnService.getShippingFee(fromDistrictId, toDistrictId, toWardCode);
+    public String getShippingFee(@RequestBody GhnDTO ghnDTO) {
+        return ghnService.getShippingFee(ghnDTO);
     }
 }
