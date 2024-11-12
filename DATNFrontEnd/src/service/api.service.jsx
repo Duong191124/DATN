@@ -113,6 +113,10 @@ const fetchAllProduct = (page, pageSize) => {
   const URL_BACKEND = `/api/v1/products?page=${page}&pageSize=${pageSize}`;
   return axios.get(URL_BACKEND);
 };
+const fetchDataProduct = () => {
+  const URL_BACKEND = `/api/v1/products/getAllProduct`;
+  return axios.get(URL_BACKEND);
+}
 
 const fetchDataPageAndFilterProduct = async (
   category_id,
@@ -965,7 +969,16 @@ const updatePassword = (email, code, newPassword) => {
   });
 }
 
+/*
+  API cartDetail
+*/
+
+// const getCartDetailByCustomerId = (customerId) => {
+//   const URL_BACKEND = `/api/v1/`
+// }
+
 export {
+  fetchDataProduct,
   fetchDataProductById,
   findByProductDetailId,
   updatePassword,

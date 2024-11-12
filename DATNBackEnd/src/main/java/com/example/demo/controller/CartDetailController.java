@@ -20,9 +20,9 @@ import java.util.List;
 public class CartDetailController {
     private final CartDetailServiceImpl cartDetailService;
 
-    @GetMapping("")
-    public ResponseEntity<MessageReponse> getAll(){
-        List<CartDetailResponse> cartDetailList = cartDetailService.getAll()
+    @GetMapping("{customerId}")
+    public ResponseEntity<MessageReponse> getAll(@PathVariable("customerId") int customerId){
+        List<CartDetailResponse> cartDetailList = cartDetailService.getAll(customerId)
                 .stream()
                 .map(CartDetailResponse::fromCartDetailResponse)
                 .toList();

@@ -1,7 +1,7 @@
 import { Button, Form, Input, Row, Col, Divider, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useContext } from "react";
-import { loginCustomerAPI } from "../service/api.service";
+import { getUserInfo, loginCustomerAPI } from "../service/api.service";
 import { AuthContext } from "../component/context/auth.context";
 
 const LoginPage = () => {
@@ -11,22 +11,30 @@ const LoginPage = () => {
     const { setUser, setLoginStatus } = useContext(AuthContext);
 
 
-    const onFinish = async (values) => {
-        setLoading(true)
+    const handleLogin = async (values) => {
+        setLoading(true);
         try {
             const res = await loginCustomerAPI(values.username, values.password);
+
             if (res.status === 200 || res.status === 201) {
                 localStorage.setItem("access_token", res.data.token);
-                setUser(res.data.user)
-                setLoginStatus(res.status.toString());
-                message.success("Đăng nhập thành công");
-                if (res.status === 200) {
-                    navigate("/");
-                } else {
-                    navigate("/admin");
+
+                const userInfoRes = await getUserInfo(res.data.token);
+                if (userInfoRes.status === 200) {
+                    localStorage.setItem("user", JSON.stringify(userInfoRes.data));
+                    setUser(userInfoRes.data);
+                    setLoginStatus(res.status.toString());
+
+                    message.success("Đăng nhập thành công");
+
+                    if (res.status === 200) {
+                        navigate("/");
+                    } else {
+                        navigate("/admin");
+                    }
                 }
             }
-            setLoading(false)
+            setLoading(false);
         } catch (error) {
             if (error.response && error.response.status === 401) {
                 form.setFields([
@@ -44,7 +52,11 @@ const LoginPage = () => {
             }
             setLoading(false);
         }
-    }
+    };
+
+    const onFinish = (values) => {
+        handleLogin(values);
+    };
 
     return (
         <Row justify={"center"} style={{ marginTop: "30px" }}>

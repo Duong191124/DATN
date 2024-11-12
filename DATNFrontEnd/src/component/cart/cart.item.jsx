@@ -1,8 +1,39 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from 'antd';
 import { MinusOutlined, PlusOutlined, CloseOutlined } from '@ant-design/icons';
+import { useCart } from '../context/cart.context';
 
-const CartItem = () => {
+const CartItem = ({ setTotalAmount }) => {
+    const { cartItems, removeFromCart } = useCart();
+
+    const calculateTotal = () => {
+        return cartItems.reduce((total, product) => {
+            return total + (product.price * (product.quantity || 1));
+        }, 0);
+    };
+
+    useEffect(() => {
+        const total = calculateTotal();
+        setTotalAmount(total);
+    }, [cartItems, setTotalAmount]);
+
+    return (
+        <div>
+            {cartItems.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '16px', color: 'gray' }}>
+                    Your cart is empty.
+                </div>
+            ) : (
+                cartItems.map((product) => (
+                    <CartItemDetail key={product.id} product={product} removeFromCart={removeFromCart} />
+                ))
+            )}
+        </div>
+    );
+};
+
+const CartItemDetail = ({ product, removeFromCart }) => {
+    console.log(product)
     // State to keep track of the quantity
     const [quantity, setQuantity] = useState(1);
 
@@ -14,6 +45,10 @@ const CartItem = () => {
     // Function to decrease the quantity, but not allowing it to go below 1
     const decreaseQuantity = () => {
         setQuantity(prevQuantity => (prevQuantity > 1 ? prevQuantity - 1 : 1));
+    };
+
+    const handleRemove = () => {
+        removeFromCart(product.id); // Xóa sản phẩm khỏi giỏ hàng
     };
 
     return (
@@ -31,14 +66,14 @@ const CartItem = () => {
             <div style={{ display: 'flex', alignItems: 'center', width: '150px' }}>
                 <img
                     src="https://via.placeholder.com/100" // Thay bằng URL của hình ảnh thực tế
-                    alt="product"
+                    alt={product.name}
                     style={{ width: '80px', height: 'auto' }}
                 />
             </div>
 
             {/* Thông tin sản phẩm */}
             <div style={{ flexGrow: 1, paddingLeft: '16px' }}>
-                <div style={{ fontWeight: 'bold', fontSize: '16px' }}>Kulangot</div>
+                <div style={{ fontWeight: 'bold', fontSize: '16px' }}>{product.name}</div>
                 <div style={{ display: 'flex', gap: '24px', color: 'gray', marginTop: '8px' }}>
                     <div>
                         <div>Quantity</div>
@@ -70,7 +105,7 @@ const CartItem = () => {
             </div>
 
             {/* Giá tiền */}
-            <div style={{ fontWeight: 'bold', fontSize: '18px' }}>$67.00</div>
+            <div style={{ fontWeight: 'bold', fontSize: '18px' }}>${product.price}</div>
 
             {/* Nút Xóa */}
             <div>
@@ -83,6 +118,7 @@ const CartItem = () => {
                         padding: '4px 12px',
                         marginLeft: 10
                     }}
+                    onClick={handleRemove}
                 />
             </div>
         </div>
