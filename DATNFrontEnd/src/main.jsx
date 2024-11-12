@@ -30,6 +30,7 @@ import ProductDetailPage from "./component/layout/content/home/index/product.det
 import RequestForgotPassword from "./pages/request.forgot.password.jsx";
 import ResetPassword from "./pages/reset.password.jsx";
 import './i18n.jsx';
+import InfoPage from "./pages/info.jsx";
 
 
 const router = createBrowserRouter([
@@ -123,6 +124,10 @@ const router = createBrowserRouter([
       {
         path: "/product/:id",
         element: <ProductDetailPage />
+      },
+      {
+        path: "/info",
+        element: <InfoPage />
       },
     ]
   },

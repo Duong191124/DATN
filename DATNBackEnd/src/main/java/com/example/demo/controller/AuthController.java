@@ -135,11 +135,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.OK).body(
                     MessageReponse.builder()
                             .data(
-                                    InformationResponse.builder()
-                                            .id(staff.getId())
-                                            .name(staff.getName())
-                                            .email(staff.getEmail())
-                                            .build()
+                                    staff
                             )
                             .status(HttpStatus.OK.value())
                             .message("Get information sucssessfuly")

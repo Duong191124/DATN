@@ -14,6 +14,7 @@ const items = [
 const users = [
   { key: "1", label: <NavLink to={"/login"}>Đăng nhập</NavLink> },
   { key: "2", label: <NavLink to={"/register"}>Đăng ký</NavLink> },
+  { key: "2", label: <NavLink to={"/info"}>Thông tin</NavLink> },
 ];
 
 const Header = () => {
