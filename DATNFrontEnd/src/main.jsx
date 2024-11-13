@@ -29,6 +29,7 @@ import HomePage from "./component/layout/content/home/index/index.jsx";
 import ProductDetailPage from "./component/layout/content/home/index/product.detail.page.jsx";
 import RequestForgotPassword from "./pages/request.forgot.password.jsx";
 import ResetPassword from "./pages/reset.password.jsx";
+import WeightPage from "./pages/weight.jsx";
 const router = createBrowserRouter([
   {
     path: "/admin",
@@ -102,6 +103,10 @@ const router = createBrowserRouter([
       {
         path: "customer",
         element: <CustomerPage />,
+      },
+      {
+        path: "weight",
+        element: <WeightPage />,
       },
     ],
   },

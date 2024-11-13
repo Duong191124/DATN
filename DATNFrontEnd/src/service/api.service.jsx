@@ -398,7 +398,8 @@ const updateProductDetailAPi = (
   productId,
   sizeId,
   colorId,
-  status
+  status,
+  weight,
 ) => {
   const URL_BACKEND = `/api/v1/productDetail/${id}`;
   const data = {
@@ -409,6 +410,7 @@ const updateProductDetailAPi = (
     sizeId: sizeId,
     colorId: colorId,
     status: status,
+    weight: weight,
   };
   return axios.put(URL_BACKEND, data);
 };
@@ -965,7 +967,38 @@ const updatePassword = (email, code, newPassword) => {
   });
 }
 
+//Weight
+const fetchDataWeight = () => {
+  const URL_BACKEND = "/api/v1/weight";
+  return axios.get(URL_BACKEND);
+}
+
+const createWeightAPI = (code, name, status) => {
+  const URL_BACKEND = "/api/v1/weight";
+  const data = {
+    code: code,
+    name: name,
+    status: status
+  };
+  return axios.post(URL_BACKEND, data)
+
+}
+const updateWeightAPI = (id, code, name, status) => {
+  const URL_BACKEND = "/api/v1/weight";
+  const data = {
+    id: id,
+    code: code,
+    name: name,
+    status: status,
+
+  };
+  return axios.put(URL_BACKEND, data)
+}
+
 export {
+  updateWeightAPI,
+  fetchDataWeight,
+  createWeightAPI,
   fetchDataProductById,
   findByProductDetailId,
   updatePassword,

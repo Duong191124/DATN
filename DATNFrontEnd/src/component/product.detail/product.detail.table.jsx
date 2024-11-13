@@ -71,6 +71,14 @@ const ProductDetailTable = (props) => {
       },
     },
     {
+      title: "Weight",
+      dataIndex: "weight",
+      render: (text, record) => {
+        console.log("check weight", record)
+        return record.weight?.name || "Chưa có weight";
+      },
+    },
+    {
       title: "Status",
       dataIndex: "status",
       render: (status) => {
@@ -124,7 +132,6 @@ const ProductDetailTable = (props) => {
         columns={columns}
         dataSource={updatedDataProductDetail}
         rowKey={"id"}
-      // rowClassName={(record) => (record.price === 0 ? "faded-row" : "")} // Thêm điều kiện để làm mờ
       />
 
       <ProductDetailUpdate
