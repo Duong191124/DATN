@@ -1,6 +1,6 @@
 import { Button, Input, Modal, notification, Select, Form } from "antd";
 import { useEffect, useState } from "react";
-import { createProductDetailAPi, fetchDataColorAPI, fetchDataSize } from "../../service/api.service";
+import { createProductDetailAPi, fetchDataColorAPI, fetchDataSize, fetchDataWeight } from "../../service/api.service";
 import { Link } from "react-router-dom";
 import { DoubleLeftOutlined, PlusOutlined } from "@ant-design/icons";
 
@@ -8,6 +8,10 @@ const ProDuctDetailForm = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [sizes, setSizes] = useState([]);       // Dữ liệu danh sách size
     const [colors, setColors] = useState([]);     // Dữ liệu danh sách màu
+    const [weight, setWeight] = useState([]);     // Dữ liệu danh sách màu
+
+
+
 
     const { productId, loadProductDetail } = props;  // Lấy productId từ props
 
@@ -40,9 +44,16 @@ const ProDuctDetailForm = (props) => {
         setSizes(activeSize)
     };
 
+    const loadDataWeight = async () => {
+        const res = await fetchDataWeight();
+        const activeWeight = res.data.data.filter(weight => weight.status != 0)
+        setWeight(activeWeight)
+    }
+
     useEffect(() => {
         loadDataColor();
         loadDataSize();
+        loadDataWeight();
     }, []);
 
     const resetCloseModal = () => {
@@ -128,6 +139,22 @@ const ProDuctDetailForm = (props) => {
                                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                             }
                             options={sizes}
+                            fieldNames={{ label: "name", value: "id" }}
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Weight"
+                        name="weight"
+                        rules={[{ required: true, message: "Please select a weight!" }]}
+                    >
+                        <Select
+                            showSearch
+                            placeholder="Select a weight"
+                            filterOption={(input, option) =>
+                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                            }
+                            options={weight}
                             fieldNames={{ label: "name", value: "id" }}
                         />
                     </Form.Item>
