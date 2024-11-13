@@ -47,7 +47,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         ProductDetail newProductDetail = new ProductDetail();
         newProductDetail.setCode(productDetailDTO.getCode());
         newProductDetail.setQuantity(productDetailDTO.getQuantity());
-        newProductDetail.setPrice(productDetailDTO.getPrice());
+        newProductDetail.setDefaultPrice(productDetailDTO.getDefaultPrice());
+        newProductDetail.setDiscountPrice(productDetailDTO.getDiscountPrice());
         newProductDetail.setImage(productDetailDTO.getImage());
 
         // Liên kết với các entity khác
@@ -65,7 +66,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         // Cập nhật thông tin từ DTO sang entity
         existingProductDetail.setCode(productDetailDTO.getCode());
         existingProductDetail.setQuantity(productDetailDTO.getQuantity());
-        existingProductDetail.setPrice(productDetailDTO.getPrice());
+        existingProductDetail.setDefaultPrice(productDetailDTO.getDefaultPrice());
+        existingProductDetail.setDiscountPrice(productDetailDTO.getDiscountPrice());
         existingProductDetail.setImage(productDetailDTO.getImage());
         existingProductDetail.setStatus(productDetailDTO.getStatus());
         existingProductDetail.setProduct(getProductById(productDetailDTO.getProductId()));

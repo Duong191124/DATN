@@ -27,8 +27,8 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Integer>
             "AND (:code IS NULL OR :code = '' OR pdt.code LIKE %:code%) " +
             "AND (:colorName IS NULL OR :colorName = '' OR pdt.color.name LIKE %:colorName%) " +
             "AND (:sizeName IS NULL OR :sizeName = '' OR pdt.size.name LIKE %:sizeName%) " +
-            "AND (:minPrice IS NULL OR pdt.price >= :minPrice) " +
-            "AND (:maxPrice IS NULL OR pdt.price <= :maxPrice) " +
+            "AND (:minPrice IS NULL OR pdt.defaultPrice >= :minPrice) " +
+            "AND (:maxPrice IS NULL OR pdt.defaultPrice <= :maxPrice) " +
             "AND (:status IS NULL OR pdt.status = :status)")
     Page<ProductDetail> pageAndFilterProductDetail(@Param("productName") String productName,
                                                    @Param("code") String code,

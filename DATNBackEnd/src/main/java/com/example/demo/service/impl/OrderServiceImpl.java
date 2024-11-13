@@ -269,11 +269,11 @@ public class OrderServiceImpl implements OrderService {
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setOrders(order);
             orderDetail.setProductDetail(productDetail);
-            orderDetail.setPrice(productDetail.getPrice());
+            orderDetail.setPrice(productDetail.getDefaultPrice());
             orderDetail.setQuantity(detailRequest.getQuantity());
 
             // Tính toán tổng số tiền với BigDecimal
-            totalAmount = totalAmount.add(BigDecimal.valueOf(productDetail.getPrice()).multiply(BigDecimal.valueOf(detailRequest.getQuantity())));
+            totalAmount = totalAmount.add(BigDecimal.valueOf(productDetail.getDefaultPrice()).multiply(BigDecimal.valueOf(detailRequest.getQuantity())));
 
             order.getOrderDetails().add(orderDetail);
             orderDetailsToSave.add(orderDetail);

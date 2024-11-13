@@ -68,8 +68,15 @@ const PromotionTable = (props) => {
         }
     };
 
-    const showProductDetails = async (productDetailsIds, promotionId) => {
-        
+    const showProductDetails = async (productDetailsIds, promotionId, status) => {
+        if (status !== 1) { // Assuming 1 is "active" and 0 is "expired"
+            notification.warning({
+                message: "Trạng thái không hợp lệ",
+                description: "Hiện Trạng Thái Đang Hết Hạn Không Thế Áp Dụng",
+            });
+            return;
+        }
+
         try {
             const res = await fetchDataProductDetail();
             if (res && res.data.data) {
@@ -79,7 +86,7 @@ const PromotionTable = (props) => {
                 setProductDetails(filteredProductDetails);
                 setSelectedProductIds(productDetailsIds);
                 setPromotionId(promotionId);
-               
+
                 setIsProductDetailModalVisible(true);
             }
         } catch (error) {
@@ -89,6 +96,7 @@ const PromotionTable = (props) => {
             });
         }
     };
+
 
     const isEndDateValid = (endDate) => {
         const currentDate = new Date();
@@ -108,7 +116,6 @@ const PromotionTable = (props) => {
         try {
             // Gọi API để cập nhật trạng thái
             const response = await chandleStatusPromotion(id);
-            console.log(response); // Kiểm tra phản hồi từ API
             if (response.status === 200 || response.status === 204) {
                 // Cập nhật trạng thái trong danh sách khuyến mãi
                 loadData(); // Gọi lại hàm loadData để tải lại dữ liệu từ server
@@ -142,10 +149,10 @@ const PromotionTable = (props) => {
             render: (text, record, index) =>
                 (pagination.current - 1) * pagination.pageSize + index + 1,
         },
-        {
-            title: 'ID',
-            dataIndex: 'id',
-        },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        // },
         {
             title: 'Tên',
             dataIndex: 'name',
@@ -365,7 +372,7 @@ const PromotionTable = (props) => {
                     />
                     <PlusCircleOutlined
                         style={{ color: 'green', cursor: 'pointer' }}
-                        onClick={() => showProductDetails(record.productDetailsId, record.id)}
+                        onClick={() => showProductDetails(record.productDetailsId, record.id, record.status)}
                     />
                     <RetweetOutlined
                         style={{ color: 'aqua', cursor: 'pointer' }}

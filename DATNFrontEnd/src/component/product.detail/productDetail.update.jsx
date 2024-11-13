@@ -15,7 +15,7 @@ const ProductDetailUpdate = (props) => {
             form.setFieldsValue({
                 id: dataUpdate.id,
                 code: dataUpdate.code,
-                price: dataUpdate.price,
+                defaultPrice: dataUpdate.defaultPrice,
                 quantity: dataUpdate.quantity,
                 product: dataUpdate.productResponse?.id,
                 color: dataUpdate.color?.id,
@@ -28,7 +28,7 @@ const ProductDetailUpdate = (props) => {
 
         try {
             const values = await form.validateFields();
-            const res = await updateProductDetailAPi(values.id, values.code, values.quantity, values.price, values.product, values.size, values.color);
+            const res = await updateProductDetailAPi(values.id, values.code, values.quantity, values.defaultPrice, values.product, values.size, values.color);
             if (res.data) {
                 notification.success({
                     message: "Update product",
@@ -118,9 +118,9 @@ const ProductDetailUpdate = (props) => {
                 </Form.Item>
 
                 <Form.Item
-                    label="Price"
-                    name="price"
-                    rules={[{ required: true, message: 'Please input the price!' }]}
+                    label="defaultPrice"
+                    name="defaultPrice"
+                    rules={[{ required: true, message: 'Please input the defaultPrice!' }]}
                 >
                     <Input />
                 </Form.Item>

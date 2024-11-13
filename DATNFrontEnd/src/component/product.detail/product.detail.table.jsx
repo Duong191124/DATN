@@ -46,8 +46,12 @@ const ProductDetailTable = (props) => {
       dataIndex: "quantity",
     },
     {
-      title: "Price",
-      dataIndex: "price",
+      title: "Default Price",
+      dataIndex: "defaultPrice",
+    },
+    {
+      title: "Discount Price",
+      dataIndex: "discountPrice",
     },
     {
       title: "Image",

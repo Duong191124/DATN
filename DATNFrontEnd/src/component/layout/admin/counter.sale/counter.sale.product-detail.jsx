@@ -66,8 +66,13 @@ const CounterSalesProductDetail = ({
       dataIndex: "quantity",
     },
     {
-      title: "Giá",
-      dataIndex: "price",
+      title: "Giá Mặc Định",
+      dataIndex: "defaultPrice",
+      render: (text) => `${text?.toLocaleString()} VNĐ` || "Chưa có giá",
+    },
+    {
+      title: "Giá Khuyến Mãi",
+      dataIndex: "discountPrice",
       render: (text) => `${text?.toLocaleString()} VNĐ` || "Chưa có giá",
     },
     {
