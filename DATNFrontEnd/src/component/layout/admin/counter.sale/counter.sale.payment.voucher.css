@@ -1,0 +1,72 @@
+.voucher {
+  width: 400px;
+  height: 80px;
+  background: linear-gradient(to right, #ff5722, #ff1744);
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 25px;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, height 0.5s ease-in;
+}
+
+.voucher--hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+}
+
+.voucher-value {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.voucher-description {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.expired-label {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(255, 0, 0, 0.9);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+}
+.voucher .min-purchase-label {
+  opacity: 0;
+  transition: opacity 1s ease-in;
+}
+.voucher:hover {
+  height: 150px;
+}
+.voucher:hover .min-purchase-label {
+  opacity: 1;
+}
+.min-purchase-label {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background-color: rgba(255, 165, 0, 0.9);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+}
+.max-discount-label {
+  margin: 10px 0; /* Điều chỉnh khoảng cách giữa các thành phần */
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff; /* Màu chữ */
+  text-align: center; /* Căn giữa */
+}

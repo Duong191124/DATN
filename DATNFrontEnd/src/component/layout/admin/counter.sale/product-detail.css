@@ -1,0 +1,80 @@
+/* Tổng thể container */
+.filter-container {
+  background-color: #f4f4f4; /* Màu nền nhẹ để tạo không gian thoáng mát */
+  padding: 20px;
+  border-radius: 8px; /* Bo góc để mềm mại hơn */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Thêm bóng nhẹ để nổi bật */
+}
+
+/* Căn chỉnh nội dung bên trong Row */
+.filter-container .ant-row {
+  gap: 20px;
+  display: flex;
+  flex-wrap: wrap; /* Cho phép các phần tử cuộn xuống khi không đủ không gian */
+}
+
+/* Mỗi Col sẽ có một số thay đổi nhỏ */
+.filter-container .ant-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Tiêu đề của các phần lọc */
+.filter-container .filter-title {
+  margin-bottom: 8px;
+  font-size: 18px;
+  font-weight: 500;
+  color: #333; /* Màu chữ tối hơn để dễ đọc */
+}
+
+/* Style cho các input và select */
+.filter-container .ant-input,
+.filter-container .ant-select,
+.filter-container .ant-radio-group {
+  border-radius: 6px; /* Bo góc input và select để mềm mại hơn */
+  border: 1px solid #ccc; /* Đường viền nhạt */
+  padding: 8px;
+}
+
+.filter-container .ant-input:focus,
+.filter-container .ant-select-focused,
+.filter-container .ant-radio-group:focus-within {
+  border-color: #1890ff; /* Thay đổi màu viền khi focus */
+}
+
+/* Thêm style cho slider */
+.filter-container .ant-slider {
+  margin-bottom: 10px;
+}
+
+.filter-container .ant-slider-rail {
+  background-color: #e1e1e1; /* Màu nền nhẹ cho thanh slider */
+}
+
+.filter-container .ant-slider-track {
+  background-color: #1890ff; /* Màu sắc đẹp cho thanh tiến */
+}
+
+/* Style cho mỗi label để dễ nhìn */
+.filter-container .ant-radio-group .ant-radio-wrapper {
+  margin-right: 15px; /* Tạo khoảng cách giữa các radio buttons */
+}
+
+.filter-container .ant-select {
+  width: 100%;
+}
+
+/* Cải thiện màu sắc và khoảng cách */
+.filter-container .ant-input,
+.filter-container .ant-select,
+.filter-container .ant-radio-group {
+  background-color: #fff; /* Nền trắng giúp phần tử nổi bật hơn */
+  margin-bottom: 10px;
+}
+
+/* Thêm hiệu ứng hover cho các nút */
+.filter-container .ant-btn:hover {
+  background-color: #1890ff;
+  color: #fff;
+}

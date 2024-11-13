@@ -1,20 +1,18 @@
     package com.example.demo.service.impl;
 
     import com.example.demo.dto.PromotionDTO;
-    import com.example.demo.entity.ProductDetail;
-    import com.example.demo.entity.Promotion;
-    import com.example.demo.entity.Voucher;
-    import com.example.demo.repository.ProductDetailRepo;
-    import com.example.demo.repository.PromotionRepo;
-    import com.example.demo.response.PromotionResponse;
-    import com.example.demo.response.VoucherResponse;
-    import com.example.demo.service.PromotionService;
-    import lombok.RequiredArgsConstructor;
-    import org.springframework.stereotype.Service;
+import com.example.demo.entity.ProductDetail;
+import com.example.demo.entity.Promotion;
+import com.example.demo.repository.ProductDetailRepo;
+import com.example.demo.repository.PromotionRepo;
+import com.example.demo.response.PromotionResponse;
+import com.example.demo.service.PromotionService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
-    import java.util.HashSet;
-    import java.util.List;
-    import java.util.Set;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
     @RequiredArgsConstructor
     @Service

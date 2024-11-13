@@ -86,6 +86,11 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     }
 
     @Override
+    public ProductDetailResponse getPDByCode(String code) {
+        return ProductDetailResponse.fromProductDetailResponse(productDetailRepo.findProductDetailByCode(code));
+    }
+
+    @Override
     public void deletePD(Integer id) throws Exception {
         ProductDetail productDetail = productDetailRepo.findById(id)
                 .orElseThrow(() -> new Exception("ProductDetail not found with id: " + id));

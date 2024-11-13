@@ -3,7 +3,12 @@ import { Button, Input, Form, Select, Modal, message } from "antd";
 import QRCode from "qrcode";
 import html2pdf from "html2pdf.js";
 import { PlusOutlined } from "@ant-design/icons";
-
+import {
+  getVouchersByCustomerId,
+  hasCustomerUsedVoucher,
+} from "../../../../service/api.service";
+import { Option } from "antd/es/mentions";
+import "./counter.sale.payment.voucher.css";
 const bankOptions = [
   {
     value: "BIDV",
@@ -36,25 +41,32 @@ const bankOptions = [
     logo: "/image/logoMB.png",
   },
 ];
-
 const CounterSalePayment = ({
   onPayment,
   paymentInfo,
   setPaymentInfo,
-  discountAmount = 0,
   selectedBill,
+  setSelectedBill,
   billWaiting,
   cartItems,
   customerPaid,
   setCustomerPaid,
   loading,
+  totalAmount,
+  setTotalAmount,
 }) => {
   const [change, setChange] = useState(0);
-  const [totalAmount, setTotalAmount] = useState(0);
+  const [totalAmountAfterDiscount, setTotalAmountAfterDiscount] = useState(0);
   const [bankAccounts, setBankAccounts] = useState([]);
   const [isInvoiceModalVisible, setIsInvoiceModalVisible] = useState(false);
   const [isAccountModalVisible, setIsAccountModalVisible] = useState(false);
   const [invoiceContent, setInvoiceContent] = useState("");
+  const [vouchers, setVoucher] = useState(null); // Lưu voucher đã chọn
+  const [selectedVoucher, setSelectedVoucher] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [voucherUsageStatus, setVoucherUsageStatus] = useState({});
+  const openModal = () => setIsModalVisible(true);
+  const closeModal = () => setIsModalVisible(false);
   const [newAccount, setNewAccount] = useState({
     bankName: "",
     accountNumber: "",
@@ -63,34 +75,51 @@ const CounterSalePayment = ({
   });
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [qrCodeImg, setQrCodeImg] = useState("");
-
   useEffect(() => {
     if (selectedBill) {
-      const newTotalAmount = cartItems.reduce(
-        (acc, item) => acc + item.price * item.quantity,
-        0
-      );
-      setTotalAmount(newTotalAmount);
-    } else {
-      setTotalAmount(0);
+      // Tính tổng tiền trước khi áp dụng voucher
+      const newTotalAmount = cartItems.reduce((acc, item) => {
+        const priceToUse =
+          item.discountPrice > 0 ? item.discountPrice : item.defaultPrice;
+        return acc + priceToUse * item.quantity;
+      }, 0);
+      setTotalAmount(newTotalAmount); // Cập nhật lại tổng tiền ban đầu
+      if (selectedVoucher) {
+        const maxDiscount = parseFloat(selectedVoucher.maxDiscountAmount); // Mức tối đa giảm giá
+        // Kiểm tra voucher là giảm theo phần trăm hay số tiền
+        if (
+          selectedVoucher.discountPercent &&
+          selectedVoucher.discountAmount === null
+        ) {
+          let discount = 0;
+          // Tính giảm giá theo phần trăm
+          discount = (newTotalAmount * selectedVoucher.discountPercent) / 100;
+          // Áp dụng giới hạn giảm giá: tối thiểu và tối đa
+          if (discount > maxDiscount) {
+            discount = maxDiscount; // Áp dụng tối đa
+          }
+          const totalAmountWithDiscount = newTotalAmount - discount;
+          setTotalAmountAfterDiscount(totalAmountWithDiscount);
+          return;
+        }
+        if (
+          selectedVoucher.discountAmount &&
+          selectedVoucher.discountPercent === null
+        ) {
+          let discount = 0;
+          discount = parseFloat(selectedVoucher.discountAmount);
+          const totalAmountWithDiscount = newTotalAmount - discount;
+          setTotalAmountAfterDiscount(totalAmountWithDiscount);
+          return;
+        }
+      } else {
+        // Nếu không có voucher, tổng tiền không thay đổi
+        setTotalAmountAfterDiscount(newTotalAmount);
+      }
     }
-  }, [selectedBill, cartItems]);
-  useEffect(() => {
-    const savedAccounts =
-      JSON.parse(localStorage.getItem("bankAccounts")) || [];
-    setBankAccounts(savedAccounts);
-  }, []);
-  useEffect(() => {
-    const totalAmountWithDiscount = totalAmount - discountAmount;
-    setChange(customerPaid - totalAmountWithDiscount);
-  }, [customerPaid, totalAmount, discountAmount]);
+  }, [selectedBill, cartItems, selectedVoucher]);
 
-  const moneyOptions = [
-    totalAmount,
-    totalAmount + 100000,
-    totalAmount + 200000,
-    totalAmount + 500000,
-  ];
+  // Tính lại khi thay đổi hóa đơn, giỏ hàng hoặc voucher
 
   const handleAddAccount = () => {
     if (!newAccount.bankName || !newAccount.accountNumber) {
@@ -127,7 +156,6 @@ const CounterSalePayment = ({
     });
     setIsAccountModalVisible(false);
   };
-
   const generateQrCodeWithLogo = async (qrCodeData, logoUrl) => {
     try {
       const qrCodeDataUrl = await QRCode.toDataURL(qrCodeData);
@@ -166,9 +194,7 @@ const CounterSalePayment = ({
       throw error;
     }
   };
-
   const handleShowInvoice = async () => {
-    const totalPayment = totalAmount - discountAmount;
     const billCode = billWaiting.find((bill) => bill.code === selectedBill);
     let selectedAccountInfo;
     if (paymentInfo.paymentMethod === "Cash") {
@@ -184,7 +210,7 @@ const CounterSalePayment = ({
       const qrCodeData = JSON.stringify({
         accountNumber: selectedAccountInfo.accountNumber,
         bankName: selectedAccountInfo.bankName,
-        amount: totalPayment,
+        amount: totalAmountAfterDiscount,
       });
       try {
         const qrCodeWithLogoUrl = await generateQrCodeWithLogo(
@@ -210,11 +236,14 @@ const CounterSalePayment = ({
         <p>Số HĐ: ${billCode?.code}</p>
         <p>Ngày: ${new Date().toLocaleDateString()}</p>
         <p>Thời gian thanh toán: ${new Date().toLocaleTimeString()}</p>
-        <p>Nhân viên: ${billCode?.staff?.name}</p>
-        <p>Khách hàng: ${billCode?.customer?.name}</p>
-        <p>SĐT: ${billCode?.customer?.phoneNumber}</p>
+        <p>Nhân viên: ${billCode?.staffResponse?.name}</p>
+        <p>Khách hàng: ${billCode?.customerResponse?.name}</p>
+        <p>SĐT: ${
+          billCode?.customerResponse?.phoneNumber || "Chưa có số điên thoại"
+        }</p>
         <p>Địa chỉ: ${
-          billCode?.customer?.address || "Khách hàng chưa cập nhật địa chỉ"
+          billCode?.customerResponse?.address ||
+          "Khách hàng chưa cập nhật địa chỉ"
         }</p>
         <table style="width: 100%; border-collapse: collapse;">
           <thead>
@@ -244,10 +273,19 @@ const CounterSalePayment = ({
                 <td style="border: 1px solid #000; padding: 8px;align-item:center;text-align:center;">${
                   item.size.name
                 }</td>
-                <td style="border: 1px solid #000; padding: 8px; align-item:center;text-align:center;">${item.price.toLocaleString()} VNĐ</td>
-                <td style="border: 1px solid #000; padding: 8px; align-item:center;text-align:center;">${(
-                  item.price * item.quantity
-                ).toLocaleString()} VNĐ</td>
+                <td style="border: 1px solid #000; padding: 8px; text-align: center;">
+                  ${(item.discountPrice > 0
+                    ? item.discountPrice
+                    : item.defaultPrice
+                  ).toLocaleString()} VNĐ
+                </td>
+                <td style="border: 1px solid #000; padding: 8px; text-align: center;">
+                  ${(
+                    (item.discountPrice > 0
+                      ? item.discountPrice
+                      : item.defaultPrice) * item.quantity
+                  ).toLocaleString()} VNĐ
+                </td>
               </tr>
             `
               )
@@ -255,9 +293,15 @@ const CounterSalePayment = ({
           </tbody>
         </table>
         <h4>Tổng tiền hàng: ${totalAmount.toLocaleString()} VNĐ</h4>
-        <h4>Chiết khấu: ${discountAmount.toLocaleString()} VNĐ</h4>
-        <h4>Tổng thanh toán: ${totalPayment.toLocaleString()} VNĐ</h4>
-        <p>(${totalPayment.toLocaleString()} đồng chẵn)</p>
+        <h4>Chiết khấu: 
+            ${
+              selectedVoucher
+                ? (totalAmount - totalAmountAfterDiscount).toLocaleString()
+                : "Không có chiết khấu"
+            } VNĐ
+          </h4>
+        <h4>Tổng thanh toán: ${totalAmountAfterDiscount.toLocaleString()} VNĐ</h4>
+        <p>(${totalAmountAfterDiscount.toLocaleString()} đồng chẵn)</p>
         ${
           paymentInfo.paymentMethod === "Cash"
             ? `
@@ -280,7 +324,6 @@ const CounterSalePayment = ({
     setInvoiceContent(invoice);
     setIsInvoiceModalVisible(true);
   };
-
   const handlePrintInvoice = () => {
     const invoiceWindow = window.open("", "_blank");
     invoiceWindow.document.write(`
@@ -299,7 +342,6 @@ const CounterSalePayment = ({
     `);
     invoiceWindow.document.close();
   };
-
   const handleDownloadPDF = async () => {
     const invoiceElement = document.createElement("div");
     invoiceElement.innerHTML = invoiceContent;
@@ -318,6 +360,54 @@ const CounterSalePayment = ({
 
     document.body.removeChild(invoiceElement);
   };
+  const fetchVouchers = async (billCode) => {
+    try {
+      const response = await getVouchersByCustomerId(
+        billCode.customerResponse.id
+      );
+      setVoucher(response.data.data);
+    } catch (error) {
+      message.error("Không thể tải voucher.");
+    }
+  };
+  useEffect(() => {
+    if (selectedBill) {
+      const billCode = billWaiting.find((bill) => bill.code === selectedBill);
+      if (billCode) {
+        fetchVouchers(billCode); // Lấy voucher khi có hóa đơn đã chọn
+      } else {
+        setVoucher([]); // Nếu không tìm thấy hóa đơn, reset voucher
+      }
+    } else {
+      setVoucher([]); // Nếu không có hóa đơn chọn, reset voucher
+    }
+  }, [selectedBill]); // Chỉ phụ thuộc vào selectedBill và billWaiting
+
+  // Hàm checkVoucherUsage có thể được gọi trong useEffect hoặc ngoài đó
+  const checkVoucherUsage = async (customerId, voucherId) => {
+    try {
+      const response = await hasCustomerUsedVoucher(customerId, voucherId);
+      setVoucherUsageStatus((prevStatus) => ({
+        ...prevStatus,
+        [voucherId]: response.data, // lưu trạng thái sử dụng voucher
+      }));
+    } catch (error) {
+      console.error("Error checking voucher usage:", error);
+    }
+  };
+  useEffect(() => {
+    if (selectedBill && vouchers.length > 0) {
+      const customerId = billWaiting.find((bill) => bill.code === selectedBill)
+        ?.customerResponse.id;
+      if (customerId) {
+        // Kiểm tra trạng thái sử dụng voucher cho mỗi voucher
+        vouchers.forEach((voucher) => {
+          checkVoucherUsage(customerId, voucher.id);
+        });
+      }
+    }
+  }, [selectedBill, vouchers]); // Chỉ phụ thuộc vào vouchers và selectedBill
+
   const handleDeleteAccount = (accountNumber) => {
     const updatedAccounts = bankAccounts.filter(
       (account) => account.accountNumber !== accountNumber
@@ -329,24 +419,16 @@ const CounterSalePayment = ({
     localStorage.setItem("bankAccounts", JSON.stringify(updatedAccounts)); // Cập nhật localStorage
     message.success("Tài khoản ngân hàng đã được xóa.");
   };
-  const handlePayment = async () => {
-    if (paymentInfo.paymentMethod === "Bank Transfer" && !selectedAccount) {
-      message.error("Vui lòng chọn tài khoản ngân hàng trước khi thanh toán.");
-      return;
-    }
-    const paymentSuccess = await onPayment();
-    if (paymentSuccess) {
-      handleShowInvoice();
-    }
-  };
+
   const handleAccountChange = async (value) => {
     setSelectedAccount(value);
     if (value) {
       const selectedAccountInfo = bankAccounts.find(
         (account) => account.accountNumber === value
       );
-      const totalPayment = totalAmount - discountAmount;
-
+      const totalPayment = selectedVoucher
+        ? totalAmountAfterDiscount
+        : totalAmount;
       const qrCodeData = JSON.stringify({
         accountNumber: selectedAccountInfo.accountNumber,
         bankName: selectedAccountInfo.bankName,
@@ -361,11 +443,154 @@ const CounterSalePayment = ({
       }
     }
   };
+  const handleVoucherChange = async (value) => {
+    const billCode = billWaiting.find((bill) => bill.code === selectedBill);
+    if (value === null || value === "") {
+      setSelectedVoucher(null);
+      setTotalAmountAfterDiscount(totalAmount); // Đặt lại tổng tiền sau giảm giá
+      setPaymentInfo({
+        ...paymentInfo,
+        voucherId: null, // Không có voucher
+        amountPaid: 0, // Đặt lại số tiền đã trả
+      });
+    } else {
+      const voucher = vouchers.find((v) => v.id === value);
+      if (voucher) {
+        const currentTime = new Date();
+        const expirationTime = new Date(voucher.expirationDate);
+
+        // Kiểm tra nếu voucher đã hết hạn
+        if (currentTime > expirationTime) {
+          message.error("Voucher này đã hết hạn.");
+          setSelectedVoucher(null);
+          setTotalAmountAfterDiscount(totalAmount); // Đặt lại tổng tiền sau giảm giá
+          setPaymentInfo({
+            ...paymentInfo,
+            voucherId: null, // Không có voucher
+            amountPaid: 0, // Đặt lại số tiền đã trả
+          });
+          return;
+        }
+
+        // Kiểm tra nếu tổng tiền đủ điều kiện áp dụng voucher
+        if (totalAmount < voucher.minPurchaseAmount) {
+          message.error(
+            `Voucher chỉ áp dụng cho đơn hàng từ ${voucher.minPurchaseAmount} VND trở lên.`
+          );
+          setSelectedVoucher(null);
+          setTotalAmountAfterDiscount(totalAmount); // Đặt lại tổng tiền sau giảm giá
+          setPaymentInfo({
+            ...paymentInfo,
+            voucherId: null, // Không có voucher
+            amountPaid: 0, // Đặt lại số tiền đã trả
+          });
+          return;
+        }
+
+        // Kiểm tra nếu khách hàng đã sử dụng voucher này rồi
+        try {
+          const response = await hasCustomerUsedVoucher(
+            billCode.customerResponse.id,
+            voucher.id
+          );
+          if (response.data) {
+            message.error("Bạn đã sử dụng voucher này rồi.");
+            setSelectedVoucher(null);
+            setTotalAmountAfterDiscount(totalAmount); // Đặt lại tổng tiền sau giảm giá
+            setPaymentInfo({
+              ...paymentInfo,
+              voucherId: null, // Không có voucher
+              amountPaid: 0, // Đặt lại số tiền đã trả
+            });
+            return;
+          }
+        } catch (error) {
+          message.error("Không thể kiểm tra voucher.");
+          return;
+        }
+
+        // Cập nhật voucher đã chọn
+        setSelectedVoucher(voucher);
+
+        // Tính toán mức giảm giá
+        let discountAmount = 0;
+        if (voucher.discountPercent > 0) {
+          // Áp dụng giảm giá theo phần trăm
+          discountAmount = (totalAmount * voucher.discountPercent) / 100;
+        } else if (voucher.discountAmount > 0) {
+          // Áp dụng giảm giá cố định
+          discountAmount = voucher.discountAmount;
+        }
+
+        // Kiểm tra giới hạn số tiền giảm giá tối đa
+        if (discountAmount > voucher.maxDiscountAmount) {
+          discountAmount = voucher.maxDiscountAmount;
+        }
+
+        // Đảm bảo số tiền giảm giá không vượt quá tổng tiền cần thanh toán
+        if (discountAmount > totalAmount) {
+          discountAmount = totalAmount;
+        }
+
+        // Cập nhật lại tổng tiền sau giảm giá
+        const totalAfterDiscount = totalAmount - discountAmount;
+        setTotalAmountAfterDiscount(totalAfterDiscount);
+
+        // Cập nhật paymentInfo với voucher và số tiền giảm giá
+        setPaymentInfo({
+          ...paymentInfo,
+          voucherId: voucher.id, // Lưu voucher đã chọn
+          amountPaid: totalAfterDiscount, // Số tiền thanh toán sau khi giảm giá
+        });
+
+        message.success(
+          `Voucher đã được áp dụng. Số tiền giảm: ${discountAmount.toLocaleString()} VND.`
+        );
+        closeModal();
+      }
+    }
+  };
+  const moneyOptions = vouchers
+    ? [
+        totalAmountAfterDiscount,
+        totalAmountAfterDiscount + 100000,
+        totalAmountAfterDiscount + 200000,
+        totalAmountAfterDiscount + 500000,
+      ]
+    : [
+        totalAmount,
+        totalAmount + 100000,
+        totalAmount + 200000,
+        totalAmount + 500000,
+      ];
+  useEffect(() => {
+    // Tính số tiền thừa (tiền khách đưa trừ tổng tiền sau khi giảm giá)
+    setChange(customerPaid - totalAmountAfterDiscount);
+  }, [selectedVoucher, customerPaid, totalAmountAfterDiscount]);
+
+  const handlePayment = async () => {
+    // if (paymentInfo.paymentMethod !== "Bank Transfer") {
+    //   message.error(`Vui lòng chọn phương thức thanh toán`);
+    //   return;
+    // }
+    if (customerPaid < totalAmountAfterDiscount) {
+      message.error(
+        `Thanh toán không đủ. Vui lòng nhập đủ tiền. Tổng tiền cần thanh toán là ${totalAmountAfterDiscount.toLocaleString()} VNĐ.`
+      );
+      return;
+    }
+    setTotalAmount(totalAmountAfterDiscount); // Cập nhật totalAmount trước khi tiến hành thanh toán
+    // Tiến hành thanh toán nếu đủ tiền
+    const paymentSuccess = await onPayment();
+    if (paymentSuccess) {
+      handleShowInvoice();
+      setVoucher([]);
+      setSelectedVoucher(null);
+      setSelectedBill(null);
+    }
+  };
   return (
-    <div className="payment">
-      <h3 style={{ marginBottom: "20px", borderBottom: "1px solid #ddd" }}>
-        Thông Tin Thanh Toán
-      </h3>
+    <div className="payment" style={{ marginTop: "15px" }}>
       <Form layout="vertical">
         <Form.Item label="Phương thức thanh toán" required>
           <Select
@@ -382,16 +607,166 @@ const CounterSalePayment = ({
             placeholder="Chọn phương thức thanh toán"
           />
         </Form.Item>
-        <Form.Item>
-          <h4>
-            Tổng Tiền: {totalAmount ? totalAmount.toLocaleString() : "0 VNĐ"}
-          </h4>
-          {discountAmount > 0 && (
-            <p style={{ color: "green" }}>
-              (Đã giảm giá: {discountAmount.toLocaleString()} VNĐ)
-            </p>
+        <div>
+          {selectedBill && vouchers.length > 0 && (
+            <Button type="primary" onClick={openModal}>
+              Chọn Voucher
+            </Button>
           )}
-        </Form.Item>
+
+          {/* Modal hiển thị danh sách voucher */}
+          <Modal
+            title="Chọn Voucher"
+            visible={isModalVisible}
+            onCancel={closeModal}
+            footer={null}
+          >
+            {vouchers &&
+              vouchers.length > 0 &&
+              vouchers.map((v, index) => {
+                const currentTime = new Date();
+                const expirationTime = new Date(v.expirationDate);
+                const isExpired = currentTime > expirationTime; // Kiểm tra hết hạn
+                const isUsed = voucherUsageStatus[v.id];
+                return (
+                  <div
+                    key={index}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      marginBottom: 10,
+                      padding: 10,
+                      border: "1px solid #ddd",
+                      borderRadius: "8px",
+                      backgroundColor:
+                        isExpired || isUsed ? "#f0f0f0" : "white", // Làm mờ khi đã hết hạn hoặc đã sử dụng
+                      opacity: isExpired || isUsed ? 0.5 : 1, // Giảm độ sáng khi đã hết hạn hoặc đã sử dụng
+                      pointerEvents: isExpired || isUsed ? "none" : "auto", // Không cho chọn khi hết hạn hoặc đã sử dụng
+                    }}
+                  >
+                    <div>
+                      <div>{v.code}</div>
+                      <div>
+                        Giảm:{" "}
+                        {v.discountPercent > 0
+                          ? `${v.discountPercent}%`
+                          : `${v.discountAmount.toLocaleString()} đ`}
+                      </div>
+                    </div>
+                    {isExpired || isUsed ? (
+                      <span style={{ color: "red", fontWeight: "bold" }}>
+                        Đã sử dụng
+                      </span>
+                    ) : selectedVoucher?.id === v.id ? (
+                      <Button
+                        type="default"
+                        onClick={() => handleVoucherChange("")} // Bỏ chọn voucher
+                      >
+                        Bỏ chọn
+                      </Button>
+                    ) : (
+                      <Button
+                        type="link"
+                        onClick={() => handleVoucherChange(v.id)} // Chọn voucher
+                      >
+                        Dùng
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+          </Modal>
+
+          {/* Hiển thị chi tiết voucher đã chọn */}
+          {selectedBill && selectedVoucher && vouchers.length > 0 && (
+            <div style={{ marginTop: "20px", textAlign: "center" }}>
+              <div
+                className="voucher"
+                onMouseEnter={(e) =>
+                  e.currentTarget.classList.add("voucher--hover")
+                }
+                onMouseLeave={(e) =>
+                  e.currentTarget.classList.remove("voucher--hover")
+                }
+              >
+                <div
+                  style={{
+                    display: "grid",
+                    borderRadius: "15px",
+                    alignItems: "center",
+                  }}
+                >
+                  <div className="voucher-value">
+                    Giảm:{" "}
+                    {selectedVoucher.discountPercent > 0
+                      ? `${selectedVoucher.discountPercent}%`
+                      : `${selectedVoucher.discountAmount.toLocaleString()} đ`}
+                  </div>
+                  {selectedVoucher.maxDiscountAmount && (
+                    <div className="max-discount-label">
+                      Tối đa:{" "}
+                      {selectedVoucher.maxDiscountAmount.toLocaleString()} đ cho
+                      đơn từ{" "}
+                      {selectedVoucher.minPurchaseAmount.toLocaleString()} đ
+                    </div>
+                  )}
+                  {selectedVoucher.expirationDate && (
+                    <div className="expired-label">
+                      {(() => {
+                        const expirationDate = new Date(
+                          selectedVoucher.expirationDate
+                        );
+                        const currentDate = new Date();
+                        const timeDiff = expirationDate - currentDate;
+                        const daysLeft = Math.ceil(
+                          timeDiff / (1000 * 3600 * 24)
+                        );
+                        return daysLeft > 0
+                          ? `Hết hạn sau ${daysLeft} ngày`
+                          : "Hết hạn";
+                      })()}
+                    </div>
+                  )}
+                  {selectedVoucher.minPurchaseAmount && (
+                    <div className="min-purchase-label">
+                      Đơn hàng cần tối thiểu{" "}
+                      {selectedVoucher.minPurchaseAmount.toLocaleString()} VND
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {selectedBill && (
+          <Form.Item>
+            <h4 style={{ fontWeight: "bold", marginTop: "20px" }}>
+              Tổng Tiền: {totalAmount ? totalAmount.toLocaleString() : "0"} VNĐ
+            </h4>
+            {/* Nếu có voucher và voucher có giá trị giảm giá */}
+            {selectedVoucher && vouchers.length > 0 && (
+              <p style={{ color: "green", fontStyle: "italic" }}>
+                (Đã giảm giá:{" "}
+                {(totalAmount - totalAmountAfterDiscount).toLocaleString()} VNĐ)
+              </p>
+            )}
+
+            {/* Hiển thị tổng tiền sau khi giảm giá (nếu có voucher) */}
+            {selectedVoucher && vouchers.length > 0 && (
+              <h4 style={{ fontWeight: "bold" }}>
+                Tổng Tiền <sup style={{ fontWeight: "300" }}>(sau giảm)</sup>:{" "}
+                {totalAmountAfterDiscount
+                  ? totalAmountAfterDiscount.toLocaleString()
+                  : "0"}{" "}
+                VNĐ
+              </h4>
+            )}
+          </Form.Item>
+        )}
+
+        {/* Phần thanh toán bằng tiền mặt */}
         {paymentInfo.paymentMethod === "Cash" && (
           <>
             <Form.Item label="Tiền khách đưa" required>
@@ -406,18 +781,29 @@ const CounterSalePayment = ({
                 placeholder="Nhập số tiền..."
               />
             </Form.Item>
-
+            {/* Tính tiền thừa */}
             {change !== 0 && (
               <Form.Item>
                 <h4>Tiền thừa: {change.toLocaleString()} VNĐ</h4>
               </Form.Item>
             )}
+            {/* Các tùy chọn tiền mặt */}
             <div style={{ marginTop: "10px" }}>
               {moneyOptions.map((option, index) => (
                 <Button
                   key={index}
-                  onClick={() => setCustomerPaid(option)}
-                  style={{ marginRight: "8px", marginTop: "5px" }}
+                  onClick={() => {
+                    setCustomerPaid(option);
+                  }}
+                  style={{
+                    marginRight: "8px",
+                    marginTop: "5px",
+                    backgroundColor:
+                      customerPaid === option ? "#4CAF50" : "#f0f0f0",
+                    color: customerPaid === option ? "white" : "black",
+                    border: "none",
+                    cursor: "pointer",
+                  }}
                 >
                   {option.toLocaleString()} VNĐ
                 </Button>
@@ -425,6 +811,7 @@ const CounterSalePayment = ({
             </div>
           </>
         )}
+        {/* Phần thanh toán bằng chuyển khoản ngân hàng */}
         <div style={{ marginBottom: "20px" }}>
           {paymentInfo.paymentMethod === "Bank Transfer" && (
             <>
@@ -481,6 +868,7 @@ const CounterSalePayment = ({
           Thanh Toán
         </Button>
       </Form>
+      {/* Modal hóa đơn */}
       <Modal
         title="Hóa Đơn"
         visible={isInvoiceModalVisible}
@@ -500,6 +888,7 @@ const CounterSalePayment = ({
       >
         <div dangerouslySetInnerHTML={{ __html: invoiceContent }} />
       </Modal>
+      {/* Modal thêm tài khoản ngân hàng */}
       <Modal
         title="Thêm tài khoản ngân hàng"
         visible={isAccountModalVisible}
@@ -546,5 +935,4 @@ const CounterSalePayment = ({
     </div>
   );
 };
-
 export default CounterSalePayment;
