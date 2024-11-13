@@ -78,6 +78,14 @@ const ProductDetailTable = (props) => {
       },
     },
     {
+      title: "Weight",
+      dataIndex: "weight",
+      render: (text, record) => {
+        console.log("check weight", record)
+        return record.weight?.name || "Chưa có weight";
+      },
+    },
+    {
       title: "Status",
       dataIndex: "status",
       render: (status) => {

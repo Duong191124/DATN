@@ -33,7 +33,6 @@ const ProductDetailPage = () => {
             // Lọc chi tiết sản phẩm theo màu được chọn
             const selectedProduct = productDetails.find(detail => detail.color.name === selectedColor) || productDetails[0];
             setProduct(selectedProduct);
-            console.log("check selected product", selectedProduct);
         };
 
         initProduct();
@@ -64,10 +63,10 @@ const ProductDetailPage = () => {
                                 .map(size => (
                                     <button
                                         key={size.id}
-                                        className={`size-button ${selectedSize === size.name ? 'selected' : ''}`}
-                                        onClick={() => setSelectedSize(size.name)}
+                                        className={`size-button ${selectedSize === size.code ? 'selected' : ''}`}
+                                        onClick={() => setSelectedSize(size.code)}
                                     >
-                                        {size.name}
+                                        {size.code}
                                     </button>
                                 ))}
                         </div>

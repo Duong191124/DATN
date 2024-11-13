@@ -30,6 +30,7 @@ public class ProductDetailController {
                                                   @RequestParam(required = false) String code,
                                                   @RequestParam(required = false) String colorName,
                                                   @RequestParam(required = false) String sizeName,
+                                                  @RequestParam(required = false) String weightName,
                                                   @RequestParam(required = false) Double minPrice,
                                                   @RequestParam(required = false) Double maxPrice,
                                                   @RequestParam(required = false) Integer status,
@@ -37,10 +38,7 @@ public class ProductDetailController {
                                                   @RequestParam(defaultValue = "10") int limit
                                                   ) {
         Pageable pageable = PageRequest.of(page,limit, Sort.by("id").ascending());
-        if (status != null && status == 2) {
-            status = null;
-        }
-        Page<ProductDetailResponse> productDetailResponses = productDetailService.pageAndFilterWithProductDetailResponse(productName,code,colorName,sizeName,minPrice,maxPrice,status,pageable);
+        Page<ProductDetailResponse> productDetailResponses = productDetailService.pageAndFilterWithProductDetailResponse(productName,code,colorName,weightName,sizeName,minPrice,maxPrice,status,pageable);
         return ResponseEntity.ok(new MessageReponse("successfully",200,productDetailResponses));
     }
 
