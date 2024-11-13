@@ -411,8 +411,11 @@ const CounterSalePayment = ({
       const selectedAccountInfo = bankAccounts.find(
         (account) => account.accountNumber === value
       );
-      const totalPayment = totalAmount - discountAmount;
-
+      const totalPayment = selectedVoucher
+        ? selectedVoucher.discountPercent
+          ? totalAmount - (totalAmount * selectedVoucher.discountPercent) / 100 // Giảm theo phần trăm
+          : totalAmount - selectedVoucher.discountAmount // Giảm theo số tiền
+        : totalAmount;
       const qrCodeData = JSON.stringify({
         accountNumber: selectedAccountInfo.accountNumber,
         bankName: selectedAccountInfo.bankName,
@@ -566,7 +569,10 @@ const CounterSalePayment = ({
         : totalAmount - selectedVoucher.discountAmount
       : totalAmount;
 
-    if (customerPaid < totalAmountWithDiscount) {
+    if (
+      paymentInfo.paymentMethod !== "Bank Transfer" &&
+      customerPaid < totalAmountWithDiscount
+    ) {
       message.error(
         `Thanh toán không đủ. Vui lòng nhập đủ tiền. Tổng tiền cần thanh toán là ${totalAmountWithDiscount.toLocaleString()} VNĐ.`
       );

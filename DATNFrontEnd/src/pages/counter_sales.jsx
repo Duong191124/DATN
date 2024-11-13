@@ -588,7 +588,7 @@ const CounterSales = () => {
             width: "30%",
             backgroundColor: "#ddd",
             padding: "20px",
-            maxHeight: "520px",
+            minHeight: "520px",
             overflowY: "auto",
           }}
         >
