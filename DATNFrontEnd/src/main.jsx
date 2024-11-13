@@ -31,6 +31,7 @@ import RequestForgotPassword from "./pages/request.forgot.password.jsx";
 import ResetPassword from "./pages/reset.password.jsx";
 import './i18n.jsx';
 import InfoPage from "./pages/info.jsx";
+import { CartProvider } from "./component/context/cart.context.jsx";
 
 
 const router = createBrowserRouter([
@@ -161,6 +162,8 @@ const router = createBrowserRouter([
 ]);
 createRoot(document.getElementById("root")).render(
   <AuthWrapper>
-    <RouterProvider router={router} />
+    <CartProvider>
+      <RouterProvider router={router} />
+    </CartProvider>
   </AuthWrapper>
 );
