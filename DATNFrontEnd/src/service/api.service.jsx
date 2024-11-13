@@ -113,6 +113,10 @@ const fetchAllProduct = (page, pageSize) => {
   const URL_BACKEND = `/api/v1/products?page=${page}&pageSize=${pageSize}`;
   return axios.get(URL_BACKEND);
 };
+const fetchDataProduct = () => {
+  const URL_BACKEND = `/api/v1/products/getAllProduct`;
+  return axios.get(URL_BACKEND);
+}
 
 const fetchDataPageAndFilterProduct = async (
   category_id,
@@ -373,7 +377,7 @@ const fetchDataSize = () => {
 const createProductDetailAPi = (
   code,
   quantity,
-  price,
+  defaultPrice,
   productId,
   sizeId,
   colorId
@@ -382,7 +386,7 @@ const createProductDetailAPi = (
   const data = {
     code: code,
     quantity: quantity,
-    price: price,
+    defaultPrice: defaultPrice,
     productId: productId,
     sizeId: sizeId,
     colorId: colorId,
@@ -394,7 +398,7 @@ const updateProductDetailAPi = (
   id,
   code,
   quantity,
-  price,
+  defaultPrice,
   productId,
   sizeId,
   colorId,
@@ -404,7 +408,7 @@ const updateProductDetailAPi = (
   const data = {
     code: code,
     quantity: quantity,
-    price: price,
+    defaultPrice: defaultPrice,
     productId: productId,
     sizeId: sizeId,
     colorId: colorId,
@@ -965,7 +969,16 @@ const updatePassword = (email, code, newPassword) => {
   });
 }
 
+/*
+  API cartDetail
+*/
+
+// const getCartDetailByCustomerId = (customerId) => {
+//   const URL_BACKEND = `/api/v1/`
+// }
+
 export {
+  fetchDataProduct,
   fetchDataProductById,
   findByProductDetailId,
   updatePassword,

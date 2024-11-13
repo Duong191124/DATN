@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface ProductService {
-    List<ProductResponse> getAll();
+    List<Product> getAll();
 
     ProductResponse createdProduct(ProductDTO productDTO);
 

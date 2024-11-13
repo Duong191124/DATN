@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, Drawer } from 'antd';
 import CartItem from './cart.item';
 import CartBottom from './cart.bottom';
 import './cart.style.css'
 import { ClearOutlined, CloseOutlined } from '@ant-design/icons';
 const CartDrawer = ({ openCart, setOpenCart }) => {
+
+    const [totalAmount, setTotalAmount] = useState(0);
 
     const showDrawer = () => {
         setOpenCart(true);
@@ -54,22 +56,7 @@ const CartDrawer = ({ openCart, setOpenCart }) => {
                             msOverflowStyle: 'none'
                         }}
                     >
-                        <CartItem />
-                        <CartItem />
-                        <CartItem />
-                        <CartItem />
-                        <CartItem />
-                        <CartItem />
-                        <CartItem />
-                        <CartItem />
-                        <CartItem />
-                        <CartItem />
-                        <CartItem />
-                        <CartItem />
-                        <CartItem />
-                        <CartItem />
-                        <CartItem />
-                        <CartItem />
+                        <CartItem setTotalAmount={setTotalAmount} />
                     </div>
 
                 </div>
@@ -84,7 +71,7 @@ const CartDrawer = ({ openCart, setOpenCart }) => {
                         backgroundColor: 'white'
                     }}
                 >
-                    <CartBottom />
+                    <CartBottom totalAmount={totalAmount} />
                 </div>
             </Drawer>
         </>

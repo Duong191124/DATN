@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface CartDetailService {
 
-    List<CartDetail> getAll();
+    List<CartDetail> getAll(int customerId);
 
     CartDetailResponse add(CartDetailDTO cartDetailDTO) throws Exception;
 

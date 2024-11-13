@@ -1,88 +1,99 @@
 import { useParams } from 'react-router-dom';
-import { fetchDataColor, fetchDataProductAPI, fetchDataProductById, fetchDataSize } from '../../../../../service/api.service';
+import { fetchDataColor, fetchDataProductById, fetchDataSize, findByProductId } from '../../../../../service/api.service';
 import './product.detail.page.css';
 import React, { useEffect, useState } from 'react';
 
 const ProductDetailPage = () => {
     const { id } = useParams();
-    const [product, setProduct] = useState([])
-    const [size, setSize] = useState([])
-    const [color, setColor] = useState([])
-
-    const initProduct = async () => {
-        const res = await fetchDataProductById(id);
-        setProduct(res.data.data)
-        console.log("check res", res)
-    }
-
-
-    const initSize = async () => {
-        const res = await fetchDataSize();
-        setSize(res.data.data)
-
-    }
-
-    const initColor = async () => {
-        const res = await fetchDataColor();
-        setColor(res.data.data)
-    }
-    useEffect(() => {
-        initProduct();
-        initSize();
-        initColor();
-    }, [])
-
-
+    const [product, setProduct] = useState([]);
+    const [size, setSize] = useState([]);
+    const [color, setColor] = useState([]);
 
     const [selectedSize, setSelectedSize] = useState('');
     const [selectedColor, setSelectedColor] = useState('');
     const [quantity, setQuantity] = useState(1);
-    // console.log("Check product", product)
+
+    // Fetch data cho size và color
+    const initSize = async () => {
+        const res = await fetchDataSize();
+        setSize(res.data.data);
+    };
+
+    const initColor = async () => {
+        const res = await fetchDataColor();
+        setColor(res.data.data);
+    };
+
+    // Fetch data cho product khi selectedColor thay đổi
+    useEffect(() => {
+        const initProduct = async () => {
+            const res = await findByProductId(id);
+            const productDetails = res.data.data.details;
+
+            // Lọc chi tiết sản phẩm theo màu được chọn
+            const selectedProduct = productDetails.find(detail => detail.color.name === selectedColor) || productDetails[0];
+            setProduct(selectedProduct);
+            console.log("check selected product", selectedProduct);
+        };
+
+        initProduct();
+    }, [id, selectedColor]);
+
+    useEffect(() => {
+        initSize();
+        initColor();
+    }, []);
+
     return (
         <div className="product-detail">
             <div className="product-info">
-                <img src={product.image} alt={product.name} />
+                <img src={product.image} alt={product.productResponse?.name} />
                 <div className="product-details">
-                    <h1>{product.name}</h1>
+                    <h1>{product.productResponse?.name}</h1>
                     <p className="price">
-                        <span className="current-price">${product.price}</span>
-
+                        <span className="current-price">{product.defaultPrice}</span>
+                        {product.discountPrice && <span className="discount-price">{product.discountPrice}</span>}
                     </p>
-                    <p>{product.description}</p>
+                    <p>{product.productResponse?.description}</p>
 
                     <div className="select-size">
                         <label>Size:</label>
                         <div className="size-options">
-                            {size.map((size) => (
-                                <button
-                                    key={size.id}
-                                    className={`size-button ${selectedSize === size.name ? 'selected' : ''}`}
-                                    onClick={() => setSelectedSize(size.name)}
-                                >
-                                    {size.name}
-                                </button>
-                            ))}
+                            {size
+                                .filter(size => size.status === 1)
+                                .map(size => (
+                                    <button
+                                        key={size.id}
+                                        className={`size-button ${selectedSize === size.name ? 'selected' : ''}`}
+                                        onClick={() => setSelectedSize(size.name)}
+                                    >
+                                        {size.name}
+                                    </button>
+                                ))}
                         </div>
                     </div>
 
                     <div className="select-color">
                         <label>Color:</label>
                         <div className="color-options">
-                            {color.map((color) => (
-                                <button
-                                    key={color.id}
-                                    className={`color-button ${selectedColor === color.name ? 'selected' : ''}`}
-                                    onClick={() => setSelectedColor(color.name)}
-                                >
-                                    {color.name}
-                                </button>
-                            ))}
+                            {color
+                                .filter(color => color.status === 1)
+                                .map(color => (
+                                    <button
+                                        key={color.id}
+                                        className={`color-button ${selectedColor === color.name ? 'selected' : ''}`}
+                                        onClick={() => setSelectedColor(color.name)}
+                                    >
+                                        {color.name}
+                                    </button>
+                                ))}
                         </div>
                     </div>
 
                     <div className="quantity">
                         <button className="quantity-btn" onClick={() => setQuantity(quantity > 1 ? quantity - 1 : 1)}>-</button>
-                        <input type="text" value={quantity} readOnly /><button className="quantity-btn" onClick={() => setQuantity(quantity + 1)}>+</button>
+                        <input type="text" value={quantity} readOnly />
+                        <button className="quantity-btn" onClick={() => setQuantity(quantity + 1)}>+</button>
                     </div>
 
                     <button className="add-to-cart">Add to Cart</button>
