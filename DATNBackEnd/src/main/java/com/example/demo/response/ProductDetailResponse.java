@@ -3,6 +3,7 @@ package com.example.demo.response;
 import com.example.demo.entity.Color;
 import com.example.demo.entity.ProductDetail;
 import com.example.demo.entity.Size;
+import com.example.demo.entity.Weight;
 import lombok.*;
 
 @Builder
@@ -23,6 +24,8 @@ public class ProductDetailResponse {
     private Size size;
     private Color color;
 
+    private Weight weight;
+
     public static ProductDetailResponse fromProductDetailResponse(ProductDetail productDetail){
         return ProductDetailResponse.builder()
                 .id(productDetail.getId())
@@ -35,6 +38,7 @@ public class ProductDetailResponse {
                 .productResponse(ProductResponse.convertResponse(productDetail.getProduct()))
                 .size(productDetail.getSize())
                 .color(productDetail.getColor())
+                .weight(productDetail.getWeight())
                 .build();
     }
 }

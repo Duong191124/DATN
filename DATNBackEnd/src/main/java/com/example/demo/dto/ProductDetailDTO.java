@@ -22,6 +22,8 @@ public class ProductDetailDTO {
 
 //    @NotNull(message = "Price is required")
 //    @Positive(message = "Price must be greater than 0")
+
+
     private double defaultPrice;
 
     private double discountPrice;
@@ -40,6 +42,9 @@ public class ProductDetailDTO {
     @NotNull(message = "Color is required")
     private int colorId;
 
+    @NotNull(message = "Color is required")
+    private int weightId;
+
     public static ProductDetailDTO convertProductDetailDTO(ProductDetail productDetail){
         return ProductDetailDTO.builder()
                 .code(productDetail.getCode())
@@ -51,6 +56,7 @@ public class ProductDetailDTO {
                 .productId(productDetail.getProduct().getId())
                 .colorId(productDetail.getColor().getId())
                 .sizeId(productDetail.getSize().getId())
+                .weightId(productDetail.getWeight().getId())
                 .build();
     }
 }

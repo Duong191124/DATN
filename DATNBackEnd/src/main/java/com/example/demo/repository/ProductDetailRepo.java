@@ -28,18 +28,20 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Integer>
             "AND (:code IS NULL OR :code = '' OR pdt.code LIKE %:code%) " +
             "AND (:colorName IS NULL OR :colorName = '' OR pdt.color.name LIKE %:colorName%) " +
             "AND (:sizeName IS NULL OR :sizeName = '' OR pdt.size.name LIKE %:sizeName%) " +
+            "AND (:weightName IS NULL OR :weightName = '' OR pdt.weight.name LIKE %:weightName%) " + // Thêm điều kiện cho weightName
             "AND (:minPrice IS NULL OR pdt.defaultPrice >= :minPrice) " +
             "AND (:maxPrice IS NULL OR pdt.defaultPrice <= :maxPrice) " +
             "AND (:status IS NULL OR " +
-            "    ((CASE WHEN p.status = 0 OR cl.status = 0 OR s.status = 0 OR sl.status = 0 OR col.status = 0 OR b.status = 0 THEN 2 " +
+            "    ((CASE WHEN p.status = 0 OR cl.status = 0 OR s.status = 0 OR sl.status = 0 OR col.status = 0 OR b.status = 0 OR pdt.weight.status = 0 THEN 2 " +
             "            ELSE (p.status * cl.status * s.status * sl.status * col.status * b.status) END) = :status))")
-
     Page<ProductDetail> pageAndFilterProductDetail(@Param("productName") String productName,
                                                    @Param("code") String code,
                                                    @Param("colorName") String colorName,
                                                    @Param("sizeName") String sizeName,
+                                                   @Param("weightName") String weightName,
                                                    @Param("minPrice") Double minPrice,
                                                    @Param("maxPrice") Double maxPrice,
                                                    @Param("status") Integer status,
                                                    Pageable pageable);
+
 }
