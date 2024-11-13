@@ -28,12 +28,9 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-highlight-words": "^0.20.0",
-<<<<<<< HEAD
+    "react-i18next": "^15.1.1",
     "react-qr-code": "^2.0.15",
     "react-qr-scanner": "^1.0.0-alpha.11",
-=======
-    "react-i18next": "^15.1.1",
->>>>>>> 6561f89d4eb9dfc9535de708bc3dd2e0aa2fccd1
     "react-router-dom": "^6.26.2",
     "styled-components": "^6.1.13",
     "use-debounce": "^10.0.4"

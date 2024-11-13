@@ -269,11 +269,19 @@ public class OrderServiceImpl implements OrderService {
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setOrders(order);
             orderDetail.setProductDetail(productDetail);
-            orderDetail.setPrice(productDetail.getDefaultPrice());
+
+            BigDecimal discountPriceBigDecimal = BigDecimal.valueOf(productDetail.getDiscountPrice());
+
+            BigDecimal priceToUse = (discountPriceBigDecimal != null && discountPriceBigDecimal.compareTo(BigDecimal.ZERO) > 0)
+                    ? discountPriceBigDecimal // Giữ nguyên BigDecimal nếu có giá giảm
+                    : BigDecimal.valueOf(productDetail.getDefaultPrice()); // Nếu không có giá giảm, sử dụng giá mặc định
+            // Nếu không có giá giảm, sử dụng giá mặc định và giữ nguyên BigDecimal
+            orderDetail.setPrice(priceToUse.doubleValue());  // Chuyển đổi BigDecimal thành Double khi lưu vào OrderDetail
             orderDetail.setQuantity(detailRequest.getQuantity());
 
-            // Tính toán tổng số tiền với BigDecimal
-            totalAmount = totalAmount.add(BigDecimal.valueOf(productDetail.getDefaultPrice()).multiply(BigDecimal.valueOf(detailRequest.getQuantity())));
+            // Tính toán tổng số tiền cho sản phẩm
+            totalAmount = totalAmount.add(priceToUse.multiply(BigDecimal.valueOf(detailRequest.getQuantity())));
+
 
             order.getOrderDetails().add(orderDetail);
             orderDetailsToSave.add(orderDetail);
@@ -305,10 +313,9 @@ public class OrderServiceImpl implements OrderService {
             }
 
             // Tính toán giảm giá của voucher
-            // Tính toán giảm giá của voucher (chỉ áp dụng một trong hai: phần trăm hoặc số tiền)
             BigDecimal discount = BigDecimal.ZERO;
 
-// Kiểm tra xem voucher có số tiền giảm giá cụ thể hay không
+            // Kiểm tra xem voucher có số tiền giảm giá cụ thể hay không
             if (voucher.getDiscountAmount() != null && voucher.getDiscountAmount().compareTo(String.valueOf(BigDecimal.ZERO)) > 0) {
                 // Áp dụng giảm giá theo số tiền nếu có
                 discount = new BigDecimal(voucher.getDiscountAmount());
@@ -318,15 +325,14 @@ public class OrderServiceImpl implements OrderService {
                 discount = totalAmount.multiply(percent).divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
             }
 
-// Áp dụng giới hạn giảm giá tối đa (nếu có)
+            // Áp dụng giới hạn giảm giá tối đa (nếu có)
             if (voucher.getMaxDiscountAmount() != null) {
                 BigDecimal maxDiscount = new BigDecimal(voucher.getMaxDiscountAmount());
                 discount = discount.min(maxDiscount); // Giảm không thể vượt quá maxDiscount
             }
 
-// Cập nhật tổng số tiền sau khi áp dụng voucher
+            // Cập nhật tổng số tiền sau khi áp dụng voucher
             totalAmount = totalAmount.subtract(discount);
-
 
             // Giảm số lượng voucher và lưu lại
             voucher.setQuantity(voucher.getQuantity() - 1);
@@ -338,8 +344,8 @@ public class OrderServiceImpl implements OrderService {
             customerRepo.save(customer);
         }
 
-        // Cập nhật tổng số tiền của đơn hàng
-        order.setTotalAmount(totalAmount.doubleValue()); // Lưu lại totalAmount dưới dạng double
+        // Cập nhật tổng số tiền của đơn hàng (chuyển đổi BigDecimal sang Double khi cần)
+        order.setTotalAmount(totalAmount.doubleValue()); // Chuyển từ BigDecimal sang Double
         orderRepo.save(order);
 
         // Trả về phản hồi đơn hàng đã cập nhật

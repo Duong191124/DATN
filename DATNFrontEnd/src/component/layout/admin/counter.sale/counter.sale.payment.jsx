@@ -78,32 +78,48 @@ const CounterSalePayment = ({
   useEffect(() => {
     if (selectedBill) {
       // Tính tổng tiền trước khi áp dụng voucher
-      const newTotalAmount = cartItems.reduce(
-        (acc, item) => acc + item.price * item.quantity,
-        0
-      );
-      setTotalAmount(newTotalAmount); // Cập nhật lại tổng tiền
-      // Nếu có voucher, tính tổng tiền sau khi áp dụng
+      const newTotalAmount = cartItems.reduce((acc, item) => {
+        const priceToUse =
+          item.discountPrice > 0 ? item.discountPrice : item.defaultPrice;
+        return acc + priceToUse * item.quantity;
+      }, 0);
+      setTotalAmount(newTotalAmount); // Cập nhật lại tổng tiền ban đầu
       if (selectedVoucher) {
-        const totalAmountWithDiscount = selectedVoucher
-          ? newTotalAmount -
-            (selectedVoucher.discountPercent
-              ? (newTotalAmount * selectedVoucher.discountPercent) / 100
-              : selectedVoucher.discountAmount)
-          : newTotalAmount;
-
-        setTotalAmountAfterDiscount(totalAmountWithDiscount);
+        const maxDiscount = parseFloat(selectedVoucher.maxDiscountAmount); // Mức tối đa giảm giá
+        // Kiểm tra voucher là giảm theo phần trăm hay số tiền
+        if (
+          selectedVoucher.discountPercent &&
+          selectedVoucher.discountAmount === null
+        ) {
+          let discount = 0;
+          // Tính giảm giá theo phần trăm
+          discount = (newTotalAmount * selectedVoucher.discountPercent) / 100;
+          // Áp dụng giới hạn giảm giá: tối thiểu và tối đa
+          if (discount > maxDiscount) {
+            discount = maxDiscount; // Áp dụng tối đa
+          }
+          const totalAmountWithDiscount = newTotalAmount - discount;
+          setTotalAmountAfterDiscount(totalAmountWithDiscount);
+          return;
+        }
+        if (
+          selectedVoucher.discountAmount &&
+          selectedVoucher.discountPercent === null
+        ) {
+          let discount = 0;
+          discount = parseFloat(selectedVoucher.discountAmount);
+          const totalAmountWithDiscount = newTotalAmount - discount;
+          setTotalAmountAfterDiscount(totalAmountWithDiscount);
+          return;
+        }
       } else {
-        // Không có voucher, tổng tiền không thay đổi
+        // Nếu không có voucher, tổng tiền không thay đổi
         setTotalAmountAfterDiscount(newTotalAmount);
       }
     }
-  }, [selectedBill, cartItems, selectedVoucher]); // Tính lại khi thay đổi hóa đơn, giỏ hàng hoặc voucher
-  useEffect(() => {
-    const savedAccounts =
-      JSON.parse(localStorage.getItem("bankAccounts")) || [];
-    setBankAccounts(savedAccounts);
-  }, []);
+  }, [selectedBill, cartItems, selectedVoucher]);
+
+  // Tính lại khi thay đổi hóa đơn, giỏ hàng hoặc voucher
 
   const handleAddAccount = () => {
     if (!newAccount.bankName || !newAccount.accountNumber) {
@@ -179,11 +195,6 @@ const CounterSalePayment = ({
     }
   };
   const handleShowInvoice = async () => {
-    const totalPayment = selectedVoucher
-      ? selectedVoucher.discountPercent
-        ? totalAmount - (totalAmount * selectedVoucher.discountPercent) / 100 // Giảm theo phần trăm
-        : totalAmount - selectedVoucher.discountAmount // Giảm theo số tiền
-      : totalAmount;
     const billCode = billWaiting.find((bill) => bill.code === selectedBill);
     let selectedAccountInfo;
     if (paymentInfo.paymentMethod === "Cash") {
@@ -199,7 +210,7 @@ const CounterSalePayment = ({
       const qrCodeData = JSON.stringify({
         accountNumber: selectedAccountInfo.accountNumber,
         bankName: selectedAccountInfo.bankName,
-        amount: totalPayment,
+        amount: totalAmountAfterDiscount,
       });
       try {
         const qrCodeWithLogoUrl = await generateQrCodeWithLogo(
@@ -262,10 +273,19 @@ const CounterSalePayment = ({
                 <td style="border: 1px solid #000; padding: 8px;align-item:center;text-align:center;">${
                   item.size.name
                 }</td>
-                <td style="border: 1px solid #000; padding: 8px; align-item:center;text-align:center;">${item.price.toLocaleString()} VNĐ</td>
-                <td style="border: 1px solid #000; padding: 8px; align-item:center;text-align:center;">${(
-                  item.price * item.quantity
-                ).toLocaleString()} VNĐ</td>
+                <td style="border: 1px solid #000; padding: 8px; text-align: center;">
+                  ${(item.discountPrice > 0
+                    ? item.discountPrice
+                    : item.defaultPrice
+                  ).toLocaleString()} VNĐ
+                </td>
+                <td style="border: 1px solid #000; padding: 8px; text-align: center;">
+                  ${(
+                    (item.discountPrice > 0
+                      ? item.discountPrice
+                      : item.defaultPrice) * item.quantity
+                  ).toLocaleString()} VNĐ
+                </td>
               </tr>
             `
               )
@@ -275,18 +295,13 @@ const CounterSalePayment = ({
         <h4>Tổng tiền hàng: ${totalAmount.toLocaleString()} VNĐ</h4>
         <h4>Chiết khấu: 
             ${
-              selectedVoucher && selectedVoucher.discountPercent > 0
-                ? (
-                    (totalAmount * selectedVoucher.discountPercent) /
-                    100
-                  ).toLocaleString() // Giảm theo phần trăm
-                : selectedVoucher && selectedVoucher.discountAmount > 0
-                ? selectedVoucher.discountAmount.toLocaleString() // Giảm theo số tiền
+              selectedVoucher
+                ? (totalAmount - totalAmountAfterDiscount).toLocaleString()
                 : "Không có chiết khấu"
             } VNĐ
           </h4>
-        <h4>Tổng thanh toán: ${totalPayment.toLocaleString()} VNĐ</h4>
-        <p>(${totalPayment.toLocaleString()} đồng chẵn)</p>
+        <h4>Tổng thanh toán: ${totalAmountAfterDiscount.toLocaleString()} VNĐ</h4>
+        <p>(${totalAmountAfterDiscount.toLocaleString()} đồng chẵn)</p>
         ${
           paymentInfo.paymentMethod === "Cash"
             ? `
@@ -412,9 +427,7 @@ const CounterSalePayment = ({
         (account) => account.accountNumber === value
       );
       const totalPayment = selectedVoucher
-        ? selectedVoucher.discountPercent
-          ? totalAmount - (totalAmount * selectedVoucher.discountPercent) / 100 // Giảm theo phần trăm
-          : totalAmount - selectedVoucher.discountAmount // Giảm theo số tiền
+        ? totalAmountAfterDiscount
         : totalAmount;
       const qrCodeData = JSON.stringify({
         accountNumber: selectedAccountInfo.accountNumber,
@@ -551,35 +564,22 @@ const CounterSalePayment = ({
         totalAmount + 500000,
       ];
   useEffect(() => {
-    // Tính toán lại tổng số tiền sau khi giảm giá
-    const totalAmountWithDiscount = selectedVoucher
-      ? selectedVoucher.discountPercent
-        ? totalAmount - (totalAmount * selectedVoucher.discountPercent) / 100
-        : totalAmount - selectedVoucher.discountAmount
-      : totalAmount;
-
     // Tính số tiền thừa (tiền khách đưa trừ tổng tiền sau khi giảm giá)
-    setChange(customerPaid - totalAmountWithDiscount);
-  }, [selectedVoucher]); // Khi selectedVoucher, totalAmount hoặc customerPaid thay đổi
+    setChange(customerPaid - totalAmountAfterDiscount);
+  }, [selectedVoucher, customerPaid, totalAmountAfterDiscount]);
 
   const handlePayment = async () => {
-    const totalAmountWithDiscount = selectedVoucher
-      ? selectedVoucher.discountPercent
-        ? totalAmount - (totalAmount * selectedVoucher.discountPercent) / 100
-        : totalAmount - selectedVoucher.discountAmount
-      : totalAmount;
-
-    if (
-      paymentInfo.paymentMethod !== "Bank Transfer" &&
-      customerPaid < totalAmountWithDiscount
-    ) {
+    // if (paymentInfo.paymentMethod !== "Bank Transfer") {
+    //   message.error(`Vui lòng chọn phương thức thanh toán`);
+    //   return;
+    // }
+    if (customerPaid < totalAmountAfterDiscount) {
       message.error(
-        `Thanh toán không đủ. Vui lòng nhập đủ tiền. Tổng tiền cần thanh toán là ${totalAmountWithDiscount.toLocaleString()} VNĐ.`
+        `Thanh toán không đủ. Vui lòng nhập đủ tiền. Tổng tiền cần thanh toán là ${totalAmountAfterDiscount.toLocaleString()} VNĐ.`
       );
       return;
     }
     setTotalAmount(totalAmountAfterDiscount); // Cập nhật totalAmount trước khi tiến hành thanh toán
-
     // Tiến hành thanh toán nếu đủ tiền
     const paymentSuccess = await onPayment();
     if (paymentSuccess) {
@@ -743,29 +743,24 @@ const CounterSalePayment = ({
         {selectedBill && (
           <Form.Item>
             <h4 style={{ fontWeight: "bold", marginTop: "20px" }}>
-              Tổng Tiền: {totalAmount ? totalAmount.toLocaleString() : "0 VNĐ"}
+              Tổng Tiền: {totalAmount ? totalAmount.toLocaleString() : "0"} VNĐ
             </h4>
             {/* Nếu có voucher và voucher có giá trị giảm giá */}
             {selectedVoucher && vouchers.length > 0 && (
               <p style={{ color: "green", fontStyle: "italic" }}>
                 (Đã giảm giá:{" "}
-                {selectedVoucher.discountPercent > 0
-                  ? (
-                      (totalAmount * selectedVoucher.discountPercent) /
-                      100
-                    ).toLocaleString()
-                  : selectedVoucher.discountAmount.toLocaleString()}{" "}
-                VNĐ)
+                {(totalAmount - totalAmountAfterDiscount).toLocaleString()} VNĐ)
               </p>
             )}
 
             {/* Hiển thị tổng tiền sau khi giảm giá (nếu có voucher) */}
             {selectedVoucher && vouchers.length > 0 && (
               <h4 style={{ fontWeight: "bold" }}>
-                Tổng Tiền Sau Giảm:{" "}
+                Tổng Tiền <sup style={{ fontWeight: "300" }}>(sau giảm)</sup>:{" "}
                 {totalAmountAfterDiscount
                   ? totalAmountAfterDiscount.toLocaleString()
-                  : "0 VNĐ"}
+                  : "0"}{" "}
+                VNĐ
               </h4>
             )}
           </Form.Item>

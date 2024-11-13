@@ -215,10 +215,13 @@ const CounterSales = () => {
       return;
     }
 
-    const total = cartItemsByBill[selectedBill].reduce(
-      (acc, item) => acc + item.price * item.quantity,
-      0
-    );
+    const total = cartItemsByBill[selectedBill].reduce((acc, item) => {
+      // Kiểm tra nếu sản phẩm có giá giảm
+      const priceToUse =
+        item.discountPrice > 0 ? item.discountPrice : item.defaultPrice;
+      return acc + priceToUse * item.quantity;
+    }, 0);
+
     setTotalAmount(total);
   }, [selectedBill, cartItemsByBill]);
   const updateCart = useCallback(
@@ -518,7 +521,6 @@ const CounterSales = () => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        margin: "0 20px",
       }}
     >
       <h3
@@ -587,7 +589,7 @@ const CounterSales = () => {
           style={{
             width: "30%",
             backgroundColor: "#ddd",
-            padding: "20px",
+            padding: "15px",
             minHeight: "520px",
             overflowY: "auto",
           }}

@@ -183,9 +183,34 @@ const CounterSaleCart = ({
     },
     {
       title: "Giá",
-      dataIndex: "price",
-      render: (price) => {
-        return price ? `${price.toLocaleString()} VNĐ` : "Chưa có giá";
+      dataIndex: "defaultPrice",
+      render: (text, record) => {
+        const { discountPrice, defaultPrice } = record;
+
+        if (discountPrice && discountPrice < defaultPrice) {
+          // Nếu có giá giảm, hiển thị cả giá gốc và giá giảm
+          return (
+            <span>
+              <span style={{ textDecoration: "line-through", color: "gray" }}>
+                {defaultPrice
+                  ? `${defaultPrice.toLocaleString()} VNĐ`
+                  : "Chưa có giá"}
+              </span>
+              <span style={{ marginLeft: "8px", color: "red" }}>
+                {discountPrice
+                  ? `${discountPrice.toLocaleString()} VNĐ`
+                  : "Chưa có giá"}
+              </span>
+            </span>
+          );
+        }
+
+        // Nếu không có giảm giá, chỉ hiển thị giá gốc
+        return discountPrice
+          ? `${discountPrice.toLocaleString()} VNĐ`
+          : defaultPrice
+          ? `${defaultPrice.toLocaleString()} VNĐ`
+          : "Chưa có giá";
       },
     },
     {
