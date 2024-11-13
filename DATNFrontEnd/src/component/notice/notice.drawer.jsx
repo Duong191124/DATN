@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Drawer, notification, Empty } from 'antd'; // Nhập Empty từ antd
 import NoticeCart from './notice.cart';
-import Pusher from 'pusher-js';
 import { BellOutlined } from '@ant-design/icons';
 import { fetchDataNotice } from '../../service/api.service';
+import Pusher from 'pusher-js';
 
 const NoticeDrawer = ({ openNotice, setOpenNotice }) => {
     const [notices, setNotices] = useState([]);

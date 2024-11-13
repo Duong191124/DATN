@@ -57,7 +57,8 @@ public class PromotionResponse {
                             .stream()
                             .map(ProductDetail::getId)
                             .collect(Collectors.toList()));
-        } else {
+        }
+        else {
             response.setProductDetailsId(new ArrayList<>()); // Trả về một mảng rỗng
         }
 

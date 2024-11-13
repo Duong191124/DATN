@@ -10,27 +10,27 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("${api.prefix}/ghn")
 public class GhnController {
 
-    @Autowired
-    private GhnServiceImpl ghnService;
-
-    @GetMapping("/provinces")
-    public String getProvinces() {
-        return ghnService.getProvinces();
-    }
-
-    @GetMapping("/districts")
-    public String getDistricts(@RequestParam int provinceId) {
-        return ghnService.getDistricts(provinceId);
-    }
-
-
-    @GetMapping("/wards")
-    public String getWards(@RequestParam int districtId) {
-        return ghnService.getWards(districtId);
-    }
-
-    @PostMapping("/shipping-fee")
-    public String getShippingFee(@RequestBody GhnDTO ghnDTO) {
-        return ghnService.getShippingFee(ghnDTO);
-    }
+//    @Autowired
+//    private GhnServiceImpl ghnService;
+//
+//    @GetMapping("/provinces")
+//    public String getProvinces() {
+//        return ghnService.getProvinces();
+//    }
+//
+//    @GetMapping("/districts")
+//    public String getDistricts(@RequestParam int provinceId) {
+//        return ghnService.getDistricts(provinceId);
+//    }
+//
+//
+//    @GetMapping("/wards")
+//    public String getWards(@RequestParam int districtId) {
+//        return ghnService.getWards(districtId);
+//    }
+//
+//    @PostMapping("/shipping-fee")
+//    public String getShippingFee(@RequestBody GhnDTO ghnDTO) {
+//        return ghnService.getShippingFee(ghnDTO);
+//    }
 }
