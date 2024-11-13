@@ -113,6 +113,10 @@ const fetchAllProduct = (page, pageSize) => {
   const URL_BACKEND = `/api/v1/products?page=${page}&pageSize=${pageSize}`;
   return axios.get(URL_BACKEND);
 };
+const fetchDataProduct = () => {
+  const URL_BACKEND = `/api/v1/products/getAllProduct`;
+  return axios.get(URL_BACKEND);
+}
 
 const fetchDataPageAndFilterProduct = async (
   category_id,
@@ -967,6 +971,7 @@ const updatePassword = (email, code, newPassword) => {
   });
 }
 
+
 //Weight
 const fetchDataWeight = () => {
   const URL_BACKEND = "/api/v1/weight";
@@ -999,6 +1004,18 @@ export {
   updateWeightAPI,
   fetchDataWeight,
   createWeightAPI,
+
+/*
+  API cartDetail
+*/
+
+// const getCartDetailByCustomerId = (customerId) => {
+//   const URL_BACKEND = `/api/v1/`
+// }
+
+
+  fetchDataProduct,
+
   fetchDataProductById,
   findByProductDetailId,
   updatePassword,

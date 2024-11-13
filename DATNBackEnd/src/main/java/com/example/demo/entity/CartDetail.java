@@ -31,5 +31,15 @@ public class CartDetail {
     @ManyToOne
     @JoinColumn(name = "product_detail_id", referencedColumnName = "id")
     private ProductDetail productDetail;
+
+    @PrePersist
+    @PreUpdate
+    private void calculateTotalPrice() {
+        if (this.price != null && this.quantity > 0) {
+            this.totalPrice = this.price * this.quantity;
+        } else {
+            this.totalPrice = 0.0;
+        }
+    }
 }
 

@@ -30,4 +30,6 @@ public class PromotionDTO {
 
     private List<Integer> productDetailsIds;
 
+    private Boolean applyPromotion;
+
 }
