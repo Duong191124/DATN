@@ -97,6 +97,16 @@ public class CustomerController {
                 .build());
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<?> getById(@PathVariable("id") Integer id)throws Exception{
+
+        return ResponseEntity.ok().body(MessageReponse.builder()
+                .data(customerService.getCustomerByID(id))
+                .message("get hang voi id = " + id +"thanh cong")
+                .status(HttpStatus.OK.value())
+                .build());
+    }
+
     @PutMapping("soft-delete/{id}")
     public ResponseEntity<?> softDelete(
             @PathVariable("id") Integer id) throws Exception {
