@@ -33,6 +33,7 @@ import InfoPage from "./pages/info.jsx";
 import { CartProvider } from "./component/context/cart.context.jsx";
 import SanPham from "./component/layout/content/san-pham/san-pham.jsx";
 import ProductDetailPage from "./component/layout/content/san-pham/product.detail.page.jsx";
+import ContactPage from "./pages/contact.jsx";
 
 
 
@@ -135,6 +136,10 @@ const router = createBrowserRouter([
       {
         path: "/info",
         element: <InfoPage />
+      },
+      {
+        path: "/contact",
+        element: <ContactPage />
       },
     ]
   },
