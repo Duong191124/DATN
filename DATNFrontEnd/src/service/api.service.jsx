@@ -196,6 +196,7 @@ const fetchPageDataProductDetail = async (
   sizeName,
   minPrice,
   maxPrice,
+  status,
   page = 0,
   limit = 10
 ) => {
@@ -207,6 +208,7 @@ const fetchPageDataProductDetail = async (
     sizeName: sizeName || "",
     minPrice: minPrice || "",
     maxPrice: maxPrice || "",
+    status: status || "",
     page: page,
     limit: limit,
   };
@@ -263,18 +265,16 @@ const updateStatusOrder = (orderId, status) => {
   };
   return axios.put(URL_BACKEND, data);
 };
-const updateProductDetailWithOrder = (orderId, productDetail) => {
+const updateProductDetailWithOrder = (orderId, productDetail, voucherId) => {
   const URL_BACKEND = `api/v1/orders/update-productDetail/${orderId}`;
-  const data = productDetail.map(
-    (item) => (
-      console.log("item", item),
-      {
-        product_detail_id: item.product_detail_id,
-        quantity: item.quantity,
-      }
-    )
-  );
-  console.log("Request Data:", data);
+  const data = {
+    orderDetailRequests: productDetail.map((item) => ({
+      product_detail_id: item.product_detail_id,
+      quantity: item.quantity,
+      price: item.price,
+    })),
+    voucherId: voucherId,
+  };
   return axios.put(URL_BACKEND, data);
 };
 
@@ -345,6 +345,14 @@ const createPayment = async (paymentDate, paymentMethod, orderId) => {
     console.error("Thanh toán thất bại:", error);
     throw new Error("Thanh toán thất bại: " + error.message);
   }
+};
+const getVouchersByCustomerId = (customerId) => {
+  const URL_BACKEND = `api/v1/customer-voucher/${customerId}`;
+  return axios.get(URL_BACKEND);
+};
+const hasCustomerUsedVoucher = (customerId, voucherId) => {
+  const URL_BACKEND = `api/v1/orders/hasUsedVoucher/${customerId}/${voucherId}`;
+  return axios.get(URL_BACKEND);
 };
 /*
   API Product detail
@@ -427,6 +435,10 @@ const deleteProductDetailAPI = (id) => {
 };
 const findByProductDetailId = (id) => {
   const URL_BACKEND = `/api/v1/productDetail/detail/${id}`;
+  return axios.get(URL_BACKEND);
+};
+const findByProductDetailCode = (code) => {
+  const URL_BACKEND = `/api/v1/productDetail/detailCode/${code}`;
   return axios.get(URL_BACKEND);
 };
 //API color
@@ -771,7 +783,7 @@ const updatePromotionProduct = async (id, payload) => {
 const chandleStatusPromotion = (id) => {
   const URL_BACKEND = `/api/v1/promotion/${id}/status`;
   return axios.put(URL_BACKEND);
-}
+};
 
 const detailPromotion = (id) => {
   const URL_BACKEND = `/api/v1/promotion/detail/${id}`;
@@ -881,7 +893,7 @@ const getAllCustomer = (page, size) => {
 const chandleStatus = (id) => {
   const URL_BACKEND = `/api/v1/voucher/${id}/status`;
   return axios.put(URL_BACKEND);
-}
+};
 const updateCustomer = (
   id,
   username,
@@ -955,23 +967,25 @@ const fetchDataAPICartDetail = () => {
 const fetchDataNotice = () => {
   const URL_BACKEND = "/api/v1/notice/getAll";
   return axios.get(URL_BACKEND);
-}
+};
 //API for forgot password
 const requetsForgotPassword = (email) => {
   const URL_BACKEND = "/api/v1/auth/request-reset-password";
   return axios.post(URL_BACKEND, {
-    email
+    email,
   });
-}
+};
 
 const updatePassword = (email, code, newPassword) => {
   const URL_BACKEND = "/api/v1/auth/confirm-set-password";
   return axios.post(URL_BACKEND, {
     email,
     code,
-    newPassword
+    newPassword,
   });
-}
+};
+
+
 
 
 //Weight
@@ -1006,18 +1020,7 @@ export {
   updateWeightAPI,
   fetchDataWeight,
   createWeightAPI,
-
-  /*
-    API cartDetail
-  */
-
-  // const getCartDetailByCustomerId = (customerId) => {
-  //   const URL_BACKEND = `/api/v1/`
-  // }
-
-
   fetchDataProduct,
-
   fetchDataProductById,
   findByProductDetailId,
   updatePassword,
@@ -1117,4 +1120,7 @@ export {
   updateProductDetailWithOrder,
   fetchPendingOrders,
   orderFindByCode,
+  findByProductDetailCode,
+  getVouchersByCustomerId,
+  hasCustomerUsedVoucher,
 };

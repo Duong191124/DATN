@@ -3,7 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.OrderDTO;
 import com.example.demo.entity.Notice;
 import com.example.demo.entity.OrderStatus;
-import com.example.demo.request.OrderDetailRequest;
+import com.example.demo.request.OrderWithVoucherAndOrderDetailRequest;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.OrderPageResponse;
 import com.example.demo.response.OrderResponse;
@@ -23,7 +23,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("${api.prefix}/orders")
@@ -107,15 +108,19 @@ public class  OrderController {
     }
     @PutMapping("/update-productDetail/{id}")
     public ResponseEntity<?> updateOrderWithProductDetail(
-            @PathVariable int id,
-            @RequestBody List<OrderDetailRequest> orderDetailRequests) {
+            @PathVariable Integer id,
+            @RequestBody OrderWithVoucherAndOrderDetailRequest orderUpdateRequest) {  // Contains both product details and voucherId
         try {
-            OrderResponse orderResponse = orderService.updatedOrderWithProductDetail(id, orderDetailRequests);
+            // Call the service method to update the order with the provided product details and voucherId
+            OrderResponse orderResponse = orderService.updatedOrderWithProductDetail(id, orderUpdateRequest);
+            // Return success response with updated order details
             return ResponseEntity.ok(new MessageReponse("Updated order successfully", 201, orderResponse));
         } catch (Exception e) {
+            // Return error response if something goes wrong
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
     @PutMapping("update-status/{id}")
     public ResponseEntity<?> updateOrder(@PathVariable int id, @RequestBody Map<String, String> payload){
@@ -150,5 +155,9 @@ public class  OrderController {
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+    @GetMapping("/hasUsedVoucher/{customerId}/{voucherId}")
+    public boolean hasCustomerUsedVoucher(@PathVariable int customerId, @PathVariable int voucherId) {
+        return orderService.hasCustomerUsedVoucher(customerId, voucherId);
     }
 }

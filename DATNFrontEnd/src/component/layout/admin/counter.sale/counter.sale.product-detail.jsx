@@ -2,21 +2,22 @@ import {
   Button,
   Col,
   Input,
-  InputNumber,
   Modal,
   notification,
+  Radio,
   Row,
   Select,
   Slider,
   Table,
 } from "antd";
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import "./product-detail.css";
 const { Option } = Select;
 
 const CounterSalesProductDetail = ({
   dataProductDetail,
   onAddToCart,
+  selectedBill,
   filter,
   setFilter,
   page,
@@ -25,12 +26,14 @@ const CounterSalesProductDetail = ({
   setPageProductDetail,
   updateFilter,
   updateUrl,
+  dataSize,
+  dataColor,
 }) => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [modalVisible, setModalVisible] = useState(false);
   const [loadingPD, setLoadingPD] = useState(false);
-
+  const [expanded, setExpanded] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const columns = [
     {
       title: "Mã sản phẩm",
@@ -103,15 +106,17 @@ const CounterSalesProductDetail = ({
       title: "Thêm vào giỏ",
       render: (_, record) => (
         <Button
-          disabled={record.quantity === 0 || record.status === 2}
+          disabled={
+            !selectedBill || record.quantity === 0 || record.status === 2
+          }
           style={{
-            opacity: record.quantity === 0 || record.status === 2 ? 0.5 : 1,
+            opacity:
+              !selectedBill || record.quantity === 0 || record.status === 2
+                ? 0.5
+                : 1,
           }}
           onClick={() => {
-            const addToCart = handleAddToCart(record);
-            if (addToCart) {
-              handleConfirm();
-            }
+            handleConfirm(record);
           }}
         >
           Thêm vào giỏ
@@ -135,32 +140,30 @@ const CounterSalesProductDetail = ({
         : 0, // Xét điều kiện trạng thái
   }));
 
-  const handleAddToCart = (record) => {
+  const handleConfirm = async (record) => {
     setSelectedRow(record);
-    setQuantity(1);
-    return true;
-    // setModalVisible(true);
-    // handleConfirm();
-  };
-
-  const handleConfirm = async () => {
-    if (quantity > selectedRow.quantity) {
-      notification.warning({
-        message: "Số lượng không đủ",
-        description: `Sản phẩm chỉ còn ${selectedRow.quantity} trong kho. Vui lòng giảm số lượng.`,
+    if (!selectedBill) {
+      notification.error({
+        message: "Lỗi",
+        description: "Vui lòng chọn hóa đơn trước khi thêm sản phẩm.",
       });
-      return false;
+      return;
     }
-    const productToAdd = {
-      ...selectedRow,
-      quantity,
-    };
-    if (selectedRow.productResponse && selectedRow.productResponse.name) {
+    if (record) {
+      const productToAdd = {
+        ...record,
+        quantity: 1,
+      };
       const addCart = await onAddToCart(productToAdd, quantity);
       if (addCart) {
         notification.success({
           message: "Thêm sản phẩm",
           description: `Thêm ${quantity} sản phẩm thành công`,
+        });
+      } else {
+        notification.error({
+          message: "Lỗi",
+          description: "Không thể thêm sản phẩm vào giỏ.",
         });
       }
     } else {
@@ -169,9 +172,17 @@ const CounterSalesProductDetail = ({
         description: "Sản phẩm không có thông tin hợp lệ.",
       });
     }
-    // setModalVisible(false);
-    setQuantity(1);
   };
+
+  useEffect(() => {
+    if (selectedRow) {
+      const productToAdd = {
+        ...selectedRow,
+        quantity: 1,
+      };
+      onAddToCart(productToAdd, quantity);
+    }
+  }, [selectedRow]);
 
   const handlePriceChange = (value) => {
     const newFilters = {
@@ -190,6 +201,7 @@ const CounterSalesProductDetail = ({
       productCode: "",
       color: "",
       size: "",
+      status: "",
       minPrice: undefined,
       maxPrice: undefined,
     };
@@ -198,147 +210,189 @@ const CounterSalesProductDetail = ({
     updateUrl(defaultFilters);
     setLoadingPD(false);
   };
+  const showFilterModal = () => {
+    setIsModalVisible(true);
+  };
 
+  // Đóng modal
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
+  // Áp dụng bộ lọc
+  const handleApplyFilters = () => {
+    // Logic để áp dụng bộ lọc
+    setIsModalVisible(false);
+  };
+
+  const toggleFilter = () => {
+    setExpanded(!expanded);
+  };
   return (
     <>
-      <h3 style={{ marginBottom: "20px", borderBottom: "1px solid #ddd" }}>
-        Chi tiết sản phẩm
-      </h3>
-      <div style={{ marginBottom: "20px" }}>
-        <Row justify="space-between" align="middle">
-          <h4 style={{ marginBottom: "20px" }}>Bộ lọc</h4>
-          <Button onClick={resetFilters} type="primary" loading={loadingPD}>
-            Reset
-          </Button>
-        </Row>
-        <Row style={{ gap: "20px" }}>
-          <Col span={11}>
-            <p style={{ marginBottom: "10px", fontSize: "16px" }}>Sản phẩm</p>
-            <div style={{ display: "flex", gap: "20px" }}>
-              <Input
-                placeholder="Tên sản phẩm"
-                value={filter.productName}
-                onChange={(e) => updateFilter("productName", e.target.value)}
-                style={{ marginBottom: "10px" }}
-              />
-              <Input
-                placeholder="Mã sản phẩm"
-                value={filter.productCode}
-                onChange={(e) => updateFilter("productCode", e.target.value)}
-                style={{ marginBottom: "10px" }}
-              />
+      <div>
+        <Button style={{ backgroundColor: "#fff" }} onClick={showFilterModal}>
+          Chọn sản phẩm
+        </Button>
+        <Modal
+          title="Chọn sản phẩm"
+          visible={isModalVisible}
+          onCancel={handleCancel}
+          footer={null}
+          width={1000}
+        >
+          <div style={{ marginBottom: "20px" }}>
+            <div className="filter-container">
+              <button
+                onClick={toggleFilter}
+                style={{
+                  marginBottom: "5px",
+                  fontSize: "16px",
+                  cursor: "pointer",
+                  background: "none",
+                  border: "none",
+                  color: "#1890ff",
+                }}
+              >
+                {expanded ? "Ẩn" : "Lọc"}
+              </button>
+              <div
+                className="filter-content"
+                style={{
+                  maxHeight: expanded ? "1000px" : "0",
+                  overflow: "hidden",
+                  transition: "max-height 0.5s ease-in-out",
+                  padding: "0 10px",
+                }}
+              >
+                <Row style={{ gap: "20px" }}>
+                  <Col span={11}>
+                    <p style={{ marginBottom: "10px", fontSize: "16px" }}>
+                      Sản phẩm
+                    </p>
+                    <div style={{ display: "flex", gap: "20px" }}>
+                      <Input
+                        placeholder="Tên sản phẩm"
+                        value={filter.productName}
+                        onChange={(e) =>
+                          updateFilter("productName", e.target.value)
+                        }
+                        style={{ marginBottom: "10px" }}
+                      />
+                      <Input
+                        placeholder="Mã sản phẩm"
+                        value={filter.productCode}
+                        onChange={(e) =>
+                          updateFilter("productCode", e.target.value)
+                        }
+                        style={{ marginBottom: "10px" }}
+                      />
+                    </div>
+                  </Col>
+                  <Col span={11}>
+                    <p style={{ marginBottom: "10px", fontSize: "16px" }}>
+                      Trạng thái
+                    </p>
+                    <Radio.Group
+                      value={filter.status}
+                      onChange={(e) => updateFilter("status", e.target.value)}
+                      style={{ display: "flex", gap: "20px" }}
+                    >
+                      <Radio value={1}>Hoạt động</Radio>
+                      <Radio value={0}>Không hoạt động</Radio>
+                      <Radio value={2}>Tất cả</Radio>
+                    </Radio.Group>
+                  </Col>
+                </Row>
+                <Row style={{ gap: "20px" }}>
+                  <Col span={11}>
+                    <p style={{ marginBottom: "10px", fontSize: "16px" }}>
+                      Màu
+                    </p>
+                    <Select
+                      placeholder="Chọn màu"
+                      value={filter.color || undefined}
+                      onChange={(value) => updateFilter("color", value)}
+                      style={{ width: "100%", marginBottom: "10px" }}
+                      allowClear
+                    >
+                      {dataColor.map((color) => (
+                        <Option key={color.id} value={color.name}>
+                          {color.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Col>
+                  <Col span={11}>
+                    <p style={{ marginBottom: "10px", fontSize: "16px" }}>
+                      Kích thước
+                    </p>
+                    <Select
+                      placeholder="Chọn kích cỡ"
+                      value={filter.size || undefined}
+                      onChange={(value) => updateFilter("size", value)}
+                      style={{ width: "100%", marginBottom: "10px" }}
+                      allowClear
+                    >
+                      {dataSize.map((size) => (
+                        <Option key={size.id} value={size.name}>
+                          {size.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col span={11}>
+                    <p style={{ fontSize: "16px" }}>
+                      Giá: {filter.minPrice} - {filter.maxPrice}
+                    </p>
+                    <Slider
+                      range
+                      min={0}
+                      max={10000000}
+                      value={[
+                        filter.minPrice || 0,
+                        filter.maxPrice || 10000000,
+                      ]}
+                      onChange={handlePriceChange}
+                      style={{ width: "100%", marginBottom: "10px" }}
+                    />
+                  </Col>
+                </Row>
+                <div style={{ marginTop: "10px", textAlign: "end" }}>
+                  <Button
+                    onClick={resetFilters}
+                    loading={loadingPD}
+                    type="primary"
+                  >
+                    Reset Lọc
+                  </Button>
+                </div>
+              </div>
             </div>
-          </Col>
-          <Col span={11}>
-            <p style={{ marginBottom: "10px", fontSize: "16px" }}>Màu</p>
-            <Select
-              placeholder="Chọn màu"
-              value={filter.color || undefined}
-              onChange={(value) => updateFilter("color", value)}
-              style={{ width: "100%", marginBottom: "10px" }}
-            >
-              <Option value="red">Đỏ</Option>
-              <Option value="black">Đen</Option>
-              <Option value="blue">Xanh</Option>
-              <Option value="green">Xanh lá</Option>
-            </Select>
-          </Col>
-        </Row>
-        <Row style={{ gap: "20px" }}>
-          <Col span={11}>
-            <p style={{ marginBottom: "10px", fontSize: "16px" }}>Kích thước</p>
-            <Select
-              placeholder="Chọn kích cỡ"
-              value={filter.size || undefined}
-              onChange={(value) => updateFilter("size", value)}
-              style={{ width: "100%", marginBottom: "10px" }}
-              allowClear
-            >
-              <Option value="S">S</Option>
-              <Option value="M">M</Option>
-              <Option value="L">L</Option>
-              <Option value="XL">XL</Option>
-            </Select>
-          </Col>
-          <Col span={11}>
-            <p style={{ marginBottom: "10px", fontSize: "16px" }}>Giá</p>
-            <Slider
-              range
-              min={0}
-              max={10000000}
-              value={[filter.minPrice || 0, filter.maxPrice || 10000000]}
-              onChange={handlePriceChange}
-            />
-          </Col>
-        </Row>
-      </div>
-      <Table
-        rowKey="id"
-        columns={columns}
-        dataSource={updatedDataProductDetail}
-        size="small"
-        style={{ border: "1px solid #ddd" }}
-        pagination={{
-          current: page,
-          total: total,
-          pageSize: size,
-          onChange: (newPage) => {
-            setPageProductDetail(newPage);
-            updateUrl(filter);
-          },
-        }}
-      />
-      <Modal
-        title={`Nhập số lượng cho sản phẩm ${
-          selectedRow?.productResponse?.name || "N/A"
-        }`}
-        visible={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setModalVisible(false)}>
-            Hủy
-          </Button>,
-          <Button key="confirm" type="primary" onClick={handleConfirm}>
-            Thêm
-          </Button>,
-        ]}
-      >
-        {selectedRow ? (
-          <div>
-            <span>Nhập số lượng: </span>
-            <InputNumber
-              min={1}
-              value={quantity}
-              onChange={(value) => {
-                setQuantity(value);
-                if (value > selectedRow.quantity) {
-                  notification.warning({
-                    message: "Số lượng không hợp lệ",
-                    description: `Sản phẩm chỉ còn ${selectedRow.quantity} trong kho. Vui lòng giảm số lượng.`,
-                  });
-                }
+            {/* Table for products */}
+            <Table
+              columns={columns}
+              dataSource={updatedDataProductDetail}
+              pagination={{
+                current: page,
+                total: total,
+                pageSize: size,
+                onChange: setPageProductDetail,
               }}
             />
-            <div style={{ marginTop: 10 }}>
-              <span>Thông tin sản phẩm:</span>
-              <div>
-                <strong>Mã sản phẩm:</strong> {selectedRow.code}
-              </div>
-              <div>
-                <strong>Size:</strong> {selectedRow.size?.name || "N/A"}
-              </div>
-              <div>
-                <strong>Màu:</strong> {selectedRow.color?.name || "N/A"}
-              </div>
-              <div>
-                <strong>Giá:</strong> {selectedRow.defaultPrice?.toLocaleString()} VNĐ
-              </div>
-            </div>
+            <Row justify="end">
+              <Button onClick={handleCancel} style={{ marginRight: 8 }}>
+                Hủy
+              </Button>
+              <Button type="primary" onClick={handleApplyFilters}>
+                Xác nhận
+              </Button>
+            </Row>
           </div>
-        ) : (
-          <div>Không có thông tin sản phẩm.</div>
-        )}
-      </Modal>
+        </Modal>
+      </div>
     </>
   );
 };

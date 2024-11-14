@@ -1,0 +1,41 @@
+.custom-tabs .ant-tabs-tab {
+  background-color: #f5f5f5 !important;
+  margin: 5px !important;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative; /* Để định vị dấu tích */
+}
+
+.custom-tabs .ant-tabs-tab-active {
+  background-color: #ddd !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.custom-tabs .tab-check-icon {
+  position: absolute;
+  font-size: 14px;
+  color: green; /* Màu của dấu tích */
+}
+.custom-tabs .ant-tabs-nav::before {
+  border-bottom: none !important; /* Bỏ đường viền dưới thanh điều hướng */
+}
+.custom-table .ant-table {
+  background-color: #f5f5f5; /* Màu nền của bảng */
+  border-radius: 8px; /* Bo tròn các góc */
+}
+
+.custom-table .ant-table-thead > tr > th {
+  font-weight: bold;
+}
+.custom-table .ant-table-tbody > tr > td {
+  background-color: #ffffff; /* Màu nền cho các ô */
+  color: #000; /* Màu chữ */
+}
+
+.custom-table .ant-table-tbody > tr:hover > td {
+  background-color: #e6f7ff; /* Màu nền khi hover vào hàng */
+}
+
+.custom-table .ant-table-tbody > tr.ant-table-row-selected > td {
+  background-color: #bae7ff; /* Màu nền của hàng được chọn */
+}

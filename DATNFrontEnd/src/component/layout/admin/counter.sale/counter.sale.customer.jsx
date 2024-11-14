@@ -37,6 +37,7 @@ const CounterSaleCustomer = ({
   const [filteredCustomers, setFilteredCustomers] = useState([]);
   const [debouncedSearchText] = useDebounce(searchText, 500);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isCreated, setIsCreated] = useState(false);
   const [form] = Form.useForm();
 
   // Handle search text change
@@ -80,6 +81,7 @@ const CounterSaleCustomer = ({
       });
 
       setIsModalVisible(false);
+      setIsCreated(true);
       form.resetFields();
     } catch (error) {
       console.log("errrrr", error);
@@ -105,8 +107,11 @@ const CounterSaleCustomer = ({
     setFilteredCustomers(filtered);
   }, [searchText, customerList]);
   useEffect(() => {
-    loadCustomerList();
-  }, []);
+    if (isCreated) {
+      loadCustomerList();
+      setIsCreated(false);
+    }
+  }, [isCreated]);
   return (
     <div style={{ marginTop: 20, position: "relative" }}>
       <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
@@ -257,7 +262,7 @@ const CounterSaleCustomer = ({
               >
                 <List.Item.Meta
                   title={customer.name}
-                  description={`Mã khách hàng: ${customer.id} | Email: ${customer.email} | SĐT: ${customer.phoneNumber}`}
+                  description={`Mã khách hàng: ${customer.id} | SĐT: ${customer.phoneNumber}`}
                 />
               </List.Item>
             )}
@@ -276,15 +281,9 @@ const CounterSaleCustomer = ({
             backgroundColor: "#fafafa",
           }}
         >
-          <h3>Khách hàng đã chọn:</h3>
+          <h4>Thông tin khách hàng</h4>
           <p>
             <strong>Tên:</strong> {selectedCustomer.name}
-          </p>
-          <p>
-            <strong>Mã khách hàng:</strong> {selectedCustomer.id}
-          </p>
-          <p>
-            <strong>Email:</strong> {selectedCustomer.email}
           </p>
           <p>
             <strong>SĐT:</strong> {selectedCustomer.phoneNumber}

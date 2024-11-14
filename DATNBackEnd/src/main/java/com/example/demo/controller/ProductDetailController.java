@@ -89,6 +89,14 @@ public class ProductDetailController {
         } catch (Exception e) {
             return  ResponseEntity.badRequest().body(HttpStatus.NOT_FOUND);
         }
+    } @GetMapping("detailCode/{code}")
+    public ResponseEntity<?> getProductDetailById(@PathVariable("code") String code) {
+        try {
+            ProductDetailResponse productDetail = productDetailService.getPDByCode(code);
+            return ResponseEntity.ok(new MessageReponse("find product detail successfully with code:"+code,200,productDetail));
+        } catch (Exception e) {
+            return  ResponseEntity.badRequest().body(HttpStatus.NOT_FOUND);
+        }
     }
 
     @DeleteMapping("/{id}")

@@ -64,7 +64,7 @@ public class CartDetailServiceImpl implements CartDetailService {
         CartDetail cartDetail = getCartById(id);
         cartDetail.setQuantity(cartDetailDTO.getQuantity());
         cartDetail.setPrice(cartDetailDTO.getPrice());
-        cartDetail.setTotalPrice(cartDetailDTO.getQuantity() * existingProductDetail.getDefaultPrice());
+        cartDetail.setTotalPrice(cartDetailDTO.getQuantity() * existingProductDetail.getDiscountPrice());
         cartDetail.setCustomer(existingCustomer);
         cartDetail.setProductDetail(existingProductDetail);
         CartDetail updateCartDetail = cartDetailRepo.save(cartDetail);

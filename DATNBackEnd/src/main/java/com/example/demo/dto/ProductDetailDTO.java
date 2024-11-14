@@ -49,7 +49,7 @@ public class ProductDetailDTO {
         return ProductDetailDTO.builder()
                 .code(productDetail.getCode())
                 .defaultPrice(productDetail.getDefaultPrice())
-                .discountPrice(productDetail.getDiscountPrice())
+                .discountPrice(productDetail.getDiscountPrice() != null ? productDetail.getDiscountPrice() : 0)
                 .quantity(productDetail.getQuantity())
                 .image(productDetail.getImage())
                 .status(productDetail.getStatus())
