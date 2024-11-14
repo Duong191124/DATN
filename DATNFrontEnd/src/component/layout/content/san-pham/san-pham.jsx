@@ -1,12 +1,12 @@
 import { FilterTwoTone, ReloadOutlined } from '@ant-design/icons';
 import { Row, Col, Form, Checkbox, Divider, InputNumber, Button, Empty } from 'antd'; // Thêm Empty từ Ant Design
 import { useEffect, useState } from 'react';
-import './home.css';
-import { fetchDataCategory, fetchDataProductAPI } from '../../../../../service/api.service';
-import ChatBox from '../../chat/chat';
+import './san-pham.css';
 import { Link } from 'react-router-dom';
+import { fetchDataCategory, fetchDataProductAPI } from '../../../../service/api.service';
+import ChatBox from '../chat/chat';
 
-const Home = () => {
+const SanPham = () => {
     const [form] = Form.useForm();
     const [listCategory, setListCategory] = useState([]);
     const [listProduct, setListProduct] = useState([]);
@@ -163,9 +163,9 @@ const Home = () => {
                     </Col>
                 </Row>
             </div>
-            <ChatBox />
+            {/* <ChatBox /> */}
         </div>
     );
 };
 
-export default Home;
+export default SanPham;
