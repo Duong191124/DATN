@@ -1,16 +1,27 @@
 import CartItem from "../cart/cart.item";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Select } from "antd";
+import { useCart } from "../context/cart.context";
 
 const { Option } = Select;
 
 const Summary = () => {
+    const { cartItems } = useCart();
     const [selectedCoupon, setSelectedCoupon] = useState(null);
 
     const handleCouponChange = (value) => {
         setSelectedCoupon(value);
         // Thêm logic tính toán dựa trên coupon tại đây nếu cần
     };
+
+    const calculateTotal = () => {
+        return cartItems.reduce((total, item) => {
+            return total + item.defaultPrice * (item.quantity || 1);
+        }, 0);
+    };
+
+    const subtotal = calculateTotal();
+
 
     return (
         <>
@@ -37,10 +48,13 @@ const Summary = () => {
                 }}
             >
                 <div>
-                    {/* fake data cart */}
-                    {[...Array(20)].map((_, index) => (
-                        <CartItem key={index} />
-                    ))}
+                    {cartItems.length === 0 ? (
+                        <p>Your cart is empty</p>
+                    ) : (
+                        cartItems.map((product) => (
+                            <CartItem key={product.id} product={product} />
+                        ))
+                    )}
                 </div>
             </div>
             <div
@@ -67,7 +81,7 @@ const Summary = () => {
                 </div>
                 <div style={{ textAlign: "right" }}>
                     <p style={{ marginBottom: 0 }}>Subtotal:</p>
-                    <h3 style={{ margin: 0 }}>$594.00</h3>
+                    <h3 style={{ margin: 0 }}>${subtotal.toFixed(2)}</h3>
                 </div>
             </div>
         </>

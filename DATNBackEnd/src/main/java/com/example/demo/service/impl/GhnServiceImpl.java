@@ -1,22 +1,22 @@
-package com.example.demo.service.impl;
-
-import com.example.demo.dto.GhnDTO;
-import com.example.demo.dto.ServiceGhnDTO;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.HashMap;
-import java.util.Map;
-
-@Service
-public class GhnServiceImpl {
-
+//package com.example.demo.service.impl;
+//
+//import com.example.demo.dto.GhnDTO;
+//import com.example.demo.dto.ServiceGhnDTO;
+//import org.springframework.beans.factory.annotation.Value;
+//import org.springframework.http.HttpEntity;
+//import org.springframework.http.HttpHeaders;
+//import org.springframework.http.HttpMethod;
+//import org.springframework.http.ResponseEntity;
+//import org.springframework.stereotype.Service;
+//import org.springframework.web.client.HttpClientErrorException;
+//import org.springframework.web.client.RestTemplate;
+//
+//import java.util.HashMap;
+//import java.util.Map;
+//
+//@Service
+//public class GhnServiceImpl {
+//
 //    @Value("${ghn.api.base.url}")
 //    private String baseUrl;
 //
@@ -104,5 +104,6 @@ public class GhnServiceImpl {
 //        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
 //        return response.getBody();
 //    }
+//
+//}
 
-}

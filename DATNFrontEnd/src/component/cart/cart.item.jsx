@@ -3,12 +3,12 @@ import { Button } from 'antd';
 import { MinusOutlined, PlusOutlined, CloseOutlined } from '@ant-design/icons';
 import { useCart } from '../context/cart.context';
 
-const CartItem = ({ setTotalAmount }) => {
-    const { cartItems, removeFromCart } = useCart();
+const CartItem = () => {
+    const { cartItems, removeFromCart, setTotalAmount, updateQuantity } = useCart();
 
     const calculateTotal = () => {
         return cartItems.reduce((total, product) => {
-            return total + (product.price * (product.quantity || 1));
+            return total + (product.defaultPrice * (product.quantity || 1));
         }, 0);
     };
 
@@ -25,26 +25,23 @@ const CartItem = ({ setTotalAmount }) => {
                 </div>
             ) : (
                 cartItems.map((product) => (
-                    <CartItemDetail key={product.id} product={product} removeFromCart={removeFromCart} />
+                    <CartItemDetail key={product.id} product={product} removeFromCart={removeFromCart} updateQuantity={updateQuantity} />
                 ))
             )}
         </div>
     );
 };
 
-const CartItemDetail = ({ product, removeFromCart }) => {
-    console.log(product)
-    // State to keep track of the quantity
-    const [quantity, setQuantity] = useState(1);
-
-    // Function to increase the quantity
+const CartItemDetail = ({ product, removeFromCart, updateQuantity }) => {
     const increaseQuantity = () => {
-        setQuantity(prevQuantity => prevQuantity + 1);
+        updateQuantity(product.id, product.quantity + 1); // Update quantity in the context
     };
 
     // Function to decrease the quantity, but not allowing it to go below 1
     const decreaseQuantity = () => {
-        setQuantity(prevQuantity => (prevQuantity > 1 ? prevQuantity - 1 : 1));
+        if (product.quantity > 1) {
+            updateQuantity(product.id, product.quantity - 1); // Update quantity in the context
+        }
     };
 
     const handleRemove = () => {
@@ -65,7 +62,7 @@ const CartItemDetail = ({ product, removeFromCart }) => {
             {/* Hình ảnh sản phẩm */}
             <div style={{ display: 'flex', alignItems: 'center', width: '150px' }}>
                 <img
-                    src="https://via.placeholder.com/100" // Thay bằng URL của hình ảnh thực tế
+                    src={product.image} // Thay bằng URL của hình ảnh thực tế
                     alt={product.name}
                     style={{ width: '80px', height: 'auto' }}
                 />
@@ -84,7 +81,7 @@ const CartItemDetail = ({ product, removeFromCart }) => {
                                 size="small"
                                 style={{ marginRight: '8px' }}
                             />
-                            <span>{quantity}</span>
+                            <span>{product.quantity}</span>
                             <Button
                                 onClick={increaseQuantity}
                                 icon={<PlusOutlined />}
@@ -95,17 +92,17 @@ const CartItemDetail = ({ product, removeFromCart }) => {
                     </div>
                     <div>
                         <div>Size</div>
-                        <div>28 mm</div>
+                        <div>{product.size}</div>
                     </div>
                     <div>
                         <div>Color</div>
-                        <div style={{ width: '20px', height: '20px', backgroundColor: 'black', borderRadius: '50%' }}></div>
+                        <div style={{ width: '20px', height: '20px', backgroundColor: product.color, borderRadius: '50%' }}></div>
                     </div>
                 </div>
             </div>
 
             {/* Giá tiền */}
-            <div style={{ fontWeight: 'bold', fontSize: '18px' }}>${product.price}</div>
+            <div style={{ fontWeight: 'bold', fontSize: '18px' }}>${product.defaultPrice}</div>
 
             {/* Nút Xóa */}
             <div>

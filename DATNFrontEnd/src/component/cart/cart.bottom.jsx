@@ -1,9 +1,12 @@
 import React from 'react';
 import { Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../context/cart.context';
 
-const CartBottom = ({ totalAmount }) => {
+const CartBottom = () => {
     const navigate = useNavigate();
+    const { cartItems, totalAmount } = useCart();
+
     return (
         <div style={{
             display: 'flex',
@@ -27,7 +30,11 @@ const CartBottom = ({ totalAmount }) => {
                     fontWeight: 'bold'
                 }}
                 onClick={() => {
-                    navigate("/checkout")
+                    if (cartItems.length > 0) {
+                        navigate("/checkout");  // Check if cartItems are not empty
+                    } else {
+                        alert("Your cart is empty!");
+                    }
                 }}
             >
                 CHECK OUT
