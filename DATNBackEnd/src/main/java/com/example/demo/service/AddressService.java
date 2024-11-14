@@ -6,7 +6,7 @@ import com.example.demo.entity.Address;
 import java.util.List;
 
 public interface AddressService {
-    List<Address> getAddressList();
+    List<Address> getAddressList(int customerId);
 
     Address add(AddressDTO addressDTO);
 

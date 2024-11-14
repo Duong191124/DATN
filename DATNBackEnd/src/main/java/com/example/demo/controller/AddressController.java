@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.AddressDTO;
 import com.example.demo.entity.Address;
+import com.example.demo.response.AddressResponse;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.service.AddressService;
 import jakarta.validation.Valid;
@@ -20,9 +21,9 @@ public class AddressController {
     @Autowired
     private AddressService addressService;
 
-    @GetMapping("")
-    public ResponseEntity<MessageReponse> getAll() {
-        List<Address> addressList = addressService.getAddressList();
+    @GetMapping("{customerId}")
+    public ResponseEntity<MessageReponse> getAll(@PathVariable Integer customerId) {
+        List<AddressResponse> addressList = addressService.getAddressList(customerId).stream().map(AddressResponse::fromAddressResponse).toList();
         return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                 .message("Lay thong tin thanh cong")
                 .status(HttpStatus.OK.value())

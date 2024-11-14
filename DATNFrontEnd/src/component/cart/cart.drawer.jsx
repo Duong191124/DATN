@@ -53,6 +53,7 @@ const CartDrawer = ({ openCart, setOpenCart }) => {
                     style={{
                         display: 'flex',
                         flexDirection: 'column',
+                        position: 'relative',
                         height: '100%',
                         border: '1px solid #ddd',
                     }}
@@ -60,9 +61,14 @@ const CartDrawer = ({ openCart, setOpenCart }) => {
                     {/* Phần chứa các CartItem */}
                     <div
                         style={{
-                            flexGrow: 1,
+                            flex: 1,
                             overflowY: 'auto',
                             padding: '16px',
+                            position: 'absolute',
+                            left: '0',
+                            right: '0',
+                            bottom: '0',
+                            top: '0',
                             borderBottom: '1px solid #ddd',
                             scrollbarWidth: 'none',
                             msOverflowStyle: 'none'
