@@ -128,7 +128,6 @@ const InfoVoucher = ({ user }) => {
 
     const getVoucherData = async () => {
         const res = await getVouchersByCustomerId(user.data.id);
-        console.log("check user in voucher: ", res.data.data);
         setVouchers(res.data.data);
     }
 

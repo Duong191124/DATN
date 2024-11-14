@@ -10,9 +10,11 @@ import "./home.css";
 import ChatBox from "../chat/chat";
 import { fetchDataProduct } from "../../../../service/api.service";
 import { useCart } from "../../../context/cart.context";
+import { useTranslation } from "react-i18next";
 
 const Home = () => {
   const { addToCart } = useCart();
+  const { t, i18n } = useTranslation();
   const slideRef = useRef(null);
   const intervalRef = useRef(null);
   const [activeSize, setActiveSize] = useState(null);
@@ -20,6 +22,12 @@ const Home = () => {
   const [product, setProduct] = useState([]);
   const sizes = ["S", "M", "L", "XL"];
   const colors = ["green", "red", "black"];
+
+  const language = localStorage.getItem("language") || "vi";
+
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
 
   const nextSlide = () => {
     if (slideRef.current) {
@@ -46,7 +54,6 @@ const Home = () => {
   const fetchProduct = async () => {
     try {
       const response = await fetchDataProduct();
-      console.log(response);
       const products = response.data.data || [];
       setProduct(products);
       setProduct(products);
@@ -67,7 +74,7 @@ const Home = () => {
           <HeartOutlined />
         </div>
         {product.onSale && (
-          <span className="sale-badge">SALE {product.salePercent}%</span>
+          <span className="sale-badge">{t("MES-013")} {product.salePercent}%</span>
         )}
         <div className="product-image">
           <img src={product.image} alt={product.title} />
@@ -82,7 +89,7 @@ const Home = () => {
           <div className="product-title">{product.title}</div>
           <div className="product-price">{product.price} VNĐ</div>
           <div className="product-size">
-            <h3>Size:</h3>
+            <h3>{t("MES-014")}:</h3>
             {sizes.map((size) => (
               <span
                 key={size}
@@ -94,7 +101,7 @@ const Home = () => {
             ))}
           </div>
           <div className="product-color">
-            <h3>Color:</h3>
+            <h3>{t("MES-015")}:</h3>
             {colors.map((color) => (
               <span
                 key={color}
@@ -114,10 +121,10 @@ const Home = () => {
             ))}
           </div>
           <div className="product-action">
-            <button className="buy">Detail</button>
+            <button className="buy">{t("MES-016")}</button>
             <button className="cart" onClick={() => addToCart(product)}>
               <ShoppingCartOutlined />
-              Add to cart
+              {t("MES-017")}
             </button>
           </div>
         </div>
@@ -132,12 +139,11 @@ const Home = () => {
           {Array.from({ length: 5 }, (_, i) => (
             <div className={`item slide${i + 1}`} key={i}>
               <div className="content">
-                <div className="name">THỂ THAO</div>
+                <div className="name">{t("MES-018")}</div>
                 <div className="description">
-                  Sản phẩm mạng đên trải nghiệm tốt nhất dành cho người dùng,
-                  sport chúng tôi luôn hỗ trợ bạn mọi lúc. hahahhahaha
+                  {t("MES-019")}
                 </div>
-                <button>Xem nhiều hơn</button>
+                <button>{t("MES-020")}</button>
               </div>
             </div>
           ))}
@@ -155,13 +161,13 @@ const Home = () => {
       <div className="product-container">
         <div className="product-card">
           <div className="product-header">
-            <h1>Sản phẩm mới nhất</h1>
+            <h1>{t("MES-021")}</h1>
           </div>
           <div className="product-body">
             {product.map(renderProductCard)}
             <div className="show-more">
               <NavLink to={"/"} className={"btn"}>
-                Xem thêm
+                {t("MES-020")}
               </NavLink>
             </div>
           </div>
@@ -173,7 +179,7 @@ const Home = () => {
             {product.map(renderProductCard)}
             <div className="show-more">
               <NavLink to={"/"} className={"btn"}>
-                Xem thêm
+                {t("MES-020")}
               </NavLink>
             </div>
           </div>

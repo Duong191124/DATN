@@ -17,14 +17,13 @@ const PermissionModal = ({ isModalOpen, setIsModalOpen, loadData }) => {
     };
     //function of form
     const onFinish = async (values) => {
-        console.log('Success:', values);
         await createNewPermission(values.name);
         myForm.resetFields();
         loadData();
         message.success("create success")
     };
     const onFinishFailed = (errorInfo) => {
-        console.log('Failed:', errorInfo);
+        console.error('Failed:', errorInfo);
     };
 
     return (

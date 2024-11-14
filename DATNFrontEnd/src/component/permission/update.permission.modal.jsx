@@ -111,7 +111,6 @@ const UpdatePermissionForUserModal = (props) => {
                 console.error("Failed to update permissions:", error);
             }
         } else {
-            console.log("No permissions to update");
             onClose();
         }
     };
