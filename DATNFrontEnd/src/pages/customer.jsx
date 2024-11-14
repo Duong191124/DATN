@@ -20,7 +20,7 @@ const CustomerPage = () => {
       setDataTable(data.data.data.content);
       setTotal(data.data.data.totalElements);
     } catch (error) {
-      console.log("error", error);
+      console.error("error", error);
     }
   };
 

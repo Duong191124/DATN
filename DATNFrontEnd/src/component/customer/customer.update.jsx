@@ -22,7 +22,6 @@ const CustomerUpdate = ({ isModalOpen, setIsModalOpen, loadData, dataDetail }) =
 
     // Hàm xử lý form
     const onFinish = async (values) => {
-        console.log('Success:', values);
         await updateCustomer(
             dataDetail.id,
             values.username,
@@ -43,7 +42,7 @@ const CustomerUpdate = ({ isModalOpen, setIsModalOpen, loadData, dataDetail }) =
     };
 
     const onFinishFailed = (errorInfo) => {
-        console.log('Failed:', errorInfo);
+        console.error('Failed:', errorInfo);
     };
 
     // Gán giá trị từ dataDetail vào form khi modal mở
@@ -62,7 +61,6 @@ const CustomerUpdate = ({ isModalOpen, setIsModalOpen, loadData, dataDetail }) =
                 status: dataDetail.status === 1 ? '1' : '0', // Đặt giá trị cho status
             });
         }
-        console.log("check data detail: ", dataDetail)
     }, [isModalOpen, dataDetail]);
 
     return (

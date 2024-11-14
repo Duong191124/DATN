@@ -40,7 +40,6 @@ const NoticeDrawer = ({ openNotice, setOpenNotice }) => {
 
     const channel = pusher.subscribe("my-channel");
     channel.bind("my-event", (data) => {
-      console.log("new notification");
       handleNewNotice(data);
     });
 

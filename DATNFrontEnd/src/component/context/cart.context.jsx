@@ -10,7 +10,6 @@ export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
     const [totalAmount, setTotalAmount] = useState(0);
     const userId = localStorage.getItem("userId");
-    console.log(userId);
 
     const getCartKey = () => {
         return userId ? `cart_${userId}` : 'guestCart';

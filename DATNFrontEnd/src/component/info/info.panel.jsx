@@ -105,7 +105,6 @@ const InfoPanel = ({ user }) => {
 
 
     const onFinish = async (values) => {
-        console.log("check value: ", values);
         setLoading(true);
         try {
             await updateCustomerInfo(

@@ -149,7 +149,6 @@ const VoucherTable = ({ refreshData }) => {
 
 
     const handleApply = (selected) => {
-        console.log("Khách hàng được áp dụng:", selected);
         loadData();
     };
 
@@ -267,7 +266,7 @@ const VoucherTable = ({ refreshData }) => {
                 const filterValue = parseInt(value, 10); // Chuyển giá trị bộ lọc thành số nguyên
                 return record.quantity >= filterValue;
             },
-        },    
+        },
         {
             title: "Giảm giá (VNĐ)",
             dataIndex: "discountAmount",

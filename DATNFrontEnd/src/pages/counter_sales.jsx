@@ -70,7 +70,6 @@ const CounterSales = () => {
     async (pageProductDetail, pageSizeProductDetail) => {
       setLoading(true);
       try {
-        console.log("ssss", filter.status);
         const response = await fetchPageDataProductDetail(
           filter.productName,
           filter.productCode,
@@ -82,7 +81,6 @@ const CounterSales = () => {
           pageProductDetail - 1,
           pageSizeProductDetail
         );
-        console.log("aa", response);
         if (response?.data?.data) {
           setDataProductDetail(response.data.data.content);
           setTotalProductDetail(
@@ -118,7 +116,7 @@ const CounterSales = () => {
         setDataColor(response.data.data);
       }
     } catch (error) {
-      console.log("lỗi không thể hiển thị color", error);
+      console.error("lỗi không thể hiển thị color", error);
       message.error("lỗi không thể tải color");
     }
   };
@@ -129,7 +127,7 @@ const CounterSales = () => {
         setDataSize(response.data.data);
       }
     } catch (error) {
-      console.log("lỗi không thể hiển thị size", error);
+      console.error("lỗi không thể hiển thị size", error);
       message.error("lỗi không thể tải size");
     }
   };
@@ -478,7 +476,7 @@ const CounterSales = () => {
         throw new Error("Order update failed");
       }
     } catch (error) {
-      console.log("Error:", error);
+      console.error("Error:", error);
       notification.error({
         message: error.message || "Đã có lỗi xảy ra",
         description: "Có sự cố xảy ra trong quá trình thanh toán.",

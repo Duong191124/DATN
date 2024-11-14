@@ -40,7 +40,7 @@ const ProductDetailUpdate = (props) => {
                 await loadProductDetail();
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     };
 
@@ -60,7 +60,7 @@ const ProductDetailUpdate = (props) => {
                 setDataProduct(res.data.data);
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     };
 

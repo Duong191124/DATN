@@ -34,7 +34,6 @@ const VoucherForm = (props) => {
       customers: null,
       status: 1, // Đặt status tự động là 1
     };
-    console.log("Sending data:", formattedValues);
 
     const res = await createVoucher(
       formattedValues.code,

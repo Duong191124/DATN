@@ -5,29 +5,30 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import CartDrawer from "../../../cart/cart.drawer";
 import { useEffect, useState } from "react";
 import { useCart } from "../../../context/cart.context";
-
-const items = [
-  { key: "1", label: <NavLink to={"/"}>Bóng chuyền</NavLink> },
-  { key: "2", label: <NavLink to={"/"}>Bóng đá</NavLink> },
-  { key: "3", label: <NavLink to={"/"}>Chạy ban</NavLink> },
-];
-
-// const users = [
-//   { key: "1", label: <NavLink to={"/login"}>Đăng nhập</NavLink> },
-//   { key: "2", label: <NavLink to={"/register"}>Đăng ký</NavLink> },
-//   { key: "2", label: <NavLink to={"/info"}>Thông tin</NavLink> },
-// ];
+import { useTranslation } from "react-i18next";
 
 const Header = () => {
+  const { t, i18n } = useTranslation();
   const [openCart, setOpenCart] = useState(false);
-  const [language, setLanguage] = useState("vi"); // Ngôn ngữ mặc định là tiếng Việt
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
+  const [language, setLanguage] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
   const { setCartItems } = useCart();
+
+  const items = [
+    { key: "1", label: <NavLink to={"/"}>{t("MES-003")}</NavLink> },
+    { key: "2", label: <NavLink to={"/"}>{t("MES-004")}</NavLink> },
+    { key: "3", label: <NavLink to={"/"}>{t("MES-005")}</NavLink> },
+  ];
 
   useEffect(() => {
     const loggedIn = !!localStorage.getItem("access_token");
     setIsLoggedIn(loggedIn);
+    const savedLanguage = localStorage.getItem('i18nextLng'); // Kiểm tra ngôn ngữ đã lưu trong localStorage
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
+      i18n.changeLanguage(savedLanguage); // Thay đổi ngôn ngữ theo giá trị đã lưu
+    }
   }, []);
 
   const handleLogout = () => {
@@ -49,27 +50,28 @@ const Header = () => {
 
   const handleLanguageChange = (value) => {
     setLanguage(value);
+    i18n.changeLanguage(value); // Thay đổi ngôn ngữ cho toàn bộ ứng dụng
   };
 
   const userMenu = (
     <Menu>
       {isLoggedIn ? (
         <Menu.Item key="logout" onClick={handleLogout}>
-          <span>Logout</span>
+          <span>{t("MES-011")}</span>
         </Menu.Item>
       ) : (
         <>
           <Menu.Item key="login">
-            <NavLink to="/login">Đăng nhập</NavLink>
+            <NavLink to="/login">{t("MES-009")}</NavLink>
           </Menu.Item>
           <Menu.Item key="register">
-            <NavLink to="/register">Đăng ký</NavLink>
+            <NavLink to="/register">{t("MES-010")}</NavLink>
           </Menu.Item>
         </>
       )}
       {isLoggedIn && (
         <Menu.Item key="info">
-          <NavLink to="/info">Thông tin</NavLink>
+          <NavLink to="/info">{t("MES-012")}</NavLink>
         </Menu.Item>
       )}
     </Menu>
@@ -87,15 +89,15 @@ const Header = () => {
             </div>
             <div className="menu">
               <ul>
-                <li><NavLink to={"/"}>TRANG CHỦ</NavLink></li>
+                <li><NavLink to={"/"}>{t("MES-001")}</NavLink></li>
                 <li>
                   <Dropdown menu={{ items }} placement="bottom">
-                    <a>DANH MỤC</a>
+                    <a>{t("MES-002")}</a>
                   </Dropdown>
                 </li>
-                <li><NavLink to={"/product"}>SẢN PHẨM</NavLink></li>
-                <li><a>THÔNG TIN</a></li>
-                <li><a>KHÁC</a></li>
+                <li><NavLink to={"/product"}>{t("MES-006")}</NavLink></li>
+                <li><a>{t("MES-007")}</a></li>
+                <li><a>{t("MES-008")}</a></li>
               </ul>
             </div>
           </div>
@@ -118,7 +120,7 @@ const Header = () => {
               </Dropdown>
               {/* Tùy chọn ngôn ngữ */}
               <Select
-                defaultValue="vi"
+                value={language}
                 style={{ width: 100, marginLeft: 16 }}
                 onChange={handleLanguageChange}
                 suffixIcon={<GlobalOutlined />}
