@@ -34,6 +34,7 @@ import { CartProvider } from "./component/context/cart.context.jsx";
 import SanPham from "./component/layout/content/san-pham/san-pham.jsx";
 import ProductDetailPage from "./component/layout/content/san-pham/product.detail.page.jsx";
 import ContactPage from "./pages/contact.jsx";
+import LandingPage from "./pages/landing.jsx";
 
 
 
@@ -140,6 +141,10 @@ const router = createBrowserRouter([
       {
         path: "/contact",
         element: <ContactPage />
+      },
+      {
+        path: "/about-us",
+        element: <LandingPage />
       },
     ]
   },
