@@ -388,7 +388,8 @@ const createProductDetailAPi = (
   defaultPrice,
   productId,
   sizeId,
-  colorId
+  colorId,
+  weightId
 ) => {
   const URL_BACKEND = "/api/v1/productDetail";
   const data = {
@@ -398,6 +399,7 @@ const createProductDetailAPi = (
     productId: productId,
     sizeId: sizeId,
     colorId: colorId,
+    weightId: weightId
   };
   return axios.post(URL_BACKEND, data);
 };

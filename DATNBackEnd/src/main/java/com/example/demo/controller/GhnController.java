@@ -1,15 +1,15 @@
-package com.example.demo.controller;
-
-import com.example.demo.dto.GhnDTO;
-import com.example.demo.dto.ServiceGhnDTO;
-import com.example.demo.service.impl.GhnServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-@RestController
-@RequestMapping("${api.prefix}/ghn")
-public class GhnController {
-
+//package com.example.demo.controller;
+//
+//import com.example.demo.dto.GhnDTO;
+//import com.example.demo.dto.ServiceGhnDTO;
+//import com.example.demo.service.impl.GhnServiceImpl;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.web.bind.annotation.*;
+//
+//@RestController
+//@RequestMapping("${api.prefix}/ghn")
+//public class GhnController {
+//
 //    @Autowired
 //    private GhnServiceImpl ghnService;
 //
@@ -33,4 +33,4 @@ public class GhnController {
 //    public String getShippingFee(@RequestBody GhnDTO ghnDTO) {
 //        return ghnService.getShippingFee(ghnDTO);
 //    }
-}
+//}

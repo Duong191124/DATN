@@ -18,9 +18,9 @@ const ProDuctDetailForm = (props) => {
     const [form] = Form.useForm();  // Khởi tạo form từ Ant Design
 
     const handleSubmit = async (values) => {
-        const { code, quantity, defaultPrice, size, color } = values;
+        const { code, quantity, defaultPrice, size, color, weight } = values;
         const res = await createProductDetailAPi(
-            code, quantity, defaultPrice, productId, size, color  // Truyền productId từ props
+            code, quantity, defaultPrice, productId, size, color, weight  // Truyền productId từ props
         );
         if (res.data) {
             notification.success({

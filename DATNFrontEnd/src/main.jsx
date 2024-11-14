@@ -30,6 +30,7 @@ import WeightPage from "./pages/weight.jsx";
 
 import './i18n.jsx';
 import InfoPage from "./pages/info.jsx";
+import { CartProvider } from "./component/context/cart.context.jsx";
 import SanPham from "./component/layout/content/san-pham/san-pham.jsx";
 import ProductDetailPage from "./component/layout/content/san-pham/product.detail.page.jsx";
 
@@ -167,6 +168,8 @@ const router = createBrowserRouter([
 ]);
 createRoot(document.getElementById("root")).render(
   <AuthWrapper>
-    <RouterProvider router={router} />
+    <CartProvider>
+      <RouterProvider router={router} />
+    </CartProvider>
   </AuthWrapper>
 );
