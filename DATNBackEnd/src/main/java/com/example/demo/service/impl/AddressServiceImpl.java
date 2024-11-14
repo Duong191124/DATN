@@ -22,8 +22,8 @@ public class AddressServiceImpl implements AddressService {
     private CustomerRepo customerRepo;
 
     @Override
-    public List<Address> getAddressList() {
-        return addressRepo.findAll();
+    public List<Address> getAddressList(int customerId) {
+        return addressRepo.findByCustomerId(customerId);
     }
 
     @Override

@@ -124,6 +124,7 @@ public class AuthController {
                                             .id(customer.getId())
                                             .name(customer.getName())
                                             .email(customer.getEmail())
+                                            .phoneNumber(customer.getPhoneNumber())
                                             .build()
                             )
                             .status(HttpStatus.OK.value())

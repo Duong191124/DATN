@@ -15,8 +15,8 @@ const Summary = () => {
     };
 
     const calculateTotal = () => {
-        return cartItems.reduce((total, item) => {
-            return total + item.defaultPrice * (item.quantity || 1);
+        return cartItems.reduce((total, product) => {
+            return total + ((product.discountPrice || product.defaultPrice) * (product.quantity || 1));
         }, 0);
     };
 

@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
+import { useCart } from '../context/cart.context';
 
 const Payment = () => {
-    const [selectedOption, setSelectedOption] = useState('PayPal');
-    const totalAmount = 379.01;
+    const [selectedOption, setSelectedOption] = useState('Cash');
+    const { cartItems } = useCart();
+
+    const calculateTotal = () => {
+        return cartItems.reduce((total, product) => {
+            return total + ((product.discountPrice || product.defaultPrice) * (product.quantity || 1));
+        }, 0);
+    };
+
+    const subtotal = calculateTotal();
 
     return (
         <>
@@ -176,7 +185,7 @@ const Payment = () => {
 
                     <div style={{ textAlign: 'right', paddingTop: 20 }}>
                         <strong>Total:</strong>
-                        <span style={{ fontSize: 24, marginLeft: 10 }}>${totalAmount.toFixed(2)}</span>
+                        <span style={{ fontSize: 24, marginLeft: 10 }}>${subtotal.toFixed(2)}</span>
                     </div>
                 </div>
             </div>

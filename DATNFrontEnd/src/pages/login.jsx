@@ -3,13 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useContext } from "react";
 import { getUserInfo, loginCustomerAPI } from "../service/api.service";
 import { AuthContext } from "../component/context/auth.context";
+import { useCart } from "../component/context/cart.context";
 
 const LoginPage = () => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { setUser, setLoginStatus } = useContext(AuthContext);
-
+    const { setCartItems } = useCart();
 
     const handleLogin = async (values) => {
         setLoading(true);
@@ -22,16 +23,13 @@ const LoginPage = () => {
                 const userInfoRes = await getUserInfo(res.data.token);
                 if (userInfoRes.status === 200) {
                     localStorage.setItem("user", JSON.stringify(userInfoRes.data));
+                    localStorage.setItem("userId", userInfoRes.data.data.id);
+                    const userCart = JSON.parse(localStorage.getItem(`cart_${userInfoRes.data.data.id}`)) || [];
+                    setCartItems(userCart);
                     setUser(userInfoRes.data);
                     setLoginStatus(res.status.toString());
-
                     message.success("Đăng nhập thành công");
-
-                    if (res.status === 200) {
-                        navigate("/");
-                    } else {
-                        navigate("/admin");
-                    }
+                    navigate(res.status === 200 ? "/" : "/admin");
                 }
             }
             setLoading(false);
@@ -49,6 +47,7 @@ const LoginPage = () => {
                 ]);
             } else {
                 message.error("Đăng nhập thất bại, vui lòng thử lại.");
+                console.error(error);
             }
             setLoading(false);
         }

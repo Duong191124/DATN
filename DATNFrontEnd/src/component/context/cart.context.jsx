@@ -9,51 +9,52 @@ export const useCart = () => {
 export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
     const [totalAmount, setTotalAmount] = useState(0);
+    const userId = localStorage.getItem("userId");
+    console.log(userId);
 
-    useEffect(() => {
-        const savedCartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
-        setCartItems(savedCartItems);
-        const initialTotal = savedCartItems.reduce(
-            (total, item) => total + item.defaultPrice * item.quantity,
+    const getCartKey = () => {
+        return userId ? `cart_${userId}` : 'guestCart';
+    };
+
+    const calculateTotal = (items) => {
+        return items.reduce(
+            (total, item) => total + (item.discountPrice || item.defaultPrice) * item.quantity,
             0
         );
-        setTotalAmount(initialTotal);
-    }, []);
+    };
+
+    useEffect(() => {
+        const savedCartItems = JSON.parse(localStorage.getItem(getCartKey())) || [];
+        setCartItems(savedCartItems);
+        setTotalAmount(calculateTotal(savedCartItems));
+    }, [userId]);
+
+    const updateLocalStorage = (items) => {
+        localStorage.setItem(getCartKey(), JSON.stringify(items));
+    };
 
     const addToCart = (cartItem) => {
         const existingProduct = cartItems.find(item => item.id === cartItem.id);
-
         let updatedCartItems;
+
         if (existingProduct) {
             updatedCartItems = cartItems.map(item =>
-                item.id === cartItem.id
-                    ? { ...item, quantity: item.quantity + cartItem.quantity }
-                    : item
+                item.id === cartItem.id ? { ...item, quantity: item.quantity + cartItem.quantity } : item
             );
         } else {
             updatedCartItems = [...cartItems, cartItem];
         }
 
         setCartItems(updatedCartItems);
-        localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
-
-        const updatedTotal = updatedCartItems.reduce(
-            (total, item) => total + item.defaultPrice * item.quantity,
-            0
-        );
-        setTotalAmount(updatedTotal);
+        updateLocalStorage(updatedCartItems);
+        setTotalAmount(calculateTotal(updatedCartItems));
     };
 
     const removeFromCart = (productId) => {
         const updatedCartItems = cartItems.filter(item => item.id !== productId);
         setCartItems(updatedCartItems);
-        localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
-
-        const updatedTotal = updatedCartItems.reduce(
-            (total, item) => total + item.defaultPrice * item.quantity,
-            0
-        );
-        setTotalAmount(updatedTotal);
+        updateLocalStorage(updatedCartItems);
+        setTotalAmount(calculateTotal(updatedCartItems));
     };
 
     const updateQuantity = (productId, newQuantity) => {
@@ -61,17 +62,12 @@ export const CartProvider = ({ children }) => {
             item.id === productId ? { ...item, quantity: newQuantity } : item
         );
         setCartItems(updatedCartItems);
-        localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
-
-        const updatedTotal = updatedCartItems.reduce(
-            (total, item) => total + item.defaultPrice * item.quantity,
-            0
-        );
-        setTotalAmount(updatedTotal);
+        updateLocalStorage(updatedCartItems);
+        setTotalAmount(calculateTotal(updatedCartItems));
     };
 
     return (
-        <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, totalAmount, setTotalAmount, updateQuantity }}>
+        <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, totalAmount, setTotalAmount, updateQuantity, setCartItems }}>
             {children}
         </CartContext.Provider>
     );

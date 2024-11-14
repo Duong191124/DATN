@@ -4,6 +4,7 @@ import "./header.css";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import CartDrawer from "../../../cart/cart.drawer";
 import { useEffect, useState } from "react";
+import { useCart } from "../../../context/cart.context";
 
 const items = [
   { key: "1", label: <NavLink to={"/"}>Bóng chuyền</NavLink> },
@@ -22,6 +23,7 @@ const Header = () => {
   const [language, setLanguage] = useState("vi"); // Ngôn ngữ mặc định là tiếng Việt
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
   const navigate = useNavigate();
+  const { setCartItems } = useCart();
 
   useEffect(() => {
     const loggedIn = !!localStorage.getItem("access_token");
@@ -29,12 +31,20 @@ const Header = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("loginStatus");
-    setIsLoggedIn(false);
-    message.success("Đăng xuất thành công");
-    navigate("/");
+    try {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("userId")
+      localStorage.removeItem("loginStatus");
+      const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
+      setCartItems(guestCart);
+      setIsLoggedIn(false);
+      message.success("Đăng xuất thành công");
+      navigate("/");
+    } catch (error) {
+      message.error("Đăng xuất thất bại");
+      console.error(error);
+    }
   };
 
   const handleLanguageChange = (value) => {

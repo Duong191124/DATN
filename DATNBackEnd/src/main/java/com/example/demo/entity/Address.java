@@ -26,7 +26,7 @@ public class Address {
     @Column(name = "ward")
     private String ward;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     private Customer customer;
 
