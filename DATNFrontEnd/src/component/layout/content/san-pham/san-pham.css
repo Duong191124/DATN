@@ -51,11 +51,13 @@
                 -webkit-box-orient: vertical;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                font-size: 15px;
             }
 
             .price {
                 font-weight: bold;
                 margin-top: 10px;
+                font-size: 15px;
             }
 
             @media screen and (max-width: 600px) {
@@ -67,4 +69,22 @@
             }
         }
     }
+
+    .empty-message-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 300px;
+        /* Chỉnh chiều cao của vùng hiển thị thông báo */
+        width: 100%;
+        /* Đảm bảo chiếm đầy chiều ngang */
+        background-color: #fff;
+        /* Bạn có thể thay đổi nền của phần này nếu cần */
+        position: relative;
+        /* Đảm bảo rằng nó căn giữa một cách chính xác trong container */
+        margin: 0 auto;
+        /* Căn giữa phần tử */
+    }
+
+
 }

@@ -58,7 +58,11 @@ const OrderPage = () => {
     setFilters(newFilters);
     loadOrder(); // Tải lại đơn hàng với bộ lọc từ URL
   }, [location.search]); // Chạy khi URL thay đổi
-
+  const handlePageChange = useCallback((page, pageSize) => {
+    setCurrentPage(page);
+    setPageSize(pageSize);
+    loadOrder(page, pageSize); // Chuyển trang và kích thước trang vào loadOrder
+  }, []);
   // Hàm load dữ liệu với các tham số filter
   const loadOrder = useCallback(
     async (page = 1, pageSize = 10) => {
@@ -147,14 +151,8 @@ const OrderPage = () => {
 
   // Khi giá trị trong filters thay đổi, load lại danh sách đơn hàng
   useEffect(() => {
-    loadOrder();
-  }, [filters, currentPage, pageSize, loadOrder]);
-
-  const handlePageChange = useCallback((page, pageSize) => {
-    setCurrentPage(page);
-    setPageSize(pageSize);
-  }, []);
-
+    loadOrder(currentPage, pageSize);
+  }, [filters, currentPage, pageSize]);
   return (
     <>
       <div style={{ textAlign: "center", margin: "28px 0" }}>

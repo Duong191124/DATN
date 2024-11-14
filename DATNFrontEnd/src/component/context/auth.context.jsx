@@ -2,9 +2,9 @@ import { createContext, useState, useEffect } from 'react';
 
 export const AuthContext = createContext({
     user: null,
-    setUser: () => {},
+    setUser: () => { },
     loginStatus: null,
-    setLoginStatus: () => {},
+    setLoginStatus: () => { },
 });
 
 export const AuthWrapper = ({ children }) => {
@@ -14,6 +14,7 @@ export const AuthWrapper = ({ children }) => {
     useEffect(() => {
         if (user) {
             localStorage.setItem("user", JSON.stringify(user));
+            console.log("User saved to localStorage:", user);
         } else {
             localStorage.removeItem("user");
         }
@@ -22,14 +23,19 @@ export const AuthWrapper = ({ children }) => {
     useEffect(() => {
         if (loginStatus) {
             localStorage.setItem("loginStatus", loginStatus);
+            console.log("Login status saved to localStorage:", loginStatus);
         } else {
             localStorage.removeItem("loginStatus");
         }
     }, [loginStatus]);
+
+    console.log("Current user:", user);
+    console.log("Current loginStatus:", loginStatus);
 
     return (
         <AuthContext.Provider value={{ user, setUser, loginStatus, setLoginStatus }}>
             {children}
         </AuthContext.Provider>
     );
-}
+};
+

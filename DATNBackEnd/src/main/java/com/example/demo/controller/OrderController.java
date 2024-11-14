@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.OrderDTO;
 import com.example.demo.entity.Notice;
 import com.example.demo.entity.OrderStatus;
+import com.example.demo.request.OrderWithVoucherAndOrderDetailRequest;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.OrderPageResponse;
 import com.example.demo.response.OrderResponse;
@@ -22,7 +23,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("${api.prefix}/orders")
@@ -39,6 +41,11 @@ public class  OrderController {
         else {
             return ResponseEntity.ok(new MessageReponse("success",200,lstOrderResponses));
         }
+    }
+    @GetMapping("/pending")
+        public ResponseEntity<?> getPendingOrdersByStaff(@RequestParam Integer staffId) {
+        List<OrderResponse> pendingOrders = orderService.getPendingOrdersByStaff(staffId);
+        return ResponseEntity.ok(new MessageReponse("successful",200,pendingOrders));
     }
     @GetMapping("/get-page")
     public ResponseEntity<OrderPageResponse> getOrdersByKeyword(
@@ -94,11 +101,27 @@ public class  OrderController {
                 ResponseEntity.ok(new MessageReponse("orderDto null",400,null));
             }
             OrderResponse OrderResponse = orderService.updatedOrder(id,orderDTO);
-            return ResponseEntity.ok(new MessageReponse("updated to ordered successfully",200,OrderResponse));
+            return ResponseEntity.ok(new MessageReponse("updated to ordered successfully",201,OrderResponse));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    @PutMapping("/update-productDetail/{id}")
+    public ResponseEntity<?> updateOrderWithProductDetail(
+            @PathVariable Integer id,
+            @RequestBody OrderWithVoucherAndOrderDetailRequest orderUpdateRequest) {  // Contains both product details and voucherId
+        try {
+            // Call the service method to update the order with the provided product details and voucherId
+            OrderResponse orderResponse = orderService.updatedOrderWithProductDetail(id, orderUpdateRequest);
+            // Return success response with updated order details
+            return ResponseEntity.ok(new MessageReponse("Updated order successfully", 201, orderResponse));
+        } catch (Exception e) {
+            // Return error response if something goes wrong
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
     @PutMapping("update-status/{id}")
     public ResponseEntity<?> updateOrder(@PathVariable int id, @RequestBody Map<String, String> payload){
         String status = payload.get("status");
@@ -125,12 +148,16 @@ public class  OrderController {
         }
     }
     @GetMapping("/find")
-    public ResponseEntity<?> findByIdOrder(@RequestParam int id){
+    public ResponseEntity<?> findByIdOrder(@RequestParam String code){
         try {
-            OrderResponse orderDTOFind = orderService.findById(id);
+            OrderResponse orderDTOFind = orderService.findByCode(code);
             return ResponseEntity.ok(new MessageReponse("found success",200,orderDTOFind));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+    @GetMapping("/hasUsedVoucher/{customerId}/{voucherId}")
+    public boolean hasCustomerUsedVoucher(@PathVariable int customerId, @PathVariable int voucherId) {
+        return orderService.hasCustomerUsedVoucher(customerId, voucherId);
     }
 }

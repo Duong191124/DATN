@@ -29,8 +29,8 @@ public class ProductServiceImpl implements ProductService {
     private final SleeveRepo sleeveRepo;
 
     @Override
-    public List<ProductResponse> getAll() {
-        return productRepo.findAll().stream().map(product -> ProductResponse.convertResponse(product)).toList();
+    public List<Product> getAll() {
+        return productRepo.findAll();
     }
 
     @Override

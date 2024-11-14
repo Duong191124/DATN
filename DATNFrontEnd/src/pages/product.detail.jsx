@@ -6,20 +6,17 @@ import { useEffect, useState } from "react";
 
 const ProductDetail = () => {
   const [dataProductDetail, setDataProductDetail] = useState([]);
-  const [productPrice, setProductPrice] = useState(null);  // State để lưu giá sản phẩm
   const { productId } = useParams();
 
   const loadProductDetail = async () => {
 
     const res = await findByProductId(productId);
-
     if (res.data.data.details) {
       setDataProductDetail(res.data.data.details);
     }
-    if (res.data.data.product) {
-      setProductPrice(res.data.data.product.price)
-    }
+
   };
+
 
   useEffect(() => {
     loadProductDetail();
@@ -30,7 +27,6 @@ const ProductDetail = () => {
       <ProDuctDetailForm
         loadProductDetail={loadProductDetail}
         productId={productId}
-        productPrice={productPrice}  // Truyền giá sản phẩm vào ProDuctDetailForm
       />
       <ProductDetailTable
         loadProductDetail={loadProductDetail}

@@ -76,6 +76,8 @@ public class AuthController {
             Authentication authentication =
                     authenticationManagerBuilder.getObject().authenticate(usernamePasswordAuthenticationToken);
 
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
             //generate token
             String token = securityUtil.createToken(authentication);
 
@@ -133,11 +135,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.OK).body(
                     MessageReponse.builder()
                             .data(
-                                    InformationResponse.builder()
-                                            .id(staff.getId())
-                                            .name(staff.getName())
-                                            .email(staff.getEmail())
-                                            .build()
+                                    staff
                             )
                             .status(HttpStatus.OK.value())
                             .message("Get information sucssessfuly")

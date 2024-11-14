@@ -22,7 +22,11 @@ public class ProductDetailDTO {
 
 //    @NotNull(message = "Price is required")
 //    @Positive(message = "Price must be greater than 0")
-    private double price;
+
+
+    private double defaultPrice;
+
+    private double discountPrice;
 
     @Size(max = 255, message = "Image path cannot exceed 255 characters")
     private String image;
@@ -38,16 +42,21 @@ public class ProductDetailDTO {
     @NotNull(message = "Color is required")
     private int colorId;
 
+    @NotNull(message = "Color is required")
+    private int weightId;
+
     public static ProductDetailDTO convertProductDetailDTO(ProductDetail productDetail){
         return ProductDetailDTO.builder()
                 .code(productDetail.getCode())
-                .price(productDetail.getPrice())
+                .defaultPrice(productDetail.getDefaultPrice())
+                .discountPrice(productDetail.getDiscountPrice() != null ? productDetail.getDiscountPrice() : 0)
                 .quantity(productDetail.getQuantity())
                 .image(productDetail.getImage())
                 .status(productDetail.getStatus())
                 .productId(productDetail.getProduct().getId())
                 .colorId(productDetail.getColor().getId())
                 .sizeId(productDetail.getSize().getId())
+                .weightId(productDetail.getWeight().getId())
                 .build();
     }
 }

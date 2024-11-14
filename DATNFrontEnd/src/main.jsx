@@ -18,17 +18,23 @@ import SleevePage from "./pages/sleeve.jsx";
 import PromotionPage from "./pages/promotion.jsx";
 import VoucherPage from "./pages/voucher.jsx";
 import StaffManagement from "./pages/staff.jsx";
-import PrivateRoute from "./pages/private.route.jsx";
 import App from "./App.jsx";
 import PermissionPage from "./pages/permission.jsx";
 import CustomerPage from "./pages/customer.jsx";
 import CheckoutPage from "./pages/checkout.jsx";
 import Header from "./component/layout/user/header/header.jsx";
-import { Footer } from "antd/es/layout/layout.js";
-import HomePage from "./component/layout/content/home/index/index.jsx";
-import ProductDetailPage from "./component/layout/content/home/index/product.detail.page.jsx";
 import RequestForgotPassword from "./pages/request.forgot.password.jsx";
 import ResetPassword from "./pages/reset.password.jsx";
+
+import WeightPage from "./pages/weight.jsx";
+
+import './i18n.jsx';
+import InfoPage from "./pages/info.jsx";
+import SanPham from "./component/layout/content/san-pham/san-pham.jsx";
+import ProductDetailPage from "./component/layout/content/san-pham/product.detail.page.jsx";
+
+
+
 const router = createBrowserRouter([
   {
     path: "/admin",
@@ -103,7 +109,10 @@ const router = createBrowserRouter([
         path: "customer",
         element: <CustomerPage />,
       },
-
+      {
+        path: "weight",
+        element: <WeightPage />,
+      },
     ],
   },
   {
@@ -115,15 +124,17 @@ const router = createBrowserRouter([
         element: <Home />
       },
       {
-        path: "/home-page",
-        element: <HomePage />
+        path: "/product",
+        element: <SanPham />
       },
       {
-        path: "/product/:productId",
+        path: "/product/:id",
         element: <ProductDetailPage />
       },
-
-
+      {
+        path: "/info",
+        element: <InfoPage />
+      },
     ]
   },
   {

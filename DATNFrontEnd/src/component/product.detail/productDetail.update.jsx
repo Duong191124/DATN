@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchDataColorAPI, fetchDataProductAPI, fetchDataSize, updateProductDetailAPi } from "../../service/api.service";
+import { fetchDataColorAPI, fetchDataProductAPI, fetchDataSize, fetchDataWeight, updateProductDetailAPi } from "../../service/api.service";
 import { Input, Modal, notification, Select, Form, Button } from "antd";
 
 const ProductDetailUpdate = (props) => {
@@ -7,6 +7,7 @@ const ProductDetailUpdate = (props) => {
     const [dataProduct, setDataProduct] = useState([]);
     const [dataSize, setDataSize] = useState([]);
     const [dataColor, setDataColor] = useState([]);
+    const [dataWeight, setDataWeight] = useState([])
 
     const { loadProductDetail, isModalUpdateOpen, setIsModalUpdateOpen, dataUpdate, setDataUpdate } = props;
 
@@ -15,11 +16,12 @@ const ProductDetailUpdate = (props) => {
             form.setFieldsValue({
                 id: dataUpdate.id,
                 code: dataUpdate.code,
-                price: dataUpdate.price,
+                defaultPrice: dataUpdate.defaultPrice,
                 quantity: dataUpdate.quantity,
                 product: dataUpdate.productResponse?.id,
                 color: dataUpdate.color?.id,
                 size: dataUpdate.size?.id,
+                weight: dataUpdate.weight?.id
             });
         }
     }, [dataUpdate, form]);
@@ -28,7 +30,7 @@ const ProductDetailUpdate = (props) => {
 
         try {
             const values = await form.validateFields();
-            const res = await updateProductDetailAPi(values.id, values.code, values.quantity, values.price, values.product, values.size, values.color);
+            const res = await updateProductDetailAPi(values.id, values.code, values.quantity, values.defaultPrice, values.product, values.size, values.color, values.weight);
             if (res.data) {
                 notification.success({
                     message: "Update product",
@@ -47,6 +49,7 @@ const ProductDetailUpdate = (props) => {
             loadDataProduct();
             loadDataColor();
             loadDataSize();
+            loadDataWeight();
         }
     }, [isModalUpdateOpen]);
 
@@ -72,6 +75,12 @@ const ProductDetailUpdate = (props) => {
         const activeSize = res.data.data.filter(sizes => sizes.status != 0)
         setDataSize(activeSize)
     };
+
+    const loadDataWeight = async () => {
+        const res = await fetchDataWeight();
+        const activeWeight = res.data.data.filter(weight => weight.status != 0)
+        setDataWeight(activeWeight)
+    }
 
     const resetCloseModal = () => {
         form.resetFields();
@@ -118,9 +127,9 @@ const ProductDetailUpdate = (props) => {
                 </Form.Item>
 
                 <Form.Item
-                    label="Price"
-                    name="price"
-                    rules={[{ required: true, message: 'Please input the price!' }]}
+                    label="defaultPrice"
+                    name="defaultPrice"
+                    rules={[{ required: true, message: 'Please input the defaultPrice!' }]}
                 >
                     <Input />
                 </Form.Item>
@@ -161,6 +170,18 @@ const ProductDetailUpdate = (props) => {
                             (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
                         }
                         options={dataSize}
+                        fieldNames={{ label: "name", value: "id" }}
+                    />
+                </Form.Item>
+
+                <Form.Item label="Weight" name="weight" rules={[{ required: true, message: 'Please select a Weight!' }]}>
+                    <Select
+                        showSearch
+                        placeholder="Select a weight"
+                        filterOption={(input, option) =>
+                            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                        }
+                        options={dataWeight}
                         fieldNames={{ label: "name", value: "id" }}
                     />
                 </Form.Item>

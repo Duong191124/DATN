@@ -45,7 +45,7 @@ const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefr
     const handleGender = (gender) => {
         if (gender === 1) {
             return "Nam";
-        } else if (gender === 2) {
+        } else if (gender === 0) {
             return "Nữ";
         } else {
             return "Khác";
@@ -105,7 +105,7 @@ const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefr
             const filteredCustomerIds = customers
                 .filter(customer => {
                     if (genderFilter === 'male') return customer.gender === 1;
-                    if (genderFilter === 'female') return customer.gender === 2;
+                    if (genderFilter === 'female') return customer.gender === 0;
                     return true; // Nếu không có bộ lọc, chọn tất cả
                 })
                 .map(customer => customer.id);
@@ -151,7 +151,7 @@ const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefr
 
     const filteredCustomers = customers.filter(customer => {
         if (genderFilter === 'male') return customer.gender === 1;
-        if (genderFilter === 'female') return customer.gender === 2;
+        if (genderFilter === 'female') return customer.gender === 0;
         return true; // Trả về tất cả nếu không có bộ lọc
     });
 

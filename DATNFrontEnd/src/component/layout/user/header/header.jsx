@@ -14,6 +14,7 @@ const items = [
 const users = [
   { key: "1", label: <NavLink to={"/login"}>Đăng nhập</NavLink> },
   { key: "2", label: <NavLink to={"/register"}>Đăng ký</NavLink> },
+  { key: "2", label: <NavLink to={"/info"}>Thông tin</NavLink> },
 ];
 
 const Header = () => {
@@ -51,7 +52,7 @@ const Header = () => {
                     <a>DANH MỤC</a>
                   </Dropdown>
                 </li>
-                <li><NavLink to={"/home-page"}>SẢN PHẨM</NavLink></li>
+                <li><NavLink to={"/product"}>SẢN PHẨM</NavLink></li>
                 <li><a>THÔNG TIN</a></li>
                 <li><a>KHÁC</a></li>
               </ul>

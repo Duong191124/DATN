@@ -5,22 +5,13 @@ import { fetchDataProductDetail, updatePromotionProduct, detailPromotion } from 
 const { Option } = Select;
 
 const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onApply, id, loadData }) => {
-
-//     <ProductDetailModal
-//     isVisible={isProductDetailModalVisible}
-//     onClose={() => setIsProductDetailModalVisible(false)}
-//     selectedProductDetails={selectedProductIds}
-//     onApply={handleApplyProductDetails}
-//     id={promotionId}
-//     loadData={loadData}
-// />
     const [productDetails, setProductDetails] = useState([]);
     const [selectedDetails, setSelectedDetails] = useState(selectedProductDetails || []);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [promotion, setPromotion] = useState(null);
-    const [selectedSize, setSelectedSize] = useState(null); // State cho kích thước đã chọn
-    const [allSelected, setAllSelected] = useState(false); // State để kiểm tra trạng thái chọn tất cả
+    const [selectedSize, setSelectedSize] = useState(null);
+    const [allSelected, setAllSelected] = useState(false);
 
     useEffect(() => {
         const fetchProductDetailsAndPromotion = async () => {
@@ -28,21 +19,15 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 const productDetailsRes = await fetchDataProductDetail();
                 if (productDetailsRes?.data?.data) {
                     setProductDetails(productDetailsRes.data.data);
-                } else {
-                    throw new Error('Dữ liệu không hợp lệ');
                 }
 
                 if (id) {
                     const promotionRes = await detailPromotion(id);
-                    console.log("PromotionProduct: ",promotionRes)
-                    if (promotionRes?.data.data) {
+                    if (promotionRes?.data?.data) {
                         setPromotion(promotionRes.data.data);
-                    } else {
-                        throw new Error('Không thể lấy thông tin khuyến mãi');
                     }
                 }
             } catch (error) {
-                console.error('Error fetching product details or promotion:', error);
                 notification.error({
                     message: "Lỗi",
                     description: "Không thể tải danh sách chi tiết sản phẩm hoặc khuyến mãi",
@@ -53,29 +38,8 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
         if (isVisible) {
             fetchProductDetailsAndPromotion();
             setSelectedDetails(selectedProductDetails || []);
-            
         }
     }, [isVisible, id, selectedProductDetails]);
-    const calculateDiscountedPrice = (price, id,promotion) => {
-
-        if (!selectedDetails.includes(id)) return price;
-        
-        const discountAmount = parseInt(promotion.discountAmount) || 0;
-        const discountPercent = parseInt(promotion.discountPercent) || 0;
-        console.log(discountAmount, discountPercent);
-        let discountedPrice = price;
-
-        if (discountAmount > 0) {
-            discountedPrice -= discountAmount;
-        }
-
-        if (discountPercent > 0) {
-            discountedPrice -= (price * (discountPercent / 100));
-        }
-
-        return Math.max(discountedPrice, 0);
-        
-    };
 
     const handleSelect = (productId) => {
         setSelectedDetails((prevSelected) =>
@@ -91,16 +55,32 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 throw new Error("Promotion ID không hợp lệ.");
             }
 
-            const payload = { productDetailsIds: selectedDetails };
+            const payload = {
+                productDetailsIds: selectedDetails,
+                applyPromotion: selectedDetails.length > 0,
+            };
 
             const res = await updatePromotionProduct(id, payload);
-
-            if (res?.data) {
+            if (res) {
                 notification.success({
                     message: "Thành công",
-                    description: "Áp dụng khuyến mãi thành công!",
+                    description: selectedDetails.length > 0 ? "Áp dụng khuyến mãi thành công!" : "Đã hủy áp dụng khuyến mãi.",
                 });
 
+                // Xử lý lại danh sách sản phẩm
+                const updatedProductDetails = await fetchDataProductDetail();
+                if (updatedProductDetails?.data?.data) {
+                    let restoredDetails = updatedProductDetails.data.data;
+
+                    if (!payload.applyPromotion) {
+                        restoredDetails = restoredDetails.map(product => ({
+                            ...product,
+                            discountPrice: product.defaultPrice, // Đặt discountPrice về giá gốc
+                        }));
+                    }
+
+                    setProductDetails(restoredDetails);
+                }
                 onApply(selectedDetails);
                 onClose();
 
@@ -111,7 +91,7 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 throw new Error("Không thể cập nhật khuyến mãi.");
             }
         } catch (error) {
-            console.error('Error applying promotion:', error);
+            console.error("Error applying promotion:", error);
             notification.error({
                 message: "Lỗi",
                 description: error.response?.data?.message || "Không thể áp dụng khuyến mãi",
@@ -124,19 +104,15 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             .filter(item => selectedSize === null || item.size?.name === selectedSize)
             .map(item => item.id);
 
-        // Kiểm tra nếu tất cả đã được chọn => bỏ chọn tất cả, ngược lại chọn tất cả
-        if (allSelected) {
-            setSelectedDetails(prev => prev.filter(id => !filteredIds.includes(id)));
-            setAllSelected(false);
-        } else {
-            setSelectedDetails(prev => [...new Set([...prev, ...filteredIds])]);
-            setAllSelected(true);
-        }
+        setSelectedDetails(prev => 
+            allSelected ? prev.filter(id => !filteredIds.includes(id)) : [...new Set([...prev, ...filteredIds])]
+        );
+        setAllSelected(prev => !prev);
     };
 
     const handleSizeChange = (size) => {
         setSelectedSize(size);
-        setAllSelected(false); // Đặt lại nút chọn tất cả khi thay đổi kích thước
+        setAllSelected(false); // Deselect all when size filter changes
     };
 
     const currentData = productDetails
@@ -162,15 +138,14 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
         },
         {
             title: "Giá Gốc",
-            dataIndex: "price",
+            dataIndex: "defaultPrice",
             render: (price) => <span>{price} VND</span>,
         },
         {
             title: "Giá Sau Khuyến Mãi",
-            dataIndex: "discountedPrice",
-            render: (_, record) => (
-                <span>{calculateDiscountedPrice(record.price,record.id,promotion)} VND</span>
-                
+            dataIndex: "discountPrice",
+            render: (discountPrice) => (
+                <span>{discountPrice ? `${discountPrice} VND` : "Không có khuyến mãi"}</span>
             ),
         },
         {
@@ -218,7 +193,13 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             <Table
                 dataSource={currentData}
                 columns={columns}
-                pagination={false}
+                pagination={{
+                    current: currentPage,
+                    pageSize: pageSize,
+                    total: productDetails.length,
+                    onChange: setCurrentPage,
+                    onShowSizeChange: (current, size) => setPageSize(size)
+                }}
                 rowKey="id"
             />
             <Pagination

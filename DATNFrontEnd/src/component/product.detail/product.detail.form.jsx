@@ -1,6 +1,6 @@
 import { Button, Input, Modal, notification, Select, Form } from "antd";
 import { useEffect, useState } from "react";
-import { createProductDetailAPi, fetchDataColorAPI, fetchDataSize } from "../../service/api.service";
+import { createProductDetailAPi, fetchDataColorAPI, fetchDataSize, fetchDataWeight } from "../../service/api.service";
 import { Link } from "react-router-dom";
 import { DoubleLeftOutlined, PlusOutlined } from "@ant-design/icons";
 
@@ -8,15 +8,19 @@ const ProDuctDetailForm = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [sizes, setSizes] = useState([]);       // Dữ liệu danh sách size
     const [colors, setColors] = useState([]);     // Dữ liệu danh sách màu
+    const [weight, setWeight] = useState([]);     // Dữ liệu danh sách màu
 
-    const { productId, loadProductDetail, productPrice } = props;  // Lấy productId từ props
+
+
+
+    const { productId, loadProductDetail } = props;  // Lấy productId từ props
 
     const [form] = Form.useForm();  // Khởi tạo form từ Ant Design
 
     const handleSubmit = async (values) => {
-        const { code, quantity, size, color } = values;
+        const { code, quantity, defaultPrice, size, color } = values;
         const res = await createProductDetailAPi(
-            code, quantity, productPrice, productId, size, color  // Truyền productId từ props
+            code, quantity, defaultPrice, productId, size, color  // Truyền productId từ props
         );
         if (res.data) {
             notification.success({
@@ -40,9 +44,16 @@ const ProDuctDetailForm = (props) => {
         setSizes(activeSize)
     };
 
+    const loadDataWeight = async () => {
+        const res = await fetchDataWeight();
+        const activeWeight = res.data.data.filter(weight => weight.status != 0)
+        setWeight(activeWeight)
+    }
+
     useEffect(() => {
         loadDataColor();
         loadDataSize();
+        loadDataWeight();
     }, []);
 
     const resetCloseModal = () => {
@@ -92,13 +103,13 @@ const ProDuctDetailForm = (props) => {
                         <Input />
                     </Form.Item>
 
-                    {/* <Form.Item
-                        label="Price"
-                        name="price"
+                    <Form.Item
+                        label="DefaultPrice"
+                        name="defaultPrice"
                         rules={[{ required: true, message: "Please input price!" }]}
                     >
                         <Input />
-                    </Form.Item> */}
+                    </Form.Item>
 
                     <Form.Item
                         label="Color"
@@ -128,6 +139,22 @@ const ProDuctDetailForm = (props) => {
                                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                             }
                             options={sizes}
+                            fieldNames={{ label: "name", value: "id" }}
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Weight"
+                        name="weight"
+                        rules={[{ required: true, message: "Please select a weight!" }]}
+                    >
+                        <Select
+                            showSearch
+                            placeholder="Select a weight"
+                            filterOption={(input, option) =>
+                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                            }
+                            options={weight}
                             fieldNames={{ label: "name", value: "id" }}
                         />
                     </Form.Item>

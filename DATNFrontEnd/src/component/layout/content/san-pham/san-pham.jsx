@@ -1,15 +1,16 @@
 import { FilterTwoTone, ReloadOutlined } from '@ant-design/icons';
-import { Row, Col, Form, Checkbox, Divider, InputNumber, Button } from 'antd';
+import { Row, Col, Form, Checkbox, Divider, InputNumber, Button, Empty } from 'antd'; // Thêm Empty từ Ant Design
 import { useEffect, useState } from 'react';
-import './home.css';
-import { fetchDataCategory, fetchDataProductAPI } from '../../../../../service/api.service';
-import ChatBox from '../../chat/chat';
+import './san-pham.css';
 import { Link } from 'react-router-dom';
+import { fetchDataCategory, fetchDataProductAPI } from '../../../../service/api.service';
+import ChatBox from '../chat/chat';
 
-const Home = () => {
+const SanPham = () => {
     const [form] = Form.useForm();
     const [listCategory, setListCategory] = useState([]);
     const [listProduct, setListProduct] = useState([]);
+    const [filteredProduct, setFilteredProduct] = useState([]);
 
     useEffect(() => {
         const initCategory = async () => {
@@ -32,18 +33,34 @@ const Home = () => {
             const res = await fetchDataProductAPI();
             if (res.data && res.data.data) {
                 const product = res.data.data.map(item => ({
-                    title: item.name,        // Lấy tên sản phẩm từ API
-                    price: item.price,       // Lấy giá sản phẩm từ API
-                    image: item.image
+                    title: item.name,
+                    price: item.price,
+                    image: item.image,
+                    id: item.id
                 }));
-                setListProduct(product)
+                setListProduct(product);
+                setFilteredProduct(product);  // Set initial products as filtered
             }
         };
         initProduct();
     }, []);
 
     const onFinish = (values) => {
-        // Xử lý form submission nếu cần
+        const { range } = values; // Get range from the form
+        const fromPrice = range?.from || 0;
+        const toPrice = range?.to || Infinity; // Set to Infinity if "to" is not defined
+
+        // Filter products based on price range
+        const filtered = listProduct.filter(product =>
+            product.price >= fromPrice && product.price <= toPrice
+        );
+
+        setFilteredProduct(filtered); // Set the filtered products
+    };
+
+    const handleReset = () => {
+        form.resetFields();  // Reset form fields
+        setFilteredProduct(listProduct);  // Reset to the original product list
     };
 
     return (
@@ -56,7 +73,7 @@ const Home = () => {
                                 <span> <FilterTwoTone />
                                     <span style={{ fontWeight: 500 }}> Bộ lọc tìm kiếm</span>
                                 </span>
-                                <ReloadOutlined title="Reset" onClick={() => form.resetFields()} />
+                                <ReloadOutlined title="Reset" onClick={handleReset} />
                             </div>
                             <Divider />
                             <Form
@@ -100,7 +117,7 @@ const Home = () => {
                                             </Form.Item>
                                         </Col>
                                         <Col xl={2} md={0}>
-                                            <div > - </div>
+                                            <div> - </div>
                                         </Col>
                                         <Col xl={11} md={24}>
                                             <Form.Item name={["range", 'to']} >
@@ -115,7 +132,7 @@ const Home = () => {
                                         </Col>
                                     </Row>
                                     <div>
-                                        <Button onClick={() => { }}>Áp dụng</Button>
+                                        <Button type="primary" htmlType="submit">Áp dụng</Button>
                                     </div>
                                 </Form.Item>
                             </Form>
@@ -123,26 +140,32 @@ const Home = () => {
                     </Col>
                     <Col md={20} sm={24} xs={24}>
                         <div className="customize-row" style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '5px' }}>
-                            {listProduct?.map((product, index) => (
-                                <div className="column" key={index}>
-                                    <div className="wrapper">
-                                        <Link to={`/product/${product.id}`}>
-                                            <img src={product.image} alt="product" />
-                                        </Link>
-                                        <div className="text">{product.title}</div>
-                                        <div className="price">
-                                            {product.price} đ
+                            {filteredProduct?.length === 0 ? (
+                                <div className="empty-message-container">
+                                    <Empty description="Không có sản phẩm" />
+                                </div>
+                            ) : (
+                                filteredProduct?.map((product, index) => (
+                                    <div className="column" key={index}>
+                                        <div className="wrapper">
+                                            <Link to={`/product/${product.id}`}>
+                                                <img src={product.image} alt="product" />
+                                            </Link>
+                                            <div className="text">{product.title}</div>
+                                            <div className="price">
+                                                {product.price} đ
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))
+                            )}
                         </div>
                     </Col>
                 </Row>
             </div>
-            <ChatBox />
+            {/* <ChatBox /> */}
         </div>
     );
 };
 
-export default Home;
+export default SanPham;

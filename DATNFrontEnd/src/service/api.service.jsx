@@ -94,7 +94,7 @@ const updateProductAPI = (
     category_id: category_id,
     brand_id: brand_id,
     collar_id: collar_id,
-    status: status
+    status: status,
   };
   return axios.put(URL_BACKEND, data);
 };
@@ -113,6 +113,10 @@ const fetchAllProduct = (page, pageSize) => {
   const URL_BACKEND = `/api/v1/products?page=${page}&pageSize=${pageSize}`;
   return axios.get(URL_BACKEND);
 };
+const fetchDataProduct = () => {
+  const URL_BACKEND = `/api/v1/products/getAllProduct`;
+  return axios.get(URL_BACKEND);
+}
 
 const fetchDataPageAndFilterProduct = async (
   category_id,
@@ -138,9 +142,6 @@ const fetchDataPageAndFilterProduct = async (
   return axios.get(URL_BACKEND, { params });
 };
 
-
-
-
 const fetchDataProductAPI = () => {
   const URL_BACKEND = "/api/v1/products/getAllProduct";
   return axios.get(URL_BACKEND);
@@ -151,6 +152,10 @@ const fetchDataProductById = (id) => {
   const URL_BACKEND = `/api/v1/products/productId/${id}`
   return axios.get(URL_BACKEND)
 }
+
+
+
+
 
 const fetchDataSleeve = () => {
   const URL_BACKEND = "/api/v1/sleeves";
@@ -180,6 +185,10 @@ const checkDuplicateProductAPI = async (type, value) => {
 //   const URL_BACKEND = "api/v1/orders/list";
 //   return axios.get(URL_BACKEND);
 // };
+const fetchPendingOrders = (staffId) => {
+  const URL_BACKEND = `api/v1/orders/pending?staffId=${staffId}`;
+  return axios.get(URL_BACKEND);
+};
 const fetchPageDataProductDetail = async (
   productName,
   code,
@@ -187,6 +196,7 @@ const fetchPageDataProductDetail = async (
   sizeName,
   minPrice,
   maxPrice,
+  status,
   page = 0,
   limit = 10
 ) => {
@@ -198,6 +208,7 @@ const fetchPageDataProductDetail = async (
     sizeName: sizeName || "",
     minPrice: minPrice || "",
     maxPrice: maxPrice || "",
+    status: status || "",
     page: page,
     limit: limit,
   };
@@ -254,8 +265,25 @@ const updateStatusOrder = (orderId, status) => {
   };
   return axios.put(URL_BACKEND, data);
 };
+const updateProductDetailWithOrder = (orderId, productDetail, voucherId) => {
+  const URL_BACKEND = `api/v1/orders/update-productDetail/${orderId}`;
+  const data = {
+    orderDetailRequests: productDetail.map((item) => ({
+      product_detail_id: item.product_detail_id,
+      quantity: item.quantity,
+      price: item.price,
+    })),
+    voucherId: voucherId,
+  };
+  return axios.put(URL_BACKEND, data);
+};
+
 const orderStaffFindById = (staffId) => {
   const URL_BACKEND = `api/v1/staff/${staffId}`;
+  return axios.get(URL_BACKEND);
+};
+const orderFindByCode = (code) => {
+  const URL_BACKEND = `api/v1/orders/find?code=${code}`;
   return axios.get(URL_BACKEND);
 };
 const orderProductDetail = () => {
@@ -318,6 +346,14 @@ const createPayment = async (paymentDate, paymentMethod, orderId) => {
     throw new Error("Thanh toán thất bại: " + error.message);
   }
 };
+const getVouchersByCustomerId = (customerId) => {
+  const URL_BACKEND = `api/v1/customer-voucher/${customerId}`;
+  return axios.get(URL_BACKEND);
+};
+const hasCustomerUsedVoucher = (customerId, voucherId) => {
+  const URL_BACKEND = `api/v1/orders/hasUsedVoucher/${customerId}/${voucherId}`;
+  return axios.get(URL_BACKEND);
+};
 /*
   API Product detail
 */
@@ -349,7 +385,7 @@ const fetchDataSize = () => {
 const createProductDetailAPi = (
   code,
   quantity,
-  price,
+  defaultPrice,
   productId,
   sizeId,
   colorId
@@ -358,7 +394,7 @@ const createProductDetailAPi = (
   const data = {
     code: code,
     quantity: quantity,
-    price: price,
+    defaultPrice: defaultPrice,
     productId: productId,
     sizeId: sizeId,
     colorId: colorId,
@@ -370,21 +406,23 @@ const updateProductDetailAPi = (
   id,
   code,
   quantity,
-  price,
+  defaultPrice,
   productId,
   sizeId,
   colorId,
-  status
+  status,
+  weight,
 ) => {
   const URL_BACKEND = `/api/v1/productDetail/${id}`;
   const data = {
     code: code,
     quantity: quantity,
-    price: price,
+    defaultPrice: defaultPrice,
     productId: productId,
     sizeId: sizeId,
     colorId: colorId,
-    status: status
+    status: status,
+    weight: weight,
   };
   return axios.put(URL_BACKEND, data);
 };
@@ -392,6 +430,14 @@ const updateProductDetailAPi = (
 const deleteProductDetailAPI = (id) => {
   const URL_BACKEND = `/api/v1/productDetail/${id}`;
   return axios.delete(URL_BACKEND);
+};
+const findByProductDetailId = (id) => {
+  const URL_BACKEND = `/api/v1/productDetail/detail/${id}`;
+  return axios.get(URL_BACKEND);
+};
+const findByProductDetailCode = (code) => {
+  const URL_BACKEND = `/api/v1/productDetail/detailCode/${code}`;
+  return axios.get(URL_BACKEND);
 };
 //API color
 const fetchDataColor = () => {
@@ -679,12 +725,10 @@ const createPromotion = async (data) => {
     const response = await axios.post(URL_BACKEND, data);
     return response; // Trả về phản hồi nếu thành công
   } catch (error) {
-
     return {
       data: null,
       message: error.response ? error.response.data : error.message,
     }; // Trả về thông tin lỗi
-
   }
 };
 // Hàm cập nhật khuyến mãi
@@ -722,14 +766,22 @@ const updatePromotionProduct = async (id, payload) => {
     const response = await axios.put(URL_BACKEND, payload);
     return response.data; // Trả về dữ liệu từ phản hồi
   } catch (error) {
-    console.error("Error updating promotion product:", error);
+    // In chi tiết lỗi từ Axios để giúp debug dễ dàng hơn
+    if (error.response) {
+      console.error("Error response:", error.response.data);
+    } else if (error.request) {
+      console.error("Error request:", error.request);
+    } else {
+      console.error("Error message:", error.message);
+    }
     throw error; // Ném lỗi để xử lý ở nơi gọi hàm
   }
 };
+
 const chandleStatusPromotion = (id) => {
   const URL_BACKEND = `/api/v1/promotion/${id}/status`;
   return axios.put(URL_BACKEND);
-}
+};
 
 const detailPromotion = (id) => {
   const URL_BACKEND = `/api/v1/promotion/detail/${id}`;
@@ -809,12 +861,10 @@ const updateVoucher = async (
 };
 
 const updateVoucherCustomer = async (id, payload) => {
-
   // Kiểm tra id trước khi xây dựng URL
   if (!id) {
     throw new Error("Voucher ID is required");
   }
-
 
   const URL_BACKEND = `/api/v1/voucher/${id}/customer`;
   try {
@@ -841,7 +891,7 @@ const getAllCustomer = (page, size) => {
 const chandleStatus = (id) => {
   const URL_BACKEND = `/api/v1/voucher/${id}/status`;
   return axios.put(URL_BACKEND);
-}
+};
 const updateCustomer = (
   id,
   username,
@@ -907,10 +957,6 @@ const softDelete = (id) => {
 //Cart Detail
 const fetchDataAPICartDetail = () => {
   const URL_BACKEND = "/api/v1/cartDetail";
-  return axios.get(URL_BACKEND)
-}
-const findByProductDetailId = (id) => {
-  const URL_BACKEND = `/api/v1/productDetail/detail/${id}`;
   return axios.get(URL_BACKEND);
 };
 
@@ -919,25 +965,60 @@ const findByProductDetailId = (id) => {
 const fetchDataNotice = () => {
   const URL_BACKEND = "/api/v1/notice/getAll";
   return axios.get(URL_BACKEND);
-}
+};
 //API for forgot password
 const requetsForgotPassword = (email) => {
   const URL_BACKEND = "/api/v1/auth/request-reset-password";
   return axios.post(URL_BACKEND, {
-    email
+    email,
   });
-}
+};
 
 const updatePassword = (email, code, newPassword) => {
   const URL_BACKEND = "/api/v1/auth/confirm-set-password";
   return axios.post(URL_BACKEND, {
     email,
     code,
-    newPassword
+    newPassword,
   });
+};
+
+
+
+
+//Weight
+const fetchDataWeight = () => {
+  const URL_BACKEND = "/api/v1/weight";
+  return axios.get(URL_BACKEND);
+}
+
+const createWeightAPI = (code, name, status) => {
+  const URL_BACKEND = "/api/v1/weight";
+  const data = {
+    code: code,
+    name: name,
+    status: status
+  };
+  return axios.post(URL_BACKEND, data)
+
+}
+const updateWeightAPI = (id, code, name, status) => {
+  const URL_BACKEND = "/api/v1/weight";
+  const data = {
+    id: id,
+    code: code,
+    name: name,
+    status: status,
+
+  };
+  return axios.put(URL_BACKEND, data)
 }
 
 export {
+  updateWeightAPI,
+  fetchDataWeight,
+  createWeightAPI,
+  fetchDataProduct,
   fetchDataProductById,
   findByProductDetailId,
   updatePassword,
@@ -1033,7 +1114,11 @@ export {
   fetchPageDataProductDetail,
   checkDuplicateProductAPI,
   checkCodeExistsAPI,
-
   getUserInfo,
+  updateProductDetailWithOrder,
+  fetchPendingOrders,
+  orderFindByCode,
+  findByProductDetailCode,
+  getVouchersByCustomerId,
+  hasCustomerUsedVoucher,
 };
-

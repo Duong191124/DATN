@@ -1,216 +1,147 @@
-import React, { useState, useEffect } from "react";
-import { Table, Checkbox, Button, Modal, message } from "antd";
-
+import React, { useState } from "react";
+import { Tabs, Button, Modal, Dropdown, Menu } from "antd";
+import { PlusOutlined, EllipsisOutlined } from "@ant-design/icons";
+import "./order.css";
 const CounterSaleBillWaiting = ({
   billItems,
-  tempBillItems, // Hóa đơn tạm chờ
-  onRemoveBill,
-  onSelectBill,
-  selectedBill,
-  onMoveBillToTemp, // Chuyển hóa đơn từ danh sách chờ sang tạm chờ
-  onSwapBills, // Hoán đổi giữa hóa đơn tạm chờ và chờ
   setSelectedBill,
-  onMoveBillToWaiting, // Chuyển hóa đơn từ tạm chờ sang chờ
+  canceledOrder,
+  handleCreateBillWaiting,
 }) => {
-  const [selectedTempBill, setSelectedTempBill] = useState(null);
-  const [selectedWaitingBill, setSelectedWaitingBill] = useState(null);
-  const [isTempBillModalVisible, setIsTempBillModalVisible] = useState(false); // Modal for temp bills
+  const [activeTab, setActiveTab] = useState(
+    billItems.length ? billItems[0].code : ""
+  ); // Tab đang chọn
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false); // Modal chi tiết hóa đơn
+  const [selectedBillDetail, setSelectedBillDetail] = useState(null); // Hóa đơn đang được xem chi tiết
 
-  useEffect(() => {}, [selectedTempBill, selectedWaitingBill]);
-
-  const handleRemoveBill = (billId) => {
-    Modal.confirm({
-      title: "Xác nhận",
-      content: "Bạn có chắc chắn muốn xóa hóa đơn này không?",
-      onOk: () => onRemoveBill(billId),
-    });
-  };
-  const handleSwapBills = () => {
-    if (!selectedTempBill || !selectedWaitingBill) {
-      message.error(
-        "Vui lòng chọn một hóa đơn tạm chờ và một hóa đơn chờ để hoán đổi."
-      );
-      return;
-    }
-    // Hoán đổi logic ở đây
-    onSwapBills(selectedTempBill, selectedWaitingBill);
-    // Reset lại lựa chọn sau khi hoán đổi
-    setSelectedTempBill(null);
-    setSelectedWaitingBill(null);
-    message.success("Hoán đổi hóa đơn thành công.");
-    setSelectedWaitingBill(null);
-    setSelectedBill(null);
-  };
-  // Hàm để thay đổi trạng thái chọn hóa đơn
-  const handleCheckboxChange = (billId, type) => {
-    if (type === "waiting") {
-      setSelectedWaitingBill(billId === selectedWaitingBill ? null : billId);
-      setSelectedBill(billId === selectedBill ? null : billId);
-    } else if (type === "temp") {
-      setSelectedTempBill(billId === selectedTempBill ? null : billId);
+  const handleTabChange = (key) => {
+    if (key === "create") {
+      handleCreateBillWaiting(); // Gọi trực tiếp hàm tạo hóa đơn
+    } else {
+      setActiveTab(key); // Cập nhật tab đang chọn
+      setSelectedBill(key); // Đặt hóa đơn được chọn là tab hiện tại
     }
   };
-  const handleMoveToTemp = () => {
-    if (!selectedWaitingBill) {
-      message.error("Vui lòng chọn hóa đơn từ danh sách chờ.");
-      return;
+
+  const handleTabClose = (targetKey) => {
+    const billToCancel = billItems.find((bill) => bill.code === targetKey);
+    if (billToCancel) {
+      canceledOrder(billToCancel.id); // Hủy hóa đơn
     }
-    onMoveBillToTemp(selectedWaitingBill);
-    setSelectedWaitingBill(null);
-    setSelectedBill(null);
-  };
-  const handleMoveToWaiting = () => {
-    if (!selectedTempBill) {
-      message.error("Vui lòng chọn hóa đơn từ danh sách tạm chờ.");
-      return;
-    }
-    onMoveBillToWaiting(selectedTempBill);
-    setSelectedTempBill(null); // Reset lựa chọn sau khi chuyển
-    setSelectedBill(null);
-  };
-  // Hàm mở modal "Hóa đơn tạm chờ"
-  const openTempBillsModal = () => {
-    setIsTempBillModalVisible(true);
   };
 
-  const columns = [
-    {
-      title: "Chọn",
-      key: "select",
-      render: (_, record) => (
-        <Checkbox
-          checked={selectedBill === record.billId}
-          onChange={() => {
-            onSelectBill(record.billId);
-            handleCheckboxChange(record.billId, "waiting");
-          }}
-        />
-      ),
-    },
-    { title: "Mã hóa đơn", dataIndex: "billId", key: "billId" },
-    {
-      title: "Khách hàng",
-      key: "customer.name",
-      render: (text, record) =>
-        record.customer ? record.customer.name : "Chưa có khách hàng",
-    },
-    {
-      title: "Nhân viên",
-      key: "staff.name",
-      render: (text, record) =>
-        record.staff ? record.staff.name : "Chưa có nhân viên",
-    },
-    { title: "Thời gian", dataIndex: "time", key: "time" },
-    {
-      title: "Thao tác",
-      key: "action",
-      render: (_, record) => (
-        <Button
-          size="small"
-          danger
-          onClick={() => handleRemoveBill(record.billId)}
-        >
-          Xóa
-        </Button>
-      ),
-    },
-  ];
+  const showDetailModal = (bill) => {
+    setSelectedBillDetail(bill);
+    setIsDetailModalVisible(true);
+  };
 
-  const tempColumns = [
-    {
-      title: "Chọn",
-      key: "select",
-      render: (_, record) => (
-        <Checkbox
-          checked={selectedTempBill === record.billId}
-          onChange={() => handleCheckboxChange(record.billId, "temp")}
-        />
-      ),
-    },
-    { title: "Mã hóa đơn", dataIndex: "billId", key: "billId" },
-    {
-      title: "Khách hàng",
-      key: "customer.name",
-      render: (text, record) =>
-        record.customer ? record.customer.name : "Chưa có khách hàng",
-    },
-    {
-      title: "Nhân viên",
-      dataIndex: "staff.name",
-      key: "staff.name",
-      render: (text, record) =>
-        record.staff ? record.staff.name : "Chưa có nhân viên",
-    },
-    { title: "Thời gian", dataIndex: "time", key: "time" },
-    {
-      title: "Thao tác",
-      key: "action",
-      render: (_, record) => (
-        <Button size="small" onClick={handleMoveToWaiting}>
-          Lấy ra hóa đơn
-        </Button>
-      ),
-    },
-  ];
+  const closeDetailModal = () => {
+    setIsDetailModalVisible(false);
+    setSelectedBillDetail(null);
+  };
+
+  const moreOptionsMenu = (bill) => (
+    <Menu>
+      <Menu.Item key="details" onClick={() => showDetailModal(bill)}>
+        Xem chi tiết
+      </Menu.Item>
+    </Menu>
+  );
+
+  // Chỉ hiển thị danh sách hóa đơn, không có dấu cộng trong các hóa đơn
+  const tabsItems = Array.isArray(billItems)
+    ? billItems.map((bill) => ({
+        label: (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              position: "relative",
+            }}
+          >
+            {activeTab === bill.code && (
+              <span className="tab-check-icon">✔</span> // Hiển thị dấu tích nếu tab đang được chọn
+            )}
+            <span
+              style={{ marginLeft: activeTab === bill.code ? "20px" : "0" }}
+            >
+              Hóa đơn {bill.code}
+            </span>
+            <Dropdown
+              overlay={moreOptionsMenu(bill)}
+              trigger={["click"]}
+              placement="bottomRight"
+            >
+              <EllipsisOutlined
+                style={{ marginLeft: "10px", cursor: "pointer" }}
+              />
+            </Dropdown>
+          </div>
+        ),
+        key: bill.code,
+        closable: true,
+      }))
+    : [];
 
   return (
     <>
-      <h3 style={{ marginBottom: "20px", borderBottom: "1px solid #ddd" }}>
-        Hóa đơn chờ
-      </h3>
-      <Table
-        rowKey="billId"
-        columns={columns}
-        dataSource={billItems}
-        pagination={false}
-        style={{ border: "1px solid #ddd", marginBottom: "20px" }}
+      <Tabs
+        className="custom-tabs"
+        hideAdd
+        type="editable-card"
+        activeKey={activeTab}
+        onChange={handleTabChange}
+        onEdit={(targetKey, action) => {
+          if (action === "remove") handleTabClose(targetKey);
+        }}
+        style={{ backgroundColor: "#1890ff", padding: "10px 10px 0 10px" }}
+        items={[
+          ...tabsItems,
+          {
+            label: (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  fontSize: "16px",
+                }}
+              >
+                <PlusOutlined style={{ color: "#1890ff" }} />
+              </div>
+            ),
+            key: "create",
+            closable: false,
+          },
+        ]}
       />
-      <Button
-        type="primary"
-        onClick={handleMoveToTemp}
-        disabled={!selectedWaitingBill}
-      >
-        Chuyển sang hóa đơn tạm chờ
-      </Button>
 
-      {/* Nút mở modal "Hóa đơn tạm chờ" */}
-      <Button
-        type="default"
-        onClick={openTempBillsModal}
-        style={{ margin: "20px 0px 0px 20px" }}
-      >
-        Hóa đơn tạm chờ
-      </Button>
-
-      {/* Modal hiển thị hóa đơn tạm chờ */}
+      {/* Modal chi tiết hóa đơn */}
       <Modal
-        title="Hóa đơn tạm chờ"
-        visible={isTempBillModalVisible}
-        onCancel={() => setIsTempBillModalVisible(false)}
-        width={1000}
+        title={`Chi tiết Hóa Đơn ${selectedBillDetail?.code || ""}`}
+        visible={isDetailModalVisible}
+        onCancel={closeDetailModal}
         footer={[
-          <Button key="cancel" onClick={() => setIsTempBillModalVisible(false)}>
+          <Button key="close" onClick={closeDetailModal}>
             Đóng
           </Button>,
         ]}
       >
-        <Table
-          rowKey="billId"
-          columns={tempColumns}
-          dataSource={tempBillItems}
-          pagination={false}
-          style={{
-            border: "1px solid #ddd",
-            marginBottom: "20px",
-          }}
-        />
-        <Button
-          type="primary"
-          onClick={handleSwapBills}
-          disabled={!selectedTempBill || !selectedWaitingBill}
-        >
-          Hoán đổi hóa đơn
-        </Button>
+        {selectedBillDetail && (
+          <div>
+            <p>
+              Khách hàng:{" "}
+              {selectedBillDetail.customerResponse?.name ||
+                "Chưa có khách hàng"}
+            </p>
+            <p>
+              Nhân viên:{" "}
+              {selectedBillDetail.staffResponse?.name || "Chưa có nhân viên"}
+            </p>
+            <p>
+              Thời gian: {selectedBillDetail.orderDate || "Chưa có thời gian"}
+            </p>
+          </div>
+        )}
       </Modal>
     </>
   );
