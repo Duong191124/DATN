@@ -16,7 +16,7 @@ const VoucherForm = (props) => {
     setDiscountType(type); // Cập nhật discountType
 
     if (type === "amount") {
-      form.setFieldsValue({ discountPercent: 0 }); // Đặt phần trăm giảm giá là 0
+      form.setFieldsValue({ discountPercent: 0, maxDiscountAmount: 0 }); // Đặt phần trăm giảm giá là 0
     } else if (type === "percent") {
       form.setFieldsValue({ discountAmount: 0 }); // Đặt tiền giảm giá là 0
     }
@@ -95,7 +95,7 @@ const VoucherForm = (props) => {
         >
           <div style={{ display: 'flex', flexWrap: 'wrap' }}>
             <Form.Item
-              label="Mã Voucher"
+              label="Tên Voucher"
               name="code"
               rules={[{ required: true, message: 'Vui lòng nhập mã voucher!' }]}
               style={{ width: '48%', marginRight: '4%' }}
@@ -169,8 +169,15 @@ const VoucherForm = (props) => {
               rules={[{ required: true, message: 'Vui lòng nhập số tiền giảm giá tối đa!' }]}
               style={{ width: '48%' }}
             >
-              <InputNumber style={{ width: '100%' }} placeholder="Nhập số tiền giảm giá tối đa" min={0} />
+              <InputNumber
+                style={{ width: '100%' }}
+                placeholder="Nhập số tiền giảm giá tối đa"
+                min={0}
+                value={discountType === "amount" ? 0 : undefined} // Set to 0 if "amount" is selected
+                disabled={discountType === "amount"} // Disable if "amount" is selected
+              />
             </Form.Item>
+
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap' }}>

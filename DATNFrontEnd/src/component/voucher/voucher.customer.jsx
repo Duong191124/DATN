@@ -1,6 +1,7 @@
 // VoucherCustomer.jsx
 import React, { useEffect, useState } from 'react';
-import { Button, Modal, notification, Table, Checkbox } from 'antd';
+import { Button, Modal, notification, Table, Checkbox, Input, Space } from 'antd';
+import { SearchOutlined, ClearOutlined } from '@ant-design/icons';
 import { fetchCustomerList, updateVoucherCustomer } from '../../service/api.service';
 
 const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefresh }) => {
@@ -8,6 +9,7 @@ const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefr
     const [selectedCustomers, setSelectedCustomers] = useState([]);
     const [genderFilter, setGenderFilter] = useState(''); // Trạng thái cho giới tính
     const [selectAll, setSelectAll] = useState(false); // Trạng thái cho chọn tất cả
+    const [searchText, setSearchText] = useState(''); // Trạng thái cho tìm kiếm
 
     useEffect(() => {
         const fetchCustomers = async () => {
@@ -45,7 +47,7 @@ const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefr
     const handleGender = (gender) => {
         if (gender === 1) {
             return "Nam";
-        } else if (gender === 0) {
+        } else if (gender === 2) {
             return "Nữ";
         } else {
             return "Khác";
@@ -102,12 +104,7 @@ const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefr
     
         if (checked) {
             // Chọn tất cả dựa trên bộ lọc giới tính
-            const filteredCustomerIds = customers
-                .filter(customer => {
-                    if (genderFilter === 'male') return customer.gender === 1;
-                    if (genderFilter === 'female') return customer.gender === 0;
-                    return true; // Nếu không có bộ lọc, chọn tất cả
-                })
+            const filteredCustomerIds = filteredCustomers
                 .map(customer => customer.id);
     
             setSelectedCustomers(filteredCustomerIds);
@@ -116,43 +113,81 @@ const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefr
             setSelectedCustomers([]);
         }
     };
-    
-    
+
+    // Xử lý thay đổi thanh tìm kiếm
+    const handleSearch = (e) => {
+        setSearchText(e.target.value);
+    };
+
+    const handleClearSearch = () => {
+        setSearchText('');
+    };
 
     const columns = [
         {
             title: 'ID',
             dataIndex: 'id',
             key: 'id',
+            sorter: (a, b) => a.id - b.id,
+            width: '10%',
         },
         {
             title: 'Tên Khách Hàng',
             dataIndex: 'username',
             key: 'username',
+            sorter: (a, b) => a.username.localeCompare(b.username),
+            width: '25%',
         },
         {
             title: 'Giới tính',
             key: 'gender',
             render: (_, record) => (
                 <p>{handleGender(record.gender)}</p>
-            )
+            ),
+            filters: [
+                { text: 'Nam', value: 'male' },
+                { text: 'Nữ', value: 'female' },
+                { text: 'Khác', value: 'other' },
+            ],
+            onFilter: (value, record) => {
+                if (value === 'male') return record.gender === 1;
+                if (value === 'female') return record.gender === 2;
+                return record.gender !== 1 && record.gender !== 2;
+            },
+            width: '15%',
         },
         {
-            title: 'Chọn',
-            key: 'select',
-            render: (_, record) => (
-                <Checkbox
-                    checked={selectedCustomers.includes(record.id)}
-                    onChange={() => handleSelect(record.id)}
-                />
-            ),
+            title: "Phone",
+            dataIndex: "phoneNumber",
+            key: "phoneNumber",
+            sorter: (a, b) => a.phoneNumber.localeCompare(b.phoneNumber),
+            width: '20%',
         },
+        // {
+        //     title: 'Chọn',
+        //     key: 'select',
+        //     render: (_, record) => (
+        //         <Checkbox
+        //             checked={selectedCustomers.includes(record.id)}
+        //             onChange={() => handleSelect(record.id)}
+        //         />
+        //     ),
+        //     width: '10%',
+        // },
     ];
 
+    // Lọc khách hàng dựa trên bộ lọc giới tính và thanh tìm kiếm
     const filteredCustomers = customers.filter(customer => {
+        // Lọc theo giới tính
         if (genderFilter === 'male') return customer.gender === 1;
-        if (genderFilter === 'female') return customer.gender === 0;
+        if (genderFilter === 'female') return customer.gender === 2;
+        if (genderFilter === 'other') return customer.gender !== 1 && customer.gender !== 2;
         return true; // Trả về tất cả nếu không có bộ lọc
+    }).filter(customer => {
+        // Lọc theo thanh tìm kiếm (tên hoặc phone)
+        const lowerSearch = searchText.toLowerCase();
+        return customer.username.toLowerCase().includes(lowerSearch) ||
+               customer.phoneNumber.toLowerCase().includes(lowerSearch);
     });
 
     return (
@@ -168,23 +203,36 @@ const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefr
                     Áp dụng
                 </Button>,
             ]}
+            width={800}
         >
-            <div>
-                <div>
-                    <Checkbox checked={selectAll} onChange={handleSelectAllChange}>Chọn tất cả</Checkbox>
-                </div>
-                <div>
-                    <Checkbox checked={genderFilter === 'male'} onChange={() => handleGenderFilterChange('male')}>Nam</Checkbox>
-                    <Checkbox checked={genderFilter === 'female'} onChange={() => handleGenderFilterChange('female')}>Nữ</Checkbox>
-                    <Checkbox checked={genderFilter === ''} onChange={() => handleGenderFilterChange('')}>Tất cả giới tính</Checkbox> {/* Checkbox cho Tất cả giới tính */}
-                </div>
-                <Table
-                    rowKey="id"
-                    columns={columns}
-                    dataSource={filteredCustomers} // Sử dụng danh sách khách hàng đã lọc
-                    pagination={{ pageSize: 5 }}
-                />
+            <div style={{ marginBottom: 16 }}>
+                {/* Thanh tìm kiếm */}
+                <Space style={{ marginBottom: 16 }}>
+                    <Input
+                        placeholder="Tìm kiếm theo tên hoặc số điện thoại"
+                        value={searchText}
+                        onChange={handleSearch}
+                        prefix={<SearchOutlined />}
+                        suffix={searchText && <ClearOutlined onClick={handleClearSearch} style={{ cursor: 'pointer' }} />}
+                        allowClear
+                        style={{ width: 300 }}
+                    />
+                </Space>
             </div>
+           
+            <Table
+                rowKey="id"
+                columns={columns}
+                dataSource={filteredCustomers} // Sử dụng danh sách khách hàng đã lọc
+                pagination={{ pageSize: 5 }}
+                rowSelection={{
+                    selectedRowKeys: selectedCustomers,
+                    onChange: (selectedRowKeys) => {
+                        setSelectedCustomers(selectedRowKeys);
+                        setSelectAll(selectedRowKeys.length === filteredCustomers.length);
+                    },
+                }}
+            />
         </Modal>
     );
 };
