@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.AddressDTO;
+import com.example.demo.dto.AddressUpdateDTO;
 import com.example.demo.entity.Address;
 
 import java.util.List;
@@ -10,7 +11,7 @@ public interface AddressService {
 
     Address add(AddressDTO addressDTO);
 
-    Address update(Integer id, AddressDTO addressDTO) throws Exception;
+    Address update(Integer id, AddressUpdateDTO addressUpdateDTO) throws Exception;
 
     void deleteAddress(Integer id) throws Exception;
 }

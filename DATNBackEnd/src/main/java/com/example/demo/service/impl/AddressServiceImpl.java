@@ -1,6 +1,7 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dto.AddressDTO;
+import com.example.demo.dto.AddressUpdateDTO;
 import com.example.demo.entity.Address;
 import com.example.demo.entity.Brand;
 import com.example.demo.entity.Customer;
@@ -39,11 +40,11 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public Address update(Integer id, AddressDTO addressDTO) throws Exception {
+    public Address update(Integer id, AddressUpdateDTO addressUpdateDTO) throws Exception {
         Address existingAddress = addressRepo.findById(id).get();
-        existingAddress.setCity(addressDTO.getCity());
-        existingAddress.setWard(addressDTO.getWard());
-        existingAddress.setDistrict(addressDTO.getDistrict());
+        existingAddress.setCity(addressUpdateDTO.getCity());
+        existingAddress.setDistrict(addressUpdateDTO.getDistrict());
+        existingAddress.setWard(addressUpdateDTO.getWard());
         return addressRepo.save(existingAddress);
     }
 
