@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, List, Button, Tag, Space, Modal, Typography, Badge } from 'antd';
 import { GiftOutlined, ClockCircleOutlined, InfoCircleOutlined, CopyOutlined, CheckOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import styled from 'styled-components';
+import { getVouchersByCustomerId } from '../../service/api.service';
 
 const { Text, Title } = Typography;
 
@@ -116,129 +117,24 @@ const VoucherCode = styled.div`
   }
 `;
 
-const InfoVoucher = () => {
+const InfoVoucher = ({ user }) => {
     const [selectedVoucher, setSelectedVoucher] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [copiedCode, setCopiedCode] = useState(null);
 
-    // Sample data
-    const vouchers = [
-        {
-            id: 1,
-            code: 'NEWUSER2024',
-            discount: '50%',
-            maxDiscount: 100000,
-            minSpend: 200000,
-            expiryDate: '2024-12-31',
-            description: 'Giảm 50% cho đơn hàng đầu tiên',
-            terms: 'Áp dụng cho khách hàng mới',
-            status: 'active',
-            type: 'percentage'
-        },
-        {
-            id: 2,
-            code: 'FRESH150K',
-            discount: '150.000đ',
-            minSpend: 500000,
-            expiryDate: '2024-06-30',
-            description: 'Giảm 150.000đ cho đơn hàng từ 500.000đ',
-            terms: 'Áp dụng cho tất cả sản phẩm',
-            status: 'active',
-            type: 'fixed'
-        },
-        {
-            id: 3,
-            code: 'SUMMER30',
-            discount: '30%',
-            maxDiscount: 50000,
-            minSpend: 300000,
-            expiryDate: '2024-08-31',
-            description: 'Giảm 30% cho đơn hàng mùa hè',
-            terms: 'Không áp dụng cho sản phẩm giảm giá',
-            status: 'active',
-            type: 'percentage'
-        },
-        {
-            id: 4,
-            code: 'FLASH200K',
-            discount: '200.000đ',
-            minSpend: 1000000,
-            expiryDate: '2024-05-15',
-            description: 'Flash sale - Giảm 200.000đ',
-            terms: 'Số lượng có hạn',
-            status: 'active',
-            type: 'fixed'
-        },
-        {
-            id: 5,
-            code: 'WEEKEND25',
-            discount: '25%',
-            maxDiscount: 75000,
-            minSpend: 250000,
-            expiryDate: '2024-07-31',
-            description: 'Ưu đãi cuối tuần - Giảm 25%',
-            terms: 'Chỉ áp dụng T7-CN',
-            status: 'active',
-            type: 'percentage'
-        },
-        {
-            id: 6,
-            code: 'LOYAL100K',
-            discount: '100.000đ',
-            minSpend: 400000,
-            expiryDate: '2024-09-30',
-            description: 'Ưu đãi khách hàng thân thiết',
-            terms: 'Dành cho khách hàng cấp độ Vàng trở lên',
-            status: 'active',
-            type: 'fixed'
-        },
-        {
-            id: 7,
-            code: 'BDAY40OFF',
-            discount: '40%',
-            maxDiscount: 120000,
-            minSpend: 300000,
-            expiryDate: '2024-12-31',
-            description: 'Ưu đãi sinh nhật đặc biệt',
-            terms: 'Áp dụng trong tháng sinh nhật',
-            status: 'active',
-            type: 'percentage'
-        },
-        {
-            id: 8,
-            code: 'MEMBER80K',
-            discount: '80.000đ',
-            minSpend: 350000,
-            expiryDate: '2024-10-31',
-            description: 'Ưu đãi thành viên mới',
-            terms: 'Cho thành viên đăng ký mới',
-            status: 'active',
-            type: 'fixed'
-        },
-        {
-            id: 9,
-            code: 'SPECIAL35',
-            discount: '35%',
-            maxDiscount: 90000,
-            minSpend: 280000,
-            expiryDate: '2024-11-30',
-            description: 'Ưu đãi đặc biệt',
-            terms: 'Áp dụng cho danh mục được chọn',
-            status: 'active',
-            type: 'percentage'
-        },
-        {
-            id: 10,
-            code: 'HOLIDAY250K',
-            discount: '250.000đ',
-            minSpend: 1200000,
-            expiryDate: '2024-12-25',
-            description: 'Ưu đãi lễ hội cuối năm',
-            terms: 'Áp dụng cho tất cả sản phẩm',
-            status: 'active',
-            type: 'fixed'
-        }
-    ];
+    const [vouchers, setVouchers] = useState([
+
+    ]);
+
+    const getVoucherData = async () => {
+        const res = await getVouchersByCustomerId(user.data.id);
+        console.log("check user in voucher: ", res.data.data);
+        setVouchers(res.data.data);
+    }
+
+    useEffect(() => {
+        getVoucherData();
+    }, []);
 
     const handleViewDetails = (voucher) => {
         setSelectedVoucher(voucher);
@@ -251,11 +147,6 @@ const InfoVoucher = () => {
         setTimeout(() => setCopiedCode(null), 2000);
     };
 
-    const getDaysRemaining = (expiryDate) => {
-        const days = moment(expiryDate).diff(moment(), 'days');
-        return days > 0 ? days : 0;
-    };
-
     const formatMinSpend = (amount) => {
         return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
@@ -264,7 +155,12 @@ const InfoVoucher = () => {
     };
 
     const getActiveVoucherCount = () => {
-        return vouchers.filter(v => v.status === 'active').length;
+        return vouchers.filter(v => v.status === 1).length;
+    };
+
+    const getDaysRemaining = (expirationDate) => {
+        const days = moment(expirationDate).diff(moment(), 'days');
+        return days > 0 ? days : 0; // Ensure it returns 0 if the voucher is already expired
     };
 
     return (
@@ -279,54 +175,58 @@ const InfoVoucher = () => {
                 <List
                     dataSource={vouchers}
                     renderItem={(voucher) => (
-                        <VoucherCard>
-                            <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                                <Space align="center" style={{ justifyContent: 'space-between', width: '100%' }}>
-                                    <Space size="large">
-                                        <div style={{ position: 'relative' }}>
-                                            <GiftOutlined style={{ fontSize: '28px', color: '#1a1a1a' }} />
-                                            {voucher.type === 'percentage' && (
-                                                <Text style={{ position: 'absolute', top: -8, right: -8, fontSize: '12px', fontWeight: 'bold' }}>
-                                                    %
-                                                </Text>
-                                            )}
-                                        </div>
-                                        <div>
-                                            <VoucherCode onClick={() => handleCopyCode(voucher.code)}>
-                                                <Text strong style={{ marginRight: '8px' }}>{voucher.code}</Text>
-                                                {copiedCode === voucher.code ? (
-                                                    <CheckOutlined style={{ color: '#52c41a' }} />
-                                                ) : (
-                                                    <CopyOutlined style={{ color: '#8c8c8c' }} />
+                        voucher.status === 1 && ( // Check if status is 1
+                            <VoucherCard>
+                                <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                                    <Space align="center" style={{ justifyContent: 'space-between', width: '100%' }}>
+                                        <Space size="large">
+                                            <div style={{ position: 'relative' }}>
+                                                <GiftOutlined style={{ fontSize: '28px', color: '#1a1a1a' }} />
+                                                {voucher.type === 'percentage' && (
+                                                    <Text style={{ position: 'absolute', top: -8, right: -8, fontSize: '12px', fontWeight: 'bold' }}>
+                                                        %
+                                                    </Text>
                                                 )}
-                                            </VoucherCode>
-                                            <DiscountTag color="#1a1a1a">
-                                                Giảm {voucher.discount}
-                                                {voucher.maxDiscount && ` (Tối đa ${formatMinSpend(voucher.maxDiscount)})`}
-                                            </DiscountTag>
-                                        </div>
+                                            </div>
+                                            <div>
+                                                <VoucherCode onClick={() => handleCopyCode(voucher.code)}>
+                                                    <Text strong style={{ marginRight: '8px' }}>{voucher.code}</Text>
+                                                    {copiedCode === voucher.code ? (
+                                                        <CheckOutlined style={{ color: '#52c41a' }} />
+                                                    ) : (
+                                                        <CopyOutlined style={{ color: '#8c8c8c' }} />
+                                                    )}
+                                                </VoucherCode>
+                                                <DiscountTag color="#1a1a1a">
+                                                    {voucher.discountPercent > 0 ? `Giảm ${voucher.discountPercent}%` : `Giảm ${formatMinSpend(voucher.discountAmount)}`}
+                                                    {voucher.maxDiscount && ` (Tối đa ${formatMinSpend(voucher.maxDiscount)})`}
+                                                </DiscountTag>
+                                            </div>
+                                        </Space>
+                                        <DetailButton
+                                            type="primary"
+                                            onClick={() => handleViewDetails(voucher)}
+                                            icon={<InfoCircleOutlined />}
+                                        >
+                                            Chi tiết
+                                        </DetailButton>
                                     </Space>
-                                    <DetailButton
-                                        type="primary"
-                                        onClick={() => handleViewDetails(voucher)}
-                                        icon={<InfoCircleOutlined />}
-                                    >
-                                        Chi tiết
-                                    </DetailButton>
-                                </Space>
 
-                                <Space style={{ color: '#595959' }}>
-                                    <ClockCircleOutlined />
-                                    <Text>
-                                        Còn {getDaysRemaining(voucher.expiryDate)} ngày - HSD: {moment(voucher.expiryDate).format('DD/MM/YYYY')}
+                                    <Space style={{ color: '#595959' }}>
+                                        <ClockCircleOutlined />
+                                        <Text>
+                                            HSD: {moment(voucher.expiryDate).format('DD/MM/YYYY')}
+                                        </Text>
+                                    </Space>
+
+                                    <Text type="secondary">
+                                        Đơn tối thiểu: {formatMinSpend(voucher.minPurchaseAmount)} -
+                                        Giảm tối đa: {voucher.maxDiscountAmount ? formatMinSpend(voucher.maxDiscountAmount) : ""}
                                     </Text>
-                                </Space>
 
-                                <Text type="secondary">
-                                    Đơn tối thiểu: {formatMinSpend(voucher.minSpend)}
-                                </Text>
-                            </Space>
-                        </VoucherCard>
+                                </Space>
+                            </VoucherCard>
+                        )
                     )}
                 />
             </VoucherContainer>
@@ -357,18 +257,26 @@ const InfoVoucher = () => {
                         <div>
                             <Text strong>Giá trị voucher:</Text>
                             <div>
-                                <DiscountTag color="#1a1a1a">
-                                    Giảm {selectedVoucher.discount}
-                                    {selectedVoucher.maxDiscount && ` (Tối đa ${formatMinSpend(selectedVoucher.maxDiscount)})`}
-                                </DiscountTag>
+                                {selectedVoucher.discountPercent > 0 && (
+                                    <DiscountTag color="#1a1a1a">
+                                        Giảm {selectedVoucher.discountPercent}%
+                                        {selectedVoucher.maxDiscount && ` (Tối đa ${formatMinSpend(selectedVoucher.maxDiscount)})`}
+                                    </DiscountTag>
+                                )}
+                                {selectedVoucher.discountAmount > 0 && (
+                                    <DiscountTag color="#1a1a1a">
+                                        Giảm {formatMinSpend(selectedVoucher.discountAmount)}
+                                        {selectedVoucher.maxDiscount && ` (Tối đa ${formatMinSpend(selectedVoucher.maxDiscount)})`}
+                                    </DiscountTag>
+                                )}
                             </div>
                         </div>
 
                         <div>
                             <Text strong>Điều kiện áp dụng:</Text>
                             <ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
-                                <li>Đơn hàng tối thiểu: {formatMinSpend(selectedVoucher.minSpend)}</li>
-                                <li>{selectedVoucher.terms}</li>
+                                <li>Đơn hàng tối thiểu: {formatMinSpend(selectedVoucher.minPurchaseAmount)}</li>
+                                <li>{selectedVoucher.termsAndConditions}</li>
                             </ul>
                         </div>
 
@@ -377,11 +285,6 @@ const InfoVoucher = () => {
                             <p style={{ marginTop: '4px' }}>
                                 Đến hết ngày {moment(selectedVoucher.expiryDate).format('DD/MM/YYYY')}
                             </p>
-                        </div>
-
-                        <div>
-                            <Text strong>Mô tả:</Text>
-                            <p style={{ marginTop: '4px' }}>{selectedVoucher.description}</p>
                         </div>
                     </Space>
                 )}

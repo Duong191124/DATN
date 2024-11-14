@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Form, Input, Button, Select, DatePicker, message, Spin, Card } from 'antd';
 import { UserOutlined, MailOutlined, PhoneOutlined, HomeOutlined, SaveOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 import moment from 'moment';
 import { motion } from 'framer-motion';
-import axios from 'axios';
+import { AuthContext } from '../context/auth.context';
+import { getCustomerById, updateCustomer, updateCustomerInfo } from '../../service/api.service';
 
 const { Option } = Select;
 
@@ -72,10 +73,11 @@ const LoadingIcon = styled(Spin)`
   }
 `;
 
-const InfoPanel = () => {
+const InfoPanel = ({ user }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [initialLoading, setInitialLoading] = useState(true);
+
 
     useEffect(() => {
         fetchUserInfo();
@@ -83,12 +85,16 @@ const InfoPanel = () => {
 
     const fetchUserInfo = async () => {
         try {
-            const response = await axios.get('/api/user-info');
-            const userData = response.data;
-
+            const res = await getCustomerById(user.data.id);
+            const userData = res.data.data;
+            // Map API response to form fields
             form.setFieldsValue({
-                ...userData,
-                dateOfBirth: userData.dateOfBirth ? moment(userData.dateOfBirth) : undefined
+                userName: userData.username || '',
+                email: userData.email || '',
+                phone: userData.phoneNumber || '',
+                address: userData.address || '',
+                dateOfBirth: userData.dateOfBirth ? moment(userData.dateOfBirth) : undefined,
+                gender: userData.gender
             });
         } catch (error) {
             message.error('Failed to load user information');
@@ -97,10 +103,20 @@ const InfoPanel = () => {
         }
     };
 
+
     const onFinish = async (values) => {
+        console.log("check value: ", values);
         setLoading(true);
         try {
-            await axios.post('/api/update-user-info', values);
+            await updateCustomerInfo(
+                user.data.id,
+                values.email,
+                values.address,
+                values.phone,
+                values.dateOfBirth,
+                values.gender,
+                values.userName
+            );
             message.success({
                 content: 'Information updated successfully!',
                 className: 'custom-message',
@@ -157,9 +173,9 @@ const InfoPanel = () => {
                         <Form.Item
                             name="userName"
                             label="Username"
-                            rules={[{ required: true }]}
                         >
                             <Input
+                                disabled
                                 prefix={<UserOutlined style={{ color: '#888' }} />}
                                 placeholder="Enter your username"
                             />
@@ -219,9 +235,9 @@ const InfoPanel = () => {
                             rules={[{ required: true }]}
                         >
                             <Select placeholder="Select your gender">
-                                <Option value="male">Male</Option>
-                                <Option value="female">Female</Option>
-                                <Option value="other">Other</Option>
+                                <Option value={1}>Male</Option>
+                                <Option value={2}>Female</Option>
+                                <Option value={0}>Other</Option>
                             </Select>
                         </Form.Item>
 

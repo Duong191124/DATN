@@ -2,8 +2,17 @@ import { Col, Row } from "antd";
 import InfoPanel from "../component/info/info.panel";
 import InfoAddress from "../component/info/info.address";
 import InfoVoucher from "../component/info/info.voucher";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../component/context/auth.context";
+import { getCustomerById } from "../service/api.service";
 
 const InfoPage = () => {
+    const { user } = useContext(AuthContext);
+
+    useEffect(() => {
+
+    }, [])
+
     return (
         <>
             <Row style={{ marginTop: 77, paddingBottom: 20 }}>
@@ -13,7 +22,7 @@ const InfoPage = () => {
                     }
                     }
                 >
-                    <InfoPanel />
+                    <InfoPanel user={user} />
                 </Col>
                 <Col span={14}>
                     <Row style={{ height: "100%" }}>
@@ -37,7 +46,7 @@ const InfoPage = () => {
                                 padding: "16px",  // Thêm padding cho phần này
                             }}
                         >
-                            <InfoVoucher />
+                            <InfoVoucher user={user} />
                         </Col>
                     </Row>
                 </Col>
