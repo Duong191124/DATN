@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.AddressDTO;
+import com.example.demo.dto.AddressUpdateDTO;
 import com.example.demo.entity.Address;
 import com.example.demo.response.AddressResponse;
 import com.example.demo.response.MessageReponse;
@@ -54,8 +55,8 @@ public class AddressController {
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
-            @RequestBody AddressDTO addressDTO) throws Exception {
-        Address updateAddress = addressService.update(id, addressDTO);
+            @RequestBody AddressUpdateDTO addressUpdateDTO) throws Exception {
+        Address updateAddress = addressService.update(id, addressUpdateDTO);
         return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                 .message("update brand success")
                 .status(HttpStatus.OK.value())
