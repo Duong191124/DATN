@@ -1,124 +1,196 @@
-import React, { useState } from 'react';
-import { Form, Input, Button, Select, Checkbox, Modal, Row, Col, Slider } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Modal, Form, Input, Row, Col, Button, Select } from 'antd';
+import { UserOutlined, PhoneOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
-const { Option } = Select;
+const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editingAddress }) => {
+    const { t } = useTranslation();
 
-const SelectAddress = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [form] = Form.useForm();
-    const [phoneNumber, setPhoneNumber] = useState(0);
+    // State để lưu danh sách tỉnh, huyện, xã
+    const [provinces, setProvinces] = useState([]);
+    const [districts, setDistricts] = useState([]);
+    const [wards, setWards] = useState([]);
 
-    const onFinish = (values) => {
-        console.log('Form values:', { ...values, phoneNumber });
-    };
+    // State để lưu các giá trị chọn
+    const [selectedProvince, setSelectedProvince] = useState(null);
+    const [selectedDistrict, setSelectedDistrict] = useState(null);
+    const [selectedWard, setSelectedWard] = useState(null);
 
-    const showModal = () => {
-        setIsModalOpen(true);
-    };
+    // Gọi API lấy Tỉnh
+    useEffect(() => {
+        // Giả sử API trả về danh sách tỉnh
+        const fetchProvinces = async () => {
+            // Thực hiện gọi API để lấy danh sách tỉnh
+            const provincesData = await fetch('/api/provinces').then(res => res.json());
+            setProvinces(provincesData);
+        };
 
-    const handleOk = () => {
-        setIsModalOpen(false);
-    };
+        fetchProvinces();
+    }, []);
 
-    const handleCancel = () => {
-        setIsModalOpen(false);
-    };
+    // Gọi API lấy Huyện theo Tỉnh đã chọn
+    useEffect(() => {
+        if (selectedProvince) {
+            const fetchDistricts = async () => {
+                // Thực hiện gọi API lấy huyện theo tỉnh
+                const districtsData = await fetch(`/api/districts?provinceId=${selectedProvince}`).then(res => res.json());
+                setDistricts(districtsData);
+                setSelectedDistrict(null); // Reset huyện khi thay đổi tỉnh
+                setSelectedWard(null); // Reset xã khi thay đổi huyện
+            };
 
-    const handleSliderChange = (value) => {
-        setPhoneNumber(value);
-    };
+            fetchDistricts();
+        } else {
+            setDistricts([]);
+            setWards([]);
+        }
+    }, [selectedProvince]);
+
+    // Gọi API lấy Xã theo Huyện đã chọn
+    useEffect(() => {
+        if (selectedDistrict) {
+            const fetchWards = async () => {
+                // Thực hiện gọi API lấy xã theo huyện
+                const wardsData = await fetch(`/api/wards?districtId=${selectedDistrict}`).then(res => res.json());
+                setWards(wardsData);
+                setSelectedWard(null); // Reset xã khi thay đổi huyện
+            };
+
+            fetchWards();
+        } else {
+            setWards([]);
+        }
+    }, [selectedDistrict]);
 
     return (
-        <>
-            <Button type="primary" onClick={showModal}>
-                Open Modal
-            </Button>
-            <Modal title="Address" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} footer={null}>
-                <Form
-                    form={form}
-                    layout="vertical"
-                    onFinish={onFinish}
-                    style={{ maxWidth: 600, margin: '0 auto' }}
+        <Modal
+            title={editingAddress ? t('Edit Address') : t('Add New Address')}
+            open={isModalVisible}
+            onCancel={handleCancel}
+            footer={null}
+            style={{
+                borderRadius: 1
+            }}
+        >
+            <Form
+                form={form}
+                layout="vertical"
+                onFinish={handleSubmit}
+            >
+                <Form.Item
+                    name="name"
+                    label={t('Recipient Name')}
+                    rules={[{ required: true, message: t('Please input recipient name!') }]}
                 >
-                    <Form.Item
-                        label="Full Name"
-                        name="fullName"
-                        rules={[{ required: true, message: 'Please enter your full name' }]}
+                    <Input prefix={<UserOutlined />} placeholder={t('Enter recipient name')} />
+                </Form.Item>
+                <Form.Item
+                    name="phone"
+                    label={t('Phone Number')}
+                    rules={[{ required: true, message: t('Please input phone number!') }]}
+                >
+                    <Input prefix={<PhoneOutlined />} placeholder={t('Enter phone number')} />
+                </Form.Item>
+
+                <Form.Item
+                    name="province"
+                    label={t('Province')}
+                    rules={[{ required: true, message: t('Please select province!') }]}
+                >
+                    <Select
+                        value={selectedProvince}
+                        onChange={setSelectedProvince}
+                        placeholder={t('Select province')}
                     >
-                        <Input placeholder="Full Name" style={{ borderRadius: 4 }} />
-                    </Form.Item>
+                        {provinces.map(province => (
+                            <Select.Option key={province.id} value={province.id}>
+                                {province.name}
+                            </Select.Option>
+                        ))}
+                    </Select>
+                </Form.Item>
 
-                    <Form.Item label="Phone Number">
-                        <Slider
-                            min={0}
-                            max={9999999999}
-                            value={phoneNumber}
-                            onChange={handleSliderChange}
-                            step={1}
-                        />
-                        <div style={{ textAlign: 'center', marginTop: 10 }}>
-                            <span>Selected Phone Number: {phoneNumber.toString().padStart(10, '0')}</span>
-                        </div>
-                    </Form.Item>
-
-                    <Form.Item
-                        label="City/District/Ward"
-                        name="address"
-                        rules={[{ required: true, message: 'Please select an address' }]}
+                <Form.Item
+                    name="district"
+                    label={t('District')}
+                    rules={[{ required: true, message: t('Please select district!') }]}
+                >
+                    <Select
+                        value={selectedDistrict}
+                        onChange={setSelectedDistrict}
+                        placeholder={t('Select district')}
+                        disabled={!selectedProvince}
                     >
-                        <Row gutter={16}>
-                            <Col span={8}>
-                                <Select placeholder="City" style={{ borderRadius: 4 }}>
-                                    <Option value="hanoi">Hanoi</Option>
-                                    <Option value="tphcm">Ho Chi Minh City</Option>
-                                </Select>
-                            </Col>
-                            <Col span={8}>
-                                <Select placeholder="District" style={{ borderRadius: 4 }}>
-                                    <Option value="hoankiem">Hoan Kiem</Option>
-                                    <Option value="1">District 1</Option>
-                                </Select>
-                            </Col>
-                            <Col span={8}>
-                                <Select placeholder="Ward" style={{ borderRadius: 4 }}>
-                                    <Option value="phuong1">Ward 1</Option>
-                                    <Option value="phuong2">Ward 2</Option>
-                                </Select>
-                            </Col>
-                        </Row>
-                    </Form.Item>
+                        {districts.map(district => (
+                            <Select.Option key={district.id} value={district.id}>
+                                {district.name}
+                            </Select.Option>
+                        ))}
+                    </Select>
+                </Form.Item>
 
-                    <Form.Item
-                        label="Detailed Address"
-                        name="detailedAddress"
-                        rules={[{ required: true, message: 'Please enter the detailed address' }]}
+                <Form.Item
+                    name="ward"
+                    label={t('Ward')}
+                    rules={[{ required: true, message: t('Please select ward!') }]}
+                >
+                    <Select
+                        value={selectedWard}
+                        onChange={setSelectedWard}
+                        placeholder={t('Select ward')}
+                        disabled={!selectedDistrict}
                     >
-                        <Input placeholder="Detailed Address" style={{ borderRadius: 4 }} />
-                    </Form.Item>
+                        {wards.map(ward => (
+                            <Select.Option key={ward.id} value={ward.id}>
+                                {ward.name}
+                            </Select.Option>
+                        ))}
+                    </Select>
+                </Form.Item>
 
-                    <Form.Item label="Address Type" name="addressType">
-                        <Select placeholder="Select Address Type" style={{ borderRadius: 4 }}>
-                            <Option value="nharieng">Private House</Option>
-                            <Option value="vanphong">Office</Option>
-                        </Select>
-                    </Form.Item>
+                <Form.Item
+                    name="address"
+                    label={t('Address')}
+                    rules={[{ required: true, message: t('Please input address!') }]}
+                >
+                    <Input.TextArea
+                        prefix={<EnvironmentOutlined />}
+                        placeholder={t('Enter detailed address')}
+                        rows={3}
+                    />
+                </Form.Item>
 
-                    <Form.Item name="defaultAddress" valuePropName="checked">
-                        <Checkbox>Set as default address</Checkbox>
-                    </Form.Item>
-
-                    <Form.Item>
-                        <Button type="primary" style={{ float: "right", marginLeft: 20, padding: '10px 20px', fontSize: 16, borderRadius: 4 }} htmlType="submit">
-                            Save
-                        </Button>
-                        <Button type="default" style={{ float: "right", padding: '10px 20px', fontSize: 16, borderRadius: 4 }}>
-                            Back
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Modal>
-        </>
+                <Form.Item>
+                    <Row gutter={16} justify="end">
+                        <Col>
+                            <Button
+                                style={{
+                                    backgroundColor: 'white',
+                                    color: 'black',
+                                    width: 100,
+                                    height: 40
+                                }}
+                                onClick={handleCancel}>
+                                {t('Cancel')}
+                            </Button>
+                        </Col>
+                        <Col>
+                            <Button
+                                style={{
+                                    backgroundColor: 'black',
+                                    color: 'white',
+                                    width: 100,
+                                    height: 40
+                                }}
+                                type="primary" htmlType="submit">
+                                {t('Save')}
+                            </Button>
+                        </Col>
+                    </Row>
+                </Form.Item>
+            </Form>
+        </Modal>
     );
 };
 
-export default SelectAddress;
+export default AddressModal;
