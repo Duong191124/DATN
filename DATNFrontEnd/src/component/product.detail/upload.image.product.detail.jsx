@@ -39,13 +39,11 @@ const UpLoadImageForProductDetail = (props) => {
 
     try {
       const response = await upLoadImageForProductDetail(dataUpdate.productResponse.id, dataUpdate.id, formData);
-      console.log(response);
       if (response.data && response.data.status === 200) {
         notification.success({
           message: "Upload Success",
           description: "Image uploaded successfully!",
         });
-        console.log('Uploaded image URL:', response.data.data.image);
         setSelectedFile(null)
         setPreview(null);
         setIsModalOpen(false);

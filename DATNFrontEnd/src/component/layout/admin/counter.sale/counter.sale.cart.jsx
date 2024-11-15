@@ -91,6 +91,7 @@ const CounterSaleCart = ({
     onUpdateQuantity(record.id, newQuantity);
   };
 
+
   // Cấu hình cột bảng giỏ hàng
   const columns = [
     {
@@ -154,8 +155,8 @@ const CounterSaleCart = ({
         return discountPrice
           ? `${discountPrice.toLocaleString()} VNĐ`
           : defaultPrice
-          ? `${defaultPrice.toLocaleString()} VNĐ`
-          : "Chưa có giá";
+            ? `${defaultPrice.toLocaleString()} VNĐ`
+            : "Chưa có giá";
       },
     },
     {

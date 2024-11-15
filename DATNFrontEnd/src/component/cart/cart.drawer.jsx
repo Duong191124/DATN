@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Drawer } from 'antd';
 import CartItem from './cart.item';
 import CartBottom from './cart.bottom';
@@ -7,12 +7,23 @@ import { ClearOutlined, CloseOutlined } from '@ant-design/icons';
 const CartDrawer = ({ openCart, setOpenCart }) => {
 
     const [totalAmount, setTotalAmount] = useState(0);
+    const [cartItems, setCartItems] = useState([]); // State to hold the cart items
+
+    useEffect(() => {
+        setCartItems([])
+    }, []);
 
     const showDrawer = () => {
         setOpenCart(true);
     };
     const onClose = () => {
         setOpenCart(false);
+    };
+
+    const clearAll = () => {
+        localStorage.removeItem('cartItems'); // Remove cart items from localStorage
+        setCartItems([]); // Reset cartItems state to empty array
+        setTotalAmount(0); // Reset the total amount
     };
 
     return (
@@ -32,6 +43,7 @@ const CartDrawer = ({ openCart, setOpenCart }) => {
                             padding: '4px 12px',
                             marginLeft: 10
                         }}
+                        onClick={clearAll}
                     >
                         Clear all
                     </Button>
@@ -41,22 +53,28 @@ const CartDrawer = ({ openCart, setOpenCart }) => {
                     style={{
                         display: 'flex',
                         flexDirection: 'column',
-                        height: '100vh',
+                        position: 'relative',
+                        height: '100%',
                         border: '1px solid #ddd',
                     }}
                 >
                     {/* Phần chứa các CartItem */}
                     <div
                         style={{
-                            flexGrow: 1,
+                            flex: 1,
                             overflowY: 'auto',
                             padding: '16px',
+                            position: 'absolute',
+                            left: '0',
+                            right: '0',
+                            bottom: '0',
+                            top: '0',
                             borderBottom: '1px solid #ddd',
                             scrollbarWidth: 'none',
                             msOverflowStyle: 'none'
                         }}
                     >
-                        <CartItem setTotalAmount={setTotalAmount} />
+                        <CartItem setTotalAmount={setTotalAmount} cartItems={cartItems} setCartItems={setCartItems} />
                     </div>
 
                 </div>

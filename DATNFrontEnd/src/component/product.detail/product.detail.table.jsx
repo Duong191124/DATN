@@ -25,15 +25,15 @@ const ProductDetailTable = (props) => {
     ...item,
     status:
       item.product?.status === 0 ||
-      item.size?.status === 0 ||
-      item.color?.status === 0 ||
-      item.sleeve?.status === 0 ||
-      item.collar?.status === 0 ||
-      item.brand?.status === 0
+        item.size?.status === 0 ||
+        item.color?.status === 0 ||
+        item.sleeve?.status === 0 ||
+        item.collar?.status === 0 ||
+        item.brand?.status === 0
         ? 2
         : item.quantity > 0
-        ? 1
-        : 0, // Xét điều kiện trạng thái
+          ? 1
+          : 0, // Xét điều kiện trạng thái
   }));
 
   const columns = [
@@ -81,7 +81,6 @@ const ProductDetailTable = (props) => {
       title: "Weight",
       dataIndex: "weight",
       render: (text, record) => {
-        console.log("check weight", record)
         return record.weight?.name || "Chưa có weight";
       },
     },

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Table, Space, Modal, notification } from "antd";
-import { EditOutlined, DeleteOutlined, EyeOutlined, PlusCircleOutlined,RetweetOutlined } from "@ant-design/icons"; // hoặc ExclamationCircleOutlined
+import { Table, Space, Modal, notification, DatePicker, Button, Input } from 'antd';
+import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined, RetweetOutlined } from "@ant-design/icons"; // hoặc ExclamationCircleOutlined
 import { fetchDataVoucher, deleteVoucher, fetchCustomerList, chandleStatus } from "../../service/api.service";
 import VoucherUpdateModal from "./voucher.update";
 import VoucherCustomer from "./voucher.customer";
+import moment from 'moment'; // Đảm bảo bạn có cài moment.js để xử lý ngày tháng
+
 
 const VoucherTable = ({ refreshData }) => {
     const [dataVoucher, setDataVoucher] = useState([]);
@@ -35,7 +37,7 @@ const VoucherTable = ({ refreshData }) => {
         fetchCustomers();
     }, []);
 
-    const loadData = async () => {
+    const loadData = async (dateRange = []) => {
         try {
             const response = await fetchDataVoucher();
             if (response.data.data) {
@@ -47,7 +49,16 @@ const VoucherTable = ({ refreshData }) => {
                     }
                     return voucher;
                 });
-                setDataVoucher(updatedVouchers);
+
+                // Nếu có bộ lọc ngày, lọc lại danh sách voucher
+                const filteredVouchers = updatedVouchers.filter((voucher) => {
+                    if (dateRange.length === 0) return true;
+                    const expirationDate = moment(voucher.expirationDate);
+                    const [startDate, endDate] = dateRange;
+                    return expirationDate.isBetween(startDate, endDate, null, "[]");
+                });
+
+                setDataVoucher(filteredVouchers);
             }
         } catch (error) {
             notification.error({
@@ -110,10 +121,19 @@ const VoucherTable = ({ refreshData }) => {
         loadData();
     };
 
-    const handleShowCustomerDetail = (customerIds, voucherId) => {
-        setSelectedVoucherId(voucherId);
-        if (customerIds && customerIds.length > 0) { // Kiểm tra nếu customerIds có dữ liệu
-            const selectedCustomer = customers.filter(customer => customerIds.includes(customer.id)); // Lấy danh sách khách hàng
+    const handleShowCustomerDetail = (customerIds, voucher) => {
+        // Kiểm tra nếu voucher đã hết hạn
+        if (voucher.status === 0) {
+            notification.warning({
+                message: "Không thể áp dụng",
+                description: "Voucher này đã hết hạn và không thể áp dụng cho khách hàng.",
+            });
+            return; // Dừng lại nếu voucher đã hết hạn
+        }
+
+        setSelectedVoucherId(voucher.id);
+        if (customerIds && customerIds.length > 0) {
+            const selectedCustomer = customers.filter(customer => customerIds.includes(customer.id));
             setSelectedCustomers(selectedCustomer);
             setIsCustomerModalOpen(true);
         } else {
@@ -126,8 +146,9 @@ const VoucherTable = ({ refreshData }) => {
         }
     };
 
+
+
     const handleApply = (selected) => {
-        console.log("Khách hàng được áp dụng:", selected);
         loadData();
     };
 
@@ -173,29 +194,186 @@ const VoucherTable = ({ refreshData }) => {
             render: (text, record, index) =>
                 (pagination.current - 1) * pagination.pageSize + index + 1,
         },
-        // {
-        //     title: "ID",
-        //     dataIndex: 'id',
-        // },
         {
-            title: "Mã Voucher",
+            title: "Tên Voucher",
             dataIndex: "code",
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                <div style={{ padding: 8 }}>
+                    <Input
+                        placeholder="Nhập tên voucher"
+                        value={selectedKeys[0] || ''}
+                        onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                        onPressEnter={() => confirm()} // Kích hoạt tìm kiếm khi nhấn Enter
+                        style={{ marginBottom: 8, display: 'block' }}
+                    />
+                    <Space>
+                        <Button
+                            type="primary"
+                            onClick={() => confirm()} // Kích hoạt tìm kiếm
+                            icon={<SearchOutlined />}
+                            size="small"
+                            style={{ width: 90 }}
+                        >
+                            Tìm kiếm
+                        </Button>
+                        <Button
+                            onClick={() => clearFilters() && confirm()} // Xóa bộ lọc và làm mới tìm kiếm
+                            size="small"
+                            style={{ width: 90 }}
+                        >
+                            Xóa
+                        </Button>
+                    </Space>
+                </div>
+            ),
+            onFilter: (value, record) => {
+                return record.code && record.code.toLowerCase().includes(value.toLowerCase());
+            },
         },
         {
             title: "Số lượng",
             dataIndex: "quantity",
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                <div style={{ padding: 8 }}>
+                    <Input
+                        placeholder="Nhập số lượng"
+                        value={selectedKeys[0] || ''}
+                        onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                        onPressEnter={() => confirm()} // Kích hoạt tìm kiếm khi nhấn Enter
+                        style={{ marginBottom: 8, display: 'block' }}
+                    />
+                    <Space>
+                        <Button
+                            type="primary"
+                            onClick={() => confirm()} // Kích hoạt tìm kiếm
+                            icon={<SearchOutlined />}
+                            size="small"
+                            style={{ width: 90 }}
+                        >
+                            Tìm kiếm
+                        </Button>
+                        <Button
+                            onClick={() => clearFilters() && confirm()} // Xóa bộ lọc và làm mới tìm kiếm
+                            size="small"
+                            style={{ width: 90 }}
+                        >
+                            Xóa
+                        </Button>
+                    </Space>
+                </div>
+            ),
+            onFilter: (value, record) => {
+                const filterValue = parseInt(value, 10); // Chuyển giá trị bộ lọc thành số nguyên
+                return record.quantity >= filterValue;
+            },
         },
         {
             title: "Giảm giá (VNĐ)",
             dataIndex: "discountAmount",
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                <div style={{ padding: 8 }}>
+                    <Input
+                        placeholder="Nhập số tiền"
+                        value={selectedKeys[0] || ''}
+                        onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                        style={{ marginBottom: 8, display: 'block' }}
+                    />
+                    <Space>
+                        <Button
+                            type="primary"
+                            onClick={() => confirm()}
+                            icon={<SearchOutlined />}
+                            size="small"
+                            style={{ width: 90 }}
+                        >
+                            Tìm kiếm
+                        </Button>
+                        <Button
+                            onClick={() => clearFilters()}
+                            size="small"
+                            style={{ width: 90 }}
+                        >
+                            Xóa
+                        </Button>
+                    </Space>
+                </div>
+            ),
+            onFilter: (value, record) => {
+                const filterValue = parseFloat(value);
+                return record.discountAmount >= filterValue; // Hiển thị các bản ghi có discountAmount lớn hơn hoặc bằng giá trị lọc
+            },
         },
         {
             title: "Giảm giá (%)",
             dataIndex: "discountPercent",
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                <div style={{ padding: 8 }}>
+                    <Input
+                        placeholder="Nhập phần trăm"
+                        value={selectedKeys[0] || ''}
+                        onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                        style={{ marginBottom: 8, display: 'block' }}
+                    />
+                    <Space>
+                        <Button
+                            type="primary"
+                            onClick={() => confirm()}
+                            icon={<SearchOutlined />}
+                            size="small"
+                            style={{ width: 90 }}
+                        >
+                            Tìm kiếm
+                        </Button>
+                        <Button
+                            onClick={() => clearFilters()}
+                            size="small"
+                            style={{ width: 90 }}
+                        >
+                            Xóa
+                        </Button>
+                    </Space>
+                </div>
+            ),
+            onFilter: (value, record) => {
+                const filterValue = parseFloat(value);
+                return record.discountPercent >= filterValue; // Hiển thị các bản ghi có discountPercent lớn hơn hoặc bằng giá trị lọc
+            },
         },
         {
             title: "Ngày hết hạn",
             dataIndex: "expirationDate",
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                <div style={{ padding: 8 }}>
+                    <DatePicker.RangePicker
+                        onChange={(dates) => {
+                            if (dates) {
+                                const [start, end] = dates;
+                                setSelectedKeys([[start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD')]]); // Cập nhật bộ lọc ngày
+                            } else {
+                                setSelectedKeys([]); // Xóa bộ lọc ngày
+                            }
+                        }}
+                        style={{ width: '100%' }}
+                    />
+                    <Space style={{ marginTop: '8px' }}>
+                        <Button
+                            type="primary"
+                            onClick={() => confirm()}
+                            icon={<SearchOutlined />}
+                            size="small"
+                            style={{ borderRadius: '5px', marginRight: '8px' }}
+                        >
+                            Tìm kiếm
+                        </Button>
+                    </Space>
+                </div>
+            ),
+            onFilter: (value, record) => {
+                if (!value || value.length === 0) return true; // Nếu không có bộ lọc, cho phép tất cả
+                const [startDate, endDate] = value;
+                const recordDate = moment(record.expirationDate); // Sử dụng moment để so sánh ngày
+                return recordDate.isBetween(startDate, endDate, null, '[]'); // Kiểm tra ngày trong khoảng
+            },
         },
         {
             title: "Trạng thái",
@@ -226,13 +404,13 @@ const VoucherTable = ({ refreshData }) => {
                     />
                     <DeleteOutlined
                         style={{ color: "red", cursor: "pointer" }}
-                        onClick={() => handleDelete(record.id, record.customers)} // Gọi handleDelete với customers
+                        onClick={() => handleDelete(record.id, record.customers)}
                     />
-                     <PlusCircleOutlined
+                    <PlusCircleOutlined
                         style={{ color: "green", cursor: "pointer" }}
-                        onClick={() => handleShowCustomerDetail(record.customers, record.id)}
+                        onClick={() => handleShowCustomerDetail(record.customers, record)} // Truyền đúng đối tượng record
                     />
-                    <RetweetOutlined // Hoặc ExclamationCircleOutlined
+                    <RetweetOutlined
                         style={{ color: "aqua", cursor: "pointer" }}
                         onClick={() => handleChangeStatus(record)}
                     />
@@ -240,6 +418,7 @@ const VoucherTable = ({ refreshData }) => {
             )
         }
     ];
+
 
 
     return (

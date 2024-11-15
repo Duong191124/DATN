@@ -10,19 +10,18 @@ const CreateStaff = ({ open, onClose, loadStaff }) => {
 
     const onFinish = async (values) => {
         setLoading(true);
-    
+
         try {
             const res = await createNewStaff(
-                values.username, 
-                values.password, 
-                values.phoneNumber, 
-                values.email, 
-                values.address, 
-                values.name, 
-                values.gender, 
+                values.username,
+                values.password,
+                values.phoneNumber,
+                values.email,
+                values.address,
+                values.name,
+                values.gender,
                 values.dateOfBirth
             );
-            console.log(res);
             if (res.data) {
                 message.success("Account created successfully");
                 form.resetFields();
@@ -35,7 +34,7 @@ const CreateStaff = ({ open, onClose, loadStaff }) => {
                 description: error.response?.data?.message || JSON.stringify(error),
             });
         }
-    
+
         setLoading(false);
     };
 
@@ -54,8 +53,8 @@ const CreateStaff = ({ open, onClose, loadStaff }) => {
                 extra={
                     <Space>
                         <Button onClick={onClose}>Cancel</Button>
-                        <Button 
-                            type="primary" 
+                        <Button
+                            type="primary"
                             onClick={() => form.submit()}
                         >
                             Submit

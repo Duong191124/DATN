@@ -1,4 +1,4 @@
-import { Modal, Button, Table, Checkbox, Pagination, notification, Select } from 'antd';
+import { Modal, Button, Table, Checkbox, notification, Select } from 'antd';
 import { useState, useEffect } from 'react';
 import { fetchDataProductDetail, updatePromotionProduct, detailPromotion } from '../../service/api.service';
 
@@ -8,7 +8,7 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
     const [productDetails, setProductDetails] = useState([]);
     const [selectedDetails, setSelectedDetails] = useState(selectedProductDetails || []);
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(5);
     const [promotion, setPromotion] = useState(null);
     const [selectedSize, setSelectedSize] = useState(null);
     const [allSelected, setAllSelected] = useState(false);
@@ -18,9 +18,16 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             try {
                 const productDetailsRes = await fetchDataProductDetail();
                 if (productDetailsRes?.data?.data) {
-                    setProductDetails(productDetailsRes.data.data);
+                    const fetchedProductDetails = productDetailsRes.data.data;
+    
+                    // Lọc ra các product detail không có khuyến mãi hoặc chỉ có khuyến mãi trùng với promotion hiện tại
+                    const availableProductDetails = fetchedProductDetails.filter(
+                        item => !item.activePromotionId || item.activePromotionId === id
+                    );
+    
+                    setProductDetails(availableProductDetails);
                 }
-
+    
                 if (id) {
                     const promotionRes = await detailPromotion(id);
                     if (promotionRes?.data?.data) {
@@ -34,13 +41,14 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 });
             }
         };
-
+    
         if (isVisible) {
             fetchProductDetailsAndPromotion();
             setSelectedDetails(selectedProductDetails || []);
         }
     }, [isVisible, id, selectedProductDetails]);
-
+    
+    // Chỉnh sửa cột 'Chọn' để vô hiệu hóa checkbox cho các product detail đã có khuyến mãi khác
     const handleSelect = (productId) => {
         setSelectedDetails((prevSelected) =>
             prevSelected.includes(productId)
@@ -67,7 +75,6 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                     description: selectedDetails.length > 0 ? "Áp dụng khuyến mãi thành công!" : "Đã hủy áp dụng khuyến mãi.",
                 });
 
-                // Xử lý lại danh sách sản phẩm
                 const updatedProductDetails = await fetchDataProductDetail();
                 if (updatedProductDetails?.data?.data) {
                     let restoredDetails = updatedProductDetails.data.data;
@@ -75,7 +82,7 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                     if (!payload.applyPromotion) {
                         restoredDetails = restoredDetails.map(product => ({
                             ...product,
-                            discountPrice: product.defaultPrice, // Đặt discountPrice về giá gốc
+                            discountPrice: product.defaultPrice,
                         }));
                     }
 
@@ -112,12 +119,10 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
 
     const handleSizeChange = (size) => {
         setSelectedSize(size);
-        setAllSelected(false); // Deselect all when size filter changes
+        setAllSelected(false);
     };
 
-    const currentData = productDetails
-        .filter(item => selectedSize === null || item.size?.name === selectedSize)
-        .slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    const filteredData = productDetails.filter(item => selectedSize === null || item.size?.name === selectedSize);
 
     const columns = [
         {
@@ -132,9 +137,7 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
         {
             title: "Size",
             dataIndex: "size",
-            render: (text, record) => {
-                return record.size?.name || "Chưa có size";
-            },
+            render: (text, record) => record.size?.name || "Chưa có size",
         },
         {
             title: "Giá Gốc",
@@ -155,9 +158,10 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 <Checkbox
                     checked={selectedDetails.includes(record.id)}
                     onChange={() => handleSelect(record.id)}
+                    disabled={record.activePromotionId && record.activePromotionId !== id} // Disable checkbox if the product has another promotion
                 />
             ),
-        },
+        },  
     ];
 
     return (
@@ -191,23 +195,18 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 {allSelected ? "Bỏ Chọn Tất Cả" : "Chọn Tất Cả"}
             </Button>
             <Table
-                dataSource={currentData}
+                dataSource={filteredData}
                 columns={columns}
                 pagination={{
                     current: currentPage,
                     pageSize: pageSize,
-                    total: productDetails.length,
-                    onChange: setCurrentPage,
-                    onShowSizeChange: (current, size) => setPageSize(size)
+                    total: filteredData.length,
+                    onChange: (page, pageSize) => {
+                        setCurrentPage(page);
+                        setPageSize(pageSize);
+                    },
                 }}
                 rowKey="id"
-            />
-            <Pagination
-                current={currentPage}
-                pageSize={pageSize}
-                total={productDetails.length}
-                onChange={setCurrentPage}
-                onShowSizeChange={(current, size) => setPageSize(size)}
             />
         </Modal>
     );
