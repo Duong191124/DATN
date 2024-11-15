@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { getUserInfo } from '../../service/api.service';
 
 const Shipping = () => {
     // State variables for input values
@@ -6,6 +7,22 @@ const Shipping = () => {
     const [email, setEmail] = useState('');
     const [address, setAddress] = useState('');
     const [mobileNumber, setMobileNumber] = useState('');
+
+    useEffect(() => {
+        getInformationForCustomer()
+    }, [])
+
+    const getInformationForCustomer = async () => {
+        try {
+            const res = await getUserInfo();
+            console.log(res)
+            setFullName(res.data.data.name)
+            setEmail(res.data.data.email)
+            setMobileNumber(res.data.data.phoneNumber)
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
 
     return (

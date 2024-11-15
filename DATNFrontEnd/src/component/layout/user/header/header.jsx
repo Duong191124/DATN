@@ -40,10 +40,10 @@ const Header = () => {
       const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
       setCartItems(guestCart);
       setIsLoggedIn(false);
-      message.success("Đăng xuất thành công");
+      message.success(t("MES-022"));
       navigate("/");
     } catch (error) {
-      message.error("Đăng xuất thất bại");
+      message.error(t("MES-023"));
       console.error(error);
     }
   };

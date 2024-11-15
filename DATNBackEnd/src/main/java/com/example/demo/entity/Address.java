@@ -18,13 +18,19 @@ public class Address {
     private int id;
 
     @Column(name = "city")
-    private String city;
+    private int city;
 
     @Column(name = "district")
-    private String district;
+    private int district;
 
     @Column(name = "ward")
-    private String ward;
+    private int ward;
+
+    @Column(name = "communes")
+    private String communes;
+
+    @Column(name = "address_detail")
+    private String addressDetail;
 
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id")

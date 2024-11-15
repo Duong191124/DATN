@@ -9,11 +9,15 @@ import lombok.*;
 @Data
 @Builder
 public class AddressDTO {
-    private String city;
+    private int city;
 
-    private String district;
+    private int district;
 
-    private String ward;
+    private int ward;
+
+    private String communes;
+
+    private String addressDetail;
 
     private int customerId;
 }
