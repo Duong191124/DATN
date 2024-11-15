@@ -32,15 +32,18 @@ const loginCustomerAPI = (username, password) => {
   return axios.post(URL_BACKEND, data);
 };
 const getUserInfo = () => {
+  const token = localStorage.getItem("access_token");
+
+  const headers = {
+    "Content-Type": "application/json",
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
   try {
     const URL_BACKEND = "/api/v1/auth/getInformation";
-    const token = localStorage.getItem("access_token");
-    return axios.get(URL_BACKEND, {
-      headers: {
-        Authorization: `Bearer ${token}`, // Gửi token trong header
-        "Content-Type": "application/json",
-      },
-    });
+    return axios.get(URL_BACKEND, { headers });
   } catch (error) {
     console.error("Có lỗi xảy ra:", error);
   }
@@ -1040,6 +1043,7 @@ const updateWeightAPI = (id, code, name, status) => {
   };
   return axios.put(URL_BACKEND, data)
 }
+
 
 export {
   updateCustomerInfo,

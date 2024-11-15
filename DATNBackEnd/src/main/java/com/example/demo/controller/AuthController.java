@@ -113,9 +113,18 @@ public class AuthController {
     @GetMapping("/getInformation")
     public ResponseEntity<?> getInfoUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentPrincipalName = authentication.getName();
+        String currentPrincipalName = null;
 
-        if (customerRepo.existsByUsername(currentPrincipalName)) {
+        // Kiểm tra nếu có người dùng đăng nhập
+        if (authentication != null && authentication.isAuthenticated()) {
+            currentPrincipalName = authentication.getName();
+        }
+
+        // In ra để kiểm tra giá trị của currentPrincipalName
+        System.out.println("Current principal name: " + currentPrincipalName);
+
+        if (currentPrincipalName != null && !currentPrincipalName.isEmpty() && customerRepo.existsByUsername(currentPrincipalName)) {
+            // Nếu người dùng đã đăng nhập là khách hàng
             Customer customer = customerRepo.findByUsername(currentPrincipalName);
             return ResponseEntity.status(HttpStatus.OK).body(
                     MessageReponse.builder()
@@ -128,24 +137,40 @@ public class AuthController {
                                             .build()
                             )
                             .status(HttpStatus.OK.value())
-                            .message("Get information sucssessfuly")
+                            .message("Get information successfully")
                             .build());
-        } else if (staffRepo.existsByUsername(currentPrincipalName)) {
+        } else if (currentPrincipalName != null && !currentPrincipalName.isEmpty() && staffRepo.existsByUsername(currentPrincipalName)) {
+            // Nếu người dùng đã đăng nhập là nhân viên
             Staff staff = staffRepo.findByUsername(currentPrincipalName);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    MessageReponse.builder()
+                            .data(staff)
+                            .status(HttpStatus.OK.value())
+                            .message("Get information successfully")
+                            .build()
+            );
+        } else {
+            // Nếu không có người dùng đăng nhập, lấy khách hàng mặc định với ID 1
+            Customer defaultCustomer = customerRepo.findById(1)
+                    .orElseThrow(() -> new RuntimeException("Customer with ID 1 not found"));
 
             return ResponseEntity.status(HttpStatus.OK).body(
                     MessageReponse.builder()
                             .data(
-                                    staff
+                                    InformationResponse.builder()
+                                            .id(defaultCustomer.getId())
+                                            .name(defaultCustomer.getName())
+                                            .email(defaultCustomer.getEmail())
+                                            .phoneNumber(defaultCustomer.getPhoneNumber())
+                                            .build()
                             )
                             .status(HttpStatus.OK.value())
-                            .message("Get information sucssessfuly")
-                            .build()
-            );
-        } else {
-            throw new InputMismatchException("Token is not valid");
+                            .message("Get default customer information successfully")
+                            .build());
         }
     }
+
+
 
     @PostMapping("/request-reset-password")
     public ResponseEntity<?> forgot(

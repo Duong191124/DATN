@@ -4,7 +4,9 @@ import lombok.Data;
 
 @Data
 public class AddressUpdateDTO {
-    private String city;
-    private String district;
-    private String ward;
+    private int city;
+    private int district;
+    private int ward;
+    private String communes;
+    private String addressDetail;
 }
