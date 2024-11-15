@@ -13,9 +13,9 @@ public class AddressDTO {
 
     private int district;
 
-    private int ward;
+    private String ward;
 
-    private String communes;
+    private int serviceId;
 
     private String addressDetail;
 

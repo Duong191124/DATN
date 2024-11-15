@@ -6,7 +6,7 @@ import lombok.Data;
 public class AddressUpdateDTO {
     private int city;
     private int district;
-    private int ward;
-    private String communes;
+    private String ward;
+    private int serviceId;
     private String addressDetail;
 }

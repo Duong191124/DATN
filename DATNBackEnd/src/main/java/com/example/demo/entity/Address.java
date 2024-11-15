@@ -24,10 +24,9 @@ public class Address {
     private int district;
 
     @Column(name = "ward")
-    private int ward;
+    private String ward;
 
-    @Column(name = "communes")
-    private String communes;
+    private int serviceId;
 
     @Column(name = "address_detail")
     private String addressDetail;

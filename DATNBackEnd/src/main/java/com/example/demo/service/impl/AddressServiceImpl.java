@@ -34,7 +34,7 @@ public class AddressServiceImpl implements AddressService {
                 .city(addressDTO.getCity())
                 .district(addressDTO.getDistrict())
                 .ward(addressDTO.getWard())
-                .communes(addressDTO.getCommunes())
+                .serviceId(53321)
                 .customer(customer)
                 .addressDetail(addressDTO.getAddressDetail())
                 .build();
@@ -47,7 +47,7 @@ public class AddressServiceImpl implements AddressService {
         existingAddress.setCity(addressUpdateDTO.getCity());
         existingAddress.setDistrict(addressUpdateDTO.getDistrict());
         existingAddress.setWard(addressUpdateDTO.getWard());
-        existingAddress.setCommunes(addressUpdateDTO.getCommunes());
+        existingAddress.setServiceId(53321);
         existingAddress.setAddressDetail(addressUpdateDTO.getAddressDetail());
         return addressRepo.save(existingAddress);
     }
