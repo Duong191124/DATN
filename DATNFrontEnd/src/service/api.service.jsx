@@ -1041,7 +1041,27 @@ const updateWeightAPI = (id, code, name, status) => {
   return axios.put(URL_BACKEND, data)
 }
 
+//api for address
+
+const getProvinces = () => {
+  const URL_BACKEND = "/api/v1/ghn/provinces";
+  return axios.get(URL_BACKEND)
+}
+
+const getDistrict = (provinceId) => {
+  const URL_BACKEND = `/api/v1/ghn/districts?provinceId=${provinceId}`;
+  return axios.get(URL_BACKEND)
+}
+
+const getWards = (districtId) => {
+  const URL_BACKEND = `/api/v1/ghn/wards?districtId=${districtId}`;
+  return axios.get(URL_BACKEND)
+}
+
 export {
+  getProvinces,
+  getDistrict,
+  getWards,
   updateCustomerInfo,
   getCustomerById,
   updateWeightAPI,
