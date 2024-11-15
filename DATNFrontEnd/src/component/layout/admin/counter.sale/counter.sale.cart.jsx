@@ -11,9 +11,6 @@ const CounterSaleCart = ({
   onAddToCart,
   dataProductDetail,
 }) => {
-  const [isScanning, setIsScanning] = useState(false); // Trạng thái quét QR
-  const [productCode, setProductCode] = useState(""); // Mã sản phẩm quét được
-  const [productDetail, setProductDetail] = useState(null); // Chi tiết sản phẩm sau khi quét
   const [quantity, setQuantity] = useState(1); // Số lượng sản phẩm nhập vào
 
   // Giảm số lượng sản phẩm
@@ -94,56 +91,6 @@ const CounterSaleCart = ({
     onUpdateQuantity(record.id, newQuantity);
   };
 
-  const handleQRCodeScanned = (data) => {
-    console.log(data, "Mã QR quét được"); // Kiểm tra xem data có null hay không
-    if (data && data.text) {
-      setProductCode(data.text); // Cập nhật mã sản phẩm nếu dữ liệu hợp lệ
-      fetchProductDetail(data.text); // Gọi API lấy chi tiết sản phẩm
-    } else {
-      message.error("Không quét được mã QR hợp lệ.");
-    }
-  };
-
-  // Lấy chi tiết sản phẩm từ API
-  const fetchProductDetail = async (code) => {
-    try {
-      // Gọi API lấy chi tiết sản phẩm dựa trên mã quét
-      const response = await findByProductDetailCode(code);
-      console.log(response, "aafffvv");
-      if (response.data) {
-        // Nếu sản phẩm tồn tại, lưu thông tin sản phẩm và số lượng mặc định là 1
-        setProductDetail(response.data);
-        setQuantity(1); // Số lượng mặc định là 1
-      } else {
-        message.error("Sản phẩm không tồn tại.");
-      }
-    } catch (error) {
-      message.error("Sản phẩm không tồn tại hoặc không thể quét mã.");
-    }
-  };
-  // Bắt đầu quét mã QR
-  const startScanning = () => {
-    setIsScanning(true);
-  };
-
-  // Dừng quét mã QR
-  const stopScanning = () => {
-    setIsScanning(false);
-  };
-
-  // Thêm sản phẩm vào giỏ hàng
-  const handleAddToCart = () => {
-    if (quantity > productDetail.quantity) {
-      message.error(`Số lượng không được vượt quá ${productDetail.quantity}`);
-      return;
-    }
-    onAddToCart({
-      ...productDetail,
-      quantity,
-    });
-    message.success("Đã thêm sản phẩm vào giỏ hàng.");
-  };
-
   // Cấu hình cột bảng giỏ hàng
   const columns = [
     {
@@ -186,9 +133,7 @@ const CounterSaleCart = ({
       dataIndex: "defaultPrice",
       render: (text, record) => {
         const { discountPrice, defaultPrice } = record;
-
         if (discountPrice && discountPrice < defaultPrice) {
-          // Nếu có giá giảm, hiển thị cả giá gốc và giá giảm
           return (
             <span>
               <span style={{ textDecoration: "line-through", color: "gray" }}>
@@ -248,60 +193,6 @@ const CounterSaleCart = ({
         style={{ border: "1px solid #ddd" }}
         className="custom-table"
       />
-
-      <Button
-        type="primary"
-        onClick={startScanning}
-        style={{ marginTop: "20px" }}
-      >
-        {isScanning ? "Dừng quét QR" : "Quét mã QR sản phẩm"}
-      </Button>
-
-      {isScanning && (
-        <div style={{ marginTop: "20px" }}>
-          <QRCodeScanner
-            delay={300} // Tùy chọn để điều chỉnh tốc độ quét
-            onScan={handleQRCodeScanned}
-            onError={(err) => {
-              console.error("Lỗi quét mã QR:", err);
-              message.error("Lỗi quét mã QR.");
-            }}
-            style={{ width: "100%" }}
-          />
-          <Button
-            type="danger"
-            onClick={stopScanning}
-            style={{ marginTop: "10px" }}
-          >
-            Dừng quét
-          </Button>
-        </div>
-      )}
-
-      {productDetail && (
-        <div style={{ marginTop: "20px" }}>
-          <h4>Thông tin sản phẩm quét được</h4>
-          <p>
-            <strong>Tên sản phẩm:</strong> {productDetail.name}
-          </p>
-          <p>
-            <strong>Số lượng tồn kho:</strong> {productDetail.quantity}
-          </p>
-          <Form.Item label="Số lượng">
-            <Input
-              type="number"
-              value={quantity}
-              min={1}
-              max={productDetail.quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              style={{ width: "100px" }}
-            />
-          </Form.Item>
-          <Button type="primary" onClick={handleAddToCart}>
-            Thêm vào giỏ hàng
-          </Button>
-        </div>
-      )}
     </>
   );
 };
