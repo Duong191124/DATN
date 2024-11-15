@@ -2,65 +2,69 @@ import React, { useEffect, useState } from 'react';
 import { Modal, Form, Input, Row, Col, Button, Select } from 'antd';
 import { UserOutlined, PhoneOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { getDistrict, getProvinces, getWards } from '../../service/api.service';
 
 const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editingAddress }) => {
     const { t } = useTranslation();
 
-    // State để lưu danh sách tỉnh, huyện, xã
     const [provinces, setProvinces] = useState([]);
     const [districts, setDistricts] = useState([]);
     const [wards, setWards] = useState([]);
 
-    // State để lưu các giá trị chọn
     const [selectedProvince, setSelectedProvince] = useState(null);
     const [selectedDistrict, setSelectedDistrict] = useState(null);
     const [selectedWard, setSelectedWard] = useState(null);
 
-    // Gọi API lấy Tỉnh
+    const [isDistrictDropdownOpen, setIsDistrictDropdownOpen] = useState(false);
+    const [isWardDropdownOpen, setIsWardDropdownOpen] = useState(false);
+
+    const defaultOption = { ProvinceID: '', DistrictID: '', WardCode: '', ProvinceName: t('Select province'), DistrictName: t('Select district'), WardName: t('Select ward') };
+
+    // API gọi danh sách tỉnh
     useEffect(() => {
-        // Giả sử API trả về danh sách tỉnh
         const fetchProvinces = async () => {
-            // Thực hiện gọi API để lấy danh sách tỉnh
-            const provincesData = await fetch('/api/provinces').then(res => res.json());
-            setProvinces(provincesData);
+            const res = await getProvinces();
+            setProvinces([defaultOption, ...res.data.data]);
         };
 
         fetchProvinces();
     }, []);
 
-    // Gọi API lấy Huyện theo Tỉnh đã chọn
     useEffect(() => {
-        if (selectedProvince) {
+        if (selectedProvince && selectedProvince !== defaultOption.ProvinceID) {
             const fetchDistricts = async () => {
-                // Thực hiện gọi API lấy huyện theo tỉnh
-                const districtsData = await fetch(`/api/districts?provinceId=${selectedProvince}`).then(res => res.json());
-                setDistricts(districtsData);
-                setSelectedDistrict(null); // Reset huyện khi thay đổi tỉnh
-                setSelectedWard(null); // Reset xã khi thay đổi huyện
+                const res = await getDistrict(selectedProvince);
+                setDistricts([defaultOption, ...res.data.data]);
+                setSelectedDistrict(defaultOption.DistrictID);
+                setSelectedWard(defaultOption.WardCode);
+                setIsDistrictDropdownOpen(true);
             };
-
             fetchDistricts();
         } else {
             setDistricts([]);
             setWards([]);
+            setSelectedDistrict(null);
+            setSelectedWard(null);
         }
     }, [selectedProvince]);
 
-    // Gọi API lấy Xã theo Huyện đã chọn
     useEffect(() => {
-        if (selectedDistrict) {
+        if (selectedDistrict && selectedDistrict !== defaultOption.DistrictID) {
             const fetchWards = async () => {
-                // Thực hiện gọi API lấy xã theo huyện
-                const wardsData = await fetch(`/api/wards?districtId=${selectedDistrict}`).then(res => res.json());
-                setWards(wardsData);
-                setSelectedWard(null); // Reset xã khi thay đổi huyện
+                const res = await getWards(selectedDistrict);
+                setWards([defaultOption, ...res.data.data]);
+                setSelectedWard(defaultOption.WardCode);
+                setIsWardDropdownOpen(true);
             };
-
             fetchWards();
         } else {
             setWards([]);
+            setSelectedWard(null);
         }
     }, [selectedDistrict]);
+
+    // Tự động cập nhật địa chỉ
+    const autoAddress = `${provinces.find(p => p.ProvinceID === selectedProvince)?.ProvinceName || ''}, ${districts.find(d => d.DistrictID === selectedDistrict)?.DistrictName || ''}, ${wards.find(w => w.WardCode === selectedWard)?.WardName || ''}`;
 
     return (
         <Modal
@@ -68,9 +72,6 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
             open={isModalVisible}
             onCancel={handleCancel}
             footer={null}
-            style={{
-                borderRadius: 1
-            }}
         >
             <Form
                 form={form}
@@ -99,54 +100,72 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
                 >
                     <Select
                         value={selectedProvince}
-                        onChange={setSelectedProvince}
+                        onChange={(value) => {
+                            setSelectedProvince(value);
+                            setIsDistrictDropdownOpen(true);
+                        }}
                         placeholder={t('Select province')}
                     >
                         {provinces.map(province => (
-                            <Select.Option key={province.id} value={province.id}>
-                                {province.name}
+                            <Select.Option key={province.ProvinceID} value={province.ProvinceID}>
+                                {province.ProvinceName}
                             </Select.Option>
                         ))}
                     </Select>
                 </Form.Item>
 
-                <Form.Item
-                    name="district"
-                    label={t('District')}
-                    rules={[{ required: true, message: t('Please select district!') }]}
-                >
-                    <Select
-                        value={selectedDistrict}
-                        onChange={setSelectedDistrict}
-                        placeholder={t('Select district')}
-                        disabled={!selectedProvince}
+                {selectedProvince && (
+                    <Form.Item
+                        name="district"
+                        label={t('District')}
+                        rules={[{ required: true, message: t('Please select district!') }]}
                     >
-                        {districts.map(district => (
-                            <Select.Option key={district.id} value={district.id}>
-                                {district.name}
-                            </Select.Option>
-                        ))}
-                    </Select>
-                </Form.Item>
+                        <Select
+                            open={isDistrictDropdownOpen}
+                            onDropdownVisibleChange={(open) => setIsDistrictDropdownOpen(open)}
+                            value={selectedDistrict}
+                            onChange={(value) => {
+                                setSelectedDistrict(value);
+                                setIsDistrictDropdownOpen(false);
+                                setIsWardDropdownOpen(true);
+                            }}
+                            placeholder={t('Select district')}
+                            disabled={!selectedProvince || selectedProvince === defaultOption.ProvinceID}
+                        >
+                            {districts.map(district => (
+                                <Select.Option key={district.DistrictID} value={district.DistrictID}>
+                                    {district.DistrictName}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                )}
 
-                <Form.Item
-                    name="ward"
-                    label={t('Ward')}
-                    rules={[{ required: true, message: t('Please select ward!') }]}
-                >
-                    <Select
-                        value={selectedWard}
-                        onChange={setSelectedWard}
-                        placeholder={t('Select ward')}
-                        disabled={!selectedDistrict}
+                {selectedDistrict && (
+                    <Form.Item
+                        name="ward"
+                        label={t('Ward')}
+                        rules={[{ required: true, message: t('Please select ward!') }]}
                     >
-                        {wards.map(ward => (
-                            <Select.Option key={ward.id} value={ward.id}>
-                                {ward.name}
-                            </Select.Option>
-                        ))}
-                    </Select>
-                </Form.Item>
+                        <Select
+                            open={isWardDropdownOpen}
+                            onDropdownVisibleChange={(open) => setIsWardDropdownOpen(open)}
+                            value={selectedWard}
+                            onChange={(value) => {
+                                setSelectedWard(value);
+                                setIsWardDropdownOpen(false);
+                            }}
+                            placeholder={t('Select ward')}
+                            disabled={!selectedDistrict || selectedDistrict === defaultOption.DistrictID}
+                        >
+                            {wards.map(ward => (
+                                <Select.Option key={ward.WardCode} value={ward.WardCode}>
+                                    {ward.WardName}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                )}
 
                 <Form.Item
                     name="address"
@@ -157,6 +176,8 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
                         prefix={<EnvironmentOutlined />}
                         placeholder={t('Enter detailed address')}
                         rows={3}
+                        value={autoAddress}
+                        onChange={(e) => form.setFieldValue('address', e.target.value)}
                     />
                 </Form.Item>
 
@@ -182,7 +203,9 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
                                     width: 100,
                                     height: 40
                                 }}
-                                type="primary" htmlType="submit">
+                                type="primary" htmlType="submit"
+                                disabled={!selectedProvince || !selectedDistrict || !selectedWard}
+                            >
                                 {t('Save')}
                             </Button>
                         </Col>
