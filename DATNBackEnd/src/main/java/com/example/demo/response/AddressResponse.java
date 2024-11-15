@@ -13,11 +13,15 @@ import lombok.NoArgsConstructor;
 public class AddressResponse {
     private int id;
 
-    private String city;
+    private int city;
 
-    private String district;
+    private int district;
 
-    private String ward;
+    private int ward;
+
+    private String communes;
+
+    private String addressDetail;
 
     private int customerId;
 
@@ -27,6 +31,8 @@ public class AddressResponse {
                 .city(address.getCity())
                 .district(address.getDistrict())
                 .ward(address.getWard())
+                .communes(address.getCommunes())
+                .addressDetail(address.getAddressDetail())
                 .customerId(address.getCustomer().getId())
                 .build();
     }
