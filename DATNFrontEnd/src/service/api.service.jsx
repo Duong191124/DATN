@@ -1061,31 +1061,6 @@ const updateWeightAPI = (id, code, name, status) => {
   return axios.put(URL_BACKEND, data);
 };
 
-//Weight
-const fetchDataWeight = () => {
-  const URL_BACKEND = "/api/v1/weight";
-  return axios.get(URL_BACKEND);
-};
-
-const createWeightAPI = (code, name, status) => {
-  const URL_BACKEND = "/api/v1/weight";
-  const data = {
-    code: code,
-    name: name,
-    status: status,
-  };
-  return axios.post(URL_BACKEND, data);
-};
-const updateWeightAPI = (id, code, name, status) => {
-  const URL_BACKEND = "/api/v1/weight";
-  const data = {
-    id: id,
-    code: code,
-    name: name,
-    status: status,
-  };
-  return axios.put(URL_BACKEND, data);
-};
 //api for address
 
 const getProvinces = () => {

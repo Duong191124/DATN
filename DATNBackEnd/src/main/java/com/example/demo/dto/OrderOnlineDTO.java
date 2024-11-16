@@ -2,7 +2,6 @@ package com.example.demo.dto;
 
 import com.example.demo.entity.Orders;
 import com.example.demo.request.OrderDetailOnlineRequest;
-import com.example.demo.request.OrderDetailRequest;
 import com.example.demo.response.*;
 import lombok.Builder;
 import lombok.Data;
@@ -34,7 +33,7 @@ public class OrderOnlineDTO {
                 .totalAmount(orders.getTotalAmount())
                 .customerResponse(CustomerResponse.fromCustomerResponse(orders.getCustomer()))
                 .moneyReceived(orders.getMoneyReceived())
-                .voucherId(orders.getVoucher() == null ? null : orders.getVoucher().getId())
+                .voucherId(orders.getVoucher() == null ? null : VoucherResponse.fromVoucher(orders.getVoucher()))
                 .orderDetailResponses(orders.getOrderDetails().stream().map(OrderDetailResponse::convertOrderDetailsResponse).toList())
                 .paymentResponses(orders.getPayments().stream().map(PaymentResponse::convertPaymentResponse).toList())
                 .build();
