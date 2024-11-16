@@ -48,20 +48,33 @@ public class OrderDTO {
 
 
     public static Orders convertOrder(OrderDTO orderDTO, VoucherRepo voucherRepo, StaffRepo accountRepo, CustomerRepo customerRepo) {
-        Staff staff = accountRepo.findById(orderDTO.getStaffId()).orElseThrow(()->new RuntimeException("not found staff with id:"+orderDTO.getStaffId()));
-        Voucher voucher = null;
-        if(voucher != null){
-             voucher = voucherRepo.findById(orderDTO.getVoucherId()).orElseThrow(()->new RuntimeException("not found voucher with id:"+orderDTO.getVoucherId()));
+        // Kiểm tra và gán staff nếu staffId tồn tại
+        Staff staff = null;
+        if (orderDTO.getStaffId() != null && orderDTO.getStaffId() > 0) {
+            staff = accountRepo.findById(orderDTO.getStaffId())
+                    .orElseThrow(() -> new RuntimeException("Not found staff with id: " + orderDTO.getStaffId()));
         }
-        Customer customer = customerRepo.findById(orderDTO.getCustomerId()).orElseThrow(() -> new RuntimeException("Not found customer with id: "+orderDTO.getCustomerId()));
+
+        // Kiểm tra và gán voucher nếu voucherId tồn tại
+        Voucher voucher = null;
+        if (orderDTO.getVoucherId() != null) {
+            voucher = voucherRepo.findById(orderDTO.getVoucherId())
+                    .orElseThrow(() -> new RuntimeException("Not found voucher with id: " + orderDTO.getVoucherId()));
+        }
+
+        // Lấy thông tin khách hàng
+        Customer customer = customerRepo.findById(orderDTO.getCustomerId())
+                .orElseThrow(() -> new RuntimeException("Not found customer with id: " + orderDTO.getCustomerId()));
+
+        // Tạo đối tượng Order và trả về
         return Orders.builder()
                 .code(orderDTO.getCode())
                 .status(orderDTO.getStatus())
-                .staff(staff)
+                .staff(staff)  // Gán staff (nếu có)
                 .deliveryFee(orderDTO.getDeliveryFee())
                 .totalAmount(orderDTO.getTotalAmount())
-                .moneyReceived(orderDTO.moneyReceived)
-                .voucher(voucher)
+                .moneyReceived(orderDTO.getMoneyReceived())
+                .voucher(voucher)  // Gán voucher (nếu có)
                 .customer(customer)
                 .build();
     }

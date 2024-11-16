@@ -1,8 +1,10 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.dto.OrderDTO;
+import com.example.demo.dto.OrderOnlineDTO;
 import com.example.demo.entity.*;
 import com.example.demo.repository.*;
+import com.example.demo.request.OrderDetailOnlineRequest;
 import com.example.demo.request.OrderDetailRequest;
 import com.example.demo.request.OrderWithVoucherAndOrderDetailRequest;
 import com.example.demo.response.OrderResponse;
@@ -46,12 +48,17 @@ public class OrderServiceImpl implements OrderService {
         if (customerId == null || customerId <= 0) {
             customerId = 1;
         }
-        Staff staff = staffRepo.findById(orderDTO.getStaffId()).orElseThrow(()->new RuntimeException("not found staff with id:"+orderDTO.getStaffId()));
         Customer customer = customerRepo.findById(customerId).get();
         Orders order = new Orders();
         order.setCode(orderDTO.getCode());
         order.setOrderDate(orderDTO.getOrderDate());
-        order.setStaff(staff);
+        if (orderDTO.getStaffId() != null && orderDTO.getStaffId() > 0) {
+            Staff staff = staffRepo.findById(orderDTO.getStaffId())
+                    .orElseThrow(() -> new RuntimeException("Staff not found with id: " + orderDTO.getStaffId()));
+            order.setStaff(staff);
+        } else {
+            order.setStaff(null); // Nếu không có staffId, gán staff là null
+        }
         order.setCustomer(customer);
         order.setMoneyReceived(orderDTO.getMoneyReceived());
         if (orderDTO.getVoucherId() != null) {
@@ -75,6 +82,60 @@ public class OrderServiceImpl implements OrderService {
         orderDetailRepo.saveAll(orderDetailUpdate);
         productDetailRepo.saveAll(productDetailUpdate);
        return OrderResponse.convertOrderResponse(order);
+    }
+
+    @Transactional
+    public OrderResponse createOrderOnline(OrderOnlineDTO orderDTO) {
+        // Tạo mới đơn hàng
+        Orders order = new Orders();
+        order.setCode(orderDTO.getCode());
+        order.setDeliveryFee(orderDTO.getDeliveryFee());
+        order.setOrderDate(orderDTO.getOrderDate());
+        order.setTotalAmount(orderDTO.getTotalAmount());
+        order.setMoneyReceived(orderDTO.getMoneyReceived());  // Có thể cập nhật sau nếu cần
+        if (orderDTO.getVoucherId() != null) {
+            Voucher voucher = voucherRepo.findById(orderDTO.getVoucherId())
+                    .orElseThrow(() -> new RuntimeException("Voucher not found"));
+            order.setVoucher(voucher);
+        } else {
+            order.setVoucher(null);
+        }
+        order.setCustomer(customerRepo.findById(orderDTO.getCustomerId()).orElse(null));
+        order.setStatus(OrderStatus.pending);  // Mặc định trạng thái là 'process'
+
+        // Lưu đơn hàng vào DB
+        Orders savedOrder = orderRepo.save(order);
+
+        if (orderDTO.getOrderDetailRequests() == null || orderDTO.getOrderDetailRequests().isEmpty()) {
+            throw new RuntimeException("No order details provided");
+        }
+
+        // Xử lý chi tiết đơn hàng
+        for (OrderDetailOnlineRequest onlineRequest : orderDTO.getOrderDetailRequests()) {
+            try {
+                if (onlineRequest.getProductDetailId() == null) {
+                    throw new RuntimeException("ProductDetail ID cannot be null");
+                }
+
+                // Tìm ProductDetail theo ID
+                ProductDetail productDetail = productDetailRepo.findById(onlineRequest.getProductDetailId())
+                        .orElseThrow(() -> new RuntimeException("Product detail with ID " + onlineRequest.getProductDetailId() + " not found"));
+
+                OrderDetail orderDetail = new OrderDetail();
+                orderDetail.setOrders(savedOrder);
+                orderDetail.setProductDetail(productDetail);
+                orderDetail.setQuantity(onlineRequest.getQuantity());
+                orderDetail.setPrice(onlineRequest.getPrice());
+
+                // Lưu chi tiết đơn hàng vào DB
+                orderDetailRepo.save(orderDetail);
+            } catch (Exception e) {
+                // Log lỗi chi tiết sản phẩm không hợp lệ hoặc lỗi khi lưu chi tiết
+                System.err.println("Error processing order detail: " + e.getMessage());
+                throw new RuntimeException("Error processing order detail: " + e.getMessage());
+            }
+        }
+        return OrderResponse.convertOrderResponse(savedOrder);
     }
 
     @Override

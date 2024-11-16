@@ -17,6 +17,12 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
     @Column(name = "city")
     private int city;
 
@@ -24,10 +30,7 @@ public class Address {
     private int district;
 
     @Column(name = "ward")
-    private int ward;
-
-    @Column(name = "communes")
-    private String communes;
+    private String ward;
 
     @Column(name = "address_detail")
     private String addressDetail;
@@ -35,5 +38,11 @@ public class Address {
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     private Customer customer;
+
+    @Transient
+    private int serviceId;
+
+    @Transient
+    private int fromDistrict;
 
 }
