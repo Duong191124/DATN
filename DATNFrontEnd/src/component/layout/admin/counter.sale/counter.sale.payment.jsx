@@ -54,9 +54,10 @@ const CounterSalePayment = ({
   loading,
   totalAmount,
   setTotalAmount,
+  totalAmountAfterDiscount,
+  setTotalAmountAfterDiscount,
 }) => {
   const [change, setChange] = useState(0);
-  const [totalAmountAfterDiscount, setTotalAmountAfterDiscount] = useState(0);
   const [bankAccounts, setBankAccounts] = useState([]);
   const [isInvoiceModalVisible, setIsInvoiceModalVisible] = useState(false);
   const [isAccountModalVisible, setIsAccountModalVisible] = useState(false);
@@ -475,7 +476,9 @@ const CounterSalePayment = ({
         // Kiểm tra nếu tổng tiền đủ điều kiện áp dụng voucher
         if (totalAmount < voucher.minPurchaseAmount) {
           message.error(
-            `Voucher chỉ áp dụng cho đơn hàng từ ${voucher.minPurchaseAmount} VND trở lên.`
+            `Voucher chỉ áp dụng cho đơn hàng từ ${new Intl.NumberFormat(
+              "vi-VN"
+            ).format(voucher.minPurchaseAmount)} VND trở lên.`
           );
           setSelectedVoucher(null);
           setTotalAmountAfterDiscount(totalAmount); // Đặt lại tổng tiền sau giảm giá
@@ -511,45 +514,54 @@ const CounterSalePayment = ({
 
         // Cập nhật voucher đã chọn
         setSelectedVoucher(voucher);
+        let discount = 0;
 
-        // Tính toán mức giảm giá
-        let discountAmount = 0;
-        if (voucher.discountPercent > 0) {
-          // Áp dụng giảm giá theo phần trăm
-          discountAmount = (totalAmount * voucher.discountPercent) / 100;
-        } else if (voucher.discountAmount > 0) {
-          // Áp dụng giảm giá cố định
-          discountAmount = voucher.discountAmount;
+        // Tính giảm giá theo phần trăm
+        if (voucher.discountPercent && !voucher.discountAmount) {
+          discount = (totalAmount * voucher.discountPercent) / 100;
+
+          // Kiểm tra giới hạn giảm giá tối đa
+          if (discount > voucher.maxDiscountAmount) {
+            discount = voucher.maxDiscountAmount; // Áp dụng tối đa
+          }
         }
-
-        // Kiểm tra giới hạn số tiền giảm giá tối đa
-        if (discountAmount > voucher.maxDiscountAmount) {
-          discountAmount = voucher.maxDiscountAmount;
+        // Tính giảm giá cố định
+        if (voucher.discountAmount && !voucher.discountPercent) {
+          discount = voucher.discountAmount;
         }
-
         // Đảm bảo số tiền giảm giá không vượt quá tổng tiền cần thanh toán
-        if (discountAmount > totalAmount) {
-          discountAmount = totalAmount;
+        if (discount > totalAmount) {
+          discount = totalAmount;
         }
-
         // Cập nhật lại tổng tiền sau giảm giá
-        const totalAfterDiscount = totalAmount - discountAmount;
+        const totalAfterDiscount = totalAmount - discount;
         setTotalAmountAfterDiscount(totalAfterDiscount);
-
         // Cập nhật paymentInfo với voucher và số tiền giảm giá
         setPaymentInfo({
           ...paymentInfo,
-          voucherId: voucher.id, // Lưu voucher đã chọn
-          amountPaid: totalAfterDiscount, // Số tiền thanh toán sau khi giảm giá
+          voucherId: voucher.id,
+          amountPaid: totalAfterDiscount,
         });
 
         message.success(
-          `Voucher đã được áp dụng. Số tiền giảm: ${discountAmount.toLocaleString()} VND.`
+          `Voucher đã được áp dụng. Số tiền giảm: ${new Intl.NumberFormat(
+            "vi-VN"
+          ).format(discount)} VND.`
         );
         closeModal();
       }
     }
   };
+  useEffect(() => {
+    setSelectedVoucher(null);
+    setTotalAmountAfterDiscount(totalAmount); // Đặt lại tổng tiền sau giảm giá
+    setPaymentInfo({
+      ...paymentInfo,
+      voucherId: null, // Không có voucher
+      amountPaid: 0, // Đặt lại số tiền đã trả
+    });
+  }, [selectedBill]);
+
   const moneyOptions = vouchers
     ? [
         totalAmountAfterDiscount,
@@ -573,13 +585,16 @@ const CounterSalePayment = ({
     //   message.error(`Vui lòng chọn phương thức thanh toán`);
     //   return;
     // }
-    if (customerPaid < totalAmountAfterDiscount) {
+    if (
+      customerPaid < totalAmountAfterDiscount &&
+      paymentInfo.paymentMethod === "Cash"
+    ) {
       message.error(
         `Thanh toán không đủ. Vui lòng nhập đủ tiền. Tổng tiền cần thanh toán là ${totalAmountAfterDiscount.toLocaleString()} VNĐ.`
       );
       return;
     }
-    setTotalAmount(totalAmountAfterDiscount); // Cập nhật totalAmount trước khi tiến hành thanh toán
+    setTotalAmount(totalAmountAfterDiscount);
     // Tiến hành thanh toán nếu đủ tiền
     const paymentSuccess = await onPayment();
     if (paymentSuccess) {
@@ -701,14 +716,31 @@ const CounterSalePayment = ({
                     Giảm:{" "}
                     {selectedVoucher.discountPercent > 0
                       ? `${selectedVoucher.discountPercent}%`
-                      : `${selectedVoucher.discountAmount.toLocaleString()} đ`}
+                      : `${new Intl.NumberFormat("vi-VN").format(
+                          selectedVoucher.discountAmount
+                        )} đ`}
                   </div>
-                  {selectedVoucher.maxDiscountAmount && (
-                    <div className="max-discount-label">
-                      Tối đa:{" "}
-                      {selectedVoucher.maxDiscountAmount.toLocaleString()} đ cho
-                      đơn từ{" "}
-                      {selectedVoucher.minPurchaseAmount.toLocaleString()} đ
+                  {selectedVoucher.discountPercent &&
+                    selectedVoucher.maxDiscountAmount > 0 && (
+                      <div className="max-discount-label">
+                        Tối đa:{" "}
+                        {new Intl.NumberFormat("vi-VN").format(
+                          selectedVoucher.maxDiscountAmount
+                        )}{" "}
+                        đ cho đơn từ{" "}
+                        {new Intl.NumberFormat("vi-VN").format(
+                          selectedVoucher.minPurchaseAmount
+                        )}{" "}
+                        đ
+                      </div>
+                    )}
+                  {selectedVoucher.discountAmount && (
+                    <div>
+                      Đơn hàng tối thiểu{" "}
+                      {new Intl.NumberFormat("vi-VN").format(
+                        selectedVoucher.minPurchaseAmount
+                      )}{" "}
+                      đ
                     </div>
                   )}
                   {selectedVoucher.expirationDate && (
@@ -731,7 +763,10 @@ const CounterSalePayment = ({
                   {selectedVoucher.minPurchaseAmount && (
                     <div className="min-purchase-label">
                       Đơn hàng cần tối thiểu{" "}
-                      {selectedVoucher.minPurchaseAmount.toLocaleString()} VND
+                      {new Intl.NumberFormat("vi-VN").format(
+                        selectedVoucher.minPurchaseAmount
+                      )}{" "}
+                      đ
                     </div>
                   )}
                 </div>

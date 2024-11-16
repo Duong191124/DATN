@@ -14,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -250,7 +249,7 @@ public class OrderServiceImpl implements OrderService {
 
         // Xử lý chi tiết sản phẩm (orderDetailRequests)
         List<OrderDetail> orderDetailsToSave = new ArrayList<>();
-        BigDecimal totalAmount = BigDecimal.ZERO;  // Sử dụng BigDecimal cho tổng số tiền
+        Double totalAmount = orderUpdateRequest.getTotal();  // Sử dụng BigDecimal cho tổng số tiền
 
         // Xử lý từng chi tiết sản phẩm trong yêu cầu
         for (OrderDetailRequest detailRequest : orderUpdateRequest.getOrderDetailRequests()) {
@@ -283,10 +282,6 @@ public class OrderServiceImpl implements OrderService {
             orderDetail.setPrice(priceToUse.doubleValue());  // Chuyển đổi BigDecimal thành Double khi lưu vào OrderDetail
             orderDetail.setQuantity(detailRequest.getQuantity());
 
-            // Tính toán tổng số tiền cho sản phẩm
-            totalAmount = totalAmount.add(priceToUse.multiply(BigDecimal.valueOf(detailRequest.getQuantity())));
-
-
             order.getOrderDetails().add(orderDetail);
             orderDetailsToSave.add(orderDetail);
         }
@@ -310,34 +305,6 @@ public class OrderServiceImpl implements OrderService {
                 throw new RuntimeException("Voucher is no longer available");
             }
 
-            // Kiểm tra số tiền tối thiểu để áp dụng voucher
-            BigDecimal minPurchaseAmount = new BigDecimal(voucher.getMinPurchaseAmount());
-            if (totalAmount.compareTo(minPurchaseAmount) < 0) {
-                throw new RuntimeException("Total amount is less than the minimum purchase amount to apply the voucher");
-            }
-
-            // Tính toán giảm giá của voucher
-            BigDecimal discount = BigDecimal.ZERO;
-
-            // Kiểm tra xem voucher có số tiền giảm giá cụ thể hay không
-            if (voucher.getDiscountAmount() != null && voucher.getDiscountAmount().compareTo(String.valueOf(BigDecimal.ZERO)) > 0) {
-                // Áp dụng giảm giá theo số tiền nếu có
-                discount = new BigDecimal(voucher.getDiscountAmount());
-            } else if (voucher.getDiscountPercent() != null && voucher.getDiscountPercent().compareTo(String.valueOf(BigDecimal.ZERO)) > 0) {
-                // Nếu không có số tiền giảm, áp dụng giảm giá theo phần trăm
-                BigDecimal percent = new BigDecimal(voucher.getDiscountPercent());
-                discount = totalAmount.multiply(percent).divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
-            }
-
-            // Áp dụng giới hạn giảm giá tối đa (nếu có)
-            if (voucher.getMaxDiscountAmount() != null) {
-                BigDecimal maxDiscount = new BigDecimal(voucher.getMaxDiscountAmount());
-                discount = discount.min(maxDiscount); // Giảm không thể vượt quá maxDiscount
-            }
-
-            // Cập nhật tổng số tiền sau khi áp dụng voucher
-            totalAmount = totalAmount.subtract(discount);
-
             // Giảm số lượng voucher và lưu lại
             voucher.setQuantity(voucher.getQuantity() - 1);
             voucherRepo.save(voucher);
@@ -348,8 +315,7 @@ public class OrderServiceImpl implements OrderService {
             customerRepo.save(customer);
         }
 
-        // Cập nhật tổng số tiền của đơn hàng (chuyển đổi BigDecimal sang Double khi cần)
-        order.setTotalAmount(totalAmount.doubleValue()); // Chuyển từ BigDecimal sang Double
+        order.setTotalAmount(totalAmount);
         orderRepo.save(order);
 
         // Trả về phản hồi đơn hàng đã cập nhật
