@@ -23,17 +23,15 @@ import PermissionPage from "./pages/permission.jsx";
 import CustomerPage from "./pages/customer.jsx";
 import CheckoutPage from "./pages/checkout.jsx";
 import Header from "./component/layout/user/header/header.jsx";
-import ProductDetailPage from "./component/layout/content/home/index/product.detail.page.jsx";
+// import ProductDetailPage from "./component/layout/content/home/index/product.detail.page.jsx";
+import ProductDetailPage from "./component/layout/content/san-pham/product.detail.page.jsx"
 import RequestForgotPassword from "./pages/request.forgot.password.jsx";
 import ResetPassword from "./pages/reset.password.jsx";
-
 import WeightPage from "./pages/weight.jsx";
-
 import "./i18n.jsx";
 import InfoPage from "./pages/info.jsx";
 import { CartProvider } from "./component/context/cart.context.jsx";
 import SanPham from "./component/layout/content/san-pham/san-pham.jsx";
-import ProductDetailPage from "./component/layout/content/san-pham/product.detail.page.jsx";
 import ContactPage from "./pages/contact.jsx";
 import LandingPage from "./pages/landing.jsx";
 
