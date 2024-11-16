@@ -328,6 +328,29 @@ const createOrder = async (
     throw new Error("Tạo đơn hàng thất bại: " + error.message);
   }
 };
+const createOrderForOnline = async (
+  code,
+  orderDate,
+  deliveryFee,
+  totalAmount,
+  voucherId,
+  customerId,
+  moneyReceived,
+  orderDetailRequests
+) => {
+  const URL_BACKEND = "/api/v1/orders/add-online";
+  const data = {
+    code: code,
+    orderDate: orderDate,
+    deliveryFee: deliveryFee,
+    totalAmount: totalAmount,
+    voucherId: voucherId,
+    moneyReceived: moneyReceived,
+    customerId: customerId,
+    orderDetailRequests: orderDetailRequests,
+  };
+  return axios.post(URL_BACKEND, data);
+};
 const createPayment = async (paymentDate, paymentMethod, orderId) => {
   const URL_BACKEND = "/api/v1/payments/add";
   const data = {
@@ -1058,7 +1081,14 @@ const getWards = (districtId) => {
   return axios.get(URL_BACKEND)
 }
 
+const getAddressByCustomerId = (customerId) => {
+  const URL_BACKEND = `/api/v1/address/${customerId}`;
+  return axios.get(URL_BACKEND);
+}
+
 export {
+  createOrderForOnline,
+  getAddressByCustomerId,
   getProvinces,
   getDistrict,
   getWards,

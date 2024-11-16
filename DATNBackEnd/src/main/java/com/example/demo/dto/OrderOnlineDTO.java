@@ -1,38 +1,28 @@
-package com.example.demo.response;
+package com.example.demo.dto;
 
-import com.example.demo.entity.OrderStatus;
 import com.example.demo.entity.Orders;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import lombok.*;
+import com.example.demo.request.OrderDetailOnlineRequest;
+import com.example.demo.request.OrderDetailRequest;
+import com.example.demo.response.*;
+import lombok.Builder;
+import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-@Data
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class OrderResponse {
-    private Integer id;
-    private String code;
-    @Enumerated(EnumType.STRING)
-    private OrderStatus status;
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
-    private LocalDate orderDate;
-    private Double deliveryFee;
-    private Double totalAmount;
-    private Double moneyReceived;
-    private Integer voucherId;
-    private StaffResponse staffResponse;
-    private CustomerResponse customerResponse;
-    private List<ProductDetailResponse> productDetailResponses = new ArrayList<>();
-    private List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
-    private List<PaymentResponse> paymentResponses = new ArrayList<>();
 
+@Data
+@Builder
+public class OrderOnlineDTO {
+    private String code;
+    private double deliveryFee;
+    private double totalAmount;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate orderDate;
+    private Integer voucherId;
+    private Integer customerId;
+    private double moneyReceived;
+    private List<OrderDetailOnlineRequest> orderDetailRequests;
     public static OrderResponse convertOrderResponse(Orders orders){
         return OrderResponse.builder()
                 .id(orders.getId())

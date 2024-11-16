@@ -17,6 +17,8 @@ public class AddressResponse {
 
     private int district;
 
+    private int fromDistrict;
+
     private String ward;
 
     private int serviceId;
@@ -30,6 +32,7 @@ public class AddressResponse {
                 .id(address.getId())
                 .city(address.getCity())
                 .district(address.getDistrict())
+                .fromDistrict(address.getFromDistrict())
                 .ward(address.getWard())
                 .serviceId(address.getServiceId())
                 .addressDetail(address.getAddressDetail())

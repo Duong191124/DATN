@@ -4,9 +4,10 @@ import lombok.Data;
 
 @Data
 public class AddressUpdateDTO {
+    private String name;
+    private String phoneNumber;
     private int city;
     private int district;
     private String ward;
-    private int serviceId;
     private String addressDetail;
 }

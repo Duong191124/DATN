@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { getDistrict, getProvinces, getWards } from '../../service/api.service';
 
 const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editingAddress }) => {
-    const { t } = useTranslation();
-
+    const { t, i18n } = useTranslation();
+    const language = localStorage.getItem("language") || "vi";
     const [provinces, setProvinces] = useState([]);
     const [districts, setDistricts] = useState([]);
     const [wards, setWards] = useState([]);
@@ -18,7 +18,7 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
     const [isDistrictDropdownOpen, setIsDistrictDropdownOpen] = useState(false);
     const [isWardDropdownOpen, setIsWardDropdownOpen] = useState(false);
 
-    const defaultOption = { ProvinceID: '', DistrictID: '', WardCode: '', ProvinceName: t('Select province'), DistrictName: t('Select district'), WardName: t('Select ward') };
+    const defaultOption = { ProvinceID: '', DistrictID: '', WardCode: '', ProvinceName: t('MES-024'), DistrictName: t('MES-027'), WardName: t('MES-030') };
 
     // API gọi danh sách tỉnh
     useEffect(() => {
@@ -29,6 +29,10 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
 
         fetchProvinces();
     }, []);
+
+    useEffect(() => {
+        i18n.changeLanguage(language);
+    }, [i18n, language]);
 
     useEffect(() => {
         if (selectedProvince && selectedProvince !== defaultOption.ProvinceID) {
@@ -68,7 +72,7 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
 
     return (
         <Modal
-            title={editingAddress ? t('Edit Address') : t('Add New Address')}
+            title={editingAddress ? t('MES-033') : t('MES-034')}
             open={isModalVisible}
             onCancel={handleCancel}
             footer={null}
@@ -80,23 +84,23 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
             >
                 <Form.Item
                     name="name"
-                    label={t('Recipient Name')}
-                    rules={[{ required: true, message: t('Please input recipient name!') }]}
+                    label={t('MES-035')}
+                    rules={[{ required: true, message: t('MES-036') }]}
                 >
-                    <Input prefix={<UserOutlined />} placeholder={t('Enter recipient name')} />
+                    <Input prefix={<UserOutlined />} placeholder={t('MES-037')} />
                 </Form.Item>
                 <Form.Item
                     name="phone"
-                    label={t('Phone Number')}
-                    rules={[{ required: true, message: t('Please input phone number!') }]}
+                    label={t('MES-038')}
+                    rules={[{ required: true, message: t('MES-039') }]}
                 >
-                    <Input prefix={<PhoneOutlined />} placeholder={t('Enter phone number')} />
+                    <Input prefix={<PhoneOutlined />} placeholder={t('MES-040')} />
                 </Form.Item>
 
                 <Form.Item
                     name="province"
-                    label={t('Province')}
-                    rules={[{ required: true, message: t('Please select province!') }]}
+                    label={t('MES-025')}
+                    rules={[{ required: true, message: t('MES-026') }]}
                 >
                     <Select
                         value={selectedProvince}
@@ -104,7 +108,7 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
                             setSelectedProvince(value);
                             setIsDistrictDropdownOpen(true);
                         }}
-                        placeholder={t('Select province')}
+                        placeholder={t('MES-024')}
                     >
                         {provinces.map(province => (
                             <Select.Option key={province.ProvinceID} value={province.ProvinceID}>
@@ -117,8 +121,8 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
                 {selectedProvince && (
                     <Form.Item
                         name="district"
-                        label={t('District')}
-                        rules={[{ required: true, message: t('Please select district!') }]}
+                        label={t('MES-028')}
+                        rules={[{ required: true, message: t('MES-029') }]}
                     >
                         <Select
                             open={isDistrictDropdownOpen}
@@ -129,7 +133,7 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
                                 setIsDistrictDropdownOpen(false);
                                 setIsWardDropdownOpen(true);
                             }}
-                            placeholder={t('Select district')}
+                            placeholder={t('MES-027')}
                             disabled={!selectedProvince || selectedProvince === defaultOption.ProvinceID}
                         >
                             {districts.map(district => (
@@ -144,8 +148,8 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
                 {selectedDistrict && (
                     <Form.Item
                         name="ward"
-                        label={t('Ward')}
-                        rules={[{ required: true, message: t('Please select ward!') }]}
+                        label={t('MES-031')}
+                        rules={[{ required: true, message: t('MES-032') }]}
                     >
                         <Select
                             open={isWardDropdownOpen}
@@ -155,7 +159,7 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
                                 setSelectedWard(value);
                                 setIsWardDropdownOpen(false);
                             }}
-                            placeholder={t('Select ward')}
+                            placeholder={t('MES-030')}
                             disabled={!selectedDistrict || selectedDistrict === defaultOption.DistrictID}
                         >
                             {wards.map(ward => (
@@ -169,12 +173,12 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
 
                 <Form.Item
                     name="address"
-                    label={t('Address')}
-                    rules={[{ required: true, message: t('Please input address!') }]}
+                    label={t('MES-041')}
+                    rules={[{ required: true, message: t('MES-042') }]}
                 >
                     <Input.TextArea
                         prefix={<EnvironmentOutlined />}
-                        placeholder={t('Enter detailed address')}
+                        placeholder={t('MES-043')}
                         rows={3}
                         value={autoAddress}
                         onChange={(e) => form.setFieldValue('address', e.target.value)}
@@ -192,7 +196,7 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
                                     height: 40
                                 }}
                                 onClick={handleCancel}>
-                                {t('Cancel')}
+                                {t('MES-044')}
                             </Button>
                         </Col>
                         <Col>
@@ -206,7 +210,7 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
                                 type="primary" htmlType="submit"
                                 disabled={!selectedProvince || !selectedDistrict || !selectedWard}
                             >
-                                {t('Save')}
+                                {t('MES-045')}
                             </Button>
                         </Col>
                     </Row>

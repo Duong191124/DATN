@@ -9,13 +9,16 @@ import lombok.*;
 @Data
 @Builder
 public class AddressDTO {
+
+    private String name;
+
+    private String phoneNumber;
+
     private int city;
 
     private int district;
 
     private String ward;
-
-    private int serviceId;
 
     private String addressDetail;
 

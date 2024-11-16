@@ -24,7 +24,7 @@ public class AddressController {
 
     @GetMapping("{customerId}")
     public ResponseEntity<MessageReponse> getAll(@PathVariable Integer customerId) {
-        List<AddressResponse> addressList = addressService.getAddressList(customerId).stream().map(AddressResponse::fromAddressResponse).toList();
+        List<Address> addressList = addressService.getAddressList(customerId);
         return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                 .message("Lay thong tin thanh cong")
                 .status(HttpStatus.OK.value())
