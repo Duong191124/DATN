@@ -95,7 +95,6 @@ const CounterSaleCart = ({
   };
 
   const handleQRCodeScanned = (data) => {
-    console.log(data, "Mã QR quét được"); // Kiểm tra xem data có null hay không
     if (data && data.text) {
       setProductCode(data.text); // Cập nhật mã sản phẩm nếu dữ liệu hợp lệ
       fetchProductDetail(data.text); // Gọi API lấy chi tiết sản phẩm
@@ -109,7 +108,6 @@ const CounterSaleCart = ({
     try {
       // Gọi API lấy chi tiết sản phẩm dựa trên mã quét
       const response = await findByProductDetailCode(code);
-      console.log(response, "aafffvv");
       if (response.data) {
         // Nếu sản phẩm tồn tại, lưu thông tin sản phẩm và số lượng mặc định là 1
         setProductDetail(response.data);
@@ -209,8 +207,8 @@ const CounterSaleCart = ({
         return discountPrice
           ? `${discountPrice.toLocaleString()} VNĐ`
           : defaultPrice
-          ? `${defaultPrice.toLocaleString()} VNĐ`
-          : "Chưa có giá";
+            ? `${defaultPrice.toLocaleString()} VNĐ`
+            : "Chưa có giá";
       },
     },
     {

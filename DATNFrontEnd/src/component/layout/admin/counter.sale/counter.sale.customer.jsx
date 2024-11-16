@@ -84,7 +84,6 @@ const CounterSaleCustomer = ({
       setIsCreated(true);
       form.resetFields();
     } catch (error) {
-      console.log("errrrr", error);
       notification.error({
         message: "Lỗi khi thêm khách hàng",
         description: "Đã xảy ra lỗi khi thêm khách hàng. Vui lòng thử lại.",

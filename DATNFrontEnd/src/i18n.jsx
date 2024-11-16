@@ -13,7 +13,7 @@ i18n
         fallbackLng: 'en',
         debug: true,
         backend: {
-            loadPath: '/locales/{{lng}}/translation.json'
+            loadPath: '/assets/i18n/{{lng}}.json'
         },
         interpolation: {
             escapeValue: false

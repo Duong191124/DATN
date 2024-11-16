@@ -388,7 +388,8 @@ const createProductDetailAPi = (
   defaultPrice,
   productId,
   sizeId,
-  colorId
+  colorId,
+  weightId
 ) => {
   const URL_BACKEND = "/api/v1/productDetail";
   const data = {
@@ -398,6 +399,7 @@ const createProductDetailAPi = (
     productId: productId,
     sizeId: sizeId,
     colorId: colorId,
+    weightId: weightId
   };
   return axios.post(URL_BACKEND, data);
 };
@@ -888,6 +890,10 @@ const getAllCustomer = (page, size) => {
   const URL_BACKEND = `/api/v1/customer/getAll?page=${page}&size=${size}`;
   return axios.get(URL_BACKEND);
 };
+const getCustomerById = (id) => {
+  const URL_BACKEND = `/api/v1/customer/${id}`;
+  return axios.get(URL_BACKEND);
+};
 const chandleStatus = (id) => {
   const URL_BACKEND = `/api/v1/voucher/${id}/status`;
   return axios.put(URL_BACKEND);
@@ -906,16 +912,37 @@ const updateCustomer = (
   gender
 ) => {
   const data = {
-    username: username,
-    password: password,
-    email: email,
-    address: address,
-    phoneNumber: phoneNumber,
-    status: status,
-    dateOfBirth: dateOfBirth,
-    name: name,
-    notes: notes,
-    gender: gender,
+    username,
+    password,
+    email,
+    address,
+    phoneNumber,
+    status,
+    dateOfBirth,
+    name,
+    notes,
+    gender,
+  };
+  const URL_BACKEND = `/api/v1/customer/${id}`;
+  return axios.put(URL_BACKEND, data);
+};
+
+const updateCustomerInfo = (
+  id,
+  email,
+  address,
+  phoneNumber,
+  dateOfBirth,
+  gender,
+  username
+) => {
+  const data = {
+    email,
+    address,
+    phoneNumber,
+    dateOfBirth,
+    gender,
+    username
   };
   const URL_BACKEND = `/api/v1/customer/${id}`;
   return axios.put(URL_BACKEND, data);
@@ -1014,7 +1041,29 @@ const updateWeightAPI = (id, code, name, status) => {
   return axios.put(URL_BACKEND, data)
 }
 
+//api for address
+
+const getProvinces = () => {
+  const URL_BACKEND = "/api/v1/ghn/provinces";
+  return axios.get(URL_BACKEND)
+}
+
+const getDistrict = (provinceId) => {
+  const URL_BACKEND = `/api/v1/ghn/districts?provinceId=${provinceId}`;
+  return axios.get(URL_BACKEND)
+}
+
+const getWards = (districtId) => {
+  const URL_BACKEND = `/api/v1/ghn/wards?districtId=${districtId}`;
+  return axios.get(URL_BACKEND)
+}
+
 export {
+  getProvinces,
+  getDistrict,
+  getWards,
+  updateCustomerInfo,
+  getCustomerById,
   updateWeightAPI,
   fetchDataWeight,
   createWeightAPI,
