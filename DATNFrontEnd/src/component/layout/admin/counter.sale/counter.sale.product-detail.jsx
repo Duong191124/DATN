@@ -300,7 +300,6 @@ const CounterSalesProductDetail = ({
                     >
                       <Radio value={1}>Hoạt động</Radio>
                       <Radio value={0}>Không hoạt động</Radio>
-                      <Radio value={2}>Tất cả</Radio>
                     </Radio.Group>
                   </Col>
                 </Row>

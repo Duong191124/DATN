@@ -10,11 +10,11 @@ import { Button, Menu } from "antd";
 import { Link } from "react-router-dom";
 
 const items = [
-  {
-    key: "1",
-    icon: <TeamOutlined />,
-    label: <Link to="/admin/counter-sales">Counter-Sales Management</Link>,
-  },
+  // {
+  //   key: "1",
+  //   icon: <TeamOutlined />,
+  //   label: <Link to="/admin/counter-sales">Counter-Sales Management</Link>,
+  // },
   {
     key: "2",
     icon: <TeamOutlined />,
@@ -143,9 +143,9 @@ const NavbarAdmin = () => {
       <Button
         onClick={toggleCollapsed}
         style={{
-          margin: '16px',
-          backgroundColor: '#1890ff',
-          color: 'white',
+          margin: "16px",
+          backgroundColor: "#1890ff",
+          color: "white",
           zIndex: 1000,
         }}
       >

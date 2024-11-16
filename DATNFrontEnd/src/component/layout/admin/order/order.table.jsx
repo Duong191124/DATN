@@ -7,6 +7,7 @@ import {
   notification,
   Select,
   Space,
+  Steps,
   Table,
   Tabs,
 } from "antd";
@@ -121,50 +122,63 @@ const OrderTable = (props) => {
   };
   const handleUpdateStatus = async () => {
     try {
-      await updateStatusOrder(currentOrderId, selectedStatus);
-      notification.success({
-        message: "Update status",
-        description: "Update status successfully!",
-      });
-      setIsModalVisible(false);
-      setDataOrder((prevDataOrder) =>
-        prevDataOrder.map((order) =>
-          order.id === currentOrderId
-            ? { ...order, status: selectedStatus }
-            : order
-        )
+      const currentStatusIndex = statusOptions.findIndex(
+        (option) => option.value === selectedStatus
       );
+      const nextStatus = statusOptions[currentStatusIndex + 1]?.value; // Trạng thái tiếp theo
+
+      if (nextStatus) {
+        await updateStatusOrder(currentOrderId, nextStatus);
+        notification.success({
+          message: "Cập nhật trạng thái",
+          description: "Cập nhật trạng thái thành công!",
+        });
+        setIsModalVisible(false);
+        setSelectedStatus(nextStatus); // Cập nhật trạng thái đã chọn
+        setDataOrder((prevDataOrder) =>
+          prevDataOrder.map((order) =>
+            order.id === currentOrderId
+              ? { ...order, status: nextStatus }
+              : order
+          )
+        );
+      } else {
+        notification.error({
+          message: "Lỗi",
+          description: "Không thể chuyển đến trạng thái tiếp theo.",
+          placement: "top",
+        });
+      }
     } catch (error) {
       notification.error({
-        message: "Error updating status",
+        message: "Lỗi khi cập nhật trạng thái",
         description: JSON.stringify(error.message),
         placement: "top",
       });
     }
   };
+
   const canceledOrder = async (orderId, status) => {
     try {
       await updateStatusOrder(orderId, status);
-      notification.success({
-        message: "Update",
-        description: "Update status successfully",
-        placement: "top",
-      });
       setDataOrder((prevDataOrder) =>
         prevDataOrder.map((order) =>
-          order.id === currentOrderId
-            ? { ...order, status: selectedStatus }
-            : order
+          order.id === orderId ? { ...order, status: "cancelled" } : order
         )
       );
+      notification.warning({
+        message: "Cập nhật trạng thái",
+        description: "Đơn hàng đã bị hủy.",
+      });
     } catch (error) {
       notification.error({
-        message: "Error updating status",
+        message: "Lỗi khi hủy đơn hàng",
         description: JSON.stringify(error.message),
         placement: "top",
       });
     }
   };
+
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
       setSelectedKeys,
@@ -295,7 +309,7 @@ const OrderTable = (props) => {
       key: "totalAmount",
       ...getColumnSearchProps("totalAmount"),
       sorter: (a, b) => a.totalAmount - b.totalAmount,
-      render: (totalAmount) => `${totalAmount.toLocaleString()} VND`,
+      render: (totalAmount) => `${totalAmount.toLocaleString()} VNĐ`,
     },
     {
       title: "Hành Động",
@@ -304,6 +318,9 @@ const OrderTable = (props) => {
           icon={<EditOutlined />}
           style={{ color: "blue" }}
           onClick={() => showModal(record.id, record.status)}
+          disabled={
+            record.status === "shipped" || record.status === "cancelled"
+          }
         >
           Cập nhật trạng thái
         </Button>
@@ -340,9 +357,32 @@ const OrderTable = (props) => {
     },
     {
       title: "Giá",
-      dataIndex: "price",
-      key: "price",
-      render: (price) => `${price.toLocaleString()} VND`,
+      dataIndex: "defaultPrice",
+      render: (text, record) => {
+        const { discountPrice, defaultPrice } = record.productDetailId;
+        if (discountPrice && discountPrice < defaultPrice) {
+          return (
+            <span>
+              <span style={{ textDecoration: "line-through", color: "gray" }}>
+                {defaultPrice
+                  ? `${defaultPrice.toLocaleString()} VNĐ`
+                  : "Chưa có giá"}
+              </span>
+              <span style={{ marginLeft: "8px", color: "red" }}>
+                {discountPrice
+                  ? `${discountPrice.toLocaleString()} VNĐ`
+                  : "Chưa có giá"}
+              </span>
+            </span>
+          );
+        }
+        // Nếu không có giảm giá, chỉ hiển thị giá gốc
+        return discountPrice
+          ? `${discountPrice.toLocaleString()} VNĐ`
+          : defaultPrice
+          ? `${defaultPrice.toLocaleString()} VNĐ`
+          : "Chưa có giá";
+      },
     },
     {
       title: "Hình ảnh",
@@ -359,14 +399,12 @@ const OrderTable = (props) => {
         ),
     },
   ];
+
   const columnsHistoryPayment = [
     {
       title: "Mã phiếu",
       dataIndex: "id",
       key: "id",
-      render: (text, record) => (
-        <NavLink to={`/order-detail/${record.id}`}>{record.id}</NavLink>
-      ),
     },
     {
       title: "Thời gian",
@@ -387,7 +425,7 @@ const OrderTable = (props) => {
       title: "Giá trị đơn hàng",
       key: "totalAmount",
       render: (text, record) => {
-        return `${record.orderDataPaymentResponse?.totalAmount.toLocaleString()} VND`;
+        return `${record.orderDataPaymentResponse?.totalAmount.toLocaleString()} VNĐ`;
       },
     },
     {
@@ -586,7 +624,7 @@ const OrderTable = (props) => {
                   </div>
                   <div className="col-4">
                     <p>
-                      Trạng thái:
+                      Trạng thái:{" "}
                       {(() => {
                         const statusOptions = [
                           { value: "pending", label: "Chờ xử lý" },
@@ -623,10 +661,108 @@ const OrderTable = (props) => {
                 />
 
                 <div style={{ display: "flex", justifyContent: "end" }}>
-                  <div style={{ width: "250px" }}>
+                  <div style={{ width: "350px" }}>
                     <div className="result_order_detail">
                       <span>Tổng số lượng:</span>
                       <span>{totalQuantity} </span>
+                    </div>
+                    <div className="result_order_detail">
+                      <span>Giảm giá hóa đơn:</span>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          background:
+                            "linear-gradient(to right, #ff5722, #ff1744)",
+                          borderRadius: "15px",
+                          padding: "10px",
+                          color: "#fff",
+                          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                          overflow: "hidden",
+                          height: "50px",
+                          transition: "height 0.3s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.height = "75px";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.height = "50px";
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <span
+                            style={{ fontSize: "16px", fontWeight: "bold" }}
+                          >
+                            {orderDetails.voucherId ? (
+                              orderDetails.voucherId.discountPercent > 0 ? (
+                                <span style={{ color: "#fff" }}>
+                                  Giảm giá{" "}
+                                  {orderDetails.voucherId.discountPercent}%
+                                </span>
+                              ) : orderDetails.voucherId.discountAmount > 0 ? (
+                                <span style={{ color: "#fff" }}>
+                                  Giảm giá{" "}
+                                  {new Intl.NumberFormat("vi-VN").format(
+                                    orderDetails.voucherId.discountAmount
+                                  )}{" "}
+                                  VNĐ
+                                </span>
+                              ) : (
+                                "Không áp dụng voucher"
+                              )
+                            ) : (
+                              "Không có voucher"
+                            )}
+                          </span>
+                        </div>
+
+                        {orderDetails.voucherId &&
+                          orderDetails.voucherId.discountPercent && (
+                            <div
+                              style={{
+                                fontSize: "11px",
+                                color: "#fff",
+                                borderTop: "1px solid rgba(255, 255, 255, 0.3)", // Phân cách giữa các phần
+                                paddingTop: "5px",
+                                marginTop: "5px",
+                              }}
+                            >
+                              Tối đa{" "}
+                              {new Intl.NumberFormat("vi-VN").format(
+                                orderDetails.voucherId.maxDiscountAmount
+                              )}{" "}
+                              đ cho đơn từ{" "}
+                              {new Intl.NumberFormat("vi-VN").format(
+                                orderDetails.voucherId.minPurchaseAmount
+                              )}{" "}
+                              đ
+                            </div>
+                          )}
+                        {orderDetails.voucherId &&
+                          orderDetails.voucherId.discountAmount && (
+                            <div
+                              style={{
+                                fontSize: "11px",
+                                color: "#fff",
+                                borderTop: "1px solid rgba(255, 255, 255, 0.3)", // Phân cách giữa các phần
+                                paddingTop: "5px",
+                                marginTop: "5px",
+                              }}
+                            >
+                              Đơn hàng tối thiểu{" "}
+                              {new Intl.NumberFormat("vi-VN").format(
+                                orderDetails.voucherId.minPurchaseAmount
+                              )}{" "}
+                              đ
+                            </div>
+                          )}
+                      </div>
                     </div>
                     <div className="result_order_detail">
                       <span className="">Tổng tiền hàng:</span>
@@ -634,29 +770,9 @@ const OrderTable = (props) => {
                         {new Intl.NumberFormat("vi-VN", {
                           style: "currency",
                           currency: "VND",
-                        }).format(orderDetails.totalAmount)}
-                      </span>
-                    </div>
-                    <div className="result_order_detail">
-                      <span>Giảm giá hóa đơn:</span>
-                      <span>{orderDetails.voucherId} </span>
-                    </div>
-                    <div className="result_order_detail">
-                      <span>Khách cần trả:</span>
-                      <span>
-                        {new Intl.NumberFormat("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                        }).format(orderDetails.totalAmount)}{" "}
-                      </span>
-                    </div>
-                    <div className="result_order_detail">
-                      <span>Khách đã trả:</span>
-                      <span>
-                        {new Intl.NumberFormat("vi-VN", {
-                          style: "currency",
-                          currency: "VND",
-                        }).format(orderDetails.moneyReceived)}
+                        })
+                          .format(orderDetails.totalAmount)
+                          .replace("₫", "VNĐ")}
                       </span>
                     </div>
                   </div>
@@ -677,7 +793,24 @@ const OrderTable = (props) => {
                   </Button>
                   <Button
                     danger
-                    onClick={() => canceledOrder(orderDetails.id, "cancelled")}
+                    disabled={
+                      orderDetails.status !== "pending" &&
+                      orderDetails.status !== "processing"
+                    }
+                    onClick={() => {
+                      if (
+                        orderDetails.status === "pending" ||
+                        orderDetails.status === "processing"
+                      ) {
+                        canceledOrder(orderDetails.id, "cancelled");
+                      } else {
+                        notification.error({
+                          message: "Không thể hủy",
+                          description:
+                            "Đơn hàng không thể hủy vì đang ở quá trình giao hàng hoặc đã giao.",
+                        });
+                      }
+                    }}
                   >
                     Hủy hóa đơn
                   </Button>
@@ -731,20 +864,38 @@ const OrderTable = (props) => {
       <Modal
         title="Cập nhật trạng thái đơn hàng"
         visible={isModalVisible}
-        onOk={handleUpdateStatus}
         onCancel={() => setIsModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setIsModalVisible(false)}>
+            Hủy
+          </Button>,
+          <Button key="confirm" type="primary" onClick={handleUpdateStatus}>
+            Xác nhận chuyển trạng thái
+          </Button>,
+        ]}
+        width={1000}
       >
-        <Select
-          value={selectedStatus}
-          onChange={setSelectedStatus}
-          style={{ width: "100%" }}
+        <Steps
+          current={statusOptions.findIndex(
+            (option) => option.value === selectedStatus
+          )}
         >
-          {statusOptions.map((status) => (
-            <Select.Option key={status.value} value={status.value}>
-              {status.label}
-            </Select.Option>
+          {statusOptions.map((status, index) => (
+            <Steps.Step
+              key={status.value}
+              title={status.label}
+              disabled={
+                status.value === "shipped" ||
+                status.value === "cancelled" ||
+                index <=
+                  statusOptions.findIndex(
+                    (option) => option.value === selectedStatus
+                  )
+              }
+              onClick={() => handleUpdateStatus(status.value)}
+            />
           ))}
-        </Select>
+        </Steps>
       </Modal>
     </>
   );

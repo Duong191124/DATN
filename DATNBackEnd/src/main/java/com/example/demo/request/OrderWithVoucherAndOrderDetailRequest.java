@@ -13,4 +13,5 @@ import java.util.List;
 public class OrderWithVoucherAndOrderDetailRequest {
     private List<OrderDetailRequest> orderDetailRequests;
     private Integer voucherId;
+    private Double total;
 }

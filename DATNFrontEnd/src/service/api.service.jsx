@@ -116,7 +116,7 @@ const fetchAllProduct = (page, pageSize) => {
 const fetchDataProduct = () => {
   const URL_BACKEND = `/api/v1/products/getAllProduct`;
   return axios.get(URL_BACKEND);
-}
+};
 
 const fetchDataPageAndFilterProduct = async (
   category_id,
@@ -147,15 +147,10 @@ const fetchDataProductAPI = () => {
   return axios.get(URL_BACKEND);
 };
 
-
 const fetchDataProductById = (id) => {
-  const URL_BACKEND = `/api/v1/products/productId/${id}`
-  return axios.get(URL_BACKEND)
-}
-
-
-
-
+  const URL_BACKEND = `/api/v1/products/productId/${id}`;
+  return axios.get(URL_BACKEND);
+};
 
 const fetchDataSleeve = () => {
   const URL_BACKEND = "/api/v1/sleeves";
@@ -208,10 +203,11 @@ const fetchPageDataProductDetail = async (
     sizeName: sizeName || "",
     minPrice: minPrice || "",
     maxPrice: maxPrice || "",
-    status: status || "",
+    status: status,
     page: page,
     limit: limit,
   };
+  console.log("paff", params);
   return axios.get(URL_BACKEND, { params });
 };
 const fetchDataOrders = (
@@ -265,7 +261,12 @@ const updateStatusOrder = (orderId, status) => {
   };
   return axios.put(URL_BACKEND, data);
 };
-const updateProductDetailWithOrder = (orderId, productDetail, voucherId) => {
+const updateProductDetailWithOrder = (
+  orderId,
+  productDetail,
+  voucherId,
+  total
+) => {
   const URL_BACKEND = `api/v1/orders/update-productDetail/${orderId}`;
   const data = {
     orderDetailRequests: productDetail.map((item) => ({
@@ -274,6 +275,7 @@ const updateProductDetailWithOrder = (orderId, productDetail, voucherId) => {
       price: item.price,
     })),
     voucherId: voucherId,
+    total: total,
   };
   return axios.put(URL_BACKEND, data);
 };
@@ -436,7 +438,7 @@ const updateProductDetailAPi = (
   sizeId,
   colorId,
   status,
-  weight,
+  weight
 ) => {
   const URL_BACKEND = `/api/v1/productDetail/${id}`;
   const data = {
@@ -1033,25 +1035,21 @@ const updatePassword = (email, code, newPassword) => {
   });
 };
 
-
-
-
 //Weight
 const fetchDataWeight = () => {
   const URL_BACKEND = "/api/v1/weight";
   return axios.get(URL_BACKEND);
-}
+};
 
 const createWeightAPI = (code, name, status) => {
   const URL_BACKEND = "/api/v1/weight";
   const data = {
     code: code,
     name: name,
-    status: status
+    status: status,
   };
-  return axios.post(URL_BACKEND, data)
-
-}
+  return axios.post(URL_BACKEND, data);
+};
 const updateWeightAPI = (id, code, name, status) => {
   const URL_BACKEND = "/api/v1/weight";
   const data = {
@@ -1059,11 +1057,35 @@ const updateWeightAPI = (id, code, name, status) => {
     code: code,
     name: name,
     status: status,
-
   };
-  return axios.put(URL_BACKEND, data)
-}
+  return axios.put(URL_BACKEND, data);
+};
 
+//Weight
+const fetchDataWeight = () => {
+  const URL_BACKEND = "/api/v1/weight";
+  return axios.get(URL_BACKEND);
+};
+
+const createWeightAPI = (code, name, status) => {
+  const URL_BACKEND = "/api/v1/weight";
+  const data = {
+    code: code,
+    name: name,
+    status: status,
+  };
+  return axios.post(URL_BACKEND, data);
+};
+const updateWeightAPI = (id, code, name, status) => {
+  const URL_BACKEND = "/api/v1/weight";
+  const data = {
+    id: id,
+    code: code,
+    name: name,
+    status: status,
+  };
+  return axios.put(URL_BACKEND, data);
+};
 //api for address
 
 const getProvinces = () => {

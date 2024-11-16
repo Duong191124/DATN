@@ -23,20 +23,19 @@ import PermissionPage from "./pages/permission.jsx";
 import CustomerPage from "./pages/customer.jsx";
 import CheckoutPage from "./pages/checkout.jsx";
 import Header from "./component/layout/user/header/header.jsx";
+import ProductDetailPage from "./component/layout/content/home/index/product.detail.page.jsx";
 import RequestForgotPassword from "./pages/request.forgot.password.jsx";
 import ResetPassword from "./pages/reset.password.jsx";
 
 import WeightPage from "./pages/weight.jsx";
 
-import './i18n.jsx';
+import "./i18n.jsx";
 import InfoPage from "./pages/info.jsx";
 import { CartProvider } from "./component/context/cart.context.jsx";
 import SanPham from "./component/layout/content/san-pham/san-pham.jsx";
 import ProductDetailPage from "./component/layout/content/san-pham/product.detail.page.jsx";
 import ContactPage from "./pages/contact.jsx";
 import LandingPage from "./pages/landing.jsx";
-
-
 
 const router = createBrowserRouter([
   {
@@ -63,10 +62,6 @@ const router = createBrowserRouter([
       {
         path: "staff",
         element: <StaffManagement />,
-      },
-      {
-        path: "counter-sales",
-        element: <CounterSales />,
       },
       {
         path: "order",
@@ -119,12 +114,16 @@ const router = createBrowserRouter([
     ],
   },
   {
+    path: "/counter-sales",
+    element: <CounterSales />,
+  },
+  {
     path: "/",
     element: <App />,
     children: [
       {
         index: true,
-        element: <Home />
+        element: <Home />,
       },
       {
         path: "/product",
@@ -132,11 +131,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/product/:id",
-        element: <ProductDetailPage />
+        element: <ProductDetailPage />,
       },
       {
         path: "/info",
-        element: <InfoPage />
+        element: <InfoPage />,
       },
       {
         path: "/contact",
@@ -166,14 +165,12 @@ const router = createBrowserRouter([
   },
   {
     path: "/checkout",
-    element:
-      (
-        <>
-          <Header />
-          <CheckoutPage />
-        </>
-      )
-    ,
+    element: (
+      <>
+        <Header />
+        <CheckoutPage />
+      </>
+    ),
   },
 ]);
 createRoot(document.getElementById("root")).render(

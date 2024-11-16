@@ -35,6 +35,7 @@ const CounterSales = () => {
   });
   const [loading, setLoading] = useState(false);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [totalAmountAfterDiscount, setTotalAmountAfterDiscount] = useState(0);
   const [customerPaid, setCustomerPaid] = useState(0);
   const [customerList, setCustomerList] = useState([]);
   const [totalCustomer, setTotalCustomer] = useState(0);
@@ -50,7 +51,7 @@ const CounterSales = () => {
     productCode: "",
     color: "",
     size: "",
-    status: 2,
+    status: "",
     minPrice: undefined,
     maxPrice: undefined,
   });
@@ -77,7 +78,7 @@ const CounterSales = () => {
           filter.size,
           filter.minPrice,
           filter.maxPrice,
-          filter.status === 2 ? null : filter.status,
+          filter.status,
           pageProductDetail - 1,
           pageSizeProductDetail
         );
@@ -138,7 +139,7 @@ const CounterSales = () => {
         (value) => value !== "" && value !== undefined
       );
       if (!hasFilters) {
-        navigate("/admin/counter-sales");
+        navigate("/counter-sales");
         return;
       }
       Object.keys(newFilters).forEach((key) => {
@@ -148,7 +149,7 @@ const CounterSales = () => {
       });
       params.append("page", pageProductDetail);
       params.append("limit", pageSizeProductDetail);
-      navigate(`/admin/counter-sales?${params.toString()}`);
+      navigate(`/counter-sales?${params.toString()}`);
     },
     [navigate, pageProductDetail, pageSizeProductDetail]
   );
@@ -425,14 +426,15 @@ const CounterSales = () => {
         price: item.price,
       })),
       voucherId: paymentInfo.voucherId,
+      total: totalAmountAfterDiscount,
     };
-
     try {
       // Update order with product details and voucher (if provided)
       const orderResponse = await updateProductDetailWithOrder(
         billCode.id,
         productDetailUpdateDTO.orderDetailRequests,
-        paymentInfo.voucherId
+        paymentInfo.voucherId,
+        productDetailUpdateDTO.total
       );
 
       if (orderResponse.data.status === 201) {
@@ -521,17 +523,6 @@ const CounterSales = () => {
         alignItems: "center",
       }}
     >
-      <h3
-        style={{
-          borderBottom: "1px solid #ddd",
-          width: "100%",
-          fontSize: "32px",
-          marginBottom: "10px",
-          textAlign: "center",
-        }}
-      >
-        Bán hàng
-      </h3>
       <div
         style={{
           width: "100%",
@@ -573,6 +564,7 @@ const CounterSales = () => {
         style={{
           display: "flex",
           width: "100%",
+          padding: "0 30px",
         }}
       >
         <div style={{ width: "70%" }}>
@@ -605,6 +597,8 @@ const CounterSales = () => {
           <CounterSalePayment
             totalAmount={totalAmount}
             setTotalAmount={setTotalAmount}
+            totalAmountAfterDiscount={totalAmountAfterDiscount}
+            setTotalAmountAfterDiscount={setTotalAmountAfterDiscount}
             onPayment={handlePayment}
             paymentInfo={paymentInfo}
             selectedBill={selectedBill}

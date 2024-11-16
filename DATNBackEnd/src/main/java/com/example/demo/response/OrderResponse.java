@@ -26,7 +26,7 @@ public class OrderResponse {
     private Double deliveryFee;
     private Double totalAmount;
     private Double moneyReceived;
-    private Integer voucherId;
+    private VoucherResponse voucherId;
     private StaffResponse staffResponse;
     private CustomerResponse customerResponse;
     private List<ProductDetailResponse> productDetailResponses = new ArrayList<>();
@@ -44,7 +44,7 @@ public class OrderResponse {
                 .totalAmount(orders.getTotalAmount())
                 .customerResponse(CustomerResponse.fromCustomerResponse(orders.getCustomer()))
                 .moneyReceived(orders.getMoneyReceived())
-                .voucherId(orders.getVoucher() == null ? null : orders.getVoucher().getId())
+                .voucherId(orders.getVoucher() == null ? null : VoucherResponse.fromVoucher(orders.getVoucher()))
                 .orderDetailResponses(orders.getOrderDetails().stream().map(OrderDetailResponse::convertOrderDetailsResponse).toList())
                 .paymentResponses(orders.getPayments().stream().map(PaymentResponse::convertPaymentResponse).toList())
                 .build();
