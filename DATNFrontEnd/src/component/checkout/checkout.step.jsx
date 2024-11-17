@@ -7,6 +7,7 @@ import Shipping from './checkout.shipping';
 import { createOrderForOnline } from '../../service/api.service';
 import { useCart } from '../context/cart.context';
 import { useNavigate } from 'react-router-dom';
+import { useCheckout } from '../context/checkout.context';
 
 const steps = [
     {
@@ -26,11 +27,9 @@ const steps = [
 const CheckoutStep = () => {
     const { token } = theme.useToken();
     const { cartItems, setCartItems } = useCart();
+    const { selectedCoupon, totalPrice, resetCheckoutContext } = useCheckout();
     const navigate = useNavigate();
     const [current, setCurrent] = useState(0);
-    const [selectedCoupon, setSelectedCoupon] = useState(null);
-    const [couponDiscount, setCouponDiscount] = useState(0);
-    const [totalPrice, setTotalPrice] = useState(null);
     const userId = localStorage.getItem('userId');
 
     const next = () => {
@@ -40,19 +39,6 @@ const CheckoutStep = () => {
     const prev = () => {
         setCurrent(current - 1);
     };
-
-    const getCartItems = (userId) => {
-        const cart = JSON.parse(localStorage.getItem(`cart_${userId}`));
-        return cart;
-    };
-
-    const calculateTotal = () => {
-        return cartItems.reduce((total, product) => {
-            return total + ((product.discountPrice || product.defaultPrice) * (product.quantity || 1));
-        }, 0);
-    };
-
-    const subTotal = calculateTotal();
 
     const convertCartToOrderDetails = (cartItemsLocal) => {
         return cartItemsLocal.map(item => ({
@@ -80,15 +66,16 @@ const CheckoutStep = () => {
             code: generateInvoiceCode(), // Mã đơn hàng
             orderDate: new Date().toISOString().split("T")[0], // Ngày đặt hàng
             deliveryFee: 0,  // Phí vận chuyển
-            totalAmount: subTotal,
-            moneyReceived: subTotal,
-            voucherId: selectedCoupon?.id || null,  // Mã giảm giá nếu có
+            totalAmount: totalPrice,
+            moneyReceived: totalPrice,
+            voucherId: selectedCoupon || null,  // Mã giảm giá nếu có
             customerId: userId, // Lấy customerId từ localStorage hoặc session
             orderDetailRequests, // Dữ liệu sản phẩm trong đơn hàng
         };
 
+
         try {
-            await createOrderForOnline(
+            const res = await createOrderForOnline(
                 orderDTO.code,
                 orderDTO.orderDate,
                 orderDTO.deliveryFee,
@@ -98,7 +85,9 @@ const CheckoutStep = () => {
                 orderDTO.moneyReceived,
                 orderDTO.orderDetailRequests
             );
+            console.log(res);
             message.success('Đơn hàng đã được tạo thành công!');
+            resetCheckoutContext();
         } catch (error) {
             message.error("Lỗi khi tạo đơn hàng: " + error.message);
         }
@@ -123,14 +112,7 @@ const CheckoutStep = () => {
             />
             <div>
                 {/* Pass the necessary props to Summary */}
-                {React.cloneElement(steps[current].content, {
-                    selectedCoupon,
-                    setSelectedCoupon,
-                    couponDiscount,
-                    setCouponDiscount,
-                    totalPrice,
-                    setTotalPrice,
-                })}
+                {steps[current].content}
             </div>
             <div style={{ marginTop: 24, display: 'flex', justifyContent: 'space-between' }}>
                 {current > 0 && (
