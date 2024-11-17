@@ -8,6 +8,7 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 @Data
@@ -31,6 +32,9 @@ public class OrderResponse {
     private CustomerResponse customerResponse;
     private List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
     private List<PaymentResponse> paymentResponses = new ArrayList<>();
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
 
     public static OrderResponse convertOrderResponse(Orders orders){
         return OrderResponse.builder()
@@ -46,6 +50,8 @@ public class OrderResponse {
                 .voucherId(orders.getVoucher() == null ? null : VoucherResponse.fromVoucher(orders.getVoucher()))
                 .orderDetailResponses(orders.getOrderDetails().stream().map(OrderDetailResponse::convertOrderDetailsResponse).toList())
                 .paymentResponses(orders.getPayments().stream().map(PaymentResponse::convertPaymentResponse).toList())
+                .createdAt(orders.getCreatedAt())
+                .updatedAt(orders.getUpdatedAt())
                 .build();
     }
 }
