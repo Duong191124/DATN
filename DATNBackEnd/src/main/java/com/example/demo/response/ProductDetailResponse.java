@@ -38,7 +38,7 @@ public class ProductDetailResponse {
                 .productResponse(ProductResponse.convertResponse(productDetail.getProduct()))
                 .size(productDetail.getSize())
                 .color(productDetail.getColor())
-                .weight(productDetail.getWeight())
+                .weight(productDetail.getWeightValue())
                 .build();
     }
 }

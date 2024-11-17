@@ -56,7 +56,7 @@ public class ProductDetailDTO {
                 .productId(productDetail.getProduct().getId())
                 .colorId(productDetail.getColor().getId())
                 .sizeId(productDetail.getSize().getId())
-                .weightId(productDetail.getWeight().getId())
+                .weightId(productDetail.getWeightValue().getId())
                 .build();
     }
 }
