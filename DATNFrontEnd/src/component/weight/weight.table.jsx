@@ -15,13 +15,8 @@ const WeightTable = (props) => {
 
         },
         {
-            title: 'Code',
-            dataIndex: 'code',
-
-        },
-        {
-            title: 'Name',
-            dataIndex: 'name',
+            title: 'weight',
+            dataIndex: 'weightValue',
 
         },
         {

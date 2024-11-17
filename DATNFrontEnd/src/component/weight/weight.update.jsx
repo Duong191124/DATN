@@ -11,15 +11,14 @@ const WeightUpdate = (props) => {
         if (dataUpdate) {
             form.setFieldsValue({
                 id: dataUpdate.id,
-                code: dataUpdate.code,
-                name: dataUpdate.name,
+                weight_value: dataUpdate.weightValue,
                 status: dataUpdate.status,
             });
         }
     }, [dataUpdate, form]);
 
     const handleSubmit = async (values) => {
-        const res = await updateWeightAPI(values.id, values.code, values.name, values.status);
+        const res = await updateWeightAPI(values.id, values.weightValue, values.status);
         if (res.data) {
             notification.success({
                 message: "update weight",
@@ -60,22 +59,11 @@ const WeightUpdate = (props) => {
                     <Input disabled />
                 </Form.Item>
 
-                <Form.Item
-                    label="Code"
-                    name="code"
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Code không được để trống',
-                        },
-                    ]}
-                >
-                    <Input />
-                </Form.Item>
+
 
                 <Form.Item
-                    label="Name"
-                    name="name"
+                    label="weight_value"
+                    name="weight_value"
                     rules={[
                         {
                             required: true,

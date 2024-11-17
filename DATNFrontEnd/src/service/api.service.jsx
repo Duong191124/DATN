@@ -1041,21 +1041,19 @@ const fetchDataWeight = () => {
   return axios.get(URL_BACKEND);
 };
 
-const createWeightAPI = (code, name, status) => {
+const createWeightAPI = (weight_value, status) => {
   const URL_BACKEND = "/api/v1/weight";
   const data = {
-    code: code,
-    name: name,
+    weight_value: weight_value,
     status: status,
   };
   return axios.post(URL_BACKEND, data);
 };
-const updateWeightAPI = (id, code, name, status) => {
+const updateWeightAPI = (id, weight_value, status) => {
   const URL_BACKEND = "/api/v1/weight";
   const data = {
     id: id,
-    code: code,
-    name: name,
+    weight_value: weight_value,
     status: status,
   };
   return axios.put(URL_BACKEND, data);
