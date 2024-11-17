@@ -1,42 +1,27 @@
-package com.example.demo.response;
+package com.example.demo.dto;
 
-import com.example.demo.entity.OrderStatus;
 import com.example.demo.entity.Orders;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import lombok.*;
+import com.example.demo.request.OrderDetailOnlineRequest;
+import com.example.demo.response.*;
+import lombok.Builder;
+import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+
 @Data
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class OrderResponse {
-    private Integer id;
+public class OrderOnlineDTO {
     private String code;
-    @Enumerated(EnumType.STRING)
-    private OrderStatus status;
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    private double deliveryFee;
+    private double totalAmount;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate orderDate;
-    private Double deliveryFee;
-    private Double totalAmount;
-    private Double moneyReceived;
-    private VoucherResponse voucherId;
-    private StaffResponse staffResponse;
-    private CustomerResponse customerResponse;
-    private List<ProductDetailResponse> productDetailResponses = new ArrayList<>();
-    private List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
-    private List<PaymentResponse> paymentResponses = new ArrayList<>();
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-
-
+    private Integer voucherId;
+    private Integer customerId;
+    private double moneyReceived;
+    private List<OrderDetailOnlineRequest> orderDetailRequests;
     public static OrderResponse convertOrderResponse(Orders orders){
         return OrderResponse.builder()
                 .id(orders.getId())
@@ -51,8 +36,6 @@ public class OrderResponse {
                 .voucherId(orders.getVoucher() == null ? null : VoucherResponse.fromVoucher(orders.getVoucher()))
                 .orderDetailResponses(orders.getOrderDetails().stream().map(OrderDetailResponse::convertOrderDetailsResponse).toList())
                 .paymentResponses(orders.getPayments().stream().map(PaymentResponse::convertPaymentResponse).toList())
-                .createdAt(orders.getCreatedAt())
-                .updatedAt(orders.getUpdatedAt())
                 .build();
     }
 }

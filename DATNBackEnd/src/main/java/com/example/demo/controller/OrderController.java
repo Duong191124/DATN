@@ -1,14 +1,17 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.OrderDTO;
+import com.example.demo.dto.OrderOnlineDTO;
 import com.example.demo.entity.Notice;
 import com.example.demo.entity.OrderStatus;
+import com.example.demo.entity.Orders;
 import com.example.demo.request.OrderWithVoucherAndOrderDetailRequest;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.OrderPageResponse;
 import com.example.demo.response.OrderResponse;
 import com.example.demo.service.OrderService;
 import com.example.demo.service.impl.NoticeServiceImpl;
+import com.example.demo.service.impl.OrderServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,7 +33,7 @@ import java.util.Map;
 @RequestMapping("${api.prefix}/orders")
 @RequiredArgsConstructor
 public class  OrderController {
-    private final OrderService orderService;
+    private final OrderServiceImpl orderService;
     private final NoticeServiceImpl noticeService;
     @GetMapping("/list")
     public ResponseEntity<?> getAllOrders(){
@@ -90,6 +93,16 @@ public class  OrderController {
                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
+
+    @PostMapping("/add-online")
+    public ResponseEntity<?> createOrder(@RequestBody OrderOnlineDTO orderDTO) {
+        try {
+            OrderResponse order = orderService.createOrderOnline(orderDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(new MessageReponse("order to added successfully",201,order));
+        } catch (Exception e) {
+            return new ResponseEntity<>("Lỗi khi tạo đơn hàng: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateOrder(@PathVariable int id, @Valid @RequestBody OrderDTO orderDTO,BindingResult result){
         try {

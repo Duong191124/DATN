@@ -1,17 +1,9 @@
 import React, { useState } from 'react';
-import { useCart } from '../context/cart.context';
+import { useCheckout } from '../context/checkout.context';
 
 const Payment = () => {
+    const { totalPrice } = useCheckout();
     const [selectedOption, setSelectedOption] = useState('Cash');
-    const { cartItems } = useCart();
-
-    const calculateTotal = () => {
-        return cartItems.reduce((total, product) => {
-            return total + ((product.discountPrice || product.defaultPrice) * (product.quantity || 1));
-        }, 0);
-    };
-
-    const subtotal = calculateTotal();
 
     return (
         <>
@@ -43,76 +35,6 @@ const Payment = () => {
                             overflow: 'hidden'
                         }}
                     >
-                        {/* Credit Card */}
-                        <div
-                            onClick={() => setSelectedOption('Credit Card')}
-                            style={{
-                                padding: '15px 20px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                cursor: 'pointer',
-                                backgroundColor: selectedOption === 'Credit Card' ? '#f9f9f9' : '#fff',
-                                borderBottom: '1px solid #ddd'
-                            }}
-                        >
-                            <div
-                                style={{
-                                    marginRight: 10,
-                                    width: 20,
-                                    height: 20,
-                                    borderRadius: '50%',
-                                    border: '2px solid #000',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    backgroundColor: selectedOption === 'Credit Card' ? '#000' : '#fff'
-                                }}
-                            >
-                                {selectedOption === 'Credit Card' && (
-                                    <span style={{ color: '#fff' }}>✓</span>
-                                )}
-                            </div>
-                            <div style={{ flex: 1 }}>
-                                <strong>Credit Card</strong>
-                                <p style={{ margin: 0, color: '#888' }}>Pay with Visa, Master Card and other debit or credit card</p>
-                            </div>
-                        </div>
-
-                        {/* PayPal */}
-                        <div
-                            onClick={() => setSelectedOption('PayPal')}
-                            style={{
-                                padding: '15px 20px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                cursor: 'pointer',
-                                backgroundColor: selectedOption === 'PayPal' ? '#f9f9f9' : '#fff',
-                                borderBottom: '1px solid #ddd'
-                            }}
-                        >
-                            <div
-                                style={{
-                                    marginRight: 10,
-                                    width: 20,
-                                    height: 20,
-                                    borderRadius: '50%',
-                                    border: '2px solid #000',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    backgroundColor: selectedOption === 'PayPal' ? '#000' : '#fff'
-                                }}
-                            >
-                                {selectedOption === 'PayPal' && (
-                                    <span style={{ color: '#fff' }}>✓</span>
-                                )}
-                            </div>
-                            <div style={{ flex: 1 }}>
-                                <strong>PayPal</strong>
-                                <p style={{ margin: 0, color: '#888' }}>Pay easily, fast and secure with PayPal.</p>
-                            </div>
-                        </div>
-
                         {/* VN Pay */}
                         <div
                             onClick={() => setSelectedOption('VN Pay')}
@@ -185,7 +107,7 @@ const Payment = () => {
 
                     <div style={{ textAlign: 'right', paddingTop: 20 }}>
                         <strong>Total:</strong>
-                        <span style={{ fontSize: 24, marginLeft: 10 }}>${subtotal.toFixed(2)}</span>
+                        <span style={{ fontSize: 24, marginLeft: 10 }}>${totalPrice.toFixed(2)}</span>
                     </div>
                 </div>
             </div>
