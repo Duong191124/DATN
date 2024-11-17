@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, Space, Modal, notification, DatePicker, Button, Input } from 'antd';
 import { SearchOutlined, EditOutlined, DeleteOutlined, PlusCircleOutlined, RetweetOutlined } from '@ant-design/icons';
 import { chandleStatusPromotion, deletePromotionAPI, fetchDataProductDetail } from '../../service/api.service';
@@ -18,13 +18,6 @@ const PromotionTable = (props) => {
         pageSize: 5,
     });
     const [promotionId, setPromotionId] = useState(null);
-    const [selectedDetails, setSelectedDetails] = useState([]);
-
-    const isPromotionActive = (endDate) => {
-        const currentDate = new Date();
-        const promotionEndDate = new Date(endDate);
-        return promotionEndDate >= currentDate;
-    };
 
     const showDeleteConfirm = (id, productDetailsIds) => {
         Modal.confirm({
@@ -36,7 +29,33 @@ const PromotionTable = (props) => {
             onOk: () => handleDelete(id, productDetailsIds),
         });
     };
+    // const checkExpiredPromotions = async () => {
+    //     const currentDate = new Date();
 
+    //     for (const promotion of dataPromotion) {
+    //         const promotionEndDate = new Date(promotion.endDate);
+    //         if (promotion.status === 1 && promotionEndDate < currentDate) {
+    //             // Nếu khuyến mãi đã kết thúc, cập nhật trạng thái
+    //             try {
+    //                 await chandleStatusPromotion(promotion.id);
+    //                 notification.info({
+    //                     message: "Cập nhật trạng thái",
+    //                     description: `Khuyến mãi "${promotion.name}" đã được chuyển sang trạng thái "Hết hạn" vì đã quá hạn.`,
+    //                 });
+    //             } catch (error) {
+    //                 notification.error({
+    //                     message: "Cập nhật trạng thái",
+    //                     description: `Lỗi xảy ra khi cập nhật trạng thái cho khuyến mãi "${promotion.name}".`,
+    //                 });
+    //             }
+    //         }
+    //     }
+    //     loadData(); // Tải lại dữ liệu sau khi kiểm tra
+    // };
+
+    // useEffect(() => {
+    //     checkExpiredPromotions();
+    // }, [dataPromotion])
     const handleDelete = async (id, productDetailsIds) => {
         if (productDetailsIds && productDetailsIds.length > 0) {
             notification.warning({
@@ -104,25 +123,36 @@ const PromotionTable = (props) => {
         return promotionEndDate > currentDate;
     };
 
-    const handleChangeStatus = async (id, endDate) => {
-        if (!isEndDateValid(endDate)) {
-            notification.warning({
-                message: "Không thể thay đổi trạng thái",
-                description: "Khuyến mãi không thể thay đổi trạng thái vì ngày kết thúc đã qua.",
-            });
+    const handleChangeStatus = async (id, endDate, currentStatus) => {
+        // Kiểm tra ngày kết thúc
+        const currentDate = new Date();
+        const promotionEndDate = new Date(endDate);
+    
+        if (promotionEndDate < currentDate) {
+            if (currentStatus === 0) {
+                notification.info({
+                    message: "Trạng thái hiện tại",
+                    description: "Khuyến mãi đã hết hạn. Không cần thay đổi trạng thái.",
+                });
+            } else {
+                notification.warning({
+                    message: "Không thể thay đổi trạng thái",
+                    description: "Khuyến mãi không thể thay đổi trạng thái vì ngày kết thúc đã qua.",
+                });
+            }
             return;
         }
-
+    
         try {
             // Gọi API để cập nhật trạng thái
             const response = await chandleStatusPromotion(id);
             if (response.status === 200 || response.status === 204) {
-                // Cập nhật trạng thái trong danh sách khuyến mãi
-                loadData(); // Gọi lại hàm loadData để tải lại dữ liệu từ server
                 notification.success({
                     message: "Cập nhật trạng thái",
                     description: `Thay đổi trạng thái khuyến mãi thành công.`,
                 });
+                // Chỉ cập nhật lại dữ liệu khi trạng thái thay đổi thành công
+                loadData();
             } else {
                 notification.error({
                     message: "Cập nhật trạng thái",
@@ -136,6 +166,7 @@ const PromotionTable = (props) => {
             });
         }
     };
+    
 
 
     const handleApplyProductDetails = (selectedIds) => {
@@ -376,11 +407,11 @@ const PromotionTable = (props) => {
                     />
                     <RetweetOutlined
                         style={{ color: 'aqua', cursor: 'pointer' }}
-                        onClick={() => handleChangeStatus(record.id, record.endDate)}
+                        onClick={() => handleChangeStatus(record.id, record.endDate, record.status)} // Truyền thêm trạng thái hiện tại
                     />
                 </Space>
             ),
-        },
+        }        
     ];
 
 
