@@ -1,4 +1,4 @@
-import { Button, Form, Input, Modal, notification, DatePicker, Select } from "antd";
+import { Button, Form, Input, Modal, notification, DatePicker, Select, Radio } from "antd";
 import { useEffect, useState } from "react";
 import { updatePromotion, detailPromotion, fetchDataProductDetail } from "../../service/api.service";
 import moment from 'moment';
@@ -35,15 +35,23 @@ const PromotionUpdate = (props) => {
                 try {
                     const res = await detailPromotion(dataUpdate.id);
                     if (res && res.data.data) {
+                        const promotionData = res.data.data;
                         form.setFieldsValue({
-                            name: res.data.data.name,
-                            description: res.data.data.description,
-                            discountPercent: res.data.data.discountPercent,
-                            discountAmount: res.data.data.discountAmount,
-                            startDate: moment(res.data.data.startDate),
-                            endDate: moment(res.data.data.endDate),
-                            status: res.data.data.status,
+                            name: promotionData.name,
+                            description: promotionData.description,
+                            discountPercent: promotionData.discountPercent,
+                            discountAmount: promotionData.discountAmount,
+                            startDate: moment(promotionData.startDate),
+                            endDate: moment(promotionData.endDate),
+                            status: promotionData.status,
                         });
+    
+                        // Xác định loại giảm giá dựa trên discountPercent và discountAmount
+                        if (promotionData.discountPercent > 0) {
+                            setEditingDiscountType('percent');
+                        } else if (promotionData.discountAmount > 0) {
+                            setEditingDiscountType('amount');
+                        }
                     }
                 } catch (error) {
                     notification.error({
@@ -52,10 +60,11 @@ const PromotionUpdate = (props) => {
                     });
                 }
             };
-
+    
             fetchPromotionDetail();
         }
     }, [isModalUpdateOpen, dataUpdate, form]);
+    
 
     // Xử lý gửi dữ liệu cập nhật
     const handleSubmit = async () => {
@@ -91,16 +100,15 @@ const PromotionUpdate = (props) => {
         setIsModalUpdateOpen(false);
     };
 
-    // Xử lý thay đổi phần trăm giảm giá
-    const handleDiscountPercentChange = (value) => {
-        form.setFieldsValue({ discountAmount: 0 }); // Đặt số tiền giảm giá về 0
-        setEditingDiscountType('percent'); // Đánh dấu đang chỉnh sửa phần trăm giảm giá
-    };
-
-    // Xử lý thay đổi số tiền giảm giá
-    const handleDiscountAmountChange = (value) => {
-        form.setFieldsValue({ discountPercent: 0 }); // Đặt phần trăm giảm giá về 0
-        setEditingDiscountType('amount'); // Đánh dấu đang chỉnh sửa số tiền giảm giá
+    // Xử lý thay đổi loại giảm giá
+    const handleDiscountTypeChange = (e) => {
+        const value = e.target.value;
+        if (value === 'percent') {
+            form.setFieldsValue({ discountAmount: 0 });
+        } else if (value === 'amount') {
+            form.setFieldsValue({ discountPercent: 0 });
+        }
+        setEditingDiscountType(value);
     };
 
     return (
@@ -115,50 +123,49 @@ const PromotionUpdate = (props) => {
                 <Form.Item
                     label="Tên"
                     name="name"
-                    rules={[{ required: true, message: 'Vui lòng nhập tên khuyến mại!' }]}
-                >
+                    rules={[{ required: true, message: 'Vui lòng nhập tên khuyến mại!' }]}>
                     <Input />
                 </Form.Item>
 
                 <Form.Item
                     label="Mô tả"
                     name="description"
-                    rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}
-                >
+                    rules={[{ required: true, message: 'Vui lòng nhập mô tả!' }]}>
                     <Input />
                 </Form.Item>
 
-                <Form.Item
-                    label="Phần Trăm Giảm Giá(%)"
-                    name="discountPercent"
-                    rules={[
-                        { required: true, message: 'Vui lòng nhập phần trăm giảm giá!' },
-                        {
-                            validator: (_, value) => {
-                                if (value < 0 || value > 100) {
-                                    return Promise.reject(new Error('Phần trăm giảm giá phải nằm trong khoảng từ 0 đến 100!'));
-                                }
-                                return Promise.resolve();
-                            },
-                        },
-                    ]}
-                >
-                    <Input type="text" onChange={e => handleDiscountPercentChange(e.target.value)} />
+                {/* Chọn loại giảm giá */}
+                <Form.Item label="Chọn Loại Giảm Giá">
+                    <Radio.Group onChange={handleDiscountTypeChange} value={editingDiscountType}>
+                        <Radio value="percent">Phần Trăm Giảm Giá</Radio>
+                        <Radio value="amount">Số Tiền Giảm Giá</Radio>
+                    </Radio.Group>
                 </Form.Item>
 
-                <Form.Item
-                    label="Số Tiền Giảm Giá(VNĐ)"
-                    name="discountAmount"
-                    rules={[{ required: true, message: 'Vui lòng nhập số tiền giảm giá!' }]}
-                >
-                    <Input type="number" onChange={e => handleDiscountAmountChange(e.target.value)} />
-                </Form.Item>
+                {/* Phần Trăm Giảm Giá */}
+                {editingDiscountType === 'percent' && (
+                    <Form.Item
+                        label="Phần Trăm Giảm Giá(%)"
+                        name="discountPercent"
+                        rules={[{ required: true, message: 'Vui lòng nhập phần trăm giảm giá!' }]}>
+                        <Input type="number" min={0} max={100} />
+                    </Form.Item>
+                )}
+
+                {/* Số Tiền Giảm Giá */}
+                {editingDiscountType === 'amount' && (
+                    <Form.Item
+                        label="Số Tiền Giảm Giá(VNĐ)"
+                        name="discountAmount"
+                        rules={[{ required: true, message: 'Vui lòng nhập số tiền giảm giá!' }]}>
+                        <Input type="number" />
+                    </Form.Item>
+                )}
 
                 <Form.Item
                     label="Ngày Bắt Đầu"
                     name="startDate"
-                    rules={[{ required: true, message: 'Vui lòng chọn ngày bắt đầu!' }]}
-                >
+                    rules={[{ required: true, message: 'Vui lòng chọn ngày bắt đầu!' }]}>
                     <DatePicker
                         showTime
                         format="YYYY-MM-DD HH:mm:ss"
@@ -169,8 +176,7 @@ const PromotionUpdate = (props) => {
                 <Form.Item
                     label="Ngày Kết Thúc"
                     name="endDate"
-                    rules={[{ required: true, message: 'Vui lòng chọn ngày kết thúc!' }]}
-                >
+                    rules={[{ required: true, message: 'Vui lòng chọn ngày kết thúc!' }]}>
                     <DatePicker
                         showTime
                         format="YYYY-MM-DD HH:mm:ss"
@@ -181,8 +187,7 @@ const PromotionUpdate = (props) => {
                 {/* <Form.Item
                     label="Trạng Thái"
                     name="status"
-                    rules={[{ required: true, message: 'Vui lòng chọn trạng thái!' }]}
-                >
+                    rules={[{ required: true, message: 'Vui lòng chọn trạng thái!' }]}>
                     <Select>
                         <Select.Option value={1}>Hoạt động</Select.Option>
                         <Select.Option value={0}>Ngừng hoạt động</Select.Option>

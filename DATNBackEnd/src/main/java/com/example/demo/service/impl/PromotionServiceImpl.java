@@ -100,7 +100,6 @@ import java.util.Set;
 
             // Nếu productDetailsIds là null hoặc rỗng
             if (productDetailsIds == null || productDetailsIds.isEmpty()) {
-                System.out.println("productDetailsIds is null or empty, không có sản phẩm nào để cập nhật.");
 
                 // Khôi phục tất cả productDetails về giá gốc khi không áp dụng khuyến mãi
                 if (Boolean.FALSE.equals(applyPromotion)) {
@@ -139,14 +138,12 @@ import java.util.Set;
                         updatedProductDetails.add(productDetail);
                     } else {
                         // Khôi phục giá gốc nếu không áp dụng khuyến mãi
-                        System.out.println("Restoring original price for productDetailId: " + productDetailId);
                         productDetail.setDiscountPrice(productDetail.getDefaultPrice());
                         updatedProductDetails.remove(productDetail);
                     }
 
                     productDetailRepo.save(productDetail); // Lưu từng sản phẩm đã cập nhật
                 } else {
-                    System.out.println("ProductDetail with ID " + productDetailId + " not found");
                 }
             }
 

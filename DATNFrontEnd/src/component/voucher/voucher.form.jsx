@@ -115,7 +115,18 @@ const VoucherForm = (props) => {
             <Form.Item
               label="Giảm giá tiền (VNĐ)"
               name="discountAmount"
-              rules={[{ required: true, message: 'Vui lòng nhập số tiền giảm giá!' }]}
+              rules={[
+                { required: true, message: 'Vui lòng nhập số tiền giảm giá!' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const minPurchaseAmount = getFieldValue('minPurchaseAmount');
+                    if (discountType === 'amount' && value > minPurchaseAmount) {
+                      return Promise.reject(new Error('Số tiền giảm giá không được lớn hơn số tiền mua tối thiểu!'));
+                    }
+                    return Promise.resolve();
+                  },
+                }),
+              ]}
               style={{ width: '48%', marginRight: '4%' }}
             >
               <InputNumber
@@ -165,20 +176,28 @@ const VoucherForm = (props) => {
             <Form.Item
               label="Giảm giá tối đa (VNĐ)"
               name="maxDiscountAmount"
-              rules={[{ required: true, message: 'Vui lòng nhập số tiền giảm giá tối đa!' }]}
+              rules={[
+                { required: true, message: 'Vui lòng nhập số tiền giảm giá tối đa!' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const minPurchaseAmount = getFieldValue('minPurchaseAmount');
+                    if (discountType === 'percent' && value > minPurchaseAmount) {
+                      return Promise.reject(new Error('Số tiền giảm giá tối đa không được lớn hơn số tiền mua tối thiểu!'));
+                    }
+                    return Promise.resolve();
+                  },
+                }),
+              ]}
               style={{ width: '48%' }}
             >
               <InputNumber
                 style={{ width: '100%' }}
                 placeholder="Nhập số tiền giảm giá tối đa"
                 min={0}
-                value={discountType === "amount" ? 0 : undefined} // Set to 0 if "amount" is selected
-                disabled={discountType === "amount"} // Disable if "amount" is selected
+                disabled={discountType === "amount"} // Disable nếu là tiền
               />
             </Form.Item>
-
           </div>
-
           <div style={{ display: 'flex', flexWrap: 'wrap' }}>
             <Form.Item
               label="Ngày hết hạn"

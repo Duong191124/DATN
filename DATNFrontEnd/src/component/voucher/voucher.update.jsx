@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, InputNumber, DatePicker, Button, notification, Row, Col } from "antd";
+import { Modal, Form, Input, InputNumber, DatePicker, Button, notification, Row, Col, Radio } from "antd";
 import moment from "moment";
 import { updateVoucher, fetchVoucherById } from "../../service/api.service";
 
@@ -8,6 +8,7 @@ const { TextArea } = Input;
 const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
+    const [discountType, setDiscountType] = useState("amount"); // Mặc định giảm giá tiền
 
     useEffect(() => {
         const fetchVoucher = async () => {
@@ -26,6 +27,7 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                         termsAndConditions: res.data.data.termsAndConditions,
                         expirationDate: res.data.data.expirationDate ? moment(res.data.data.expirationDate) : null,
                     });
+                    setDiscountType(res.data.data.discountAmount > 0 ? "amount" : "percent");
                 } else {
                     notification.error({
                         message: "Lỗi",
@@ -45,23 +47,25 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
         fetchVoucher();
     }, [voucherId]);
 
-    const handleValuesChange = (changedValues, allValues) => {
-        if ("discountAmount" in changedValues && allValues.discountAmount > 0) {
-            form.setFieldsValue({ 
-                discountPercent: 0, 
-                maxDiscountAmount: 0 
-            });
-        } else if ("discountPercent" in changedValues && allValues.discountPercent > 0) {
-            form.setFieldsValue({ 
-                discountAmount: 0, 
-                maxDiscountAmount: 0 
-            });
+    const handleDiscountTypeChange = (e) => {
+        const type = e.target.value;
+        setDiscountType(type);
+        if (type === "amount") {
+            form.setFieldsValue({ discountAmount: 0 });
+            form.setFieldsValue({ discountPercent: 0 });
+            form.setFieldsValue({ maxDiscountAmount: 0 }); // Đặt về 0 khi chọn giảm giá tiền
+        } else {
+            form.setFieldsValue({ discountPercent: 0 });
+            form.setFieldsValue({ discountAmount: 0 });
         }
     };
-    
+
 
     const handleSubmit = async () => {
         try {
+            // Kiểm tra toàn bộ form, nếu không hợp lệ sẽ hiển thị lỗi.
+            await form.validateFields();
+    
             const values = form.getFieldsValue();
             const formattedValues = {
                 ...values,
@@ -69,11 +73,14 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                 discountPercent: Number(values.discountPercent),
                 minPurchaseAmount: Number(values.minPurchaseAmount),
                 maxDiscountAmount: Number(values.maxDiscountAmount),
-                expirationDate: values.expirationDate ? values.expirationDate.format("YYYY-MM-DDTHH:mm:ss") : null,
+                expirationDate: values.expirationDate
+                    ? values.expirationDate.format("YYYY-MM-DDTHH:mm:ss")
+                    : null,
                 status: 1, // Luôn là 'active'
             };
-
+    
             setLoading(true);
+    
             const res = await updateVoucher(voucherId, formattedValues);
             if (res && res.data) {
                 notification.success({
@@ -89,14 +96,16 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                 });
             }
         } catch (error) {
+            // Hiển thị lỗi nếu form không hợp lệ.
             notification.error({
                 message: "Cập nhật Voucher",
-                description: "Có lỗi không xác định",
+                description: "Có lỗi xảy ra, vui lòng kiểm tra lại thông tin!",
             });
         } finally {
             setLoading(false);
         }
     };
+    
 
     return (
         <Modal
@@ -116,7 +125,6 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                 form={form}
                 layout="vertical"
                 name="form_in_modal"
-                onValuesChange={handleValuesChange}
             >
                 <Form.Item name="code" label="Tên Voucher" rules={[{ required: true, message: 'Vui lòng nhập mã voucher!' }]}>
                     <Input />
@@ -127,44 +135,100 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                             <InputNumber min={0} />
                         </Form.Item>
                     </Col>
+                </Row>
+
+                <Form.Item label="Loại giảm giá">
+                    <Radio.Group onChange={handleDiscountTypeChange} value={discountType}>
+                        <Radio value="amount">Giảm giá tiền</Radio>
+                        <Radio value="percent">Giảm giá phần trăm</Radio>
+                    </Radio.Group>
+                </Form.Item>
+
+                {discountType === "amount" && (
+                    <Form.Item
+                        name="discountAmount"
+                        label="Giảm giá (Số tiền)"
+                        rules={[
+                            { required: true, message: "Vui lòng nhập số tiền giảm giá!" },
+                            {
+                                validator: (_, value) => {
+                                    const minPurchaseAmount = form.getFieldValue("minPurchaseAmount");
+                                    if (value > minPurchaseAmount) {
+                                        return Promise.reject(
+                                            new Error("Số tiền giảm giá không được vượt quá số tiền mua tối thiểu!")
+                                        );
+                                    }
+                                    return Promise.resolve();
+                                },
+                            },
+                        ]}
+                    >
+                        <InputNumber min={0} />
+                    </Form.Item>
+                )}
+
+                {discountType === "percent" && (
+                    <Form.Item
+                        name="discountPercent"
+                        label="Giảm giá (Phần trăm)"
+                        rules={[
+                            { required: true, message: "Vui lòng nhập phần trăm giảm giá!" },
+                            {
+                                validator: (_, value) => {
+                                    if (value > 100) {
+                                        return Promise.reject(new Error("Phần trăm giảm giá không được vượt quá 100!"));
+                                    }
+                                    return Promise.resolve();
+                                },
+                            },
+                        ]}
+                    >
+                        <InputNumber min={0} />
+                    </Form.Item>
+                )}
+                <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
-                            name="discountAmount"
-                            label="Giảm giá (Số tiền)"
-                            rules={[{ required: true, message: 'Vui lòng nhập số tiền giảm giá!' }]}
+                            name="minPurchaseAmount"
+                            label="Số tiền tối thiểu để mua"
+                            rules={[
+                                { required: true, message: "Vui lòng nhập số tiền tối thiểu!" },
+                            ]}
                         >
                             <InputNumber min={0} />
                         </Form.Item>
                     </Col>
-                </Row>
-                <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
-                            name="discountPercent"
-                            label="Giảm giá (Phần trăm)"
-                            rules={[{ required: true, message: 'Vui lòng nhập phần trăm giảm giá!' }]}
+                            name="maxDiscountAmount"
+                            label="Số tiền tối đa giảm giá"
+                            rules={[
+                                {
+                                    required: discountType === "percent",
+                                    message: "Vui lòng nhập số tiền tối đa giảm giá!",
+                                },
+                                {
+                                    validator: (_, value) => {
+                                        if (discountType === "percent") {
+                                            const minPurchaseAmount = form.getFieldValue("minPurchaseAmount");
+                                            if (value > minPurchaseAmount) {
+                                                return Promise.reject(
+                                                    new Error("Số tiền tối đa giảm giá không được lớn hơn số tiền tối thiểu để mua!")
+                                                );
+                                            }
+                                        }
+                                        return Promise.resolve();
+                                    },
+                                },
+                            ]}
                         >
-                            <InputNumber min={0} max={100} />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="minPurchaseAmount" label="Số tiền tối thiểu để mua" rules={[{ required: true, message: 'Vui lòng nhập số tiền tối thiểu!' }]}>
-                            <InputNumber min={0} />
+                            <InputNumber min={0} disabled={discountType === "amount"} />
                         </Form.Item>
                     </Col>
                 </Row>
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item name="maxDiscountAmount" label="Số tiền tối đa giảm giá" rules={[{ required: true, message: 'Vui lòng nhập số tiền tối đa giảm giá!' }]}>
-                            <InputNumber min={0} />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="expirationDate" label="Ngày hết hạn" rules={[{ required: true, message: 'Vui lòng chọn ngày hết hạn!' }]}>
-                            <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" />
-                        </Form.Item>
-                    </Col>
-                </Row>
+                <Form.Item name="expirationDate" label="Ngày hết hạn" rules={[{ required: true, message: 'Vui lòng chọn ngày hết hạn!' }]}>
+                    <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" />
+                </Form.Item>
                 <Form.Item name="termsAndConditions" label="Điều khoản và điều kiện">
                     <TextArea rows={4} />
                 </Form.Item>
