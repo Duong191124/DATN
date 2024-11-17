@@ -3,11 +3,20 @@ import { useEffect, useState } from "react";
 import { Button, message, Select } from "antd";
 import { useCart } from "../context/cart.context";
 import { getVouchersByCustomerId } from "../../service/api.service";
+import { useCheckout } from "../context/checkout.context";
 
 const { Option } = Select;
 
-const Summary = ({ selectedCoupon, setSelectedCoupon, couponDiscount, setCouponDiscount, totalPrice, setTotalPrice }) => {
+const Summary = () => {
     const { cartItems } = useCart();
+    const {
+        selectedCoupon,
+        setSelectedCoupon,
+        couponDiscount,
+        setCouponDiscount,
+        totalPrice,
+        setTotalPrice
+    } = useCheckout();
     const [vouchers, setVouchers] = useState([]);
 
     // Tính subtotal từ giỏ hàng
@@ -20,11 +29,15 @@ const Summary = ({ selectedCoupon, setSelectedCoupon, couponDiscount, setCouponD
     const subtotal = calculateTotal();
 
     // Cập nhật tổng tiền khi chọn coupon
-    const handleCouponChange = (value) => {
-        const selectedVoucher = vouchers.find((voucher) => voucher.code === value);
+    const handleCouponChange = (voucherId) => {
+        const selectedVoucher = vouchers.find((voucher) => voucher.id === voucherId);
 
         if (selectedVoucher) {
-            const { minPurchaseAmount, discountPercent, discountAmount } = selectedVoucher;
+            const { minPurchaseAmount, discountPercent, discountAmount, maxDiscountAmount } = selectedVoucher;
+            console.log("Discount Amount from API:", discountAmount);
+
+            console.log("Selected Voucher:", selectedVoucher);
+            console.log("Subtotal:", subtotal);
 
             // Kiểm tra nếu subtotal nhỏ hơn minPurchaseAmount
             if (subtotal < parseFloat(minPurchaseAmount)) {
@@ -36,12 +49,16 @@ const Summary = ({ selectedCoupon, setSelectedCoupon, couponDiscount, setCouponD
 
             // Tính toán giảm giá
             const discountByPercent = (discountPercent / 100) * subtotal;
-            const appliedDiscount = Math.max(discountByPercent, discountAmount); // Lấy giá trị lớn hơn
+            const appliedDiscount = discountAmount > 0
+                ? Math.min(discountByPercent, parseFloat(discountAmount), parseFloat(maxDiscountAmount))
+                : Math.min(discountByPercent, parseFloat(maxDiscountAmount));
+            console.log("Discount by Percent:", discountByPercent);
+            console.log("Applied Discount:", appliedDiscount);
 
             // Cập nhật state
             setCouponDiscount(appliedDiscount);
             setTotalPrice(subtotal - appliedDiscount);
-            setSelectedCoupon(value);
+            setSelectedCoupon(voucherId);
         } else {
             // Nếu không chọn coupon
             setCouponDiscount(null);
@@ -134,7 +151,7 @@ const Summary = ({ selectedCoupon, setSelectedCoupon, couponDiscount, setCouponD
                         value={selectedCoupon}
                     >
                         {vouchers.map((voucher) => {
-                            const { code, discountPercent, discountAmount, minPurchaseAmount } = voucher;
+                            const { id, code, discountPercent, discountAmount, minPurchaseAmount } = voucher;
                             const discountInfo = [];
 
                             if (discountPercent > 0) {
@@ -150,7 +167,7 @@ const Summary = ({ selectedCoupon, setSelectedCoupon, couponDiscount, setCouponD
                             return (
                                 <Option
                                     key={voucher.id}
-                                    value={code}
+                                    value={id}
                                     disabled={isDisabled} // Disable nếu không đủ điều kiện
                                 >
                                     {`${code} - ${discountInfo.length > 0 ? `${discountInfo.join(", ")}` : ""

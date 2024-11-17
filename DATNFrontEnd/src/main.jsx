@@ -34,6 +34,7 @@ import { CartProvider } from "./component/context/cart.context.jsx";
 import SanPham from "./component/layout/content/san-pham/san-pham.jsx";
 import ContactPage from "./pages/contact.jsx";
 import LandingPage from "./pages/landing.jsx";
+import { CheckoutProvider } from "./component/context/checkout.context.jsx";
 
 const router = createBrowserRouter([
   {
@@ -174,7 +175,9 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")).render(
   <AuthWrapper>
     <CartProvider>
-      <RouterProvider router={router} />
+      <CheckoutProvider>
+        <RouterProvider router={router} />
+      </CheckoutProvider>
     </CartProvider>
   </AuthWrapper>
 );

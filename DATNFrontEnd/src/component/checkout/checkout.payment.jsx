@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useCheckout } from '../context/checkout.context';
 
-const Payment = ({ totalPrice }) => {
+const Payment = () => {
+    const { totalPrice } = useCheckout();
     const [selectedOption, setSelectedOption] = useState('Cash');
 
     return (
