@@ -10,6 +10,7 @@ import {
   Steps,
   Table,
   Tabs,
+  TimePicker,
 } from "antd";
 import { useRef, useState, useEffect } from "react";
 import {
@@ -292,9 +293,12 @@ const OrderTable = (props) => {
       },
     },
     {
-      title: "Ngày Đặt Hàng",
-      dataIndex: "orderDate",
-      key: "orderDate",
+      title: "Thời gian tạo",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (text) => {
+        return text ? moment(text).format("YYYY-MM-DD HH:mm:ss A") : "N/A";
+      },
     },
     {
       title: "Tên Nhân Viên",
@@ -411,11 +415,13 @@ const OrderTable = (props) => {
       title: "Thời gian",
       dataIndex: "paymentDate",
       key: "paymentDate",
+      render: (text) => moment.utc(text).local().format("DD/MM/YYYY"),
     },
     {
       title: "Người tạo",
       key: "staffName",
       render: (text, record) => {
+        console.log("reccc", record);
         return (
           record.orderDataPaymentResponse?.staffResponse?.name ||
           "Chưa có thông tin"
@@ -599,8 +605,8 @@ const OrderTable = (props) => {
       0
     );
   };
-
   const expandedRowRender = (record) => {
+    console.log("rrrre", record);
     const totalQuantity = getTotalQuantity(record.orderDetailResponses || []);
     return (
       <Tabs defaultActiveKey="1">
@@ -612,19 +618,20 @@ const OrderTable = (props) => {
                   <div className="col-4">
                     <p>Mã hóa đơn: {orderDetails.code}</p>
                     <p>
-                      Ngày mua:
+                      Thời gian mua:
                       <DatePicker
                         disabled
                         style={{
                           marginLeft: "10px",
-                          width: "50%",
+                          width: "65%",
                         }}
                         value={
-                          orderDetails.orderDate
-                            ? moment(orderDetails.orderDate, "DD-MM-YYYY")
-                            : null
+                          record.updatedAt ? moment(record.updatedAt) : null
                         }
-                        needConfirm
+                        showTime={{
+                          format: "hh:mm:ss A",
+                        }}
+                        format="YYYY-MM-DD hh:mm:ss A"
                       />
                     </p>
                     <p>Khách hàng: {orderDetails?.customerResponse?.name}</p>
@@ -650,7 +657,7 @@ const OrderTable = (props) => {
                       Phí giao hàng:
                       {orderDetails.deliveryFee
                         ? `${orderDetails.deliveryFee.toLocaleString()} VND`
-                        : "N/A"}
+                        : " Không có"}
                     </p>
                     <p>
                       Mã nhân viên:
