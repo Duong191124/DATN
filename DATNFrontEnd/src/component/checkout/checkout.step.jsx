@@ -31,6 +31,10 @@ const CheckoutStep = () => {
         setCurrent(current - 1);
     };
 
+    const createOrder = () => {
+
+    }
+
     const items = steps.map((item) => ({
         key: item.title,
         title: item.title,

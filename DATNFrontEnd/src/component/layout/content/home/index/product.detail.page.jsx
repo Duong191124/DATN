@@ -2,9 +2,11 @@ import { useParams } from 'react-router-dom';
 import { fetchDataColor, fetchDataProductById, fetchDataSize, findByProductId } from '../../../../../service/api.service';
 import './product.detail.page.css';
 import React, { useEffect, useState } from 'react';
+import { useCart } from '../../../../context/cart.context';
 
 const ProductDetailPage = () => {
     const { id } = useParams();
+    const { addToCart } = useCart();
     const [product, setProduct] = useState([]);
     const [size, setSize] = useState([]);
     const [color, setColor] = useState([]);
@@ -42,6 +44,22 @@ const ProductDetailPage = () => {
         initSize();
         initColor();
     }, []);
+
+    const handleAddToCart = () => {
+        if (!selectedSize || !selectedColor) {
+            alert('Please select size and color');
+            return;
+        }
+
+        const cartItem = {
+            ...product,
+            size: selectedSize,
+            color: selectedColor,
+            quantity: quantity,
+        };
+
+        addToCart(cartItem);
+    };
 
     return (
         <div className="product-detail">
@@ -95,7 +113,7 @@ const ProductDetailPage = () => {
                         <button className="quantity-btn" onClick={() => setQuantity(quantity + 1)}>+</button>
                     </div>
 
-                    <button className="add-to-cart">Add to Cart</button>
+                    <button className="add-to-cart" onClick={handleAddToCart}>Add to Cart</button>
                 </div>
             </div>
         </div>

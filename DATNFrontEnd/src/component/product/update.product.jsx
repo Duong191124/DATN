@@ -69,7 +69,7 @@ const UpdateProduct = (props) => {
         });
       }
     } catch (error) {
-      console.log("Validation failed:", error);
+      console.error("Validation failed:", error);
     }
   };
 

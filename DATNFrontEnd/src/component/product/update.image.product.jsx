@@ -10,11 +10,11 @@ const UploadImage = (props) => {
 
   // Handle file selection and preview
   const handleFileChange = (info) => {
-    let file = info.file.originFileObj || info.file;  
+    let file = info.file.originFileObj || info.file;
 
     if (file instanceof Blob) {
       setSelectedFile(file);
-  
+
       const reader = new FileReader();
       reader.onload = () => {
         setPreview(reader.result);
@@ -40,7 +40,6 @@ const UploadImage = (props) => {
 
     try {
       const response = await uploadImageAPI(dataUpdate, formData);
-      console.log(response)
       if (response.data) {
         notification.success({
           message: "Upload Success",

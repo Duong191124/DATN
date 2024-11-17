@@ -42,8 +42,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse createdOrder(OrderDTO orderDTO) {
+        Integer customerId = orderDTO.getCustomerId();
+        if (customerId == null || customerId <= 0) {
+            customerId = 1;
+        }
         Staff staff = staffRepo.findById(orderDTO.getStaffId()).orElseThrow(()->new RuntimeException("not found staff with id:"+orderDTO.getStaffId()));
-        Customer customer = customerRepo.findById(orderDTO.getCustomerId()).orElseThrow(()->new RuntimeException("not found staff with id:"+orderDTO.getCustomerId()));
+        Customer customer = customerRepo.findById(customerId).get();
         Orders order = new Orders();
         order.setCode(orderDTO.getCode());
         order.setOrderDate(orderDTO.getOrderDate());

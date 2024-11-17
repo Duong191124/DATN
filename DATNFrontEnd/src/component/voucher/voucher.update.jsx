@@ -45,15 +45,20 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
         fetchVoucher();
     }, [voucherId]);
 
-    const validateDiscount = (_, value) => {
-        const discountAmount = form.getFieldValue("discountAmount");
-        const discountPercent = form.getFieldValue("discountPercent");
-
-        if ((value && value > 0 && discountAmount > 0) || (discountPercent > 0 && discountAmount > 0)) {
-            return Promise.reject(new Error("Chỉ được chọn một trong hai: Giảm giá (Số tiền) hoặc Giảm giá (Phần trăm) phải bằng 0."));
+    const handleValuesChange = (changedValues, allValues) => {
+        if ("discountAmount" in changedValues && allValues.discountAmount > 0) {
+            form.setFieldsValue({ 
+                discountPercent: 0, 
+                maxDiscountAmount: 0 
+            });
+        } else if ("discountPercent" in changedValues && allValues.discountPercent > 0) {
+            form.setFieldsValue({ 
+                discountAmount: 0, 
+                maxDiscountAmount: 0 
+            });
         }
-        return Promise.resolve();
     };
+    
 
     const handleSubmit = async () => {
         try {
@@ -107,8 +112,13 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                 </Button>,
             ]}
         >
-            <Form form={form} layout="vertical" name="form_in_modal">
-                <Form.Item name="code" label="Mã Voucher" rules={[{ required: true, message: 'Vui lòng nhập mã voucher!' }]}>
+            <Form
+                form={form}
+                layout="vertical"
+                name="form_in_modal"
+                onValuesChange={handleValuesChange}
+            >
+                <Form.Item name="code" label="Tên Voucher" rules={[{ required: true, message: 'Vui lòng nhập mã voucher!' }]}>
                     <Input />
                 </Form.Item>
                 <Row gutter={16}>
@@ -121,10 +131,7 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                         <Form.Item
                             name="discountAmount"
                             label="Giảm giá (Số tiền)"
-                            rules={[
-                                { required: true, message: 'Vui lòng nhập số tiền giảm giá!' },
-                                { validator: validateDiscount }
-                            ]}
+                            rules={[{ required: true, message: 'Vui lòng nhập số tiền giảm giá!' }]}
                         >
                             <InputNumber min={0} />
                         </Form.Item>
@@ -135,10 +142,7 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                         <Form.Item
                             name="discountPercent"
                             label="Giảm giá (Phần trăm)"
-                            rules={[
-                                { required: true, message: 'Vui lòng nhập phần trăm giảm giá!' },
-                                { validator: validateDiscount }
-                            ]}
+                            rules={[{ required: true, message: 'Vui lòng nhập phần trăm giảm giá!' }]}
                         >
                             <InputNumber min={0} max={100} />
                         </Form.Item>

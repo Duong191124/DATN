@@ -1,124 +1,219 @@
-import React, { useState } from 'react';
-import { Form, Input, Button, Select, Checkbox, Modal, Row, Col, Slider } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Modal, Form, Input, Row, Col, Button, Select } from 'antd';
+import { UserOutlined, PhoneOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
+import { getDistrict, getProvinces, getWards } from '../../service/api.service';
 
-const { Option } = Select;
+const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editingAddress }) => {
+    const { t } = useTranslation();
 
-const SelectAddress = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [form] = Form.useForm();
-    const [phoneNumber, setPhoneNumber] = useState(0);
+    const [provinces, setProvinces] = useState([]);
+    const [districts, setDistricts] = useState([]);
+    const [wards, setWards] = useState([]);
 
-    const onFinish = (values) => {
-        console.log('Form values:', { ...values, phoneNumber });
-    };
+    const [selectedProvince, setSelectedProvince] = useState(null);
+    const [selectedDistrict, setSelectedDistrict] = useState(null);
+    const [selectedWard, setSelectedWard] = useState(null);
 
-    const showModal = () => {
-        setIsModalOpen(true);
-    };
+    const [isDistrictDropdownOpen, setIsDistrictDropdownOpen] = useState(false);
+    const [isWardDropdownOpen, setIsWardDropdownOpen] = useState(false);
 
-    const handleOk = () => {
-        setIsModalOpen(false);
-    };
+    const defaultOption = { ProvinceID: '', DistrictID: '', WardCode: '', ProvinceName: t('Select province'), DistrictName: t('Select district'), WardName: t('Select ward') };
 
-    const handleCancel = () => {
-        setIsModalOpen(false);
-    };
+    // API gọi danh sách tỉnh
+    useEffect(() => {
+        const fetchProvinces = async () => {
+            const res = await getProvinces();
+            setProvinces([defaultOption, ...res.data.data]);
+        };
 
-    const handleSliderChange = (value) => {
-        setPhoneNumber(value);
-    };
+        fetchProvinces();
+    }, []);
+
+    useEffect(() => {
+        if (selectedProvince && selectedProvince !== defaultOption.ProvinceID) {
+            const fetchDistricts = async () => {
+                const res = await getDistrict(selectedProvince);
+                setDistricts([defaultOption, ...res.data.data]);
+                setSelectedDistrict(defaultOption.DistrictID);
+                setSelectedWard(defaultOption.WardCode);
+                setIsDistrictDropdownOpen(true);
+            };
+            fetchDistricts();
+        } else {
+            setDistricts([]);
+            setWards([]);
+            setSelectedDistrict(null);
+            setSelectedWard(null);
+        }
+    }, [selectedProvince]);
+
+    useEffect(() => {
+        if (selectedDistrict && selectedDistrict !== defaultOption.DistrictID) {
+            const fetchWards = async () => {
+                const res = await getWards(selectedDistrict);
+                setWards([defaultOption, ...res.data.data]);
+                setSelectedWard(defaultOption.WardCode);
+                setIsWardDropdownOpen(true);
+            };
+            fetchWards();
+        } else {
+            setWards([]);
+            setSelectedWard(null);
+        }
+    }, [selectedDistrict]);
+
+    // Tự động cập nhật địa chỉ
+    const autoAddress = `${provinces.find(p => p.ProvinceID === selectedProvince)?.ProvinceName || ''}, ${districts.find(d => d.DistrictID === selectedDistrict)?.DistrictName || ''}, ${wards.find(w => w.WardCode === selectedWard)?.WardName || ''}`;
 
     return (
-        <>
-            <Button type="primary" onClick={showModal}>
-                Open Modal
-            </Button>
-            <Modal title="Address" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} footer={null}>
-                <Form
-                    form={form}
-                    layout="vertical"
-                    onFinish={onFinish}
-                    style={{ maxWidth: 600, margin: '0 auto' }}
+        <Modal
+            title={editingAddress ? t('Edit Address') : t('Add New Address')}
+            open={isModalVisible}
+            onCancel={handleCancel}
+            footer={null}
+        >
+            <Form
+                form={form}
+                layout="vertical"
+                onFinish={handleSubmit}
+            >
+                <Form.Item
+                    name="name"
+                    label={t('Recipient Name')}
+                    rules={[{ required: true, message: t('Please input recipient name!') }]}
                 >
-                    <Form.Item
-                        label="Full Name"
-                        name="fullName"
-                        rules={[{ required: true, message: 'Please enter your full name' }]}
+                    <Input prefix={<UserOutlined />} placeholder={t('Enter recipient name')} />
+                </Form.Item>
+                <Form.Item
+                    name="phone"
+                    label={t('Phone Number')}
+                    rules={[{ required: true, message: t('Please input phone number!') }]}
+                >
+                    <Input prefix={<PhoneOutlined />} placeholder={t('Enter phone number')} />
+                </Form.Item>
+
+                <Form.Item
+                    name="province"
+                    label={t('Province')}
+                    rules={[{ required: true, message: t('Please select province!') }]}
+                >
+                    <Select
+                        value={selectedProvince}
+                        onChange={(value) => {
+                            setSelectedProvince(value);
+                            setIsDistrictDropdownOpen(true);
+                        }}
+                        placeholder={t('Select province')}
                     >
-                        <Input placeholder="Full Name" style={{ borderRadius: 4 }} />
-                    </Form.Item>
+                        {provinces.map(province => (
+                            <Select.Option key={province.ProvinceID} value={province.ProvinceID}>
+                                {province.ProvinceName}
+                            </Select.Option>
+                        ))}
+                    </Select>
+                </Form.Item>
 
-                    <Form.Item label="Phone Number">
-                        <Slider
-                            min={0}
-                            max={9999999999}
-                            value={phoneNumber}
-                            onChange={handleSliderChange}
-                            step={1}
-                        />
-                        <div style={{ textAlign: 'center', marginTop: 10 }}>
-                            <span>Selected Phone Number: {phoneNumber.toString().padStart(10, '0')}</span>
-                        </div>
-                    </Form.Item>
-
+                {selectedProvince && (
                     <Form.Item
-                        label="City/District/Ward"
-                        name="address"
-                        rules={[{ required: true, message: 'Please select an address' }]}
+                        name="district"
+                        label={t('District')}
+                        rules={[{ required: true, message: t('Please select district!') }]}
                     >
-                        <Row gutter={16}>
-                            <Col span={8}>
-                                <Select placeholder="City" style={{ borderRadius: 4 }}>
-                                    <Option value="hanoi">Hanoi</Option>
-                                    <Option value="tphcm">Ho Chi Minh City</Option>
-                                </Select>
-                            </Col>
-                            <Col span={8}>
-                                <Select placeholder="District" style={{ borderRadius: 4 }}>
-                                    <Option value="hoankiem">Hoan Kiem</Option>
-                                    <Option value="1">District 1</Option>
-                                </Select>
-                            </Col>
-                            <Col span={8}>
-                                <Select placeholder="Ward" style={{ borderRadius: 4 }}>
-                                    <Option value="phuong1">Ward 1</Option>
-                                    <Option value="phuong2">Ward 2</Option>
-                                </Select>
-                            </Col>
-                        </Row>
-                    </Form.Item>
-
-                    <Form.Item
-                        label="Detailed Address"
-                        name="detailedAddress"
-                        rules={[{ required: true, message: 'Please enter the detailed address' }]}
-                    >
-                        <Input placeholder="Detailed Address" style={{ borderRadius: 4 }} />
-                    </Form.Item>
-
-                    <Form.Item label="Address Type" name="addressType">
-                        <Select placeholder="Select Address Type" style={{ borderRadius: 4 }}>
-                            <Option value="nharieng">Private House</Option>
-                            <Option value="vanphong">Office</Option>
+                        <Select
+                            open={isDistrictDropdownOpen}
+                            onDropdownVisibleChange={(open) => setIsDistrictDropdownOpen(open)}
+                            value={selectedDistrict}
+                            onChange={(value) => {
+                                setSelectedDistrict(value);
+                                setIsDistrictDropdownOpen(false);
+                                setIsWardDropdownOpen(true);
+                            }}
+                            placeholder={t('Select district')}
+                            disabled={!selectedProvince || selectedProvince === defaultOption.ProvinceID}
+                        >
+                            {districts.map(district => (
+                                <Select.Option key={district.DistrictID} value={district.DistrictID}>
+                                    {district.DistrictName}
+                                </Select.Option>
+                            ))}
                         </Select>
                     </Form.Item>
+                )}
 
-                    <Form.Item name="defaultAddress" valuePropName="checked">
-                        <Checkbox>Set as default address</Checkbox>
+                {selectedDistrict && (
+                    <Form.Item
+                        name="ward"
+                        label={t('Ward')}
+                        rules={[{ required: true, message: t('Please select ward!') }]}
+                    >
+                        <Select
+                            open={isWardDropdownOpen}
+                            onDropdownVisibleChange={(open) => setIsWardDropdownOpen(open)}
+                            value={selectedWard}
+                            onChange={(value) => {
+                                setSelectedWard(value);
+                                setIsWardDropdownOpen(false);
+                            }}
+                            placeholder={t('Select ward')}
+                            disabled={!selectedDistrict || selectedDistrict === defaultOption.DistrictID}
+                        >
+                            {wards.map(ward => (
+                                <Select.Option key={ward.WardCode} value={ward.WardCode}>
+                                    {ward.WardName}
+                                </Select.Option>
+                            ))}
+                        </Select>
                     </Form.Item>
+                )}
 
-                    <Form.Item>
-                        <Button type="primary" style={{ float: "right", marginLeft: 20, padding: '10px 20px', fontSize: 16, borderRadius: 4 }} htmlType="submit">
-                            Save
-                        </Button>
-                        <Button type="default" style={{ float: "right", padding: '10px 20px', fontSize: 16, borderRadius: 4 }}>
-                            Back
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Modal>
-        </>
+                <Form.Item
+                    name="address"
+                    label={t('Address')}
+                    rules={[{ required: true, message: t('Please input address!') }]}
+                >
+                    <Input.TextArea
+                        prefix={<EnvironmentOutlined />}
+                        placeholder={t('Enter detailed address')}
+                        rows={3}
+                        value={autoAddress}
+                        onChange={(e) => form.setFieldValue('address', e.target.value)}
+                    />
+                </Form.Item>
+
+                <Form.Item>
+                    <Row gutter={16} justify="end">
+                        <Col>
+                            <Button
+                                style={{
+                                    backgroundColor: 'white',
+                                    color: 'black',
+                                    width: 100,
+                                    height: 40
+                                }}
+                                onClick={handleCancel}>
+                                {t('Cancel')}
+                            </Button>
+                        </Col>
+                        <Col>
+                            <Button
+                                style={{
+                                    backgroundColor: 'black',
+                                    color: 'white',
+                                    width: 100,
+                                    height: 40
+                                }}
+                                type="primary" htmlType="submit"
+                                disabled={!selectedProvince || !selectedDistrict || !selectedWard}
+                            >
+                                {t('Save')}
+                            </Button>
+                        </Col>
+                    </Row>
+                </Form.Item>
+            </Form>
+        </Modal>
     );
 };
 
-export default SelectAddress;
+export default AddressModal;

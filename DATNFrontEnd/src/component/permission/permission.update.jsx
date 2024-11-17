@@ -32,7 +32,6 @@ const PermissionUpdate = ({ isOpenUpdate, setIsOpenUpdate, loadData, isUpdate })
 
     // Xử lý form khi submit thành công
     const onFinish = async (values) => {
-        console.log('Success:', values);
         await updatePermissionById(isUpdate.id, values.name);
         myForm.resetFields(); // Reset form sau khi tạo mới
         loadData(); // Tải lại dữ liệu sau khi hoàn tất cập nhật
@@ -41,7 +40,7 @@ const PermissionUpdate = ({ isOpenUpdate, setIsOpenUpdate, loadData, isUpdate })
 
     // Xử lý form khi submit thất bại
     const onFinishFailed = (errorInfo) => {
-        console.log('Failed:', errorInfo);
+        console.error('Failed:', errorInfo);
     };
 
     return (

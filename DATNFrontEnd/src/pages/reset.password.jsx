@@ -27,7 +27,6 @@ const ResetPassword = () => {
             return;
         }
         const res = await updatePassword(email, code, newPassword);
-        console.log("check res: ", res)
         if (res.data.data) {
             message.success(res.data.message);
             navigate('/login');

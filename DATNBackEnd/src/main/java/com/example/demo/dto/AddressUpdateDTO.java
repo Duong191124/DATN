@@ -1,23 +1,12 @@
 package com.example.demo.dto;
 
-import lombok.*;
+import lombok.Data;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
 @Data
-@Builder
-public class AddressDTO {
+public class AddressUpdateDTO {
     private int city;
-
     private int district;
-
     private int ward;
-
     private String communes;
-
     private String addressDetail;
-
-    private int customerId;
 }
