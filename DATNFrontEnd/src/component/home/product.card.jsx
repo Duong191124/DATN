@@ -133,80 +133,80 @@ const StockBadge = styled.span`
 `;
 
 const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-        opacity: 1,
-        y: 0,
-        transition: {
-            duration: 0.5
-        }
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5
     }
+  }
 };
 
 const ProductCard = ({ product, onAddToCart, onAddToWishlist, onQuickView }) => {
-    const { name, price, category, stock, image } = product;
+  const { name, price, category, stock, image } = product;
 
-    return (
-        <ProductCardWrapper variants={itemVariants}>
-            <StockBadge inStock={stock > 0}>
-                {stock > 0 ? `${stock} in stock` : 'Out of stock'}
-            </StockBadge>
+  return (
+    <ProductCardWrapper variants={itemVariants}>
+      <StockBadge inStock={stock > 0}>
+        {stock > 0 ? `${stock} in stock` : 'Out of stock'}
+      </StockBadge>
 
-            <ProductImageContainer className="product-image">
-                <ProductImage src={image} alt={name} />
-            </ProductImageContainer>
+      <ProductImageContainer className="product-image">
+        <ProductImage src={image} alt={name} />
+      </ProductImageContainer>
 
-            <ProductActions className="product-actions">
-                <ActionButton
-                    type="primary"
-                    icon={<ShoppingCartOutlined />}
-                    onClick={() => onAddToCart(product)}
-                    disabled={stock === 0}
-                >
-                    Add to Cart
-                </ActionButton>
-                <ActionButton
-                    icon={<HeartOutlined />}
-                    onClick={() => onAddToWishlist(product)}
-                />
-                <ActionButton
-                    icon={<EyeOutlined />}
-                    onClick={() => onQuickView(product)}
-                />
-            </ProductActions>
+      <ProductActions className="product-actions">
+        <ActionButton
+          type="primary"
+          icon={<ShoppingCartOutlined />}
+          onClick={() => onAddToCart(product)}
+          disabled={stock === 0}
+        >
+          Add to Cart
+        </ActionButton>
+        <ActionButton
+          icon={<HeartOutlined />}
+          onClick={() => onAddToWishlist(product)}
+        />
+        <ActionButton
+          icon={<EyeOutlined />}
+          onClick={() => onQuickView(product)}
+        />
+      </ProductActions>
 
-            <ProductInfo>
-                <ProductTitle>{name}</ProductTitle>
-                <Space direction="vertical" size={4} style={{ width: '100%' }}>
-                    <ProductPrice>${price}</ProductPrice>
-                    <Text type="secondary">{category}</Text>
-                </Space>
-            </ProductInfo>
-        </ProductCardWrapper>
-    );
+      <ProductInfo>
+        <ProductTitle>{name}</ProductTitle>
+        <Space direction="vertical" size={4} style={{ width: '100%' }}>
+          <ProductPrice>${price}</ProductPrice>
+          <Text type="secondary">{category}</Text>
+        </Space>
+      </ProductInfo>
+    </ProductCardWrapper>
+  );
 };
 
 ProductCard.propTypes = {
-    product: PropTypes.shape({
-        id: PropTypes.number.isRequired,
-        name: PropTypes.string.isRequired,
-        price: PropTypes.number.isRequired,
-        category: PropTypes.string.isRequired,
-        stock: PropTypes.number.isRequired,
-        image: PropTypes.string.isRequired,
-        description: PropTypes.string,
-        brand: PropTypes.string,
-        createdAt: PropTypes.string
-    }).isRequired,
-    onAddToCart: PropTypes.func,
-    onAddToWishlist: PropTypes.func,
-    onQuickView: PropTypes.func
+  product: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    price: PropTypes.number.isRequired,
+    category: PropTypes.string.isRequired,
+    stock: PropTypes.number.isRequired,
+    image: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    brand: PropTypes.string,
+    createdAt: PropTypes.string
+  }).isRequired,
+  onAddToCart: PropTypes.func,
+  onAddToWishlist: PropTypes.func,
+  onQuickView: PropTypes.func
 };
 
 ProductCard.defaultProps = {
-    onAddToCart: () => { },
-    onAddToWishlist: () => { },
-    onQuickView: () => { }
+  onAddToCart: () => { },
+  onAddToWishlist: () => { },
+  onQuickView: () => { }
 };
 
 export default ProductCard;

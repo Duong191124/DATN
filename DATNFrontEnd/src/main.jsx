@@ -35,6 +35,7 @@ import SanPham from "./component/layout/content/san-pham/san-pham.jsx";
 import ContactPage from "./pages/contact.jsx";
 import LandingPage from "./pages/landing.jsx";
 import { CheckoutProvider } from "./component/context/checkout.context.jsx";
+import ProductByBrand from "./component/home/product.by.brand.jsx";
 
 const router = createBrowserRouter([
   {
@@ -143,6 +144,10 @@ const router = createBrowserRouter([
       {
         path: "/about-us",
         element: <LandingPage />
+      },
+      {
+        path: "/brand",
+        element: <ProductByBrand />
       },
     ]
   },

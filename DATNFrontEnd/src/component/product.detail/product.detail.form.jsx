@@ -155,7 +155,7 @@ const ProDuctDetailForm = (props) => {
                                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                             }
                             options={weight}
-                            fieldNames={{ label: "name", value: "id" }}
+                            fieldNames={{ label: "weightValue", value: "id" }}
                         />
                     </Form.Item>
                 </Form>

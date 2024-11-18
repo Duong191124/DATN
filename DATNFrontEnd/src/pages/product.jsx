@@ -3,6 +3,7 @@ import ProductForm from "../component/product/product.form";
 import ProductTable from "../component/product/product.table";
 import { fetchDataPageAndFilterProduct } from "../service/api.service"; // Thay thế bằng hàm bạn đã cập nhật
 import { Input, Select, Button } from "antd";
+import { useLocation } from "react-router-dom";
 
 const { Option } = Select;
 
@@ -13,10 +14,21 @@ const ProductPage = () => {
   const [total, setTotal] = useState(0);
   const [searchName, setSearchName] = useState(""); // Trạng thái cho tên tìm kiếm
   const [status, setStatus] = useState(""); // Trạng thái cho lọc
+  const [brand, setBrand] = useState(""); // Trạng thái cho lọc
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const brandIdFromUrl = params.get("brand_id");
+    if (brandIdFromUrl) {
+      setBrand(brandIdFromUrl);
+    }
+  }, [location.search]);
+
 
   useEffect(() => {
     loadProduct();
-  }, [page, pageSize, searchName, status]); // Thêm status vào dependency array
+  }, [page, pageSize, searchName, status, brand]); // Thêm status vào dependency array
 
   const loadProduct = async () => {
     const res = await fetchDataPageAndFilterProduct(
@@ -24,7 +36,7 @@ const ProductPage = () => {
       searchName, // Tìm kiếm theo tên
       null, // sleeveId
       null, // collarId
-      null, // brandId
+      brand, // brandId
       status, // Trạng thái
       page,
       pageSize
@@ -42,6 +54,7 @@ const ProductPage = () => {
     setSearchName("");
     setStatus("");
     setPage(1);
+    setBrand("")
   };
 
   return (

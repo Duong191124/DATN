@@ -1,17 +1,19 @@
 import { FilterTwoTone, ReloadOutlined } from '@ant-design/icons';
-import { Row, Col, Form, Checkbox, Divider, InputNumber, Button, Empty } from 'antd'; // Thêm Empty từ Ant Design
+import { Row, Col, Form, Checkbox, Divider, InputNumber, Button, Empty, Pagination } from 'antd'; // Thêm Pagination từ Ant Design
 import { useEffect, useState } from 'react';
 import './san-pham.css';
 import { Link } from 'react-router-dom';
-import { fetchDataCategory, fetchDataProductAPI } from '../../../../service/api.service';
-import ChatBox from '../chat/chat';
+import { fetchDataCategory, fetchDataPageAndFilterProduct, fetchDataProductAPI } from '../../../../service/api.service';
+
 
 const SanPham = () => {
     const [form] = Form.useForm();
     const [listCategory, setListCategory] = useState([]);
     const [listProduct, setListProduct] = useState([]);
     const [filteredProduct, setFilteredProduct] = useState([]);
-
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize] = useState(10);
+    const [filterCondition, setFilterCondition] = useState({});
     useEffect(() => {
         const initCategory = async () => {
             const res = await fetchDataCategory();
@@ -27,51 +29,57 @@ const SanPham = () => {
     }, []);
 
     useEffect(() => {
-        const initProduct = async () => {
-            const res = await fetchDataProductAPI();
-            if (res.data && res.data.data) {
-                const product = res.data.data.map(item => ({
-                    title: item.name,
-                    price: item.price,
-                    image: item.image,
-                    id: item.id,
-                    categoryId: item.categoryId, // Ensure categoryId is included for filtering
-                }));
-                setListProduct(product);
-                setFilteredProduct(product);  // Set initial products as filtered
-            }
-        };
+
         initProduct();
-    }, []);
+    }, [filterCondition]);
 
+    const initProduct = async () => {
+        // filterCondition
+        console.log(filterCondition)
+        const res = await fetchDataPageAndFilterProduct(category_id);
+        if (res.data && res.data.data) {
+            const product = res.data.data;
+            setListProduct(product);
+            setFilteredProduct(product);
+        }
+    };
     const onFinish = (values) => {
-        const { category, range } = values; // Get category and range from the form
+        const { category, range } = values;
         const fromPrice = range?.from || 0;
-        const toPrice = range?.to || Infinity; // Set to Infinity if "to" is not defined
+        const toPrice = range?.to || Infinity;
 
-        console.log('Selected Categories:', category);
-        console.log('Price Range:', { fromPrice, toPrice });
-
-        // Filter products based on category and price range
         const filtered = listProduct.filter(product => {
-            const isInCategory = category ? category.includes(product.categoryId) : true;  // Check if category matches
-            const isInPriceRange = product.price >= fromPrice && product.price <= toPrice;  // Check if price is within range
+            const isInCategory = category ? category.includes(product.categoryId) : true;
+            const isInPriceRange = product.price >= fromPrice && product.price <= toPrice;
             return isInCategory && isInPriceRange;
         });
 
-        console.log('Filtered Products:', filtered);
-
-        setFilteredProduct(filtered); // Set the filtered products
+        setFilteredProduct(filtered);
+        setCurrentPage(1);
     };
 
     const handleReset = () => {
-        form.resetFields();  // Reset form fields
-        setFilteredProduct(listProduct);  // Reset to the original product list
+        form.resetFields();
+        setFilteredProduct(listProduct);
+        setCurrentPage(1);
     };
 
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+
+    const paginatedProducts = filteredProduct.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+    );
+
+    const checkBoxCategory = () => {
+        setFilterCondition(form.getFieldsValue())
+    }
     return (
         <div style={{ background: '#efefef', padding: "20px 0", marginTop: "70px" }}>
-            <div className="homepage-container" style={{ maxWidth: 1600, margin: '0 auto' }}>
+            <div className="homepage-container" style={{ maxWidth: 1700, margin: '0 auto' }}>
                 <Row gutter={[20, 20]}>
                     <Col md={4} sm={0} xs={0}>
                         <div style={{ padding: "20px", background: '#fff', borderRadius: 5 }}>
@@ -85,6 +93,7 @@ const SanPham = () => {
                             <Divider />
                             <Form
                                 onFinish={onFinish}
+                                onChange={checkBoxCategory}
                                 form={form}
                             >
                                 <Form.Item
@@ -92,11 +101,11 @@ const SanPham = () => {
                                     label="Danh mục sản phẩm"
                                     labelCol={{ span: 24 }}
                                 >
-                                    <Checkbox.Group>
+                                    <Checkbox.Group value={listCategory} >
                                         <Row>
-                                            {listCategory?.map((item, index) => {
+                                            {listCategory?.map((item) => {
                                                 return (
-                                                    <Col span={24} key={`index-${index}`} style={{ padding: '7px 0' }}>
+                                                    <Col lg={24} span={24} key={item.value} style={{ padding: '7px 0' }}>
                                                         <Checkbox value={item.value}>
                                                             {item.label}
                                                         </Checkbox>
@@ -147,12 +156,12 @@ const SanPham = () => {
                     </Col>
                     <Col md={20} sm={24} xs={24}>
                         <div className="customize-row" style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '5px' }}>
-                            {filteredProduct?.length === 0 ? (
+                            {paginatedProducts?.length === 0 ? (
                                 <div className="empty-message-container">
                                     <Empty description="Không có sản phẩm" />
                                 </div>
                             ) : (
-                                filteredProduct?.map((product, index) => (
+                                paginatedProducts?.map((product, index) => (
                                     <div className="column" key={index}>
                                         <div className="wrapper">
                                             <Link to={`/product/${product.id}`}>
@@ -166,11 +175,22 @@ const SanPham = () => {
                                     </div>
                                 ))
                             )}
+                            <Row justify="center" style={{ marginTop: 350 }}>
+                                <Pagination
+                                    current={currentPage}
+                                    total={filteredProduct.length}
+                                    pageSize={pageSize}
+                                    onChange={handlePageChange}
+                                    showSizeChanger={false}
+                                />
+                            </Row>
                         </div>
                     </Col>
                 </Row>
+
+
             </div>
-            <ChatBox />
+
         </div>
     );
 };

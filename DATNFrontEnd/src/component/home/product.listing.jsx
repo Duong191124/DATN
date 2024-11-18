@@ -7,6 +7,7 @@ import debounce from 'lodash/debounce';
 import { motion, AnimatePresence } from 'framer-motion';
 import moment from 'moment';
 import ProductCard from './product.card';
+import ProductByBrand from './product.by.brand';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -38,6 +39,8 @@ const mockProducts = Array.from({ length: 50 }, (_, index) => ({
     brand: ['Brand A', 'Brand B', 'Brand C', 'Brand D'][Math.floor(Math.random() * 4)],
     createdAt: moment().subtract(Math.floor(Math.random() * 30), 'days').format(),
 }));
+
+
 
 const ProductList = () => {
     const [products, setProducts] = useState(mockProducts);
@@ -177,6 +180,28 @@ const ProductList = () => {
                     </AnimatePresence>
                 </Row>
             </motion.div>
+
+            <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+            >
+                <Row gutter={[24, 24]}>
+                    <AnimatePresence>
+                        {paginatedProducts.map(product => (
+                            <Col xs={24} sm={12} md={8} lg={6} key={product.id}>
+                                <ProductByBrand
+                                    product={product}
+                                    onAddToCart={handleAddToCart}
+                                    onAddToWishlist={handleAddToWishlist}
+                                    onQuickView={handleQuickView}
+                                />
+                            </Col>
+                        ))}
+                    </AnimatePresence>
+                </Row>
+            </motion.div>
+
 
             <Row justify="center" style={{ marginTop: 48 }}>
                 <Pagination
