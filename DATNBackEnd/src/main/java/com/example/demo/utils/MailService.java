@@ -85,28 +85,62 @@ public class MailService {
         props.put("mail.smtp.starttls.required", "true");
 
         String subject = "Track Your Order";
-        String htmlContent = "<!DOCTYPE html>" +
-                "<html lang='en'>" +
-                "<head>" +
-                "<style>" +
-                "  body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }" +
-                "  .email-container { max-width: 600px; margin: 20px auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }" +
-                "  .email-header { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333333; }" +
-                "  .email-content { font-size: 16px; color: #555555; margin-bottom: 20px; }" +
-                "  .email-button { display: inline-block; text-decoration: none; padding: 10px 20px; background-color: #007bff; color: white; font-weight: bold; border-radius: 5px; margin-top: 20px; }" +
-                "  .email-button:hover { background-color: #0056b3; }" +
-                "</style>" +
-                "</head>" +
-                "<body>" +
-                "  <div class='email-container'>" +
-                "    <div class='email-header'>Thank you for your order!</div>" +
-                "    <div class='email-content'>" +
-                "      Your tracking ID is: <strong>" + tracking + "</strong>.<br>" +
-                "      You can track your order by clicking the button below." +
-                "    </div>" +
-                "    <a class='email-button' href='https://tracking.ghn.dev/?order_code=" + tracking + "' target='_blank'>Track Your Order</a>" +
-                "  </div>" +
-                "</body>" +
+        String htmlContent = "<!DOCTYPE html>\n" +
+                "<html lang=\"en\">\n" +
+                "<head>\n" +
+                "    <meta charset=\"UTF-8\">\n" +
+                "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
+                "    <title>Sport Swear - Order Tracking</title>\n" +
+                "</head>\n" +
+                "<body style=\"margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; background-color: #f7f7f7; -webkit-font-smoothing: antialiased; line-height: 1.6;\">\n" +
+                "    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"margin: 0; padding: 0;\">\n" +
+                "        <tr>\n" +
+                "            <td align=\"center\" style=\"padding: 20px 0;\">\n" +
+                "                <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);\">\n" +
+                "                    <!-- Header with Logo -->\n" +
+                "                    <tr>\n" +
+                "                        <td style=\"padding: 30px 30px 20px; text-align: center;\">\n" +
+                "                            <h1 style=\"margin: 0; color: #333333; font-size: 28px; font-weight: bold;\">Sport Swear</h1>\n" +
+                "                        </td>\n" +
+                "                    </tr>\n" +
+                "                    \n" +
+                "                    <!-- Main Content -->\n" +
+                "                    <tr>\n" +
+                "                        <td style=\"padding: 0 30px;\">\n" +
+                "                            <div style=\"padding: 20px; background-color: #f8f9fa; border-radius: 6px; margin-bottom: 20px;\">\n" +
+                "                                <h2 style=\"margin: 0 0 15px; color: #1a73e8; font-size: 22px;\">Thank You for Your Order!</h2>\n" +
+                "                                <p style=\"margin: 0; color: #555555; font-size: 16px;\">We're excited to let you know that your order is on its way.</p>\n" +
+                "                            </div>\n" +
+                "                            \n" +
+                "                            <!-- Tracking Info -->\n" +
+                "                            <div style=\"margin-bottom: 30px;\">\n" +
+                "                                <p style=\"margin: 0 0 10px; color: #333333; font-size: 16px;\">Your tracking number:</p>\n" +
+                "                                <div style=\"padding: 15px; background-color: #e8f0fe; border-radius: 4px; font-family: monospace; font-size: 18px; color: #1a73e8; text-align: center;\">\n" +
+                "                                    <strong>"+ tracking +"</strong>\n" +
+                "                                </div>\n" +
+                "                            </div>\n" +
+                "                            \n" +
+                "                            <!-- Track Button -->\n" +
+                "                            <div style=\"text-align: center; margin-bottom: 30px;\">\n" +
+                "                                <a href=\"https://tracking.ghn.dev/?order_code=" + tracking +" \"\" style=\"display: inline-block; padding: 14px 30px; background-color: #1a73e8; color: #ffffff; text-decoration: none; font-weight: bold; border-radius: 4px; font-size: 16px; transition: background-color 0.2s;\">Track Your Order</a>\n" +
+                "                            </div>\n" +
+                "                        </td>\n" +
+                "                    </tr>\n" +
+                "                    \n" +
+                "                    <!-- Footer -->\n" +
+                "                    <tr>\n" +
+                "                        <td style=\"padding: 20px 30px; background-color: #f8f9fa; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;\">\n" +
+                "                            <p style=\"margin: 0; color: #666666; font-size: 14px; text-align: center;\">\n" +
+                "                                If you have any questions, please contact our support team.<br>\n" +
+                "                                © 2024 Sport Swear. All rights reserved.\n" +
+                "                            </p>\n" +
+                "                        </td>\n" +
+                "                    </tr>\n" +
+                "                </table>\n" +
+                "            </td>\n" +
+                "        </tr>\n" +
+                "    </table>\n" +
+                "</body>\n" +
                 "</html>";
 
         try {
