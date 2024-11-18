@@ -1,13 +1,13 @@
 // InfoAddress.js
 
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Col, Form, Row, message } from 'antd';
+import { Button, Card, Col, Form, Modal, Row, Tooltip, message } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, EnvironmentOutlined, PhoneOutlined, UserOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import AddressModal from '../address/address.select';
-import { getAddressByCustomerId } from '../../service/api.service';
+import { deleteAddressByid, getAddressByCustomerId } from '../../service/api.service';
 
 // Styled Components
 const AddressContainer = styled.div`
@@ -80,7 +80,6 @@ const InfoAddress = ({ user }) => {
     const getAddressByid = async () => {
         const res = await getAddressByCustomerId(user.data.id)
         setAddresses(res.data.data);
-        console.log("check: ", res.data.data);
     }
 
     useEffect(() => {
@@ -127,12 +126,18 @@ const InfoAddress = ({ user }) => {
             okButtonProps: {
                 danger: true
             },
-            onOk: () => {
-                setAddresses(addresses.filter(addr => addr.id !== id));
-                message.success(t('Address deleted successfully'));
+            onOk: async () => {
+                try {
+                    await deleteAddressByid(id);
+                    getAddressByid();
+                    message.success(t('Address deleted successfully'));
+                } catch (error) {
+                    message.error(t('Failed to delete address'));
+                }
             }
         });
     };
+
 
     return (
         <AddressContainer>
@@ -141,20 +146,24 @@ const InfoAddress = ({ user }) => {
                     <AddressTitle>{t('My Addresses')}</AddressTitle>
                 </Col>
                 <Col>
-                    <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={() => showModal()}
-                        size="large"
-                        style={{
-                            background: '#1a1a1a',
-                            borderRadius: '8px',
-                            height: '44px',
-                            paddingInline: '24px',
-                        }}
-                    >
-                        {t('Add Address')}
-                    </Button>
+                    <Tooltip title={addresses.length >= 3 ? t('You can only add up to 3 addresses') : ''}>
+                        <Button
+                            type="primary"
+                            icon={<PlusOutlined />}
+                            onClick={() => showModal()}
+                            size="large"
+                            disabled={addresses.length >= 3}
+                            style={{
+                                background: addresses.length >= 3 ? '#cccccc' : '#1a1a1a',
+                                borderRadius: '8px',
+                                height: '44px',
+                                paddingInline: '24px',
+                                cursor: addresses.length >= 3 ? 'not-allowed' : 'pointer',
+                            }}
+                        >
+                            {t('Add Address')}
+                        </Button>
+                    </Tooltip>
                 </Col>
             </Row>
 
@@ -208,16 +217,20 @@ const InfoAddress = ({ user }) => {
                             </StyledCard>
                         </motion.div>
                     ))}
+                    <div style={{ height: 50 }} ></div>
                 </AnimatePresence>
             </ScrollContainer>
 
             {/* Address Modal Component */}
             <AddressModal
+                setIsModalVisible={setIsModalVisible}
+                userID={user.data.id}
                 isModalVisible={isModalVisible}
                 handleCancel={handleCancel}
                 handleSubmit={handleSubmit}
                 form={form}
                 editingAddress={editingAddress}
+                getAddressByid={getAddressByid}
             />
         </AddressContainer>
     );

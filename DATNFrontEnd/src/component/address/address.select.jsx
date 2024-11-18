@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, Row, Col, Button, Select } from 'antd';
+import { Modal, Form, Input, Row, Col, Button, Select, message } from 'antd';
 import { UserOutlined, PhoneOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { getDistrict, getProvinces, getWards } from '../../service/api.service';
+import { getDistrict, getProvinces, getWards, saveAddressByid, updateAddressByid } from '../../service/api.service';
 
-const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editingAddress }) => {
+const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, editingAddress, userID, getAddressByid }) => {
     const { t, i18n } = useTranslation();
     const language = localStorage.getItem("language") || "vi";
     const [provinces, setProvinces] = useState([]);
@@ -72,11 +72,41 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
         }
     }, [selectedDistrict]);
 
-    const onFormSubmit = (values) => {
+    const onFormSubmit = async (values) => {
         if (editingAddress) {
-            console.log('Form edit:', values);
+            try {
+                await updateAddressByid(
+                    editingAddress.id,
+                    values.province,
+                    values.district,
+                    values.ward,
+                    values.name,
+                    values.phone,
+                    values.address,
+                );
+                setIsModalVisible(false);
+                message.success("update success")
+                getAddressByid();
+            } catch (error) {
+                message.error("check error: ", error);
+            }
         } else {
-            console.log('Form save:', values);
+            try {
+                await saveAddressByid(
+                    userID,
+                    values.province,
+                    values.district,
+                    values.ward,
+                    values.name,
+                    values.phone,
+                    values.address,
+                );
+                setIsModalVisible(false);
+                message.success("create success");
+                getAddressByid();
+            } catch (error) {
+                message.error("check error: ", error);
+            }
         }
 
     };

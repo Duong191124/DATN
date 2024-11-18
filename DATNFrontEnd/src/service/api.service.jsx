@@ -1090,7 +1090,7 @@ const saveAddressByid = (
   phoneNumber,
   addressDetail
 ) => {
-  const URL_BACKEND = `/api/v1/address/}`;
+  const URL_BACKEND = `/api/v1/address`;
   const data = {
     customerId,
     city,
@@ -1105,7 +1105,7 @@ const saveAddressByid = (
 }
 
 const updateAddressByid = (
-  customerId,
+  addressId,
   city,
   district,
   ward,
@@ -1121,12 +1121,12 @@ const updateAddressByid = (
     phoneNumber,
     addressDetail
   }
-  const URL_BACKEND = `/api/v1/address/${customerId}`;
+  const URL_BACKEND = `/api/v1/address/${addressId}`;
   return axios.put(URL_BACKEND, data);
 }
 
-const deleteAddressByid = (customerId) => {
-  const URL_BACKEND = `/api/v1/address/${customerId}`;
+const deleteAddressByid = (addressId) => {
+  const URL_BACKEND = `/api/v1/address/${addressId}`;
   return axios.delete(URL_BACKEND);
 }
 
