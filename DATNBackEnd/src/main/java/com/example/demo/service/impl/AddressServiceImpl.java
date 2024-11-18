@@ -31,6 +31,7 @@ public class AddressServiceImpl implements AddressService {
         // Ánh xạ sang AddressResponseDTO
         return addresses.stream()
                 .map(address -> Address.builder()
+                        .id(address.getId())
                         .name(address.getName())
                         .phoneNumber(address.getPhoneNumber())
                         .city(address.getCity())
