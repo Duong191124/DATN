@@ -154,18 +154,7 @@ public class ProductController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable int id) {
-        try {
-            productService.deletedProduct(id);
-            return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
-                    .message("delete product successfully")
-                    .status(HttpStatus.OK.value())
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
+
     @GetMapping("productId/{id}")
     public ResponseEntity<?> getById(@PathVariable Integer id){
         try {

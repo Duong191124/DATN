@@ -18,7 +18,6 @@ public interface ProductDetailRepo extends JpaRepository<ProductDetail, Integer>
     List<ProductDetail> findByProductId(Integer productId);
     ProductDetail findProductDetailByCode(String code);
 
-
     @Query("SELECT pdt FROM ProductDetail pdt " +
             "JOIN pdt.product p " +
             "JOIN pdt.color cl " +

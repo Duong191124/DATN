@@ -77,19 +77,19 @@ public class BrandController {
 //        }
 //    }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteBrand(@PathVariable("id") Integer id) {
-        try {
-            brandService.deleteBrand(id);
-            return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
-                    .message("delete brand successfully")
-                    .status(HttpStatus.OK.value())
-                    .build());
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-
-        }
-    }
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<?> deleteBrand(@PathVariable("id") Integer id) {
+//        try {
+//            brandService.deleteBrand(id);
+//            return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
+//                    .message("delete brand successfully")
+//                    .status(HttpStatus.OK.value())
+//                    .build());
+//
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+//
+//        }
+//    }
 
 }

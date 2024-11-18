@@ -47,4 +47,5 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     List<Product> findBySleeveId(Integer sleeveId);
 
     List<Product> findByCategoryId(Integer categoryId);
+
 }
