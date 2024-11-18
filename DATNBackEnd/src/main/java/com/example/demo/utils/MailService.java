@@ -122,7 +122,7 @@ public class MailService {
                 "                            \n" +
                 "                            <!-- Track Button -->\n" +
                 "                            <div style=\"text-align: center; margin-bottom: 30px;\">\n" +
-                "                                <a href=\"https://tracking.ghn.dev/?order_code=" + tracking +" \"\" style=\"display: inline-block; padding: 14px 30px; background-color: #1a73e8; color: #ffffff; text-decoration: none; font-weight: bold; border-radius: 4px; font-size: 16px; transition: background-color 0.2s;\">Track Your Order</a>\n" +
+                "                                <a href=\"http://localhost:3000/tracking?tracking_code=" + tracking +" \"\" style=\"display: inline-block; padding: 14px 30px; background-color: #1a73e8; color: #ffffff; text-decoration: none; font-weight: bold; border-radius: 4px; font-size: 16px; transition: background-color 0.2s;\">Track Your Order</a>\n" +
                 "                            </div>\n" +
                 "                        </td>\n" +
                 "                    </tr>\n" +
