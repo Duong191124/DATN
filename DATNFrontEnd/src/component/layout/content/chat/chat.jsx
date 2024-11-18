@@ -6,11 +6,16 @@ import debounce from "lodash/debounce";
 import { ChatService } from "../../../../service/chat.service/chat.service";
 
 const ChatContainer = styled(motion.div)`
+  display: flex;
+  justify-content: end;
+  width: 600px;
+  height: 140px;
   position: fixed;
-  bottom: 24px;
+  bottom: 20px;
   right: 24px;
   z-index: 1000;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial;
 `;
 
 const ChatButton = styled(motion.button)`
@@ -34,7 +39,7 @@ const ChatButton = styled(motion.button)`
 const ChatWindow = styled(motion.div)`
   position: absolute;
   bottom: 80px;
-  right: 0;
+  right: 60px;
   width: 380px;
   height: 600px;
   background: #fff;
@@ -108,12 +113,15 @@ const Message = styled.div`
   border-radius: 12px;
   font-size: 14px;
   line-height: 1.4;
-  
-  ${props => props.$isBot ? `
+
+  ${(props) =>
+    props.$isBot
+      ? `
     align-self: flex-start;
     background: #f0f0f0;
     color: #000;
-  ` : `
+  `
+      : `
     align-self: flex-end;
     background: #000;
     color: #fff;
@@ -213,9 +221,19 @@ const TypingIndicator = styled.div`
   }
 
   @keyframes bounce {
-    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-3px); }
-    60% { transform: translateY(-2px); }
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-3px);
+    }
+    60% {
+      transform: translateY(-2px);
+    }
   }
 `;
 
@@ -256,17 +274,23 @@ export default function ChatBox() {
     if (!messageContent.trim()) return;
 
     const newMessage = { content: messageContent, sender: "user" };
-    setMessages(prev => [...prev, newMessage]);
+    setMessages((prev) => [...prev, newMessage]);
     setInput("");
     setTypingBot(true);
 
     try {
       const res = await ChatService(messageContent);
       const botResponse = { content: res.data, sender: "bot" };
-      setMessages(prev => [...prev, botResponse]);
+      setMessages((prev) => [...prev, botResponse]);
     } catch (error) {
       console.error("Error sending message:", error);
-      setMessages(prev => [...prev, { content: "Sorry, something went wrong. Please try again.", sender: "bot" }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          content: "Sorry, something went wrong. Please try again.",
+          sender: "bot",
+        },
+      ]);
     } finally {
       setTypingBot(false);
       setIsLoading(false);
@@ -289,13 +313,6 @@ export default function ChatBox() {
 
   return (
     <ChatContainer ref={chatboxRef}>
-      <ChatButton
-        onClick={() => setIsOpen(!isOpen)}
-        whileTap={{ scale: 0.95 }}
-      >
-        <MessageFilled style={{ fontSize: 24, color: "#fff" }} />
-      </ChatButton>
-
       <AnimatePresence>
         {isOpen && (
           <ChatWindow
@@ -369,6 +386,9 @@ export default function ChatBox() {
           </ChatWindow>
         )}
       </AnimatePresence>
+      <ChatButton onClick={() => setIsOpen(!isOpen)} whileTap={{ scale: 0.95 }}>
+        <MessageFilled style={{ fontSize: 24, color: "#fff" }} />
+      </ChatButton>
     </ChatContainer>
   );
 }

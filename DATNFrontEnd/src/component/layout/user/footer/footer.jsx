@@ -11,6 +11,7 @@ import {
   ClockCircleOutlined,
 } from "@ant-design/icons";
 import styled from "styled-components";
+import ChatBox from "../../content/chat/chat";
 
 const { Title, Text } = Typography;
 
@@ -40,7 +41,7 @@ const FooterTitle = styled(Title)`
     padding-bottom: 12px;
 
     &:after {
-      content: '';
+      content: "";
       position: absolute;
       bottom: 0;
       left: 0;
@@ -142,6 +143,7 @@ const CertificationImage = styled.img`
 const Footer = () => {
   return (
     <FooterWrapper>
+      <ChatBox />
       <FooterContainer>
         <Row gutter={[48, 32]}>
           <Col xs={24} sm={12} md={6}>

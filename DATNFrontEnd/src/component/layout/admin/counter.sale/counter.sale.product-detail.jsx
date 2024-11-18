@@ -2,6 +2,7 @@ import {
   Button,
   Col,
   Input,
+  message,
   Modal,
   notification,
   Radio,
@@ -30,7 +31,7 @@ const CounterSalesProductDetail = ({
   dataColor,
 }) => {
   const [selectedRow, setSelectedRow] = useState(null);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity] = useState(1);
   const [loadingPD, setLoadingPD] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -143,7 +144,7 @@ const CounterSalesProductDetail = ({
   const handleConfirm = async (record) => {
     setSelectedRow(record);
     if (!selectedBill) {
-      notification.error({
+      message.warning({
         message: "Lỗi",
         description: "Vui lòng chọn hóa đơn trước khi thêm sản phẩm.",
       });
@@ -152,14 +153,10 @@ const CounterSalesProductDetail = ({
     if (record) {
       const productToAdd = {
         ...record,
-        quantity: 1,
       };
       const addCart = await onAddToCart(productToAdd, quantity);
       if (addCart) {
-        notification.success({
-          message: "Thêm sản phẩm",
-          description: `Thêm ${quantity} sản phẩm thành công`,
-        });
+        message.success(`Thêm ${quantity} sản phẩm thành công`);
       } else {
         notification.error({
           message: "Lỗi",
@@ -173,16 +170,6 @@ const CounterSalesProductDetail = ({
       });
     }
   };
-
-  useEffect(() => {
-    if (selectedRow) {
-      const productToAdd = {
-        ...selectedRow,
-        quantity: 1,
-      };
-      onAddToCart(productToAdd, quantity);
-    }
-  }, [selectedRow]);
 
   const handlePriceChange = (value) => {
     const newFilters = {
@@ -344,7 +331,8 @@ const CounterSalesProductDetail = ({
                 <Row>
                   <Col span={11}>
                     <p style={{ fontSize: "16px" }}>
-                      Giá: {filter.minPrice} - {filter.maxPrice}
+                      Giá: {(filter.minPrice ?? 0).toLocaleString()} đ -{" "}
+                      {(filter.maxPrice ?? 10000000).toLocaleString()} đ
                     </p>
                     <Slider
                       range
@@ -356,6 +344,7 @@ const CounterSalesProductDetail = ({
                       ]}
                       onChange={handlePriceChange}
                       style={{ width: "100%", marginBottom: "10px" }}
+                      tooltipVisible={false}
                     />
                   </Col>
                 </Row>

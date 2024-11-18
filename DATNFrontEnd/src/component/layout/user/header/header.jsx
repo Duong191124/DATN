@@ -105,6 +105,9 @@ const Header = () => {
                   <NavLink to={"/product"}>{t("MES-006")}</NavLink>
                 </li>
                 <li>
+                  <NavLink to={"/tracking"}>{t("MES-007")}</NavLink>
+                </li>
+                <li>
                   <NavLink to={"/about-us"}>{t("MES-046")}</NavLink>
                 </li>
                 <li>

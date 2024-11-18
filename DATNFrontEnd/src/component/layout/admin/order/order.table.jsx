@@ -513,7 +513,7 @@ const OrderTable = (props) => {
         <p style="font-size: 16px;">Ngày: ${orderDetails.orderDate}</p>
         <p style="font-size: 16px;"> Nhân viên: ${
           orderDetails?.staffResponse?.name ?? "Không có nhân viên"
-        }</p>
+        }</p> 
         <p style="font-size: 16px;">Khách hàng: ${
           orderDetails.customerResponse.name
         }</p>
@@ -542,8 +542,7 @@ const OrderTable = (props) => {
               <span>Giảm giá hóa đơn:</span>
             ${
               orderDetails.voucherId
-                ? orderDetails.voucherId.discountAmount !== "0" &&
-                  orderDetails.voucherId.discountPercent === undefined
+                ? orderDetails.voucherId.discountAmount !== "0"
                   ? `${orderDetails.voucherId.discountAmount} VND`
                   : `${orderDetails.voucherId.discountPercent}%`
                 : "0 VND (0%)"
