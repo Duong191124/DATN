@@ -1081,7 +1081,59 @@ const getAddressByCustomerId = (customerId) => {
   return axios.get(URL_BACKEND);
 }
 
+const saveAddressByid = (
+  customerId,
+  city,
+  district,
+  ward,
+  name,
+  phoneNumber,
+  addressDetail
+) => {
+  const URL_BACKEND = `/api/v1/address/}`;
+  const data = {
+    customerId,
+    city,
+    district,
+    ward,
+    name,
+    phoneNumber,
+    addressDetail
+  };
+
+  return axios.post(URL_BACKEND, data);
+}
+
+const updateAddressByid = (
+  customerId,
+  city,
+  district,
+  ward,
+  name,
+  phoneNumber,
+  addressDetail
+) => {
+  const data = {
+    city,
+    district,
+    ward,
+    name,
+    phoneNumber,
+    addressDetail
+  }
+  const URL_BACKEND = `/api/v1/address/${customerId}`;
+  return axios.put(URL_BACKEND, data);
+}
+
+const deleteAddressByid = (customerId) => {
+  const URL_BACKEND = `/api/v1/address/${customerId}`;
+  return axios.delete(URL_BACKEND);
+}
+
 export {
+  deleteAddressByid,
+  updateAddressByid,
+  saveAddressByid,
   createOrderForOnline,
   getAddressByCustomerId,
   getProvinces,
