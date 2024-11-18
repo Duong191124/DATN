@@ -11,7 +11,7 @@ i18n
     .init({
         supportedLngs: ['en', 'vi'],
         fallbackLng: 'en',
-        debug: true,
+        debug: false,
         backend: {
             loadPath: '/assets/i18n/{{lng}}.json'
         },

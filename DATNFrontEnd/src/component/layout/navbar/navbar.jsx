@@ -110,8 +110,7 @@ const getLevelKeys = (items1) => {
   return key;
 };
 const levelKeys = getLevelKeys(items);
-const NavbarAdmin = () => {
-  const [collapsed, setCollapsed] = useState(false);
+const NavbarAdmin = ({ collapsed }) => {
   const [stateOpenKeys, setStateOpenKeys] = useState(["2", "23"]);
 
   const onOpenChange = (openKeys) => {
@@ -136,22 +135,8 @@ const NavbarAdmin = () => {
     }
   };
 
-  const toggleCollapsed = () => {
-    setCollapsed(!collapsed);
-  };
   return (
     <>
-      <Button
-        onClick={toggleCollapsed}
-        style={{
-          margin: "16px",
-          backgroundColor: "#1890ff",
-          color: "white",
-          zIndex: 1000,
-        }}
-      >
-        {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-      </Button>
       <Menu
         mode="inline"
         defaultSelectedKeys={["123"]}

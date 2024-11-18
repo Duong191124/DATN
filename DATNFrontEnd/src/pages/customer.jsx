@@ -34,6 +34,7 @@ const CustomerPage = () => {
 
   return (
     <>
+      <h1 style={{ textAlign: 'center' }}>Customer manager</h1>
       <Button
         onClick={() => {
           hanleOpenCreate();
