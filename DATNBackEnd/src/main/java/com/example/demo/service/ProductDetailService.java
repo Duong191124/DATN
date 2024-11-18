@@ -18,7 +18,7 @@ public interface ProductDetailService {
 
     ProductDetailResponse getPDById(Integer id) throws Exception;
     ProductDetailResponse getPDByCode(String code);
-
+    List<ProductDetailResponse> getTopFeaturedProducts(Pageable pageable);
     void deletePD(Integer id) throws Exception;
     Page<ProductDetailResponse> pageAndFilterWithProductDetailResponse(String productName, String code, String colorName, String sizeName,String weightName, Double minPrice,Double maxPrice,Integer status, Pageable pageable);
     ProductDetail uploadImageForProductDetail(Integer productId, Integer productDetailId, MultipartFile file) throws Exception;

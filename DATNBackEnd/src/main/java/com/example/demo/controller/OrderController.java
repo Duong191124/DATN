@@ -60,7 +60,7 @@ public class  OrderController {
             @RequestParam(defaultValue = "0", required = false) int page,
             @RequestParam(defaultValue = "10", required = false) int limit
     ) {
-        Pageable pageable = PageRequest.of(page, limit, Sort.by("orderDate").descending());
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("createdAt").descending());
         Page<OrderResponse> orders = orderService.pageAll(staffName, startDate, endDate, orderStatus, orderCode, pageable);
         List<OrderResponse> orderResponses = orders.getContent();
         int totalPage = orders.getTotalPages();

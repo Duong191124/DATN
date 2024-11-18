@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Carousel } from 'antd';
-import { motion } from 'framer-motion';
-import { ArrowRightOutlined } from '@ant-design/icons';
-import styled from 'styled-components';
+import React, { useState } from "react";
+import { Carousel } from "antd";
+import { motion } from "framer-motion";
+import { ArrowRightOutlined } from "@ant-design/icons";
+import styled from "styled-components";
 
-const DEFAULT_IMAGE = 'https://picsum.photos/1600/900'; // Ảnh mặc định từ Picsum
+const DEFAULT_IMAGE = "https://picsum.photos/1600/900"; // Ảnh mặc định từ Picsum
 
 const SliderContainer = styled.div`
   margin: 0 32px;
@@ -96,104 +96,98 @@ const SlideImage = styled.div`
   background-size: cover;
   background-position: center;
   transition: transform 6s ease;
-  background-image: url(${props => props.src || DEFAULT_IMAGE});
-  
+  background-image: url(${(props) => props.src || DEFAULT_IMAGE});
+
   &::before {
-    content: '';
+    content: "";
     display: block;
     padding-top: 56.25%; // 16:9 aspect ratio
   }
 `;
 
 const HomeSlider = () => {
-    const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
 
-    const slideData = [
-        {
-            imageUrl: 'https://picsum.photos/seed/slide1/1600/900',
-            title: 'Discover Nature',
-            description: 'Explore breathtaking landscapes and natural wonders that will leave you in awe.',
-            link: '/nature'
-        },
-        {
-            imageUrl: 'https://picsum.photos/seed/slide2/1600/900',
-            title: 'Urban Adventures',
-            description: 'Experience the vibrant energy of city life through stunning architectural marvels.',
-            link: '/urban'
-        },
-        {
-            imageUrl: 'https://picsum.photos/seed/slide3/1600/900',
-            title: 'Artistic Expression',
-            description: 'Immerse yourself in a world of creativity and artistic inspiration.',
-            link: '/art'
-        }
-    ];
+  const slideData = [
+    {
+      imageUrl: "https://picsum.photos/seed/slide1/1600/900",
+      title: "Discover Nature",
+      description:
+        "Explore breathtaking landscapes and natural wonders that will leave you in awe.",
+      link: "/nature",
+    },
+    {
+      imageUrl: "https://picsum.photos/seed/slide2/1600/900",
+      title: "Urban Adventures",
+      description:
+        "Experience the vibrant energy of city life through stunning architectural marvels.",
+      link: "/urban",
+    },
+    {
+      imageUrl: "https://picsum.photos/seed/slide3/1600/900",
+      title: "Artistic Expression",
+      description:
+        "Immerse yourself in a world of creativity and artistic inspiration.",
+      link: "/art",
+    },
+  ];
 
-    const contentVariants = {
-        hidden: {
-            opacity: 0,
-            y: 50
-        },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                duration: 0.8,
-                ease: [0.6, -0.05, 0.01, 0.99]
-            }
-        }
-    };
+  const contentVariants = {
+    hidden: {
+      opacity: 0,
+      y: 50,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        ease: [0.6, -0.05, 0.01, 0.99],
+      },
+    },
+  };
 
-    return (
-        <SliderContainer>
-            <Carousel
-                autoplay
-                effect="fade"
-                afterChange={setActiveIndex}
-                dots={{ className: 'custom-dots' }}
-                style={{ height: '100%' }}
+  return (
+    <SliderContainer>
+      <Carousel
+        autoplay
+        effect="fade"
+        afterChange={setActiveIndex}
+        dots={{ className: "custom-dots" }}
+        style={{ height: "100%" }}
+      >
+        {slideData.map((slide, index) => (
+          <div key={index} style={{ position: "relative", height: "600px" }}>
+            <SlideImage
+              src={slide.imageUrl}
+              style={{
+                transform: activeIndex === index ? "scale(1.1)" : "scale(1)",
+              }}
+            />
+            <Overlay />
+            <SlideContent
+              initial="hidden"
+              animate={activeIndex === index ? "visible" : "hidden"}
+              variants={{
+                hidden: { opacity: 0, y: 50 },
+                visible: { opacity: 1, y: 0 },
+              }}
+              transition={{ duration: 0.5, delay: 0.2 }}
             >
-                {slideData.map((slide, index) => (
-                    <div key={index} style={{ position: 'relative', height: '600px' }}>
-                        <SlideImage
-                            src={slide.imageUrl}
-                            style={{
-                                transform: activeIndex === index ? 'scale(1.1)' : 'scale(1)',
-                            }}
-                        />
-                        <Overlay />
-                        <SlideContent
-                            initial="hidden"
-                            animate={activeIndex === index ? "visible" : "hidden"}
-                            variants={{
-                                hidden: { opacity: 0, y: 50 },
-                                visible: { opacity: 1, y: 0 }
-                            }}
-                            transition={{ duration: 0.5, delay: 0.2 }}
-                        >
-                            <Title
-                                variants={contentVariants}
-                            >
-                                {slide.title}
-                            </Title>
-                            <Description
-                                variants={contentVariants}
-                            >
-                                {slide.description}
-                            </Description>
-                            <LearnMoreButton
-                                href={slide.link}
-                                variants={contentVariants}
-                            >
-                                Learn More
-                                <ArrowRightOutlined className="icon" />
-                            </LearnMoreButton>
-                        </SlideContent>
-                    </div>
-                ))}
-            </Carousel>
+              <Title variants={contentVariants}>{slide.title}</Title>
+              <Description variants={contentVariants}>
+                {slide.description}
+              </Description>
+              <LearnMoreButton href={slide.link} variants={contentVariants}>
+                Learn More
+                <ArrowRightOutlined className="icon" />
+              </LearnMoreButton>
+            </SlideContent>
+          </div>
+        ))}
+      </Carousel>
 
-            <style>{`
+      <style>{`
         .ant-carousel .slick-dots {
           bottom: 24px;
         }
@@ -209,8 +203,8 @@ const HomeSlider = () => {
           background: white;
         }
       `}</style>
-        </SliderContainer>
-    );
+    </SliderContainer>
+  );
 };
 
 export default HomeSlider;

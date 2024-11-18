@@ -1,4 +1,8 @@
-import { ShoppingCartOutlined, UserOutlined, GlobalOutlined } from "@ant-design/icons";
+import {
+  ShoppingCartOutlined,
+  UserOutlined,
+  GlobalOutlined,
+} from "@ant-design/icons";
 import { Badge, Button, Dropdown, Input, Menu, message, Select } from "antd";
 import "./header.css";
 import { Link, NavLink, useNavigate } from "react-router-dom";
@@ -10,7 +14,7 @@ import { useTranslation } from "react-i18next";
 const Header = () => {
   const { t, i18n } = useTranslation();
   const [openCart, setOpenCart] = useState(false);
-  const [language, setLanguage] = useState('');
+  const [language, setLanguage] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
   const { setCartItems } = useCart();
@@ -24,7 +28,7 @@ const Header = () => {
   useEffect(() => {
     const loggedIn = !!localStorage.getItem("access_token");
     setIsLoggedIn(loggedIn);
-    const savedLanguage = localStorage.getItem('i18nextLng'); // Kiểm tra ngôn ngữ đã lưu trong localStorage
+    const savedLanguage = localStorage.getItem("i18nextLng"); // Kiểm tra ngôn ngữ đã lưu trong localStorage
     if (savedLanguage) {
       setLanguage(savedLanguage);
       i18n.changeLanguage(savedLanguage); // Thay đổi ngôn ngữ theo giá trị đã lưu
@@ -35,9 +39,9 @@ const Header = () => {
     try {
       localStorage.removeItem("access_token");
       localStorage.removeItem("user");
-      localStorage.removeItem("userId")
+      localStorage.removeItem("userId");
       localStorage.removeItem("loginStatus");
-      const guestCart = JSON.parse(localStorage.getItem('guestCart')) || [];
+      const guestCart = JSON.parse(localStorage.getItem("guestCart")) || [];
       setCartItems(guestCart);
       setIsLoggedIn(false);
       message.success(t("MES-022"));
@@ -89,15 +93,23 @@ const Header = () => {
             </div>
             <div className="menu">
               <ul>
-                <li><NavLink to={"/"}>{t("MES-001")}</NavLink></li>
+                <li>
+                  <NavLink to={"/"}>{t("MES-001")}</NavLink>
+                </li>
                 <li>
                   <Dropdown menu={{ items }} placement="bottom">
                     <a>{t("MES-002")}</a>
                   </Dropdown>
                 </li>
-                <li><NavLink to={"/product"}>{t("MES-006")}</NavLink></li>
-                <li><a>{t("MES-007")}</a></li>
-                <li><a>{t("MES-008")}</a></li>
+                <li>
+                  <NavLink to={"/product"}>{t("MES-006")}</NavLink>
+                </li>
+                <li>
+                  <NavLink to={"/about-us"}>{t("MES-046")}</NavLink>
+                </li>
+                <li>
+                  <NavLink to={"/contact"}>{t("MES-047")}</NavLink>
+                </li>
               </ul>
             </div>
           </div>

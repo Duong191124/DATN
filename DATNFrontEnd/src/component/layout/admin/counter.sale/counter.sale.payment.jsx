@@ -558,27 +558,35 @@ const CounterSalePayment = ({
     setPaymentInfo({
       ...paymentInfo,
       voucherId: null, // Không có voucher
-      amountPaid: 0, // Đặt lại số tiền đã trả
     });
-  }, [selectedBill]);
 
-  const moneyOptions = vouchers
-    ? [
-        totalAmountAfterDiscount,
-        totalAmountAfterDiscount + 100000,
-        totalAmountAfterDiscount + 200000,
-        totalAmountAfterDiscount + 500000,
-      ]
-    : [
-        totalAmount,
-        totalAmount + 100000,
-        totalAmount + 200000,
-        totalAmount + 500000,
-      ];
+    // Tính lại số tiền thừa khi chuyển hóa đơn
+    setChange(customerPaid - totalAmount);
+  }, [selectedBill, customerPaid, totalAmount]);
+
+  const [moneyOptions, setMoneyOptions] = useState([]);
+
   useEffect(() => {
-    // Tính số tiền thừa (tiền khách đưa trừ tổng tiền sau khi giảm giá)
-    setChange(customerPaid - totalAmountAfterDiscount);
-  }, [selectedVoucher, customerPaid, totalAmountAfterDiscount]);
+    // Tính toán moneyOptions dựa trên việc có voucher hay không
+    const newMoneyOptions = vouchers
+      ? [
+          totalAmountAfterDiscount,
+          totalAmountAfterDiscount + 100000,
+          totalAmountAfterDiscount + 200000,
+          totalAmountAfterDiscount + 500000,
+        ]
+      : [
+          totalAmount,
+          totalAmount + 100000,
+          totalAmount + 200000,
+          totalAmount + 500000,
+        ];
+    setMoneyOptions(newMoneyOptions);
+    // Tính toán số tiền thừa
+    setChange(
+      customerPaid - (vouchers ? totalAmountAfterDiscount : totalAmount)
+    );
+  }, [vouchers, totalAmountAfterDiscount, totalAmount, customerPaid, change]);
 
   const handlePayment = async () => {
     // if (paymentInfo.paymentMethod !== "Bank Transfer") {

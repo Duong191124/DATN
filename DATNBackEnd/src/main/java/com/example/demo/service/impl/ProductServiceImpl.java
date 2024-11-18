@@ -101,6 +101,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Page<ProductResponse> productAllWithProductDetailAll(Pageable pageable) {
+        return productRepo.findAll(pageable).map(ProductResponse::convertResponse);
+    }
+
+    @Override
     public void deletedProduct(Integer id) {
         if (canDeleteProduct(id)){
             productRepo.deleteById(id);
