@@ -19,15 +19,16 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 const productDetailsRes = await fetchDataProductDetail();
                 if (productDetailsRes?.data?.data) {
                     const fetchedProductDetails = productDetailsRes.data.data;
-    
-                    // Lọc ra các product detail không có khuyến mãi hoặc chỉ có khuyến mãi trùng với promotion hiện tại
-                    const availableProductDetails = fetchedProductDetails.filter(
-                        item => !item.activePromotionId || item.activePromotionId === id
-                    );
-    
+
+                    // Lọc ra các sản phẩm không có khuyến mãi hoặc chỉ có khuyến mãi trùng với khuyến mãi hiện tại
+                    const availableProductDetails = fetchedProductDetails.filter(item => {
+                        // Chỉ lấy sản phẩm không có khuyến mãi hoặc khuyến mãi trùng với ID hiện tại
+                        return !item.activePromotionId || item.activePromotionId === id;
+                    });
+
                     setProductDetails(availableProductDetails);
                 }
-    
+
                 if (id) {
                     const promotionRes = await detailPromotion(id);
                     if (promotionRes?.data?.data) {
@@ -41,13 +42,16 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 });
             }
         };
-    
+
         if (isVisible) {
             fetchProductDetailsAndPromotion();
             setSelectedDetails(selectedProductDetails || []);
         }
+        console.log("Dữ liệu hiển thị trên bảng:", productDetails);
+        const validIds = filteredData.map(item => item.id);
+        setSelectedDetails(prev => prev.filter(id => validIds.includes(id)));
     }, [isVisible, id, selectedProductDetails]);
-    
+
     // Chỉnh sửa cột 'Chọn' để vô hiệu hóa checkbox cho các product detail đã có khuyến mãi khác
     const handleSelect = (productId) => {
         setSelectedDetails((prevSelected) =>
@@ -63,6 +67,55 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 throw new Error("Promotion ID không hợp lệ.");
             }
 
+            const currentDate = new Date(); // Lấy ngày hiện tại
+            const promotionExpirationDate = new Date(promotion?.expirationDate); // Ngày hết hạn của khuyến mãi
+
+            // Kiểm tra nếu khuyến mãi đã hết hạn
+            if (promotionExpirationDate < currentDate) {
+                notification.warning({
+                    message: "Khuyến Mãi Hết Hạn",
+                    description: "Khuyến mãi này đã hết hạn và không thể áp dụng.",
+                });
+
+                // Hủy áp dụng khuyến mãi cho tất cả các sản phẩm đã chọn
+                const payload = {
+                    productDetailsIds: selectedDetails,
+                    applyPromotion: false, // Hủy khuyến mãi
+                };
+
+                const res = await updatePromotionProduct(id, payload);
+                if (res) {
+                    notification.success({
+                        message: "Thành công",
+                        description: "Khuyến mãi đã hết hạn, tự động hủy áp dụng cho các sản phẩm.",
+                    });
+
+                    const updatedProductDetails = await fetchDataProductDetail();
+                    if (updatedProductDetails?.data?.data) {
+                        let restoredDetails = updatedProductDetails.data.data;
+
+                        restoredDetails = restoredDetails.map(product => ({
+                            ...product,
+                            discountPrice: product.defaultPrice,
+                        }));
+
+                        setProductDetails(restoredDetails);
+                    }
+
+                    onApply([]); // Clear the selection
+                    onClose();
+
+                    if (loadData) {
+                        loadData();
+                    }
+                } else {
+                    throw new Error("Không thể cập nhật khuyến mãi.");
+                }
+
+                return; // Dừng lại tại đây nếu khuyến mãi hết hạn
+            }
+
+            // Nếu khuyến mãi chưa hết hạn, thực hiện như bình thường
             const payload = {
                 productDetailsIds: selectedDetails,
                 applyPromotion: selectedDetails.length > 0,
@@ -88,6 +141,7 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
 
                     setProductDetails(restoredDetails);
                 }
+
                 onApply(selectedDetails);
                 onClose();
 
@@ -106,12 +160,13 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
         }
     };
 
+
     const handleSelectAll = () => {
         const filteredIds = productDetails
             .filter(item => selectedSize === null || item.size?.name === selectedSize)
             .map(item => item.id);
 
-        setSelectedDetails(prev => 
+        setSelectedDetails(prev =>
             allSelected ? prev.filter(id => !filteredIds.includes(id)) : [...new Set([...prev, ...filteredIds])]
         );
         setAllSelected(prev => !prev);
@@ -122,7 +177,14 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
         setAllSelected(false);
     };
 
-    const filteredData = productDetails.filter(item => selectedSize === null || item.size?.name === selectedSize);
+    const filteredData = productDetails.filter(item => {
+        // Lọc theo size (nếu có) và loại bỏ các sản phẩm đã áp dụng khuyến mãi khác
+        return (
+            (selectedSize === null || item.size?.name === selectedSize) &&
+            (!item.activePromotionId || item.activePromotionId === id)
+        );
+    });
+
 
     const columns = [
         {
@@ -158,10 +220,10 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 <Checkbox
                     checked={selectedDetails.includes(record.id)}
                     onChange={() => handleSelect(record.id)}
-                    disabled={record.activePromotionId && record.activePromotionId !== id} // Disable checkbox if the product has another promotion
+                    disabled={!filteredData.some(item => item.id === record.id)} // Disable nếu sản phẩm không thuộc filteredData
                 />
             ),
-        },  
+        }
     ];
 
     return (
@@ -195,7 +257,7 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 {allSelected ? "Bỏ Chọn Tất Cả" : "Chọn Tất Cả"}
             </Button>
             <Table
-                dataSource={filteredData}
+                dataSource={filteredData} // filteredData dựa trên productDetails đã lọc
                 columns={columns}
                 pagination={{
                     current: currentPage,
