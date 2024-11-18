@@ -108,4 +108,18 @@ public class ProductDetailController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    @GetMapping("/top-featured-productdetail")
+    public ResponseEntity<?> getTopFeaturedProducts(@RequestParam(defaultValue = "0") int page,
+                                                    @RequestParam(defaultValue = "10") int limit) {
+        Pageable pageable = PageRequest.of(page, limit,
+                Sort.by(Sort.Order.desc("createdAt"))
+                        .and(Sort.by(Sort.Order.desc("quantity")))  // Không sử dụng quantity ở đây
+                        .and(Sort.by(Sort.Order.asc("discountPrice"))));
+
+        List<ProductDetailResponse> featuredProducts = productDetailService.getTopFeaturedProducts(pageable);
+        return ResponseEntity.ok(new MessageReponse("Successfully retrieved top featured products", 200, featuredProducts));
+    }
+
+
+
 }

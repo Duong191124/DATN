@@ -175,6 +175,14 @@ const fetchDataBrand = () => {
 const checkDuplicateProductAPI = async (type, value) => {
   return await axios.post(`/api/v1/products/check-duplicate`, { type, value });
 };
+const fetchProductsByProductDetails = (page, size) => {
+  const URL_BACKEND = "/api/v1/products/productDetail";
+  const params = {
+    page: page || 0,
+    size: size || 12,
+  };
+  return axios.get(URL_BACKEND, { params });
+};
 /* API Order*/
 // const fetchDataOrders = () => {
 //   const URL_BACKEND = "api/v1/orders/list";
@@ -192,8 +200,8 @@ const fetchPageDataProductDetail = async (
   minPrice,
   maxPrice,
   status,
-  page = 0,
-  limit = 10
+  page,
+  limit
 ) => {
   const URL_BACKEND = "api/v1/productDetail";
   const params = {
@@ -204,8 +212,8 @@ const fetchPageDataProductDetail = async (
     minPrice: minPrice || "",
     maxPrice: maxPrice || "",
     status: status,
-    page: page,
-    limit: limit,
+    page: page || 0,
+    limit: limit || 10,
   };
   console.log("paff", params);
   return axios.get(URL_BACKEND, { params });
@@ -464,6 +472,10 @@ const findByProductDetailId = (id) => {
 };
 const findByProductDetailCode = (code) => {
   const URL_BACKEND = `/api/v1/productDetail/detailCode/${code}`;
+  return axios.get(URL_BACKEND);
+};
+const fetchTopFeaturedProducts = () => {
+  const URL_BACKEND = "/api/v1/productDetail/top-featured-productdetail";
   return axios.get(URL_BACKEND);
 };
 //API color
@@ -1196,4 +1208,6 @@ export {
   findByProductDetailCode,
   getVouchersByCustomerId,
   hasCustomerUsedVoucher,
+  fetchTopFeaturedProducts,
+  fetchProductsByProductDetails,
 };

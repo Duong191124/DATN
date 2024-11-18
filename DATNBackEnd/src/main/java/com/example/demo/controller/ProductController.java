@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.ProductDTO;
-import com.example.demo.entity.Brand;
 import com.example.demo.entity.Product;
 import com.example.demo.entity.ProductDetail;
 import com.example.demo.response.MessageReponse;
@@ -28,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("${api.prefix}/products")
@@ -198,6 +198,71 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
         }
     }
+    @GetMapping("/productDetail")
+    public ResponseEntity<?> getAllProducts(@RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "12") int size,
+                                            @RequestParam(defaultValue = "ASC") String sortDirection) {
+        try {
+            // Phân trang cho sản phẩm
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.asc("name"))); // Sắp xếp theo tên sản phẩm (có thể thay đổi)
+            Page<ProductResponse> productPage = productService.productAllWithProductDetailAll(pageable);
+
+            // Lấy danh sách chi tiết sản phẩm và sắp xếp theo giá cho từng sản phẩm
+            List<Map<String, Object>> productsWithDetails = productPage.getContent().stream()
+                    .map(product -> {
+                        // Lấy chi tiết sản phẩm cho mỗi sản phẩm
+                        List<ProductDetailResponse> productDetails = productService.getProductDetailsByProductId(product.getId())
+                                .stream()
+                                .map(ProductDetailResponse::fromProductDetailResponse)
+                                .sorted((detail1, detail2) -> {
+                                    // Lấy giá từ discountPrice nếu có, nếu không lấy defaultPrice
+                                    double price1 = (detail1.getDiscountPrice() != null) ? detail1.getDiscountPrice() : detail1.getDefaultPrice();
+                                    double price2 = (detail2.getDiscountPrice() != null) ? detail2.getDiscountPrice() : detail2.getDefaultPrice();
+
+                                    // Sắp xếp theo hướng tăng hoặc giảm giá
+                                    if ("ASC".equalsIgnoreCase(sortDirection)) {
+                                        return Double.compare(price1, price2);
+                                    } else {
+                                        return Double.compare(price2, price1);
+                                    }
+                                })
+                                .collect(Collectors.toList());
+                        int totalQuantity = productDetails.stream()
+                                .mapToInt(ProductDetailResponse::getQuantity)  // Lấy số lượng từ mỗi chi tiết sản phẩm
+                                .sum();
+                        // Lấy giá thấp và cao nhất
+                        double minPrice = productDetails.stream()
+                                .mapToDouble(detail -> (detail.getDiscountPrice() != null && detail.getDiscountPrice() > 0) ? detail.getDiscountPrice() : detail.getDefaultPrice())
+                                .min()
+                                .orElse(0);
+                        double maxPrice = productDetails.stream()
+                                .mapToDouble(detail -> (detail.getDiscountPrice() != null && detail.getDiscountPrice() > 0) ? detail.getDiscountPrice() : detail.getDefaultPrice())
+                                .max()
+                                .orElse(0);
+
+                        // Trả về một bản đồ chứa thông tin sản phẩm và chi tiết
+                        Map<String, Object> productWithDetails = new HashMap<>();
+                        productWithDetails.put("products", product);
+                        productWithDetails.put("details", productDetails);
+                        productWithDetails.put("minPrice", minPrice);
+                        productWithDetails.put("maxPrice", maxPrice);
+                        productWithDetails.put("totalQuantity", totalQuantity);
+                        return productWithDetails;
+                    })
+                    .collect(Collectors.toList());
+
+            // Tạo response
+            Map<String, Object> response = new HashMap<>();
+            response.put("products", productsWithDetails);
+            response.put("totalPages", productPage.getTotalPages());
+            response.put("totalElements", productPage.getTotalElements());
+
+            return ResponseEntity.ok(new MessageReponse("Lấy thông tin thành công", HttpStatus.OK.value(), response));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Products not found");
+        }
+    }
+
 
 
 }

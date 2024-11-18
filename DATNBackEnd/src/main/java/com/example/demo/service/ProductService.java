@@ -28,4 +28,5 @@ public interface ProductService {
     Page<ProductResponse> pageAllProducts(Integer categoryId, String productName, Integer sleeveId, Integer collarId, Integer brandId, Double price, String description,Integer status, Pageable pageable);
 
     boolean canDeleteProduct(Integer productId);
+    Page<ProductResponse> productAllWithProductDetailAll(Pageable pageable);
 }
