@@ -29,19 +29,20 @@ public class AddressServiceImpl implements AddressService {
         List<Address> addresses = addressRepo.findByCustomerId(customerId);
 
         // Ánh xạ sang AddressResponseDTO
-        return addresses.stream()
-                .map(address -> Address.builder()
-                        .name(address.getName())
-                        .phoneNumber(address.getPhoneNumber())
-                        .city(address.getCity())
-                        .district(address.getDistrict())
-                        .fromDistrict(201) // Giá trị mặc định
-                        .ward(address.getWard())
-                        .serviceId(53321) // Giá trị mặc định
-                        .addressDetail(address.getAddressDetail())
-                        .customer(address.getCustomer())
-                        .build())
-                .collect(Collectors.toList());
+            return addresses.stream()
+                    .map(address -> Address.builder()
+                            .id(address.getId())
+                            .name(address.getName())
+                            .phoneNumber(address.getPhoneNumber())
+                            .city(address.getCity())
+                            .district(address.getDistrict())
+                            .fromDistrict(3440) // Giá trị mặc định
+                            .ward(address.getWard())
+                            .serviceId(53321) // Giá trị mặc định
+                            .addressDetail(address.getAddressDetail())
+                            .customer(address.getCustomer())
+                            .build())
+                    .collect(Collectors.toList());
     }
 
     @Override
@@ -52,7 +53,7 @@ public class AddressServiceImpl implements AddressService {
                 .phoneNumber(addressDTO.getPhoneNumber())
                 .city(addressDTO.getCity())
                 .district(addressDTO.getDistrict())
-                .fromDistrict(201)
+                .fromDistrict(3440)
                 .ward(addressDTO.getWard())
                 .serviceId(53321)
                 .customer(customer)
@@ -68,7 +69,7 @@ public class AddressServiceImpl implements AddressService {
         existingAddress.setPhoneNumber(addressUpdateDTO.getPhoneNumber());
         existingAddress.setCity(addressUpdateDTO.getCity());
         existingAddress.setDistrict(addressUpdateDTO.getDistrict());
-        existingAddress.setFromDistrict(201);
+        existingAddress.setFromDistrict(3440);
         existingAddress.setWard(addressUpdateDTO.getWard());
         existingAddress.setServiceId(53321);
         existingAddress.setAddressDetail(addressUpdateDTO.getAddressDetail());

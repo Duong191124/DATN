@@ -2,9 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { getAddressByCustomerId, getUserInfo } from '../../service/api.service';
 import AddressModal from '../address/address.select';
 import AddressUpdateModal from '../address/address.update';
+import { useCart } from '../context/cart.context';
+import { useCheckout } from '../context/checkout.context';
 
 const Shipping = () => {
     // State variables for input values
+    const { cartItems } = useCart()
+    const [district, setDistrict] = useState(0);
+    const [fromDistrict, setFromDistrict] = useState(0);
+    const [ward, setWard] = useState(null);
+    const [weight, setWeight] = useState(0);
+    const [serviceId, setServiceId] = useState(0);
     const [fullName, setFullName] = useState('');
     const [address, setAddress] = useState('');
     const [mobileNumber, setMobileNumber] = useState('');
@@ -20,6 +28,7 @@ const Shipping = () => {
         try {
             const res = await getUserInfo();
             const addressData = await getAddressByCustomerId(res.data.data.id);
+            console.log(cartItems[0].weight.weightValue);
             if (addressData?.data?.data && addressData.data.data.length > 0) {
                 // Duyệt qua tất cả địa chỉ
                 addressData.data.data.forEach(address => {
@@ -27,9 +36,19 @@ const Shipping = () => {
                         setAddress(prev => [...prev, address.addressDetail]);  // Cập nhật state với địa chỉ mới
                         setFullName(prev => [...prev, address?.name || ""]);
                         setMobileNumber(prev => [...prev, address?.phoneNumber || ""]);
+                        setDistrict(prev => [...prev, address.district || 0]);
+                        setFromDistrict(prev => [...prev, address.fromDistrict || 0])
+                        setWard(prev => [...prev, address.ward || ""])
                     }
                 });
             }
+            if (cartItems.length > 0) {
+                cartItems.forEach(cart => {
+                    setWeight(cart.weight?.weightValue || 0)
+                })
+            }
+            console.log(setWeight())
+            // setWeight(cartItems)
         } catch (error) {
             console.error(error);
         }

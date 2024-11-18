@@ -29,6 +29,7 @@ const ProductDetailPage = () => {
     useEffect(() => {
         const initProduct = async () => {
             const res = await findByProductId(id);
+            console.log(res);
             const productDetails = res.data.data.details;
 
             // Lấy danh sách màu và kích thước có sẵn từ product_detail
