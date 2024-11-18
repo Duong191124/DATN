@@ -70,5 +70,62 @@ public class MailService {
             System.err.println("Failed to send email: " + e.getMessage());
         }
     }
+
+    public void sendTrackingOrder(String email, String tracking) {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost(mailHost);
+        mailSender.setPort(mailPort);
+        mailSender.setUsername(mailUsername);
+        mailSender.setPassword(mailPassword);
+
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.transport.protocol", "smtp");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.starttls.required", "true");
+
+        String subject = "Track Your Order";
+        String htmlContent = "<!DOCTYPE html>" +
+                "<html lang='en'>" +
+                "<head>" +
+                "<style>" +
+                "  body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }" +
+                "  .email-container { max-width: 600px; margin: 20px auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }" +
+                "  .email-header { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333333; }" +
+                "  .email-content { font-size: 16px; color: #555555; margin-bottom: 20px; }" +
+                "  .email-button { display: inline-block; text-decoration: none; padding: 10px 20px; background-color: #007bff; color: white; font-weight: bold; border-radius: 5px; margin-top: 20px; }" +
+                "  .email-button:hover { background-color: #0056b3; }" +
+                "</style>" +
+                "</head>" +
+                "<body>" +
+                "  <div class='email-container'>" +
+                "    <div class='email-header'>Thank you for your order!</div>" +
+                "    <div class='email-content'>" +
+                "      Your tracking ID is: <strong>" + tracking + "</strong>.<br>" +
+                "      You can track your order by clicking the button below." +
+                "    </div>" +
+                "    <a class='email-button' href='https://tracking.ghn.dev/?order_code=" + tracking + "' target='_blank'>Track Your Order</a>" +
+                "  </div>" +
+                "</body>" +
+                "</html>";
+
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(email);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+            helper.setFrom(mailUsername);
+
+            mailSender.send(message);
+
+            System.out.println("Order tracking email sent successfully!");
+
+        } catch (MessagingException e) {
+            System.err.println("Failed to send email: " + e.getMessage());
+        }
+    }
+
 }
 
