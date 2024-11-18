@@ -15,13 +15,11 @@ const SanPham = () => {
     useEffect(() => {
         const initCategory = async () => {
             const res = await fetchDataCategory();
-
             if (res.data && res.data.data) {
                 const categories = res.data.data.map(item => ({
                     label: item.name,
                     value: item.id
                 }));
-
                 setListCategory(categories);
             }
         };
@@ -36,7 +34,8 @@ const SanPham = () => {
                     title: item.name,
                     price: item.price,
                     image: item.image,
-                    id: item.id
+                    id: item.id,
+                    categoryId: item.categoryId, // Ensure categoryId is included for filtering
                 }));
                 setListProduct(product);
                 setFilteredProduct(product);  // Set initial products as filtered
@@ -46,14 +45,21 @@ const SanPham = () => {
     }, []);
 
     const onFinish = (values) => {
-        const { range } = values; // Get range from the form
+        const { category, range } = values; // Get category and range from the form
         const fromPrice = range?.from || 0;
         const toPrice = range?.to || Infinity; // Set to Infinity if "to" is not defined
 
-        // Filter products based on price range
-        const filtered = listProduct.filter(product =>
-            product.price >= fromPrice && product.price <= toPrice
-        );
+        console.log('Selected Categories:', category);
+        console.log('Price Range:', { fromPrice, toPrice });
+
+        // Filter products based on category and price range
+        const filtered = listProduct.filter(product => {
+            const isInCategory = category ? category.includes(product.categoryId) : true;  // Check if category matches
+            const isInPriceRange = product.price >= fromPrice && product.price <= toPrice;  // Check if price is within range
+            return isInCategory && isInPriceRange;
+        });
+
+        console.log('Filtered Products:', filtered);
 
         setFilteredProduct(filtered); // Set the filtered products
     };
@@ -70,7 +76,8 @@ const SanPham = () => {
                     <Col md={4} sm={0} xs={0}>
                         <div style={{ padding: "20px", background: '#fff', borderRadius: 5 }}>
                             <div style={{ display: 'flex', justifyContent: "space-between" }}>
-                                <span> <FilterTwoTone />
+                                <span>
+                                    <FilterTwoTone />
                                     <span style={{ fontWeight: 500 }}> Bộ lọc tìm kiếm</span>
                                 </span>
                                 <ReloadOutlined title="Reset" onClick={handleReset} />
@@ -106,7 +113,7 @@ const SanPham = () => {
                                 >
                                     <Row gutter={[10, 10]} style={{ width: "100%" }}>
                                         <Col xl={11} md={24}>
-                                            <Form.Item name={["range", 'from']} >
+                                            <Form.Item name={["range", 'from']}>
                                                 <InputNumber
                                                     name='from'
                                                     min={0}
@@ -120,7 +127,7 @@ const SanPham = () => {
                                             <div> - </div>
                                         </Col>
                                         <Col xl={11} md={24}>
-                                            <Form.Item name={["range", 'to']} >
+                                            <Form.Item name={["range", 'to']}>
                                                 <InputNumber
                                                     name='to'
                                                     min={0}
@@ -163,7 +170,7 @@ const SanPham = () => {
                     </Col>
                 </Row>
             </div>
-            {/* <ChatBox /> */}
+            <ChatBox />
         </div>
     );
 };

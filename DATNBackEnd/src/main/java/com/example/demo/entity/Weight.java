@@ -16,14 +16,13 @@ public class Weight {
     @Id
     @Column(name = "id", nullable = false)
     private int id;
-    @Basic
-    @Column(name = "code", nullable = true, length = 255)
-    private String code;
-    @Basic
-    @Column(name = "name", nullable = true, length = 255)
-    private String name;
+
     @Basic
     @Column(name = "status")
     private int status;
+
+    @Basic
+    @Column(name = "weight_value")
+    private int weightValue;
 
 }

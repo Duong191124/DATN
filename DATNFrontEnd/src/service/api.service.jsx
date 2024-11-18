@@ -1053,21 +1053,19 @@ const fetchDataWeight = () => {
   return axios.get(URL_BACKEND);
 };
 
-const createWeightAPI = (code, name, status) => {
+const createWeightAPI = (weight_value, status) => {
   const URL_BACKEND = "/api/v1/weight";
   const data = {
-    code: code,
-    name: name,
+    weight_value: weight_value,
     status: status,
   };
   return axios.post(URL_BACKEND, data);
 };
-const updateWeightAPI = (id, code, name, status) => {
+const updateWeightAPI = (id, weight_value, status) => {
   const URL_BACKEND = "/api/v1/weight";
   const data = {
     id: id,
-    code: code,
-    name: name,
+    weight_value: weight_value,
     status: status,
   };
   return axios.put(URL_BACKEND, data);
@@ -1094,7 +1092,59 @@ const getAddressByCustomerId = (customerId) => {
   return axios.get(URL_BACKEND);
 };
 
+const saveAddressByid = (
+  customerId,
+  city,
+  district,
+  ward,
+  name,
+  phoneNumber,
+  addressDetail
+) => {
+  const URL_BACKEND = `/api/v1/address`;
+  const data = {
+    customerId,
+    city,
+    district,
+    ward,
+    name,
+    phoneNumber,
+    addressDetail
+  };
+
+  return axios.post(URL_BACKEND, data);
+}
+
+const updateAddressByid = (
+  addressId,
+  city,
+  district,
+  ward,
+  name,
+  phoneNumber,
+  addressDetail
+) => {
+  const data = {
+    city,
+    district,
+    ward,
+    name,
+    phoneNumber,
+    addressDetail
+  }
+  const URL_BACKEND = `/api/v1/address/${addressId}`;
+  return axios.put(URL_BACKEND, data);
+}
+
+const deleteAddressByid = (addressId) => {
+  const URL_BACKEND = `/api/v1/address/${addressId}`;
+  return axios.delete(URL_BACKEND);
+}
+
 export {
+  deleteAddressByid,
+  updateAddressByid,
+  saveAddressByid,
   createOrderForOnline,
   getAddressByCustomerId,
   getProvinces,

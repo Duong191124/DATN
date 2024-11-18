@@ -32,6 +32,7 @@ const PermissionPage = () => {
   }, []);
   return (
     <>
+      <h1 style={{ textAlign: 'center' }}>Customer manager</h1>
       <div
         style={{
           margin: "20px 50px",

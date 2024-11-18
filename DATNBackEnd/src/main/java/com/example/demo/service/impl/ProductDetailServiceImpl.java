@@ -58,7 +58,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         newProductDetail.setProduct(getProductById(productDetailDTO.getProductId()));
         newProductDetail.setSize(getSizeById(productDetailDTO.getSizeId()));
         newProductDetail.setColor(getColorById(productDetailDTO.getColorId()));
-        newProductDetail.setWeight(getWeightById(productDetailDTO.getWeightId()));
+        newProductDetail.setWeightValue(getWeightById(productDetailDTO.getWeightId()));
 
         return productDetailRepo.save(newProductDetail);
     }
@@ -78,7 +78,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         existingProductDetail.setProduct(getProductById(productDetailDTO.getProductId()));
         existingProductDetail.setSize(getSizeById(productDetailDTO.getSizeId()));
         existingProductDetail.setColor(getColorById(productDetailDTO.getColorId()));
-        existingProductDetail.setWeight((getWeightById(productDetailDTO.getWeightId())));
+        existingProductDetail.setWeightValue((getWeightById(productDetailDTO.getWeightId())));
         // Lưu lại productDetail đã cập nhật
         return productDetailRepo.save(existingProductDetail);
     }

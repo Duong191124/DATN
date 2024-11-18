@@ -9,7 +9,9 @@ const WeightForm = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false)
 
     const handleSubmit = async (values) => {
-        const res = await createWeightAPI(values.code, values.name, values.status);
+        console.log("e", values)
+        const res = await createWeightAPI(values.weight_value, values.status);
+
         if (res.data) {
             notification.success({
                 message: "create weight",
@@ -44,22 +46,11 @@ const WeightForm = (props) => {
                     onFinish={handleSubmit}
                     form={form}
                 >
-                    <Form.Item
-                        label="Code"
-                        name="code"
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please input your username!',
-                            },
-                        ]}
-                    >
-                        <Input />
-                    </Form.Item>
+
 
                     <Form.Item
-                        label="Name"
-                        name="name"
+                        label="weight"
+                        name="weight_value"
                         rules={[
                             {
                                 required: true,

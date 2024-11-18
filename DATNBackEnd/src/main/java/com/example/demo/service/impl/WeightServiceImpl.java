@@ -21,8 +21,9 @@ public class WeightServiceImpl implements WeightService {
     @Override
     public Weight createWeight(WeightDTO weightDTO) {
          Weight newWeight = Weight.builder()
-                 .name(weightDTO.getName())
-                 .code(weightDTO.getCode())
+//                 .name(weightDTO.getName())
+//                 .code(weightDTO.getCode())
+                 .weightValue(weightDTO.getWeight_value())
                  .status(1)
                  .build();
          return weightRepo.save(newWeight);
@@ -32,8 +33,9 @@ public class WeightServiceImpl implements WeightService {
     @Override
     public Weight updateWeight(Integer id, WeightDTO weightDTO) throws Exception {
         Weight existingWeight = findById(id);
-        existingWeight.setName(weightDTO.getName());
-        existingWeight.setCode(weightDTO.getCode());
+//        existingWeight.setName(weightDTO.getName());
+//        existingWeight.setCode(weightDTO.getCode());
+        existingWeight.setWeightValue(weightDTO.getWeight_value());
         existingWeight.setStatus(weightDTO.getStatus());
         return weightRepo.save(existingWeight);
 

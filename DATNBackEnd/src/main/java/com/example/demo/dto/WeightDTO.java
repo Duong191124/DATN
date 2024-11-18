@@ -11,11 +11,8 @@ import lombok.*;
 @Data
 @Builder
 public class WeightDTO {
-    @NotBlank(message = "ma khong duoc de trong")
-    private String code;
-
-    @NotBlank(message = "ten khong duoc de trong")
-    private String name;
+    @NotNull(message = "weight khong duoc de trong")
+    private int weight_value;
 
     @NotNull(message = "trang thai khong duoc de trong")
     private int status;
