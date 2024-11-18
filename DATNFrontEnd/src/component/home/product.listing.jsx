@@ -131,7 +131,7 @@ const ProductList = () => {
             <Title level={2} style={{ marginBottom: 32, color: '#000' }}>Featured Products</Title>
 
             <FilterContainer>
-                <Row gutter={[16, 16]} justify="space-between">
+                <Row gutter={[16, 16]} align="middle">
                     <Col xs={24} md={6}>
                         <Input
                             size="large"
@@ -139,6 +139,42 @@ const ProductList = () => {
                             placeholder="Search products..."
                             onChange={(e) => debouncedSearch(e.target.value)}
                             allowClear
+                        />
+                    </Col>
+                    <Col xs={12} md={4}>
+                        <Select
+                            size="large"
+                            style={{ width: '100%' }}
+                            placeholder="Category"
+                            value={selectedCategory}
+                            onChange={setSelectedCategory}
+                        >
+                            {categories.map(category => (
+                                <Option key={category} value={category}>{category}</Option>
+                            ))}
+                        </Select>
+                    </Col>
+                    <Col xs={12} md={4}>
+                        <Select
+                            size="large"
+                            style={{ width: '100%' }}
+                            placeholder="Brand"
+                            value={selectedBrand}
+                            onChange={setSelectedBrand}
+                        >
+                            {brands.map(brand => (
+                                <Option key={brand} value={brand}>{brand}</Option>
+                            ))}
+                        </Select>
+                    </Col>
+                    <Col xs={24} md={6}>
+                        <Text>Price Range: ${priceRange[0]} - ${priceRange[1]}</Text>
+                        <Slider
+                            range
+                            min={0}
+                            max={1000}
+                            value={priceRange}
+                            onChange={setPriceRange}
                         />
                     </Col>
                     <Col xs={12} md={4}>

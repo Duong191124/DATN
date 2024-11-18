@@ -1,12 +1,13 @@
 // InfoAddress.js
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, Form, Row, message } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, EnvironmentOutlined, PhoneOutlined, UserOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import AddressModal from '../address/address.select';
+import { getAddressByCustomerId } from '../../service/api.service';
 
 // Styled Components
 const AddressContainer = styled.div`
@@ -68,20 +69,23 @@ const ButtonGroup = styled.div`
   gap: 8px;
 `;
 
-const InfoAddress = () => {
+const InfoAddress = ({ user }) => {
     const { t } = useTranslation();
-    const [addresses, setAddresses] = useState([
-        {
-            id: 1,
-            name: 'John Doe',
-            phone: '123456789',
-            address: '123 Main Street, City, Country'
-        }
-    ]);
+    const [addresses, setAddresses] = useState([]);
 
     const [form] = Form.useForm();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingAddress, setEditingAddress] = useState(null);
+
+    const getAddressByid = async () => {
+        const res = await getAddressByCustomerId(user.data.id)
+        setAddresses(res.data.data);
+        console.log("check: ", res.data.data);
+    }
+
+    useEffect(() => {
+        getAddressByid();
+    }, [])
 
     const showModal = (address = null) => {
         setEditingAddress(address);
@@ -171,10 +175,10 @@ const InfoAddress = () => {
                                             <UserOutlined /> <strong>{address.name}</strong>
                                         </AddressInfo>
                                         <AddressInfo>
-                                            <PhoneOutlined /> {address.phone}
+                                            <PhoneOutlined /> {address.phoneNumber}
                                         </AddressInfo>
                                         <AddressInfo>
-                                            <EnvironmentOutlined /> {address.address}
+                                            <EnvironmentOutlined /> {address.addressDetail}
                                         </AddressInfo>
                                     </Col>
                                     <Col>
