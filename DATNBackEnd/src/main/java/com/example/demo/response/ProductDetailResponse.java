@@ -43,7 +43,7 @@ public class ProductDetailResponse {
                 .productResponse(ProductResponse.convertResponse(productDetail.getProduct()))
                 .size(productDetail.getSize())
                 .color(productDetail.getColor())
-                .weight(productDetail.getWeight())
+                .weight(productDetail.getWeightValue())
                 .promotions(productDetail.getPromotions().stream().map(PromotionResponse::fromPromotionResponse).collect(Collectors.toSet()))
                 .createAt(productDetail.getCreatedAt())
                 .build();

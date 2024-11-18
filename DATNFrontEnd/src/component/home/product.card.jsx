@@ -75,8 +75,8 @@ const ProductActions = styled(motion.div)`
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 28px;
-  background: rgba(255, 255, 255, 1);
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.5);
   display: flex;
   justify-content: center;
   gap: 8px;
@@ -196,7 +196,7 @@ const ProductCard = ({
   const [isModalVisible, setIsModalVisible] = useState(false); // Trạng thái modal
   const { addToCart } = useCart();
 
-  const min = minPrice.toLocaleString("vi-VN", {
+  const min = (minPrice || 0).toLocaleString("vi-VN", {
     style: "currency",
     currency: "VND",
   });

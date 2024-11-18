@@ -1,5 +1,14 @@
-import React, { useState } from 'react';
-import { Layout, Avatar, Badge, Dropdown, message } from 'antd';
+import React, { useState } from "react";
+import {
+  Layout,
+  Avatar,
+  Badge,
+  Dropdown,
+  message,
+  Row,
+  Col,
+  Tooltip,
+} from "antd";
 import {
   BellOutlined,
   UserOutlined,
@@ -7,10 +16,12 @@ import {
   MenuUnfoldOutlined,
   SettingOutlined,
   LogoutOutlined,
-} from '@ant-design/icons';
-import { Link, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import NoticeDrawer from '../../../notice/notice.drawer';
+  BankOutlined,
+  DollarCircleOutlined,
+} from "@ant-design/icons";
+import { Link, useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import NoticeDrawer from "../../../notice/notice.drawer";
 
 const { Header } = Layout;
 
@@ -18,8 +29,7 @@ const { Header } = Layout;
 const StyledHeader = styled(Header)`
   padding: 0 24px;
   background: white;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 
-              0 1px 6px -1px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -92,6 +102,18 @@ const MenuButton = styled.div`
     background: rgba(0, 0, 0, 0.025);
   }
 `;
+const Sell = styled.div`
+  cursor: pointer;
+  font-size: 24px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #ddd;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+`;
 
 const HeaderAdmin = ({ collapsed, setCollapsed }) => {
   const [openNotice, setOpenNotice] = useState(false);
@@ -101,9 +123,11 @@ const HeaderAdmin = ({ collapsed, setCollapsed }) => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("loginStatus");
     message.success("Logged out successfully");
-    navigate('/login');
+    navigate("/login");
   };
-
+  const handleCounterSaleClick = () => {
+    navigate("/counter-sales");
+  };
   const userMenuItems = [
     {
       key: "1",
@@ -116,7 +140,7 @@ const HeaderAdmin = ({ collapsed, setCollapsed }) => {
       label: "Settings",
     },
     {
-      type: 'divider',
+      type: "divider",
     },
     {
       key: "3",
@@ -139,21 +163,25 @@ const HeaderAdmin = ({ collapsed, setCollapsed }) => {
             {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
           </MenuButton>
           <Link to="/admin">
-            <Logo src="https://logopond.com/logos/58fef5b7f302e7d32bfc17a21f56b008.png" alt="Logo" />
+            <Logo
+              src="https://logopond.com/logos/58fef5b7f302e7d32bfc17a21f56b008.png"
+              alt="Logo"
+            />
           </Link>
         </HeaderLeft>
 
         <HeaderRight>
+          <Sell onClick={handleCounterSaleClick}>
+            <Tooltip title="Bán hàng tại quầy" placement="top">
+              <DollarCircleOutlined />
+            </Tooltip>
+          </Sell>
           <IconWrapper>
-            <Badge
-              count={5}
-              onClick={showNotice}
-              offset={[-2, 2]}
-            >
+            <Badge count={5} onClick={showNotice} offset={[-2, 2]}>
               <BellOutlined
                 style={{
                   fontSize: 20,
-                  color: 'rgba(0, 0, 0, 0.65)'
+                  color: "rgba(0, 0, 0, 0.65)",
                 }}
               />
             </Badge>
@@ -162,7 +190,7 @@ const HeaderAdmin = ({ collapsed, setCollapsed }) => {
           <Dropdown
             menu={{ items: userMenuItems }}
             placement="bottomRight"
-            trigger={['click']}
+            trigger={["click"]}
             arrow
           >
             <UserSection>
@@ -170,8 +198,8 @@ const HeaderAdmin = ({ collapsed, setCollapsed }) => {
                 size={32}
                 icon={<UserOutlined />}
                 style={{
-                  backgroundColor: '#1890ff',
-                  verticalAlign: 'middle'
+                  backgroundColor: "#1890ff",
+                  verticalAlign: "middle",
                 }}
               />
               <UserName>Admin User</UserName>
@@ -180,10 +208,7 @@ const HeaderAdmin = ({ collapsed, setCollapsed }) => {
         </HeaderRight>
       </StyledHeader>
 
-      <NoticeDrawer
-        openNotice={openNotice}
-        setOpenNotice={setOpenNotice}
-      />
+      <NoticeDrawer openNotice={openNotice} setOpenNotice={setOpenNotice} />
     </>
   );
 };
