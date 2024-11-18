@@ -62,19 +62,9 @@ const CustomerTable = ({
       ),
     },
     {
-      title: "Date of birth",
-      dataIndex: "dateOfBirth",
-      key: "dateOfBirth",
-    },
-    {
       title: "Name",
       dataIndex: "name",
       key: "name",
-    },
-    {
-      title: "Note",
-      dataIndex: "notes",
-      key: "notes",
     },
     {
       title: "Gender",
@@ -148,10 +138,10 @@ const CustomerTable = ({
       : item.status === 0 && isMatch;
   });
 
-    // Hàm xử lý tìm kiếm
-    const handleSearch = debounce((value) => {
-        setSearchText(value.trim()); // Cập nhật giá trị tìm kiếm
-    }, 300);
+  // Hàm xử lý tìm kiếm
+  const handleSearch = debounce((value) => {
+    setSearchText(value.trim()); // Cập nhật giá trị tìm kiếm
+  }, 300);
 
   useEffect(() => {
     loadData();
