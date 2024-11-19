@@ -4,6 +4,7 @@ import ChartChannel from "../component/chart/chanel.product";
 import ProductChart from "../component/chart/product.chart";
 import AccountStats from "../component/chart/account.donut";
 import CompareMonth from "../component/chart/compare.moth";
+import BestSeller from "../component/chart/best.saler";
 
 const ChartPage = () => {
     const items = [
@@ -18,6 +19,11 @@ const ChartPage = () => {
             children: <ChartChannel />,
         },
         {
+            key: "5",
+            label: "Top 10 best saler",
+            children: <BestSeller />,
+        },
+        {
             key: "3",
             label: "Compare moth",
             children: <CompareMonth />,
@@ -27,6 +33,7 @@ const ChartPage = () => {
             label: "Account Chart",
             children: <AccountStats />,
         },
+
     ];
 
     return (
