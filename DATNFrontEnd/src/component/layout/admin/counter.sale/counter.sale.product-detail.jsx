@@ -198,6 +198,10 @@ const CounterSalesProductDetail = ({
     setLoadingPD(false);
   };
   const showFilterModal = () => {
+    if (!selectedBill) {
+      message.warning("vui lòng nhấn chọn hóa đơn để mua hàng");
+      return;
+    }
     setIsModalVisible(true);
   };
 
@@ -217,7 +221,7 @@ const CounterSalesProductDetail = ({
   };
   return (
     <>
-      <div>
+      <div id="product">
         <Button style={{ backgroundColor: "#fff" }} onClick={showFilterModal}>
           Chọn sản phẩm
         </Button>
