@@ -44,6 +44,7 @@ const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefr
     }, [appliedCustomers]);
 
     const filteredCustomers = customers
+        .filter(customer => customer.id !== 1) // Ẩn khách hàng có id = 1
         .filter(customer => {
             if (genderFilter === 'male') return customer.gender === 1;
             if (genderFilter === 'female') return customer.gender === 2;
@@ -72,14 +73,23 @@ const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefr
 
     const handleSelectAll = e => {
         const { checked } = e.target;
+
         setSelectAll(checked);
 
-        if (checked) {
-            const filteredIds = filteredCustomers.map(customer => customer.id);
-            setSelectedCustomers(prev => [...new Set([...prev, ...filteredIds])]);
+        // Nếu không có bộ lọc giới tính, chọn/tắt chọn tất cả khách hàng ngoại trừ khách hàng có id = 1
+        if (genderFilter === null) {
+            const allCustomerIds = customers.filter(customer => customer.id !== 1).map(customer => customer.id);
+            setSelectedCustomers(checked ? allCustomerIds : []);
         } else {
-            const filteredIds = filteredCustomers.map(customer => customer.id);
-            setSelectedCustomers(prev => prev.filter(id => !filteredIds.includes(id)));
+            // Nếu có bộ lọc giới tính, chọn/tắt chọn khách hàng theo giới tính, ngoại trừ khách hàng có id = 1
+            const filteredCustomersByGender = customers.filter(customer => {
+                if (genderFilter === 'male') return customer.gender === 1;
+                if (genderFilter === 'female') return customer.gender === 2;
+                return false;
+            }).filter(customer => customer.id !== 1); // Lọc bỏ khách hàng có id = 1
+
+            const filteredIds = filteredCustomersByGender.map(customer => customer.id);
+            setSelectedCustomers(checked ? filteredIds : []);
         }
     };
 
@@ -161,7 +171,7 @@ const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefr
                 />
             ),
             width: '10%',
-        },
+        }
     ];
 
     return (
@@ -201,9 +211,13 @@ const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefr
                         <Option value="other">Khác</Option>
                     </Select>
                 </Space>
-                <Checkbox checked={selectAll} onChange={handleSelectAll}>
-                    Chọn tất cả
+                <Checkbox
+                    checked={selectAll}
+                    onChange={handleSelectAll}
+                >
+                    {selectAll ? "Bỏ chọn tất cả" : genderFilter ? `Chọn ${genderFilter === 'male' ? 'nam' : 'nữ'}` : "Chọn tất cả"}
                 </Checkbox>
+
             </div>
             <Table
                 rowKey="id"

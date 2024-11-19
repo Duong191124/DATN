@@ -140,7 +140,7 @@ const PromotionTable = (props) => {
             if (currentStatus === 0) {
                 notification.info({
                     message: "Trạng thái hiện tại",
-                    description: "Khuyến mãi đã hết hạn. Không cần thay đổi trạng thái.",
+                    description: "Khuyến mãi đã hết hạn. Không thể thay đổi trạng thái.",
                 });
             } else {
                 notification.warning({
