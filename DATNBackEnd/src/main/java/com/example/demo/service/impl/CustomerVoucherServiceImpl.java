@@ -16,7 +16,10 @@ public class CustomerVoucherServiceImpl implements CustomerVoucherService {
     private final CustomerRepo customerRepo;
     @Override
     public Set<VoucherResponse> findVouchersByCustomerId(Integer customerId) {
-        Customer customer = customerRepo.findById(customerId).orElseThrow(()-> new RuntimeException("not found voucher with customerId"+customerId));
+        if (customerId == null) {
+            customerId = 1;
+        }
+        Customer customer = customerRepo.findById(customerId).orElseThrow(()-> new RuntimeException("not found voucher with customerId"));
         return customer.getVouchers().stream().map(VoucherResponse::fromVoucher).collect(Collectors.toSet());
     }
 }

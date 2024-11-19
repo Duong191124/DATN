@@ -10,11 +10,13 @@ import CartDrawer from "../../../cart/cart.drawer";
 import { useEffect, useState } from "react";
 import { useCart } from "../../../context/cart.context";
 import { useTranslation } from "react-i18next";
+import { useCheckout } from "../../../context/checkout.context";
 
 const Header = () => {
   const { t, i18n } = useTranslation();
   const [openCart, setOpenCart] = useState(false);
-  const [language, setLanguage] = useState("");
+  const { resetCheckoutContext } = useCheckout();
+  const [language, setLanguage] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
   const { setCartItems } = useCart();
@@ -44,6 +46,7 @@ const Header = () => {
       const guestCart = JSON.parse(localStorage.getItem("guestCart")) || [];
       setCartItems(guestCart);
       setIsLoggedIn(false);
+      resetCheckoutContext();
       message.success(t("MES-022"));
       navigate("/");
     } catch (error) {

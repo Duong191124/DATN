@@ -4,12 +4,13 @@ import { UserOutlined, PhoneOutlined, EnvironmentOutlined } from '@ant-design/ic
 import { useTranslation } from 'react-i18next';
 import { getDistrict, getProvinces, getWards, saveAddressByid, updateAddressByid } from '../../service/api.service';
 
-const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, editingAddress, userID, getAddressByid }) => {
+const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, editingAddress, getAddressByid }) => {
     const { t, i18n } = useTranslation();
     const language = localStorage.getItem("language") || "vi";
     const [provinces, setProvinces] = useState([]);
     const [districts, setDistricts] = useState([]);
     const [wards, setWards] = useState([]);
+    const userId = localStorage.getItem('userId');
 
     const [selectedProvince, setSelectedProvince] = useState(null);
     const [selectedDistrict, setSelectedDistrict] = useState(null);
@@ -73,6 +74,7 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
     }, [selectedDistrict]);
 
     const onFormSubmit = async (values) => {
+        console.log(editingAddress);
         if (editingAddress) {
             try {
                 await updateAddressByid(
@@ -93,7 +95,7 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
         } else {
             try {
                 await saveAddressByid(
-                    userID,
+                    userId,
                     values.province,
                     values.district,
                     values.ward,
