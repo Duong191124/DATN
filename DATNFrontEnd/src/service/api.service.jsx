@@ -394,6 +394,13 @@ const hasCustomerUsedVoucher = (customerId, voucherId) => {
   const URL_BACKEND = `api/v1/orders/hasUsedVoucher/${customerId}/${voucherId}`;
   return axios.get(URL_BACKEND);
 };
+const paymentCallBack = (orderId) => {
+  const URL_BACKEND = `api/v1/payments/payment-callback`;
+  const params = {
+    vnp_OrderInfo: orderId,
+  };
+  return axios.get(URL_BACKEND, { params });
+};
 /*
   API Product detail
 */
@@ -1286,4 +1293,5 @@ export {
   hasCustomerUsedVoucher,
   fetchTopFeaturedProducts,
   fetchProductsByProductDetails,
+  paymentCallBack,
 };

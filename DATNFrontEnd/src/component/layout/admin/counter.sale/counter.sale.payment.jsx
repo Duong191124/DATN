@@ -1,5 +1,14 @@
 import { useState, useEffect } from "react";
-import { Button, Input, Form, Select, Modal, message } from "antd";
+import {
+  Button,
+  Input,
+  Form,
+  Select,
+  Modal,
+  message,
+  Drawer,
+  Radio,
+} from "antd";
 import QRCode from "qrcode";
 import html2pdf from "html2pdf.js";
 import { PlusOutlined } from "@ant-design/icons";
@@ -9,6 +18,7 @@ import {
 } from "../../../../service/api.service";
 import { Option } from "antd/es/mentions";
 import "./counter.sale.payment.voucher.css";
+import { calc } from "antd/es/theme/internal";
 const bankOptions = [
   {
     value: "BIDV",
@@ -65,6 +75,7 @@ const CounterSalePayment = ({
   const [selectedVoucher, setSelectedVoucher] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [voucherUsageStatus, setVoucherUsageStatus] = useState({});
+  const [info, setInfo] = useState({});
   const openModal = () => setIsModalVisible(true);
   const closeModal = () => setIsModalVisible(false);
   const [newAccount, setNewAccount] = useState({
@@ -73,6 +84,7 @@ const CounterSalePayment = ({
     accountHolder: "",
     note: "",
   });
+  const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [qrCodeImg, setQrCodeImg] = useState("");
   useEffect(() => {
@@ -120,13 +132,15 @@ const CounterSalePayment = ({
   }, [selectedBill, cartItems, selectedVoucher]);
 
   // Tính lại khi thay đổi hóa đơn, giỏ hàng hoặc voucher
-
+  console.log("customer", info);
+  const openDrawer = () => {
+    setIsDrawerVisible(true);
+  };
   const handleAddAccount = () => {
     if (!newAccount.bankName || !newAccount.accountNumber) {
       message.error("Vui lòng điền đầy đủ thông tin tài khoản ngân hàng.");
       return;
     }
-
     // Kiểm tra xem tài khoản đã tồn tại chưa
     const accountExists = bankAccounts.some(
       (account) => account.bankName === newAccount.bankName
@@ -375,6 +389,7 @@ const CounterSalePayment = ({
       const billCode = billWaiting.find((bill) => bill.code === selectedBill);
       if (billCode) {
         fetchVouchers(billCode); // Lấy voucher khi có hóa đơn đã chọn
+        setInfo(billCode);
       } else {
         setVoucher([]); // Nếu không tìm thấy hóa đơn, reset voucher
       }
@@ -600,7 +615,6 @@ const CounterSalePayment = ({
       message.error(`Vui lòng chọn ngân hàng để thanh toán`);
       return;
     }
-
     if (
       customerPaid < totalAmountAfterDiscount &&
       paymentInfo.paymentMethod === "Cash"
@@ -621,368 +635,381 @@ const CounterSalePayment = ({
     }
   };
   return (
-    <div className="payment" style={{ marginTop: "15px" }}>
-      <Form layout="vertical">
-        <Form.Item label="Phương thức thanh toán" required>
-          <Select
-            value={paymentInfo.paymentMethod}
-            onChange={(value) =>
-              setPaymentInfo({ ...paymentInfo, paymentMethod: value })
-            }
-            options={[
-              { value: "Cash", label: "Tiền mặt" },
-              { value: "Bank Transfer", label: "Chuyển khoản" },
-              { value: "Credit Card", label: "Thẻ tín dụng" },
-              { value: "PayPal", label: "PayPal" },
-            ]}
-            placeholder="Chọn phương thức thanh toán"
-          />
-        </Form.Item>
-        <div>
-          {selectedBill && vouchers.length > 0 && (
-            <Button type="primary" onClick={openModal}>
-              Chọn Voucher
-            </Button>
+    <div style={{ marginTop: "auto" }}>
+      <Button
+        id="buy"
+        type="primary"
+        style={{ width: "100%", padding: "28px 0", fontSize: "18px" }}
+        onClick={openDrawer}
+      >
+        Thanh Toán
+      </Button>
+      <Drawer
+        title={`Thông tin thanh toán${
+          info?.staffResponse?.name ? ` - NV(${info.staffResponse.name})` : ""
+        }`}
+        visible={isDrawerVisible}
+        onClose={() => setIsDrawerVisible(false)}
+        width={500}
+        style={{ borderRadius: "20px 0 0 20px" }}
+      >
+        <div
+          style={{ display: "flex", flexDirection: "column", height: "100%" }}
+        >
+          {info?.customerResponse?.name && (
+            <h3 style={{ marginBottom: "10px", fontSize: "18px" }}>
+              Khách hàng: {info.customerResponse.name}
+            </h3>
           )}
-
-          {/* Modal hiển thị danh sách voucher */}
-          <Modal
-            title="Chọn Voucher"
-            visible={isModalVisible}
-            onCancel={closeModal}
-            footer={null}
-          >
-            {vouchers &&
-              vouchers.length > 0 &&
-              vouchers.map((v, index) => {
-                const currentTime = new Date();
-                const expirationTime = new Date(v.expirationDate);
-                const isExpired = currentTime > expirationTime; // Kiểm tra hết hạn
-                const isUsed = voucherUsageStatus[v.id];
-                return (
-                  <div
-                    key={index}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      marginBottom: 10,
-                      padding: 10,
-                      border: "1px solid #ddd",
-                      borderRadius: "8px",
-                      backgroundColor:
-                        isExpired || isUsed ? "#f0f0f0" : "white", // Làm mờ khi đã hết hạn hoặc đã sử dụng
-                      opacity: isExpired || isUsed ? 0.5 : 1, // Giảm độ sáng khi đã hết hạn hoặc đã sử dụng
-                      pointerEvents: isExpired || isUsed ? "none" : "auto", // Không cho chọn khi hết hạn hoặc đã sử dụng
-                    }}
-                  >
-                    <div>
-                      <div>{v.code}</div>
-                      <div>
-                        Giảm:{" "}
-                        {v.discountPercent > 0
-                          ? `${v.discountPercent}%`
-                          : `${v.discountAmount.toLocaleString()} đ`}
-                      </div>
-                    </div>
-                    {isExpired || isUsed ? (
-                      <span style={{ color: "red", fontWeight: "bold" }}>
-                        Đã sử dụng
-                      </span>
-                    ) : selectedVoucher?.id === v.id ? (
-                      <Button
-                        type="default"
-                        onClick={() => handleVoucherChange("")} // Bỏ chọn voucher
-                      >
-                        Bỏ chọn
-                      </Button>
-                    ) : (
-                      <Button
-                        type="link"
-                        onClick={() => handleVoucherChange(v.id)} // Chọn voucher
-                      >
-                        Dùng
-                      </Button>
-                    )}
-                  </div>
-                );
-              })}
-          </Modal>
-
-          {/* Hiển thị chi tiết voucher đã chọn */}
-          {selectedBill && selectedVoucher && vouchers.length > 0 && (
-            <div style={{ marginTop: "20px", textAlign: "center" }}>
-              <div
-                className="voucher"
-                onMouseEnter={(e) =>
-                  e.currentTarget.classList.add("voucher--hover")
-                }
-                onMouseLeave={(e) =>
-                  e.currentTarget.classList.remove("voucher--hover")
-                }
-              >
-                <div
+          <Form layout="vertical">
+            <h4
+              style={{
+                fontWeight: "bold",
+                display: "flex",
+                justifyContent: "space-between",
+                fontSize: "16px",
+                marginBottom: "10px",
+              }}
+            >
+              <p> Tổng Tiền:</p>
+              <p>{totalAmount ? totalAmount.toLocaleString() : "0"} đ</p>
+            </h4>
+            <div
+              style={{
+                fontWeight: "bold",
+                display: "flex",
+                justifyContent: "space-between",
+                fontSize: "16px",
+                marginBottom: "20px",
+              }}
+            >
+              <p>Giảm giá</p>
+              {selectedBill && selectedVoucher && vouchers.length > 0 && (
+                <p
                   style={{
-                    display: "grid",
-                    borderRadius: "15px",
-                    alignItems: "center",
+                    color: "green",
+                    fontStyle: "italic",
+                    textAlign: "end",
                   }}
                 >
-                  <div className="voucher-value">
-                    Giảm:{" "}
-                    {selectedVoucher.discountPercent > 0
-                      ? `${selectedVoucher.discountPercent}%`
-                      : `${new Intl.NumberFormat("vi-VN").format(
-                          selectedVoucher.discountAmount
-                        )} đ`}
-                  </div>
-                  {selectedVoucher.discountPercent &&
-                    selectedVoucher.maxDiscountAmount > 0 && (
-                      <div className="max-discount-label">
-                        Tối đa:{" "}
-                        {new Intl.NumberFormat("vi-VN").format(
-                          selectedVoucher.maxDiscountAmount
-                        )}{" "}
-                        đ cho đơn từ{" "}
-                        {new Intl.NumberFormat("vi-VN").format(
-                          selectedVoucher.minPurchaseAmount
-                        )}{" "}
-                        đ
-                      </div>
-                    )}
-                  {selectedVoucher.discountAmount && (
-                    <div>
-                      Đơn hàng tối thiểu{" "}
-                      {new Intl.NumberFormat("vi-VN").format(
-                        selectedVoucher.minPurchaseAmount
-                      )}{" "}
-                      đ
-                    </div>
-                  )}
-                  {selectedVoucher.expirationDate && (
-                    <div className="expired-label">
-                      {(() => {
-                        const expirationDate = new Date(
-                          selectedVoucher.expirationDate
-                        );
-                        const currentDate = new Date();
-                        const timeDiff = expirationDate - currentDate;
-                        const daysLeft = Math.ceil(
-                          timeDiff / (1000 * 3600 * 24)
-                        );
-                        return daysLeft > 0
-                          ? `Hết hạn sau ${daysLeft} ngày`
-                          : "Hết hạn";
-                      })()}
-                    </div>
-                  )}
-                  {selectedVoucher.minPurchaseAmount && (
-                    <div className="min-purchase-label">
-                      Đơn hàng cần tối thiểu{" "}
-                      {new Intl.NumberFormat("vi-VN").format(
-                        selectedVoucher.minPurchaseAmount
-                      )}{" "}
-                      đ
-                    </div>
-                  )}
-                </div>
-              </div>
+                  (Đã giảm giá:{" "}
+                  {(totalAmount - totalAmountAfterDiscount).toLocaleString()} đ)
+                </p>
+              )}
+              <Button type="primary" onClick={openModal}>
+                Chọn Voucher
+              </Button>
             </div>
-          )}
-        </div>
-
-        {selectedBill && (
-          <Form.Item>
-            <h4 style={{ fontWeight: "bold", marginTop: "20px" }}>
-              Tổng Tiền: {totalAmount ? totalAmount.toLocaleString() : "0"} VNĐ
-            </h4>
-            {/* Nếu có voucher và voucher có giá trị giảm giá */}
-            {selectedVoucher && vouchers.length > 0 && (
-              <p style={{ color: "green", fontStyle: "italic" }}>
-                (Đã giảm giá:{" "}
-                {(totalAmount - totalAmountAfterDiscount).toLocaleString()} VNĐ)
-              </p>
-            )}
-
-            {/* Hiển thị tổng tiền sau khi giảm giá (nếu có voucher) */}
-            {selectedVoucher && vouchers.length > 0 && (
-              <h4 style={{ fontWeight: "bold" }}>
-                Tổng Tiền <sup style={{ fontWeight: "300" }}>(sau giảm)</sup>:{" "}
+            <div>
+              <h4
+                style={{
+                  fontWeight: "bold",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: "16px",
+                  marginBottom: "10px",
+                }}
+              >
+                <p>Khác cần trả:</p>
                 {totalAmountAfterDiscount
                   ? totalAmountAfterDiscount.toLocaleString()
-                  : "0"}{" "}
-                VNĐ
+                  : totalAmount.toLocaleString()}{" "}
+                đ
               </h4>
-            )}
-          </Form.Item>
-        )}
-
-        {/* Phần thanh toán bằng tiền mặt */}
-        {paymentInfo.paymentMethod === "Cash" && (
-          <>
-            <Form.Item label="Tiền khách đưa" required>
-              <Input
-                type="text"
-                value={customerPaid.toLocaleString()} // Định dạng số khi hiển thị
-                onChange={(e) => {
-                  let value = e.target.value.replace(/,/g, ""); // Loại bỏ dấu phẩy
-                  if (value === "") value = "0"; // Nếu không có giá trị, gán về 0
-                  setCustomerPaid(Number(value) || 0); // Cập nhật giá trị số
-                }}
-                placeholder="Nhập số tiền..."
-              />
-            </Form.Item>
-            {/* Tính tiền thừa */}
-            {change !== 0 && (
-              <Form.Item>
-                <h4>Tiền thừa: {change.toLocaleString()} VNĐ</h4>
-              </Form.Item>
-            )}
-            {/* Các tùy chọn tiền mặt */}
-            <div style={{ marginTop: "10px" }}>
-              {moneyOptions.map((option, index) => (
-                <Button
-                  key={index}
-                  onClick={() => {
-                    setCustomerPaid(option);
-                  }}
-                  style={{
-                    marginRight: "8px",
-                    marginTop: "5px",
-                    backgroundColor:
-                      customerPaid === option ? "#4CAF50" : "#f0f0f0",
-                    color: customerPaid === option ? "white" : "black",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  {option.toLocaleString()} VNĐ
-                </Button>
-              ))}
             </div>
-          </>
-        )}
-        {/* Phần thanh toán bằng chuyển khoản ngân hàng */}
-        <div style={{ marginBottom: "20px" }}>
-          {paymentInfo.paymentMethod === "Bank Transfer" && (
-            <>
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <Select
-                  value={selectedAccount}
-                  onChange={handleAccountChange}
-                  placeholder="Chọn tài khoản ngân hàng"
-                  style={{ flex: 1, marginRight: "10px" }}
-                >
-                  {bankAccounts.map((account, index) => (
-                    <Select.Option key={index} value={account.accountNumber}>
-                      <img
-                        src={account.logo}
-                        alt={account.bankName}
-                        style={{ width: "20px", marginRight: "10px" }}
-                      />
-                      {account.bankName} - {account.accountNumber}
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation(); // Ngăn chặn việc mở dropdown khi nhấn nút xóa
-                          handleDeleteAccount(account.accountNumber);
-                        }}
-                        style={{ marginLeft: "8px" }}
-                        type="link"
-                        danger
-                      >
-                        Xóa
-                      </Button>
-                    </Select.Option>
-                  ))}
-                </Select>
-                <Button
-                  onClick={() => setIsAccountModalVisible(true)}
-                  type="primary"
-                  shape="circle"
-                  icon={<PlusOutlined />}
+            <Form.Item required>
+              <div
+                style={{
+                  fontWeight: "bold",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: "16px",
+                }}
+              >
+                <p>Khách thanh toán</p>
+                <Input
+                  type="text"
+                  value={customerPaid.toLocaleString()} // Định dạng số khi hiển thị
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/,/g, "");
+                    if (value === "") value = "0";
+                    setCustomerPaid(Number(value) || 0);
+                  }}
+                  placeholder="Nhập số tiền..."
+                  bordered={false}
+                  style={{
+                    borderBottom: "1px solid #000",
+                    width: "100px",
+                    textAlign: "right",
+                    fontSize: "18px",
+                  }}
                 />
               </div>
-              {selectedAccount && (
-                <div style={{ marginTop: "20px" }}>
-                  <h4>QR Code thanh toán:</h4>
-                  {qrCodeImg ? (
-                    <img src={qrCodeImg} alt="QR Code" />
-                  ) : (
-                    <p>Đang tạo mã QR...</p>
-                  )}
+            </Form.Item>
+            <Radio.Group
+              value={paymentInfo.paymentMethod}
+              onChange={(e) =>
+                setPaymentInfo({
+                  ...paymentInfo,
+                  paymentMethod: e.target.value,
+                })
+              }
+              style={{ marginBottom: "15px" }}
+            >
+              <Radio value="Cash">Tiền mặt</Radio>
+              <Radio value="Bank Transfer">Chuyển khoản</Radio>
+              <Radio value="VNP">VN Pay</Radio>
+            </Radio.Group>
+            <div>
+              <Modal
+                title="Chọn Voucher"
+                visible={isModalVisible}
+                onCancel={closeModal}
+                footer={null}
+              >
+                {vouchers &&
+                  vouchers.length > 0 &&
+                  vouchers.map((v, index) => {
+                    const currentTime = new Date();
+                    const expirationTime = new Date(v.expirationDate);
+                    const isExpired = currentTime > expirationTime; // Kiểm tra hết hạn
+                    const isUsed = voucherUsageStatus[v.id];
+                    return (
+                      <div
+                        key={index}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          marginBottom: 10,
+                          padding: 10,
+                          border: "1px solid #ddd",
+                          borderRadius: "8px",
+                          backgroundColor:
+                            isExpired || isUsed ? "#f0f0f0" : "white", // Làm mờ khi đã hết hạn hoặc đã sử dụng
+                          opacity: isExpired || isUsed ? 0.5 : 1, // Giảm độ sáng khi đã hết hạn hoặc đã sử dụng
+                          pointerEvents: isExpired || isUsed ? "none" : "auto", // Không cho chọn khi hết hạn hoặc đã sử dụng
+                        }}
+                      >
+                        <div>
+                          <div>{v.code}</div>
+                          <div>
+                            Giảm:{" "}
+                            {v.discountPercent > 0
+                              ? `${v.discountPercent}%`
+                              : `${v.discountAmount.toLocaleString()} đ`}
+                          </div>
+                        </div>
+                        {isExpired || isUsed ? (
+                          <span style={{ color: "red", fontWeight: "bold" }}>
+                            Đã sử dụng
+                          </span>
+                        ) : selectedVoucher?.id === v.id ? (
+                          <Button
+                            type="default"
+                            onClick={() => handleVoucherChange("")} // Bỏ chọn voucher
+                          >
+                            Bỏ chọn
+                          </Button>
+                        ) : (
+                          <Button
+                            type="link"
+                            onClick={() => handleVoucherChange(v.id)} // Chọn voucher
+                          >
+                            Dùng
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
+              </Modal>
+              {/* Hiển thị chi tiết voucher đã chọn */}
+            </div>
+            {/* Phần thanh toán bằng tiền mặt */}
+            {paymentInfo.paymentMethod === "Cash" && (
+              <>
+                {/* Các tùy chọn tiền mặt */}
+                <div>
+                  {moneyOptions.map((option, index) => (
+                    <Button
+                      key={index}
+                      onClick={() => {
+                        setCustomerPaid(option);
+                      }}
+                      style={{
+                        marginRight: "8px",
+                        marginTop: "5px",
+                        backgroundColor:
+                          customerPaid === option ? "#4CAF50" : "#f0f0f0",
+                        color: customerPaid === option ? "white" : "black",
+                        cursor: "pointer",
+                        borderRadius: "20px",
+                      }}
+                    >
+                      {option.toLocaleString()} đ
+                    </Button>
+                  ))}
                 </div>
+                {change !== 0 && (
+                  <Form.Item>
+                    <h4
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        fontSize: "14px",
+                        marginTop: "20px",
+                      }}
+                    >
+                      <p style={{ color: "#4096ff" }}>Tiền thừa</p>{" "}
+                      {change.toLocaleString()} đ
+                    </h4>
+                  </Form.Item>
+                )}
+              </>
+            )}
+            {/* Phần thanh toán bằng chuyển khoản ngân hàng */}
+            <div>
+              {paymentInfo.paymentMethod === "Bank Transfer" && (
+                <>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <Select
+                      value={selectedAccount}
+                      onChange={handleAccountChange}
+                      placeholder="Chọn tài khoản ngân hàng"
+                      style={{ flex: 1, marginRight: "10px" }}
+                    >
+                      {bankAccounts.map((account, index) => (
+                        <Select.Option
+                          key={index}
+                          value={account.accountNumber}
+                        >
+                          <img
+                            src={account.logo}
+                            alt={account.bankName}
+                            style={{ width: "20px", marginRight: "10px" }}
+                          />
+                          {account.bankName} - {account.accountNumber}
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation(); // Ngăn chặn việc mở dropdown khi nhấn nút xóa
+                              handleDeleteAccount(account.accountNumber);
+                            }}
+                            style={{ marginLeft: "8px" }}
+                            type="link"
+                            danger
+                          >
+                            Xóa
+                          </Button>
+                        </Select.Option>
+                      ))}
+                    </Select>
+                    <Button
+                      onClick={() => setIsAccountModalVisible(true)}
+                      type="primary"
+                      shape="circle"
+                      icon={<PlusOutlined />}
+                    />
+                  </div>
+                  {selectedAccount && (
+                    <div style={{ marginTop: "20px" }}>
+                      <h4>QR Code thanh toán:</h4>
+                      {qrCodeImg ? (
+                        <img src={qrCodeImg} alt="QR Code" />
+                      ) : (
+                        <p>Đang tạo mã QR...</p>
+                      )}
+                    </div>
+                  )}
+                </>
               )}
-            </>
-          )}
+            </div>
+          </Form>
+
+          <div style={{ marginTop: "auto" }}>
+            <Button
+              type="primary"
+              style={{
+                width: "100%",
+                fontSize: "22px",
+                padding: "28px 0",
+              }}
+              onClick={handlePayment}
+            >
+              Thanh Toán
+            </Button>
+          </div>
         </div>
-        <Button type="primary" onClick={handlePayment}>
-          Thanh Toán
-        </Button>
-      </Form>
-      {/* Modal hóa đơn */}
-      <Modal
-        title="Hóa Đơn"
-        visible={isInvoiceModalVisible}
-        onCancel={() => setIsInvoiceModalVisible(false)}
-        footer={[
-          <Button key="download" onClick={handleDownloadPDF}>
-            Tải về PDF
-          </Button>,
-          <Button key="print" onClick={handlePrintInvoice}>
-            In hóa đơn
-          </Button>,
-          <Button key="close" onClick={() => setIsInvoiceModalVisible(false)}>
-            Đóng
-          </Button>,
-        ]}
-        width={800}
-      >
-        <div dangerouslySetInnerHTML={{ __html: invoiceContent }} />
-      </Modal>
-      {/* Modal thêm tài khoản ngân hàng */}
-      <Modal
-        title="Thêm tài khoản ngân hàng"
-        visible={isAccountModalVisible}
-        onOk={handleAddAccount}
-        onCancel={() => setIsAccountModalVisible(false)}
-      >
-        <Form layout="vertical">
-          <Form.Item label="Tên ngân hàng" required>
-            <Select
-              value={newAccount.bankName}
-              onChange={(value) =>
-                setNewAccount({ ...newAccount, bankName: value })
-              }
-              options={bankOptions}
-              placeholder="Chọn ngân hàng"
-            />
-          </Form.Item>
-          <Form.Item label="Số tài khoản" required>
-            <Input
-              value={newAccount.accountNumber}
-              onChange={(e) =>
-                setNewAccount({ ...newAccount, accountNumber: e.target.value })
-              }
-            />
-          </Form.Item>
-          <Form.Item label="Chủ tài khoản">
-            <Input
-              value={newAccount.accountHolder}
-              onChange={(e) =>
-                setNewAccount({ ...newAccount, accountHolder: e.target.value })
-              }
-            />
-          </Form.Item>
-          <Form.Item label="Ghi chú">
-            <Input
-              value={newAccount.note}
-              onChange={(e) =>
-                setNewAccount({ ...newAccount, note: e.target.value })
-              }
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
+        {/* Modal hóa đơn */}
+        <Modal
+          title="Hóa Đơn"
+          visible={isInvoiceModalVisible}
+          onCancel={() => setIsInvoiceModalVisible(false)}
+          footer={[
+            <Button key="download" onClick={handleDownloadPDF}>
+              Tải về PDF
+            </Button>,
+            <Button key="print" onClick={handlePrintInvoice}>
+              In hóa đơn
+            </Button>,
+            <Button key="close" onClick={() => setIsInvoiceModalVisible(false)}>
+              Đóng
+            </Button>,
+          ]}
+          width={800}
+        >
+          <div dangerouslySetInnerHTML={{ __html: invoiceContent }} />
+        </Modal>
+        {/* Modal thêm tài khoản ngân hàng */}
+        <Modal
+          title="Thêm tài khoản ngân hàng"
+          visible={isAccountModalVisible}
+          onOk={handleAddAccount}
+          onCancel={() => setIsAccountModalVisible(false)}
+        >
+          <Form layout="vertical">
+            <Form.Item label="Tên ngân hàng" required>
+              <Select
+                value={newAccount.bankName}
+                onChange={(value) =>
+                  setNewAccount({ ...newAccount, bankName: value })
+                }
+                options={bankOptions}
+                placeholder="Chọn ngân hàng"
+              />
+            </Form.Item>
+            <Form.Item label="Số tài khoản" required>
+              <Input
+                value={newAccount.accountNumber}
+                onChange={(e) =>
+                  setNewAccount({
+                    ...newAccount,
+                    accountNumber: e.target.value,
+                  })
+                }
+              />
+            </Form.Item>
+            <Form.Item label="Chủ tài khoản">
+              <Input
+                value={newAccount.accountHolder}
+                onChange={(e) =>
+                  setNewAccount({
+                    ...newAccount,
+                    accountHolder: e.target.value,
+                  })
+                }
+              />
+            </Form.Item>
+            <Form.Item label="Ghi chú">
+              <Input
+                value={newAccount.note}
+                onChange={(e) =>
+                  setNewAccount({ ...newAccount, note: e.target.value })
+                }
+              />
+            </Form.Item>
+          </Form>
+        </Modal>
+      </Drawer>
     </div>
   );
 };

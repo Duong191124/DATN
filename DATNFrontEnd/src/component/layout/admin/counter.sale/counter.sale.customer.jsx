@@ -112,7 +112,7 @@ const CounterSaleCustomer = ({
     }
   }, [isCreated]);
   return (
-    <div style={{ marginTop: 20, position: "relative" }}>
+    <div style={{ marginTop: 20, position: "relative" }} id="customer">
       <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
         <Input
           placeholder="Tìm kiếm theo tên, email hoặc số điện thoại khách hàng"

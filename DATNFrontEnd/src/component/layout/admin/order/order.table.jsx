@@ -445,7 +445,7 @@ const OrderTable = (props) => {
           "Bank Transfer": "Chuyển khoản ngân hàng",
           "Gift Card": "Thẻ quà tặng",
           COD: "Thanh toán khi nhận hàng",
-          VNPay: "VNPay",
+          VNP: "VNPay",
         };
         return paymentMethods[record.paymentMethod] || "Không xác định";
       },

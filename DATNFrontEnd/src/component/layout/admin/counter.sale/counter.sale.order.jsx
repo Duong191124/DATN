@@ -53,6 +53,7 @@ const CounterSaleBillWaiting = ({
     ? billItems.map((bill) => ({
         label: (
           <div
+            id="selected-bill"
             style={{
               display: "flex",
               alignItems: "center",
@@ -60,7 +61,7 @@ const CounterSaleBillWaiting = ({
             }}
           >
             {activeTab === bill.code && (
-              <span className="tab-check-icon">✔</span> // Hiển thị dấu tích nếu tab đang được chọn
+              <span className="tab-check-icon">✔</span>
             )}
             <span
               style={{ marginLeft: activeTab === bill.code ? "20px" : "0" }}
@@ -105,6 +106,7 @@ const CounterSaleBillWaiting = ({
                   alignItems: "center",
                   fontSize: "16px",
                 }}
+                id="created-bill"
               >
                 <PlusOutlined style={{ color: "#1890ff" }} />
               </div>
