@@ -28,65 +28,78 @@ const Summary = () => {
 
     const subtotal = calculateTotal();
 
+    // Lấy dữ liệu voucher cho người dùng hiện tại
+    const fetchDataVoucher = async () => {
+        let customerId = localStorage.getItem("userId");
+        if (!customerId) {
+            customerId = 1;
+        }
+
+        try {
+            const res = await getVouchersByCustomerId(customerId);
+            setVouchers(res.data.data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     // Cập nhật tổng tiền khi chọn coupon
-    const handleCouponChange = (voucherId) => {
+    const handleCouponChange = async (voucherId) => {
+        // Find the selected voucher by ID
         const selectedVoucher = vouchers.find((voucher) => voucher.id === voucherId);
 
         if (selectedVoucher) {
-            const { minPurchaseAmount, discountPercent, discountAmount, maxDiscountAmount } = selectedVoucher;
-            console.log("Discount Amount from API:", discountAmount);
+            const {
+                minPurchaseAmount,
+                discountPercent,
+                discountAmount,
+                maxDiscountAmount
+            } = selectedVoucher;
 
-            console.log("Selected Voucher:", selectedVoucher);
-            console.log("Subtotal:", subtotal);
+            const minPurchase = parseFloat(minPurchaseAmount) || 0;
+            const maxDiscount = parseFloat(maxDiscountAmount) || 0;
+            const discountAmt = parseFloat(discountAmount) || 0;
+            const discountPct = parseFloat(discountPercent) || 0;
 
-            // Kiểm tra nếu subtotal nhỏ hơn minPurchaseAmount
-            if (subtotal < parseFloat(minPurchaseAmount)) {
+            if (subtotal < minPurchase) {
+                message.warning(`Minimum purchase amount is ${minPurchase}.`);
                 setSelectedCoupon(null);
-                setCouponDiscount(null);
+                setCouponDiscount(0);
                 setTotalPrice(subtotal);
                 return;
             }
 
-            // Tính toán giảm giá
-            const discountByPercent = (discountPercent / 100) * subtotal;
-            const appliedDiscount = discountAmount > 0
-                ? Math.min(discountByPercent, parseFloat(discountAmount), parseFloat(maxDiscountAmount))
-                : Math.min(discountByPercent, parseFloat(maxDiscountAmount));
-            console.log("Discount by Percent:", discountByPercent);
-            console.log("Applied Discount:", appliedDiscount);
+            const discountByPercent = (discountPct / 100) * subtotal; // Discount by percentage
+            const effectiveDiscountAmount = discountAmt > 0 ? discountAmt : discountByPercent; // Use amount or percentage
 
-            // Cập nhật state
+            const appliedDiscount = maxDiscount > 0
+                ? Math.min(effectiveDiscountAmount, maxDiscount)
+                : effectiveDiscountAmount;
+
             setCouponDiscount(appliedDiscount);
             setTotalPrice(subtotal - appliedDiscount);
             setSelectedCoupon(voucherId);
+            try {
+                await fetchDataVoucher();
+
+                message.success("Voucher applied successfully!");
+            } catch (error) {
+                console.error("Failed to apply voucher:", error);
+                message.error("Failed to apply the voucher. Please try again.");
+            }
         } else {
-            // Nếu không chọn coupon
-            setCouponDiscount(null);
+            message.info("No coupon selected or coupon not valid.");
+            setCouponDiscount(0);
             setTotalPrice(subtotal);
             setSelectedCoupon(null);
         }
     };
 
+
     const clearCoupon = () => {
         setSelectedCoupon(null);
         setCouponDiscount(null);
         setTotalPrice(subtotal);
-    };
-
-    // Lấy dữ liệu voucher cho người dùng hiện tại
-    const fetchDataVoucher = async () => {
-        const customerId = localStorage.getItem("userId");
-        if (!customerId) {
-            return;
-        }
-
-        try {
-            const res = await getVouchersByCustomerId(customerId);
-            console.log(res)
-            setVouchers(res.data.data);
-        } catch (error) {
-            console.error(error);
-        }
     };
 
     // Cập nhật tổng tiền khi `subtotal` hoặc `couponDiscount` thay đổi

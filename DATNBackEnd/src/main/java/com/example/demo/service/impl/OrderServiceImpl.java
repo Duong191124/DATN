@@ -86,6 +86,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     public OrderResponse createOrderOnline(OrderOnlineDTO orderDTO) {
+        Integer customerId = orderDTO.getCustomerId() != null ? orderDTO.getCustomerId() : 1;
         // Tạo mới đơn hàng
         Orders order = new Orders();
         order.setCode(orderDTO.getCode());
@@ -100,7 +101,7 @@ public class OrderServiceImpl implements OrderService {
         } else {
             order.setVoucher(null);
         }
-        order.setCustomer(customerRepo.findById(orderDTO.getCustomerId()).orElse(null));
+        order.setCustomer(customerRepo.findById(customerId).orElse(null));
         order.setStatus(OrderStatus.pending);  // Mặc định trạng thái là 'process'
 
         // Lưu đơn hàng vào DB

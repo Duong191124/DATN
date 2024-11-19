@@ -60,38 +60,39 @@ const items = [
         icon: <SettingOutlined />,
         label: <Link to="/admin/sleeves">Sleeve Management</Link>,
       },
+      {
+        key: "10",
+        icon: <SettingOutlined />,
+        label: <Link to="/admin/weight"> Weight Management</Link>,
+      },
     ],
   },
   {
-    key: "10",
+    key: "11",
     icon: <TeamOutlined />,
     label: <Link to="/admin/staff">Staff Management</Link>,
   },
   {
-    key: "11",
+    key: "12",
     icon: <SettingOutlined />,
     label: <Link to="/admin/permission">Permission Management</Link>,
   },
   {
-    key: "12",
+    key: "13",
     icon: <SettingOutlined />,
     label: <Link to="/admin/voucher">Voucher Management</Link>,
   },
   {
-    key: "13",
+    key: "14",
     icon: <SettingOutlined />,
     label: <Link to="/admin/promotions">Promotion Management</Link>,
   },
   {
-    key: "14",
+    key: "15",
     icon: <SettingOutlined />,
     label: <Link to="/admin/customer">Customer Management</Link>,
   },
-  {
-    key: "14",
-    icon: <SettingOutlined />,
-    label: <Link to="/admin/ecommer"> Management</Link>,
-  },
+
 ];
 const getLevelKeys = (items1) => {
   const key = {};

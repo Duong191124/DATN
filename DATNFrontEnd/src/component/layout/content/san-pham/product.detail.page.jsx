@@ -94,13 +94,11 @@ const ProductDetailPage = () => {
                   .map((size) => (
                     <button
                       key={size.id}
-                      className={`size-button ${
-                        selectedSize === size.code ? "selected" : ""
-                      } ${
-                        !availableSizes.includes(size.code)
+                      className={`size-button ${selectedSize === size.code ? "selected" : ""
+                        } ${!availableSizes.includes(size.code)
                           ? "disabled-size"
                           : ""
-                      }`}
+                        }`}
                       onClick={() => setSelectedSize(size.code)}
                       disabled={!availableSizes.includes(size.code)} // Disable nếu kích thước không có trong product_detail
                     >
@@ -118,13 +116,11 @@ const ProductDetailPage = () => {
                   .map((color) => (
                     <button
                       key={color.id}
-                      className={`color-button ${
-                        selectedColor === color.name ? "selected" : ""
-                      } ${
-                        !availableColors.includes(color.name)
+                      className={`color-button ${selectedColor === color.name ? "selected" : ""
+                        } ${!availableColors.includes(color.name)
                           ? "disabled-color"
                           : ""
-                      }`}
+                        }`}
                       onClick={() => setSelectedColor(color.name)}
                       disabled={!availableColors.includes(color.name)} // Disable nếu màu không có trong product_detail
                     >

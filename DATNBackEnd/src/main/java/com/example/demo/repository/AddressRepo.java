@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface AddressRepo extends JpaRepository<Address, Integer> {
     List<Address> findByCustomerId(int customerId);
+    boolean existsByCustomerId(int customerId);
 }
