@@ -4,6 +4,8 @@ import com.example.demo.dto.ProductDetailDTO;
 import com.example.demo.entity.*;
 import com.example.demo.repository.*;
 import com.example.demo.response.ProductDetailResponse;
+import com.example.demo.response.ProductResponse;
+import com.example.demo.response.PromotionResponse;
 import com.example.demo.service.ProductDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +37,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
     @Autowired
     private WeightRepo weightRepo;
+    @Autowired
+    private OrderDetailRepo orderDetailRepo;
 
     @Override
     public List<ProductDetailResponse> getAll() {
@@ -88,6 +93,63 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     @Override
     public ProductDetailResponse getPDByCode(String code) {
         return ProductDetailResponse.fromProductDetailResponse(productDetailRepo.findProductDetailByCode(code));
+    }
+
+    @Override
+    public List<ProductDetailResponse> getTopFeaturedProducts(
+            Pageable pageable) {
+        // Lấy kết quả từ truy vấn SQL
+        List<Object[]> results = orderDetailRepo.getTopFeaturedProducts(pageable);
+        List<ProductDetailResponse> featuredProducts = new ArrayList<>();
+
+        // Tạo đối tượng response cho mỗi sản phẩm
+        for (Object[] result : results) {
+            ProductDetail product = (ProductDetail) result[0];  // Lấy đối tượng sản phẩm
+            Long totalSold = (Long) result[1];  // Lấy số lượng đã bán từ kết quả truy vấn
+            ProductDetailResponse response = new ProductDetailResponse();
+            response.setId(product.getId());
+            response.setCode(product.getCode());
+            response.setDiscountPrice(product.getDiscountPrice());
+            response.setQuantity(product.getQuantity()); // Giữ nguyên số lượng ban đầu
+            response.setColor(product.getColor());
+            response.setSize(product.getSize());
+            response.setImage(product.getImage());
+            response.setDefaultPrice(product.getDefaultPrice());
+            response.setWeight(product.getWeightValue());
+            response.setProductResponse(ProductResponse.convertResponse(product.getProduct()));
+            response.setPromotions(product.getPromotions().stream()
+                    .map(PromotionResponse::fromPromotionResponse)
+                    .collect(Collectors.toSet()));
+
+            response.setCreateAt(product.getCreatedAt()); // Lấy ngày tạo sản phẩm
+
+            // Thêm vào danh sách các sản phẩm
+            featuredProducts.add(response);
+        }
+
+        // Sắp xếp các sản phẩm theo tổng số lượng đã bán (totalSold), ngày tạo (createdAt) và giá giảm (discountPrice)
+        featuredProducts.sort((response1, response2) -> {
+            // Lấy số lượng đã bán từ đối tượng response đã được tạo
+            Long totalSold1 = (Long) results.get(featuredProducts.indexOf(response1))[1]; // Dùng giá trị thứ hai trong kết quả truy vấn
+            Long totalSold2 = (Long) results.get(featuredProducts.indexOf(response2))[1]; // Dùng giá trị thứ hai trong kết quả truy vấn
+
+            // So sánh theo totalSold (số lượng đã bán)
+            int comparison = totalSold2.compareTo(totalSold1);
+            if (comparison != 0) {
+                return comparison;
+            }
+
+            // Nếu totalSold bằng nhau, sắp xếp theo createdAt
+            comparison = response2.getCreateAt().compareTo(response1.getCreateAt());
+            if (comparison != 0) {
+                return comparison;
+            }
+
+            // Nếu cả totalSold và createdAt đều bằng nhau, sắp xếp theo discountPrice
+            return response1.getDiscountPrice().compareTo(response2.getDiscountPrice());
+        });
+
+        return featuredProducts;
     }
 
     @Override

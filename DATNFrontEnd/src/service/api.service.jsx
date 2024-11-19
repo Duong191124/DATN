@@ -181,6 +181,14 @@ const fetchDataBrand = () => {
 const checkDuplicateProductAPI = async (type, value) => {
   return await axios.post(`/api/v1/products/check-duplicate`, { type, value });
 };
+const fetchProductsByProductDetails = (page, size) => {
+  const URL_BACKEND = "/api/v1/products/productDetail";
+  const params = {
+    page: page || 0,
+    size: size || 12,
+  };
+  return axios.get(URL_BACKEND, { params });
+};
 /* API Order*/
 // const fetchDataOrders = () => {
 //   const URL_BACKEND = "api/v1/orders/list";
@@ -195,11 +203,12 @@ const fetchPageDataProductDetail = async (
   code,
   colorName,
   sizeName,
+  weightName,
   minPrice,
   maxPrice,
   status,
-  page = 0,
-  limit = 10
+  page,
+  limit
 ) => {
   const URL_BACKEND = "api/v1/productDetail";
   const params = {
@@ -207,13 +216,13 @@ const fetchPageDataProductDetail = async (
     code: code || "",
     colorName: colorName || "",
     sizeName: sizeName || "",
+    weightName: weightName || "",
     minPrice: minPrice || "",
     maxPrice: maxPrice || "",
     status: status,
-    page: page,
-    limit: limit,
+    page: page || 0,
+    limit: limit || 10,
   };
-  console.log("paff", params);
   return axios.get(URL_BACKEND, { params });
 };
 const fetchDataOrders = (
@@ -430,7 +439,7 @@ const createProductDetailAPi = (
     productId: productId,
     sizeId: sizeId,
     colorId: colorId,
-    weightId: weightId
+    weightId: weightId,
   };
   return axios.post(URL_BACKEND, data);
 };
@@ -470,6 +479,10 @@ const findByProductDetailId = (id) => {
 };
 const findByProductDetailCode = (code) => {
   const URL_BACKEND = `/api/v1/productDetail/detailCode/${code}`;
+  return axios.get(URL_BACKEND);
+};
+const fetchTopFeaturedProducts = () => {
+  const URL_BACKEND = "/api/v1/productDetail/top-featured-productdetail";
   return axios.get(URL_BACKEND);
 };
 //API color
@@ -973,7 +986,7 @@ const updateCustomerInfo = (
     phoneNumber,
     dateOfBirth,
     gender,
-    username
+    username,
   };
   const URL_BACKEND = `/api/v1/customer/${id}`;
   return axios.put(URL_BACKEND, data);
@@ -1064,23 +1077,22 @@ const updateWeightAPI = (id, weight_value, status) => {
   };
   return axios.put(URL_BACKEND, data);
 };
-
 //api for address
 
 const getProvinces = () => {
   const URL_BACKEND = "/api/v1/ghn/provinces";
-  return axios.get(URL_BACKEND)
-}
+  return axios.get(URL_BACKEND);
+};
 
 const getDistrict = (provinceId) => {
   const URL_BACKEND = `/api/v1/ghn/districts?provinceId=${provinceId}`;
-  return axios.get(URL_BACKEND)
-}
+  return axios.get(URL_BACKEND);
+};
 
 const getWards = (districtId) => {
   const URL_BACKEND = `/api/v1/ghn/wards?districtId=${districtId}`;
-  return axios.get(URL_BACKEND)
-}
+  return axios.get(URL_BACKEND);
+};
 
 const getShippingFee = (
   fromDistrictId,
@@ -1103,7 +1115,7 @@ const getShippingFee = (
 const getAddressByCustomerId = (customerId) => {
   const URL_BACKEND = `/api/v1/address/${customerId}`;
   return axios.get(URL_BACKEND);
-}
+};
 
 const saveAddressByid = (
   customerId,
@@ -1122,11 +1134,11 @@ const saveAddressByid = (
     ward,
     name,
     phoneNumber,
-    addressDetail
+    addressDetail,
   };
 
   return axios.post(URL_BACKEND, data);
-}
+};
 
 const updateAddressByid = (
   addressId,
@@ -1143,16 +1155,16 @@ const updateAddressByid = (
     ward,
     name,
     phoneNumber,
-    addressDetail
-  }
+    addressDetail,
+  };
   const URL_BACKEND = `/api/v1/address/${addressId}`;
   return axios.put(URL_BACKEND, data);
-}
+};
 
 const deleteAddressByid = (addressId) => {
   const URL_BACKEND = `/api/v1/address/${addressId}`;
   return axios.delete(URL_BACKEND);
-}
+};
 
 export {
   getShippingFee,
@@ -1272,4 +1284,6 @@ export {
   findByProductDetailCode,
   getVouchersByCustomerId,
   hasCustomerUsedVoucher,
+  fetchTopFeaturedProducts,
+  fetchProductsByProductDetails,
 };

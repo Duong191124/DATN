@@ -37,7 +37,7 @@ public class ProductDetailController {
                                                   @RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "10") int limit
                                                   ) {
-        Pageable pageable = PageRequest.of(page,limit, Sort.by("id").ascending());
+        Pageable pageable = PageRequest.of(page,limit, Sort.by("createdAt").ascending());
         Page<ProductDetailResponse> productDetailResponses = productDetailService.pageAndFilterWithProductDetailResponse(productName,code,colorName,weightName,sizeName,minPrice,maxPrice,status,pageable);
         return ResponseEntity.ok(new MessageReponse("successfully",200,productDetailResponses));
     }
@@ -49,7 +49,7 @@ public class ProductDetailController {
                 .message("get info successfuly")
                 .status(HttpStatus.OK.value())
                 .data(productDetailList)
-                .build()
+                .build()    
         );
     }
     @PostMapping("")
@@ -108,4 +108,18 @@ public class ProductDetailController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    @GetMapping("/top-featured-productdetail")
+    public ResponseEntity<?> getTopFeaturedProducts(@RequestParam(defaultValue = "0") int page,
+                                                    @RequestParam(defaultValue = "10") int limit) {
+        Pageable pageable = PageRequest.of(page, limit,
+                Sort.by(Sort.Order.desc("createdAt"))
+                        .and(Sort.by(Sort.Order.desc("quantity")))  // Không sử dụng quantity ở đây
+                        .and(Sort.by(Sort.Order.asc("discountPrice"))));
+
+        List<ProductDetailResponse> featuredProducts = productDetailService.getTopFeaturedProducts(pageable);
+        return ResponseEntity.ok(new MessageReponse("Successfully retrieved top featured products", 200, featuredProducts));
+    }
+
+
+
 }

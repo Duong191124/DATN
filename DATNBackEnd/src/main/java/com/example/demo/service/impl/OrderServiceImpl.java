@@ -266,12 +266,33 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse updateStatusOrder(Integer id, String status) {
-        Orders orders = orderRepo.findById(id).orElseThrow(()-> new RuntimeException("not found order with id:"+id));
+        // Lấy đơn hàng từ cơ sở dữ liệu
+        Orders orders = orderRepo.findById(id).orElseThrow(() ->
+                new RuntimeException("Not found order with id: " + id)
+        );
+
+        // Chuyển đổi trạng thái từ String thành OrderStatus enum
         OrderStatus orderStatus = OrderStatus.valueOf(status.toLowerCase());
+
+        // Kiểm tra nếu trạng thái là "hủy"
+        if (orderStatus == OrderStatus.cancelled) {
+            // Duyệt qua các chi tiết đơn hàng để cập nhật số lượng sản phẩm
+            for (OrderDetail orderDetail : orders.getOrderDetails()) {
+                ProductDetail productDetail = orderDetail.getProductDetail();
+                int quantityOrdered = orderDetail.getQuantity();
+
+                // Cập nhật lại số lượng sản phẩm trong kho (tăng lại số lượng)
+                productDetail.setQuantity(productDetail.getQuantity() + quantityOrdered);
+                productDetailRepo.save(productDetail); // Lưu sản phẩm sau khi cập nhật
+            }
+        }
+        // Cập nhật trạng thái đơn hàng
         orders.setStatus(orderStatus);
-        orderRepo.save(orders);
+        orderRepo.save(orders); // Lưu đơn hàng đã cập nhật
+        // Trả về đối tượng OrderResponse đã cập nhật
         return OrderResponse.convertOrderResponse(orders);
     }
+
 
     @Override
     public void deletedOrder(Integer id) {

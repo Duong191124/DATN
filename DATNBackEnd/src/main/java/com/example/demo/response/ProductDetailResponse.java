@@ -6,6 +6,10 @@ import com.example.demo.entity.Size;
 import com.example.demo.entity.Weight;
 import lombok.*;
 
+import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Builder
 @Getter
 @Setter
@@ -23,8 +27,9 @@ public class ProductDetailResponse {
     private ProductResponse productResponse;
     private Size size;
     private Color color;
-
     private Weight weight;
+    private Set<PromotionResponse> promotions;
+    private LocalDateTime createAt;
 
     public static ProductDetailResponse fromProductDetailResponse(ProductDetail productDetail){
         return ProductDetailResponse.builder()
@@ -39,6 +44,8 @@ public class ProductDetailResponse {
                 .size(productDetail.getSize())
                 .color(productDetail.getColor())
                 .weight(productDetail.getWeightValue())
+                .promotions(productDetail.getPromotions().stream().map(PromotionResponse::fromPromotionResponse).collect(Collectors.toSet()))
+                .createAt(productDetail.getCreatedAt())
                 .build();
     }
 }
