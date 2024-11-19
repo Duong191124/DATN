@@ -36,6 +36,7 @@ import ContactPage from "./pages/contact.jsx";
 import LandingPage from "./pages/landing.jsx";
 import { CheckoutProvider } from "./component/context/checkout.context.jsx";
 import TrackingPage from "./pages/tracking.jsx";
+import ChartPage from "./pages/chart.jsx";
 
 const router = createBrowserRouter([
   {
@@ -50,6 +51,10 @@ const router = createBrowserRouter([
       {
         index: false,
         element: <Home />,
+      },
+      {
+        path: "chart",
+        element: <ChartPage />,
       },
       {
         path: "products",
@@ -110,7 +115,7 @@ const router = createBrowserRouter([
       {
         path: "weight",
         element: <WeightPage />,
-      },
+      }
     ],
   },
   {
