@@ -356,11 +356,12 @@ public class OrderServiceImpl implements OrderService {
             orderDetail.setOrders(order);
             orderDetail.setProductDetail(productDetail);
 
-            BigDecimal discountPriceBigDecimal = BigDecimal.valueOf(productDetail.getDiscountPrice());
-
-            BigDecimal priceToUse = (discountPriceBigDecimal != null && discountPriceBigDecimal.compareTo(BigDecimal.ZERO) > 0)
+            BigDecimal discountPriceBigDecimal = (productDetail.getDiscountPrice() != null)
+                    ? BigDecimal.valueOf(productDetail.getDiscountPrice())
+                    : BigDecimal.ZERO;
+            BigDecimal priceToUse = (discountPriceBigDecimal.compareTo(BigDecimal.ZERO) > 0)
                     ? discountPriceBigDecimal // Giữ nguyên BigDecimal nếu có giá giảm
-                    : BigDecimal.valueOf(productDetail.getDefaultPrice()); // Nếu không có giá giảm, sử dụng giá mặc định
+                    : BigDecimal.valueOf(productDetail.getDefaultPrice());
             // Nếu không có giá giảm, sử dụng giá mặc định và giữ nguyên BigDecimal
             orderDetail.setPrice(priceToUse.doubleValue());  // Chuyển đổi BigDecimal thành Double khi lưu vào OrderDetail
             orderDetail.setQuantity(detailRequest.getQuantity());
