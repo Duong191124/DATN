@@ -796,6 +796,7 @@ const updatePromotion = (
     discountAmount,
     status,
     productDetailsIds,
+    
   }
 ) => {
   // Sửa 'productDetailsId' thành 'productDetailsIds'
@@ -808,7 +809,8 @@ const updatePromotion = (
     discountPercent,
     discountAmount,
     status,
-    productDetailsIds, // Chú ý tên trường ở đây
+    productDetailsIds,
+     // Chú ý tên trường ở đây
   };
 
   return axios.put(URL_BACKEND, data); // Gọi PUT với URL và dữ liệu
