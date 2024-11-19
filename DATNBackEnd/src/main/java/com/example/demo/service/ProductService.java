@@ -30,4 +30,7 @@ public interface ProductService {
     Page<ProductResponse> pageAllProducts(Integer categoryId, String productName, Integer sleeveId, Integer collarId, Integer brandId, Double price, String description,Integer status, Pageable pageable);
 
 
+
+    Page<ProductResponse> productAllWithProductDetailAll(Pageable pageable);
+
 }

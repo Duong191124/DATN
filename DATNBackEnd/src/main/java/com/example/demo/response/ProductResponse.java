@@ -3,6 +3,8 @@ package com.example.demo.response;
 import com.example.demo.entity.Product;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,6 +22,7 @@ public class ProductResponse {
     private String description;
     private String categoryName;
     private String brandName;
+    private LocalDateTime createdAt;
     public static ProductResponse convertResponse(Product product){
         return ProductResponse.builder()
                 .id(product.getId())
@@ -33,6 +36,7 @@ public class ProductResponse {
                 .description(product.getDescription())
                 .categoryName(product.getCategory().getName())
                 .brandName(product.getBrand().getName())
+                .createdAt(product.getCreatedAt())
                 .build();
     }
 }

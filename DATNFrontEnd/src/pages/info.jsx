@@ -36,7 +36,7 @@ const InfoPage = () => {
                                 borderRadius: 10
                             }}
                         >
-                            <InfoAddress />
+                            <InfoAddress user={user} />
                         </Col>
                         <Col
                             span={24}

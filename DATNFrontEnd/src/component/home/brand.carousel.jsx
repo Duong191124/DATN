@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Card, Typography, Badge } from 'antd';
-import { motion, AnimatePresence } from 'framer-motion';
-import { LeftOutlined, RightOutlined, StarOutlined } from '@ant-design/icons';
-import Carousel from 'react-multi-carousel';
+import React, { useEffect, useState } from "react";
+import styled from "styled-components";
+import { Card, Typography, Badge } from "antd";
+import { motion, AnimatePresence } from "framer-motion";
+import { LeftOutlined, RightOutlined, StarOutlined } from "@ant-design/icons";
+import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
+import { fetchDataBrand } from "../../service/api.service";
 
 const { Title, Text } = Typography;
 
@@ -37,7 +38,7 @@ const StyledTitle = styled(Title)`
   position: relative;
 
   &:after {
-    content: '';
+    content: "";
     display: block;
     margin: 15px auto;
     width: 80px;
@@ -93,10 +94,11 @@ const StyledCard = styled(motion(Card))`
   }
 `;
 
-const BrandLogo = styled.div.attrs({ className: 'brand-logo' })`
+const BrandLogo = styled.div.attrs({ className: "brand-logo" })`
   width: 80px;
   height: 80px;
   background: #333333;
+  padding: 10px;
   border-radius: 0;
   display: flex;
   align-items: center;
@@ -109,7 +111,7 @@ const BrandLogo = styled.div.attrs({ className: 'brand-logo' })`
   box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
 `;
 
-const BrandBadge = styled(motion.div).attrs({ className: 'brand-badge' })`
+const BrandBadge = styled(motion.div).attrs({ className: "brand-badge" })`
   position: absolute;
   top: -10px;
   right: -10px;
@@ -118,7 +120,7 @@ const BrandBadge = styled(motion.div).attrs({ className: 'brand-badge' })`
   transition: all 0.4s ease;
 `;
 
-const BrandName = styled(Title).attrs({ className: 'brand-name' })`
+const BrandName = styled(Title).attrs({ className: "brand-name" })`
   font-size: 22px !important;
   text-align: center;
   margin: 16px 0 12px !important;
@@ -186,97 +188,180 @@ const ButtonGroup = styled.div`
 `;
 
 const BrandCarousel = () => {
-    const [isHovered, setIsHovered] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [brand, setBrand] = useState([]);
+  const getBrands = async () => {
+    const response = await fetchDataBrand();
+    if (response?.data?.data) {
+      const updatedBrands = response.data.data.map((brand) => {
+        let logo, description;
 
-    const brands = [
-        { id: 1, name: "Luxury Brand A", description: "Luxury fashion & accessories", logo: "LB", rating: 5 },
-        { id: 2, name: "Premium Brand B", description: "Premium lifestyle products", logo: "PB", rating: 4 },
-        { id: 3, name: "Elegant Brand C", description: "Elegant jewelry & timepieces", logo: "EC", rating: 5 },
-        { id: 4, name: "Modern Brand D", description: "Modern fashion essentials", logo: "MD", rating: 4 },
-    ];
+        // Thêm logo và mô tả cho các thương hiệu
+        switch (brand.code) {
+          case "BR001":
+            logo =
+              "https://logos-world.net/wp-content/uploads/2020/04/Nike-Logo-700x394.png"; // Nike logo
+            description =
+              "Nike - Global sportswear brand known for innovation.";
+            break;
+          case "BR002":
+            logo =
+              "https://logos-world.net/wp-content/uploads/2020/04/Adidas-Logo-700x394.png"; // Adidas logo
+            description = "Adidas - Leading German sportswear brand.";
+            break;
+          case "BR003":
+            logo =
+              "https://logos-world.net/wp-content/uploads/2020/04/Puma-Logo-700x394.png"; // Puma logo
+            description =
+              "Puma - German sportswear brand known for performance.";
+            break;
+          case "BR004":
+            logo =
+              "https://logos-world.net/wp-content/uploads/2020/04/Reebok-Logo-700x394.png"; // Reebok logo
+            description = "Reebok - International fitness brand under Adidas.";
+            break;
+          case "BR005":
+            logo =
+              "https://logos-world.net/wp-content/uploads/2020/04/Under-Armour-Logo-700x394.png"; // Under Armour logo
+            description =
+              "Under Armour - Known for innovative sportswear technology.";
+            break;
+          case "BR006":
+            logo =
+              "https://logos-world.net/wp-content/uploads/2020/09/New-Balance-Logo-700x394.png"; // New Balance logo
+            description = "New Balance - American footwear and apparel brand.";
+            break;
+          case "BR007":
+            logo =
+              "https://logos-world.net/wp-content/uploads/2020/06/Converse-Logo-700x394.png"; // Converse logo
+            description = "Converse - Famous for iconic Chuck Taylor sneakers.";
+            break;
+          default:
+            logo =
+              "https://tse3.mm.bing.net/th?id=OIP.GzuYVC7BRiRpCnYboqeAkQAAAA&pid=Api&P=0&h=220";
+            description = "Not updated yet";
+            break;
+        }
 
-    const responsive = {
-        desktop: { breakpoint: { max: 3000, min: 1024 }, items: 3, partialVisibilityGutter: 40 },
-        tablet: { breakpoint: { max: 1024, min: 464 }, items: 2, partialVisibilityGutter: 30 },
-        mobile: { breakpoint: { max: 464, min: 0 }, items: 1, partialVisibilityGutter: 20 },
-    };
+        return {
+          ...brand,
+          logo,
+          description,
+        };
+      });
+      setBrand(updatedBrands);
+    }
+  };
 
-    const cardVariants = {
-        hover: {
-            transition: {
-                duration: 0.4,
-                ease: "easeInOut",
-            },
-        },
-    };
+  useEffect(() => {
+    getBrands();
+  }, []);
 
-    const CustomButtonGroup = ({ next, previous }) => (
-        <ButtonGroup>
-            <NavigationButton
-                className="prev"
-                onClick={previous}
-                whileTap={{ scale: 0.95 }}
+  const responsive = {
+    desktop: {
+      breakpoint: { max: 3000, min: 1024 },
+      items: 3,
+      partialVisibilityGutter: 40,
+    },
+    tablet: {
+      breakpoint: { max: 1024, min: 464 },
+      items: 2,
+      partialVisibilityGutter: 30,
+    },
+    mobile: {
+      breakpoint: { max: 464, min: 0 },
+      items: 1,
+      partialVisibilityGutter: 20,
+    },
+  };
+
+  const cardVariants = {
+    hover: {
+      transition: {
+        duration: 0.4,
+        ease: "easeInOut",
+      },
+    },
+  };
+
+  const CustomButtonGroup = ({ next, previous }) => (
+    <ButtonGroup>
+      <NavigationButton
+        className="prev"
+        onClick={previous}
+        whileTap={{ scale: 0.95 }}
+      >
+        <LeftOutlined />
+      </NavigationButton>
+      <NavigationButton
+        className="next"
+        onClick={next}
+        whileTap={{ scale: 0.95 }}
+      >
+        <RightOutlined />
+      </NavigationButton>
+    </ButtonGroup>
+  );
+
+  return (
+    <StyledContainer>
+      <StyledTitle level={3}>Thương hiệu uy tín</StyledTitle>
+      <CarouselContainer
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <Carousel
+          responsive={responsive}
+          infinite
+          autoPlay={!isHovered}
+          autoPlaySpeed={4000}
+          customTransition="all 0.5s cubic-bezier(0.4, 0, 0.2, 1)"
+          containerClass="carousel-container"
+          renderButtonGroupOutside
+          customButtonGroup={<CustomButtonGroup />}
+          removeArrowOnDeviceType={["tablet", "mobile"]}
+          partialVisible
+          arrows={false}
+        >
+          {brand.map((brand) => (
+            <StyledCard
+              key={brand.id}
+              variants={cardVariants}
+              whileHover="hover"
+              onClick={() => {
+                alert("navigation to branh page here");
+              }}
             >
-                <LeftOutlined />
-            </NavigationButton>
-            <NavigationButton
-                className="next"
-                onClick={next}
-                whileTap={{ scale: 0.95 }}
-            >
-                <RightOutlined />
-            </NavigationButton>
-        </ButtonGroup>
-    );
-
-    return (
-        <StyledContainer>
-            <StyledTitle level={3}>Thương hiệu uy tín</StyledTitle>
-            <CarouselContainer
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-            >
-                <Carousel
-                    responsive={responsive}
-                    infinite
-                    autoPlay={!isHovered}
-                    autoPlaySpeed={4000}
-                    customTransition="all 0.5s cubic-bezier(0.4, 0, 0.2, 1)"
-                    containerClass="carousel-container"
-                    renderButtonGroupOutside
-                    customButtonGroup={<CustomButtonGroup />}
-                    removeArrowOnDeviceType={["tablet", "mobile"]}
-                    partialVisible
-                    arrows={false}
-                >
-                    {brands.map((brand) => (
-                        <StyledCard
-                            key={brand.id}
-                            variants={cardVariants}
-                            whileHover="hover"
-                            onClick={() => {
-                                alert("navigation to branh page here")
-                            }}
-                        >
-                            <BrandBadge>
-                                <Badge
-                                    count={<StarOutlined style={{ color: '#000000' }} />}
-                                    style={{
-                                        backgroundColor: 'white',
-                                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                                        border: '1px solid #000000'
-                                    }}
-                                />
-                            </BrandBadge>
-                            <BrandLogo>{brand.logo}</BrandLogo>
-                            <BrandName level={4}>{brand.name}</BrandName>
-                            <BrandDescription>{brand.description}</BrandDescription>
-                        </StyledCard>
-                    ))}
-                </Carousel>
-            </CarouselContainer>
-        </StyledContainer>
-    );
+              <BrandBadge>
+                <Badge
+                  count={<StarOutlined style={{ color: "#000000" }} />}
+                  style={{
+                    backgroundColor: "white",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                    border: "1px solid #000000",
+                  }}
+                />
+              </BrandBadge>
+              <BrandLogo>
+                <img
+                  src={brand.logo}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    textAlign: "center",
+                    objectFit: "contain",
+                    filter: "brightness(0) invert(1)",
+                  }}
+                />
+              </BrandLogo>
+              <BrandName level={4}>{brand.name}</BrandName>
+              <BrandDescription>{brand.description}</BrandDescription>
+            </StyledCard>
+          ))}
+        </Carousel>
+      </CarouselContainer>
+    </StyledContainer>
+  );
 };
 
 export default BrandCarousel;

@@ -96,7 +96,10 @@ public class ProductServiceImpl implements ProductService {
 
 
 
-
+    @Override
+    public Page<ProductResponse> productAllWithProductDetailAll(Pageable pageable) {
+        return productRepo.findAll(pageable).map(ProductResponse::convertResponse);
+    }
 
     @Override
     public ProductResponse findById(Integer id) {

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, Row, Col, Button, Select } from 'antd';
+import { Modal, Form, Input, Row, Col, Button, Select, message } from 'antd';
 import { UserOutlined, PhoneOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { getDistrict, getProvinces, getWards } from '../../service/api.service';
+import { getDistrict, getProvinces, getWards, saveAddressByid, updateAddressByid } from '../../service/api.service';
 
-const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editingAddress }) => {
+const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, editingAddress, userID, getAddressByid }) => {
     const { t, i18n } = useTranslation();
     const language = localStorage.getItem("language") || "vi";
     const [provinces, setProvinces] = useState([]);
@@ -15,12 +15,8 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
     const [selectedDistrict, setSelectedDistrict] = useState(null);
     const [selectedWard, setSelectedWard] = useState(null);
 
-    const [isDistrictDropdownOpen, setIsDistrictDropdownOpen] = useState(false);
-    const [isWardDropdownOpen, setIsWardDropdownOpen] = useState(false);
-
     const defaultOption = { ProvinceID: '', DistrictID: '', WardCode: '', ProvinceName: t('MES-024'), DistrictName: t('MES-027'), WardName: t('MES-030') };
 
-    // API gọi danh sách tỉnh
     useEffect(() => {
         const fetchProvinces = async () => {
             const res = await getProvinces();
@@ -35,20 +31,32 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
     }, [i18n, language]);
 
     useEffect(() => {
+        if (editingAddress) {
+            const { name, phoneNumber, city, district, ward, addressDetail } = editingAddress;
+            form.setFieldsValue({
+                name,
+                phone: phoneNumber,
+                province: city,
+                district,
+                ward,
+                address: addressDetail,
+            });
+            setSelectedProvince(city);
+            setSelectedDistrict(district);
+            setSelectedWard(ward);
+        }
+    }, [editingAddress, form]);
+
+    useEffect(() => {
         if (selectedProvince && selectedProvince !== defaultOption.ProvinceID) {
             const fetchDistricts = async () => {
                 const res = await getDistrict(selectedProvince);
                 setDistricts([defaultOption, ...res.data.data]);
-                setSelectedDistrict(defaultOption.DistrictID);
-                setSelectedWard(defaultOption.WardCode);
-                setIsDistrictDropdownOpen(true);
             };
             fetchDistricts();
         } else {
             setDistricts([]);
             setWards([]);
-            setSelectedDistrict(null);
-            setSelectedWard(null);
         }
     }, [selectedProvince]);
 
@@ -57,18 +65,51 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
             const fetchWards = async () => {
                 const res = await getWards(selectedDistrict);
                 setWards([defaultOption, ...res.data.data]);
-                setSelectedWard(defaultOption.WardCode);
-                setIsWardDropdownOpen(true);
             };
             fetchWards();
         } else {
             setWards([]);
-            setSelectedWard(null);
         }
     }, [selectedDistrict]);
 
-    // Tự động cập nhật địa chỉ
-    const autoAddress = `${provinces.find(p => p.ProvinceID === selectedProvince)?.ProvinceName || ''}, ${districts.find(d => d.DistrictID === selectedDistrict)?.DistrictName || ''}, ${wards.find(w => w.WardCode === selectedWard)?.WardName || ''}`;
+    const onFormSubmit = async (values) => {
+        if (editingAddress) {
+            try {
+                await updateAddressByid(
+                    editingAddress.id,
+                    values.province,
+                    values.district,
+                    values.ward,
+                    values.name,
+                    values.phone,
+                    values.address,
+                );
+                setIsModalVisible(false);
+                message.success("update success")
+                getAddressByid();
+            } catch (error) {
+                message.error("check error: ", error);
+            }
+        } else {
+            try {
+                await saveAddressByid(
+                    userID,
+                    values.province,
+                    values.district,
+                    values.ward,
+                    values.name,
+                    values.phone,
+                    values.address,
+                );
+                setIsModalVisible(false);
+                message.success("create success");
+                getAddressByid();
+            } catch (error) {
+                message.error("check error: ", error);
+            }
+        }
+
+    };
 
     return (
         <Modal
@@ -80,7 +121,7 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
             <Form
                 form={form}
                 layout="vertical"
-                onFinish={handleSubmit}
+                onFinish={onFormSubmit}
             >
                 <Form.Item
                     name="name"
@@ -104,10 +145,7 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
                 >
                     <Select
                         value={selectedProvince}
-                        onChange={(value) => {
-                            setSelectedProvince(value);
-                            setIsDistrictDropdownOpen(true);
-                        }}
+                        onChange={setSelectedProvince}
                         placeholder={t('MES-024')}
                     >
                         {provinces.map(province => (
@@ -118,98 +156,57 @@ const AddressModal = ({ isModalVisible, handleCancel, handleSubmit, form, editin
                     </Select>
                 </Form.Item>
 
-                {selectedProvince && (
-                    <Form.Item
-                        name="district"
-                        label={t('MES-028')}
-                        rules={[{ required: true, message: t('MES-029') }]}
+                <Form.Item
+                    name="district"
+                    label={t('MES-028')}
+                    rules={[{ required: true, message: t('MES-029') }]}
+                >
+                    <Select
+                        value={selectedDistrict}
+                        onChange={setSelectedDistrict}
+                        placeholder={t('MES-027')}
                     >
-                        <Select
-                            open={isDistrictDropdownOpen}
-                            onDropdownVisibleChange={(open) => setIsDistrictDropdownOpen(open)}
-                            value={selectedDistrict}
-                            onChange={(value) => {
-                                setSelectedDistrict(value);
-                                setIsDistrictDropdownOpen(false);
-                                setIsWardDropdownOpen(true);
-                            }}
-                            placeholder={t('MES-027')}
-                            disabled={!selectedProvince || selectedProvince === defaultOption.ProvinceID}
-                        >
-                            {districts.map(district => (
-                                <Select.Option key={district.DistrictID} value={district.DistrictID}>
-                                    {district.DistrictName}
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                )}
+                        {districts.map(district => (
+                            <Select.Option key={district.DistrictID} value={district.DistrictID}>
+                                {district.DistrictName}
+                            </Select.Option>
+                        ))}
+                    </Select>
+                </Form.Item>
 
-                {selectedDistrict && (
-                    <Form.Item
-                        name="ward"
-                        label={t('MES-031')}
-                        rules={[{ required: true, message: t('MES-032') }]}
+                <Form.Item
+                    name="ward"
+                    label={t('MES-031')}
+                    rules={[{ required: true, message: t('MES-032') }]}
+                >
+                    <Select
+                        value={selectedWard}
+                        onChange={setSelectedWard}
+                        placeholder={t('MES-030')}
                     >
-                        <Select
-                            open={isWardDropdownOpen}
-                            onDropdownVisibleChange={(open) => setIsWardDropdownOpen(open)}
-                            value={selectedWard}
-                            onChange={(value) => {
-                                setSelectedWard(value);
-                                setIsWardDropdownOpen(false);
-                            }}
-                            placeholder={t('MES-030')}
-                            disabled={!selectedDistrict || selectedDistrict === defaultOption.DistrictID}
-                        >
-                            {wards.map(ward => (
-                                <Select.Option key={ward.WardCode} value={ward.WardCode}>
-                                    {ward.WardName}
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                )}
+                        {wards.map(ward => (
+                            <Select.Option key={ward.WardCode} value={ward.WardCode}>
+                                {ward.WardName}
+                            </Select.Option>
+                        ))}
+                    </Select>
+                </Form.Item>
 
                 <Form.Item
                     name="address"
                     label={t('MES-041')}
                     rules={[{ required: true, message: t('MES-042') }]}
                 >
-                    <Input.TextArea
-                        prefix={<EnvironmentOutlined />}
-                        placeholder={t('MES-043')}
-                        rows={3}
-                        value={autoAddress}
-                        onChange={(e) => form.setFieldValue('address', e.target.value)}
-                    />
+                    <Input.TextArea rows={3} placeholder={t('MES-043')} />
                 </Form.Item>
 
                 <Form.Item>
                     <Row gutter={16} justify="end">
                         <Col>
-                            <Button
-                                style={{
-                                    backgroundColor: 'white',
-                                    color: 'black',
-                                    width: 100,
-                                    height: 40
-                                }}
-                                onClick={handleCancel}>
-                                {t('MES-044')}
-                            </Button>
+                            <Button onClick={handleCancel}>{t('MES-044')}</Button>
                         </Col>
                         <Col>
-                            <Button
-                                style={{
-                                    backgroundColor: 'black',
-                                    color: 'white',
-                                    width: 100,
-                                    height: 40
-                                }}
-                                type="primary" htmlType="submit"
-                                disabled={!selectedProvince || !selectedDistrict || !selectedWard}
-                            >
+                            <Button type="primary" htmlType="submit">
                                 {t('MES-045')}
                             </Button>
                         </Col>

@@ -36,6 +36,8 @@ import ContactPage from "./pages/contact.jsx";
 import LandingPage from "./pages/landing.jsx";
 import { CheckoutProvider } from "./component/context/checkout.context.jsx";
 import ProductByBrand from "./component/home/product.by.brand.jsx";
+import TrackingPage from "./pages/tracking.jsx";
+
 
 const router = createBrowserRouter([
   {
@@ -146,8 +148,14 @@ const router = createBrowserRouter([
         element: <LandingPage />
       },
       {
+
         path: "/brand",
         element: <ProductByBrand />
+      },
+      {
+        path: "/tracking",
+        element: <TrackingPage />,
+
       },
     ]
   },

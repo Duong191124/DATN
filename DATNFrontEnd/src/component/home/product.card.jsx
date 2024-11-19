@@ -1,12 +1,18 @@
 // ProductCard.jsx
-import React from 'react';
-import { Button, Space, Typography } from 'antd';
-import { ShoppingCartOutlined, HeartOutlined, EyeOutlined } from '@ant-design/icons';
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
-import PropTypes from 'prop-types';
-
+import React, { useEffect, useState } from "react";
+import { Button, Col, Modal, Row, Space, Typography } from "antd";
+import {
+  ShoppingCartOutlined,
+  HeartOutlined,
+  EyeOutlined,
+} from "@ant-design/icons";
+import styled from "styled-components";
+import { motion } from "framer-motion";
+import PropTypes from "prop-types";
+import { useCart } from "../context/cart.context";
+import { findByProductId } from "../../service/api.service";
 const { Text } = Typography;
+import "../layout/content/san-pham/product.detail.page.css";
 
 const ProductCardWrapper = styled(motion.div)`
   position: relative;
@@ -38,7 +44,7 @@ const ProductImageContainer = styled.div`
   overflow: hidden;
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -69,8 +75,8 @@ const ProductActions = styled(motion.div)`
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.95);
+  padding: 28px;
+  background: rgba(255, 255, 255, 1);
   display: flex;
   justify-content: center;
   gap: 8px;
@@ -84,7 +90,7 @@ const ActionButton = styled(Button)`
   &.ant-btn-primary {
     background: #000;
     border-color: #000;
-    
+
     &:hover {
       background: #333;
       border-color: #333;
@@ -94,7 +100,7 @@ const ActionButton = styled(Button)`
   &.ant-btn-default {
     border-color: #000;
     color: #000;
-    
+
     &:hover {
       border-color: #333;
       color: #333;
@@ -125,46 +131,232 @@ const StockBadge = styled.span`
   top: 12px;
   right: 12px;
   padding: 4px 8px;
-  background: ${props => props.inStock ? '#000' : '#ff4d4f'};
+  background: ${(props) => (props.inStock ? "#000" : "#ff4d4f")};
   color: white;
   border-radius: 2px;
   font-size: 12px;
   z-index: 1;
 `;
-
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.5
-    }
-  }
+      duration: 0.5,
+    },
+  },
+};
+const priceStyle = {
+  fontSize: "1.2rem",
+  fontWeight: "bold",
+  color: "#000",
+  padding: "8px 12px",
+  backgroundColor: "#f4f4f4",
+  borderRadius: "5px",
+  display: "inline-block",
+  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
 };
 
-const ProductCard = ({ product, onAddToCart, onAddToWishlist, onQuickView }) => {
-  const { name, price, category, stock, image } = product;
+const priceRangeStyle = {
+  fontSize: "1rem",
+  color: "#333",
+  display: "inline-block",
+  fontStyle: "italic",
+};
+const ProductInfoStyle = styled.div`
+  display: flex;
+  width: 100%;
+  height: 200px;
+  background-color: #fff;
+  padding: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+`;
 
+const ProductImageStyle = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const ProductCard = ({
+  product,
+  onAddToWishlist,
+  onQuickView,
+  size,
+  color,
+}) => {
+  const { details, maxPrice, minPrice, products, totalQuantity } = product;
+  const [productNew, setProductNew] = useState({});
+  const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [availableColors, setAvailableColors] = useState([]);
+  const [availableSizes, setAvailableSizes] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false); // Trạng thái modal
+  const { addToCart } = useCart();
+
+  const min = minPrice.toLocaleString("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  });
+  const handleAddToCart = () => {
+    if (!selectedSize || !selectedColor) {
+      alert("Please select size and color");
+      return;
+    }
+    const cartItem = {
+      ...productNew,
+      size: selectedSize,
+      color: selectedColor,
+      quantity: quantity,
+    };
+    addToCart(cartItem);
+    setIsModalVisible(false);
+  };
+  const fetchProductFindById = async (product) => {
+    const res = await findByProductId(product.id);
+    const productDetails = res.data.data.details;
+    const colorsAvailable = productDetails.map((detail) => detail.color.name);
+    const sizesAvailable = productDetails.map((detail) => detail.size.name);
+    setAvailableColors(colorsAvailable);
+    setAvailableSizes(sizesAvailable);
+    const selectedProduct =
+      productDetails.find((detail) => detail.color.name === selectedColor) ||
+      productDetails[0];
+    setProductNew(selectedProduct);
+  };
+  const addToCartShow = () => {
+    setIsModalVisible(true);
+    fetchProductFindById(products);
+  };
+  useEffect(() => {
+    fetchProductFindById(products);
+  }, [products, selectedColor]);
   return (
     <ProductCardWrapper variants={itemVariants}>
-      <StockBadge inStock={stock > 0}>
-        {stock > 0 ? `${stock} in stock` : 'Out of stock'}
+      <StockBadge inStock={totalQuantity > 0}>
+        {totalQuantity > 0 ? `${totalQuantity} in stock` : "Out of stock"}
       </StockBadge>
 
       <ProductImageContainer className="product-image">
-        <ProductImage src={image} alt={name} />
+        <ProductImage
+          src={products.image || "https://via.placeholder.com/150"}
+          alt={products.name}
+        />
       </ProductImageContainer>
 
       <ProductActions className="product-actions">
         <ActionButton
           type="primary"
           icon={<ShoppingCartOutlined />}
-          onClick={() => onAddToCart(product)}
-          disabled={stock === 0}
+          disabled={totalQuantity === 0}
+          onClick={() => addToCartShow()}
         >
           Add to Cart
         </ActionButton>
+        <Modal
+          title="Select Size and Color"
+          visible={isModalVisible}
+          onCancel={() => setIsModalVisible(false)} // Đóng modal khi nhấn nút Cancel
+          width={800}
+          footer={[
+            <Button key="back" onClick={() => setIsModalVisible(false)}>
+              Cancel
+            </Button>,
+            <Button key="submit" type="primary" onClick={handleAddToCart}>
+              Add to Cart
+            </Button>,
+          ]}
+        >
+          <div className="product-detail-page">
+            <Row justify={"space-between"}>
+              <Col xs={24} md={8}>
+                <ProductInfoStyle>
+                  <ProductImageStyle
+                    src={productNew?.image || "https://via.placeholder.com/150"}
+                    alt={productNew?.productResponse?.name}
+                  />
+                </ProductInfoStyle>
+              </Col>
+              <Col xs={24} md={14}>
+                <div style={priceStyle}>
+                  Price:{" "}
+                  <span style={priceRangeStyle}>
+                    {minPrice.toLocaleString()}đ - {maxPrice.toLocaleString()}đ
+                  </span>
+                </div>
+                <div className="select-size" style={{ flexWrap: "wrap" }}>
+                  <label>Size:</label>
+                  <div className="size-options" style={{ flexWrap: "wrap" }}>
+                    {size
+                      .filter((size) => size.status === 1)
+                      .map((size) => (
+                        <button
+                          key={size.id}
+                          className={`size-button ${selectedSize === size.name ? "selected" : ""
+                            } ${!availableSizes.includes(size.name)
+                              ? "disabled-size"
+                              : ""
+                            }`}
+                          onClick={() => setSelectedSize(size.name)}
+                          style={{
+                            display: availableSizes.includes(size.name)
+                              ? "inline-block"
+                              : "none",
+                          }}
+                        >
+                          {size.name}
+                        </button>
+                      ))}
+                  </div>
+                </div>
+
+                <div className="select-color" style={{ flexWrap: "wrap" }}>
+                  <label>Color:</label>
+                  <div className="color-options" style={{ flexWrap: "wrap" }}>
+                    {color
+                      .filter((color) => color.status === 1)
+                      .map((color) => (
+                        <button
+                          key={color.id}
+                          className={`color-button ${selectedColor === color.name ? "selected" : ""
+                            } ${!availableColors.includes(color.name)
+                              ? "disabled-color"
+                              : ""
+                            }`}
+                          onClick={() => setSelectedColor(color.name)}
+                          style={{
+                            display: availableColors.includes(color.name)
+                              ? "inline-block"
+                              : "none",
+                          }}
+                        >
+                          {color.name}
+                        </button>
+                      ))}
+                  </div>
+                </div>
+
+                <div className="quantity">
+                  <button
+                    className="quantity-btn"
+                    onClick={() => setQuantity(quantity > 1 ? quantity - 1 : 1)}
+                  >
+                    -
+                  </button>
+                  <input type="text" value={quantity} readOnly />
+                  <button
+                    className="quantity-btn"
+                    onClick={() => setQuantity(quantity + 1)}
+                  >
+                    +
+                  </button>
+                </div>
+              </Col>
+            </Row>
+          </div>
+        </Modal>
         <ActionButton
           icon={<HeartOutlined />}
           onClick={() => onAddToWishlist(product)}
@@ -174,12 +366,11 @@ const ProductCard = ({ product, onAddToCart, onAddToWishlist, onQuickView }) => 
           onClick={() => onQuickView(product)}
         />
       </ProductActions>
-
       <ProductInfo>
-        <ProductTitle>{name}</ProductTitle>
-        <Space direction="vertical" size={4} style={{ width: '100%' }}>
-          <ProductPrice>${price}</ProductPrice>
-          <Text type="secondary">{category}</Text>
+        <ProductTitle>{products.name}</ProductTitle>
+        <Space direction="vertical" size={4} style={{ width: "100%" }}>
+          <ProductPrice>{min}</ProductPrice>
+          <Text type="secondary">{products.categoryName}</Text>
         </Space>
       </ProductInfo>
     </ProductCardWrapper>
@@ -189,24 +380,27 @@ const ProductCard = ({ product, onAddToCart, onAddToWishlist, onQuickView }) => 
 ProductCard.propTypes = {
   product: PropTypes.shape({
     id: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired,
-    price: PropTypes.number.isRequired,
+    productResponse: PropTypes.shape({
+      name: PropTypes.string.isRequired,
+    }).isRequired,
+    defaultPrice: PropTypes.number.isRequired,
+    discountPrice: PropTypes.number.isRequired,
     category: PropTypes.string.isRequired,
-    stock: PropTypes.number.isRequired,
+    quantity: PropTypes.number.isRequired,
     image: PropTypes.string.isRequired,
     description: PropTypes.string,
     brand: PropTypes.string,
-    createdAt: PropTypes.string
+    createdAt: PropTypes.string,
   }).isRequired,
   onAddToCart: PropTypes.func,
   onAddToWishlist: PropTypes.func,
-  onQuickView: PropTypes.func
+  onQuickView: PropTypes.func,
 };
 
 ProductCard.defaultProps = {
   onAddToCart: () => { },
   onAddToWishlist: () => { },
-  onQuickView: () => { }
+  onQuickView: () => { },
 };
 
 export default ProductCard;
