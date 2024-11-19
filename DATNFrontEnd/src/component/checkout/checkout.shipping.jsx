@@ -14,7 +14,9 @@ const Shipping = () => {
         setFromDistrict,
         setWard,
         setWeight,
-        setServiceId
+        setServiceId,
+        setAddresses,
+        addresses,
     } = useCheckout();
     const [form] = Form.useForm();
     const [fullName, setFullName] = useState('');
@@ -25,8 +27,6 @@ const Shipping = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [hasAddress, setHasAddress] = useState(false);
     const [editingAddress, setEditingAddress] = useState(null);
-    const [addresses, setAddresses] = useState([]);
-    const userId = localStorage.getItem("userId");
 
     useEffect(() => {
         getInformationForCustomer()
@@ -138,47 +138,10 @@ const Shipping = () => {
                         Thêm mới địa chỉ
                     </button>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-                    <div style={{ width: '48%' }}>
-                        <label>Full Name</label>
-                        <input
-                            type="text"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            placeholder="Enter full name"
-                            style={{ width: '100%', padding: '10px', marginTop: '5px' }}
-                            disabled={isDisabled} // Disable input if isDisabled is true
-                        />
-                    </div>
-                </div>
-                <div style={{ marginBottom: '15px' }}>
-                    <label>Shipping Address</label>
-                    <input
-                        type="text"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        placeholder="Enter address"
-                        style={{ width: '100%', padding: '10px', marginTop: '5px' }}
-                        disabled={isDisabled} // Disable input if isDisabled is true
-                    />
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <div style={{ width: '48%' }}>
-                        <label>Mobile Number</label>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <select style={{ padding: '10px', marginRight: '5px' }} disabled={isDisabled}>
-                                <option>VN +84</option>
-                            </select>
-                            <input
-                                type="text"
-                                value={mobileNumber}
-                                onChange={(e) => setMobileNumber(e.target.value)}
-                                placeholder="Enter mobile number"
-                                style={{ width: '100%', padding: '10px' }}
-                                disabled={isDisabled} // Disable input if isDisabled is true
-                            />
-                        </div>
-                    </div>
+                <div style={{ display: 'flex', marginBottom: '15px', gap: '10px' }}>
+                    <label style={{ fontWeight: '600', fontSize: '20px' }}>{fullName}</label>
+                    <label style={{ fontWeight: '600', fontSize: '20px' }}>{mobileNumber}</label>
+                    <label style={{ fontWeight: '400', fontSize: '14px' }}>{addresses.addressDetail}, {addresses.ward}, {addresses.district}, {addresses.city}</label>
                 </div>
             </div>
             {/* Address Modal */}

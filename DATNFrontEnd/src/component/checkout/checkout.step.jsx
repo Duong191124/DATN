@@ -4,7 +4,7 @@ import './checkout.style.css';
 import Summary from './checkout.summary';
 import Payment from './checkout.payment';
 import Shipping from './checkout.shipping';
-import { createOrderForOnline, getShippingFee } from '../../service/api.service';
+import { createOrderForOnline, getCreateOrderGhn, getShippingFee } from '../../service/api.service';
 import { useCart } from '../context/cart.context';
 import { useNavigate } from 'react-router-dom';
 import { useCheckout } from '../context/checkout.context';
@@ -27,7 +27,19 @@ const steps = [
 const CheckoutStep = () => {
     const { token } = theme.useToken();
     const { cartItems, setCartItems } = useCart();
-    const { selectedCoupon, totalPrice, totalPriceAll, resetCheckoutContext, district, fromDistrict, ward, weight, serviceId, setTotalShippingFee, totalShippingFee } = useCheckout();
+    const {
+        selectedCoupon,
+        totalPriceAll,
+        resetCheckoutContext,
+        district,
+        fromDistrict,
+        ward,
+        weight,
+        serviceId,
+        setTotalShippingFee,
+        totalShippingFee,
+        addresses
+    } = useCheckout();
     const navigate = useNavigate();
     const [current, setCurrent] = useState(0);
     const userId = localStorage.getItem('userId');
@@ -48,6 +60,15 @@ const CheckoutStep = () => {
         }));
     };
 
+    const convertDataProductToOrder = (cartItemsLocal) => {
+        return cartItemsLocal.map(item => ({
+            name: item.productResponse.name,
+            code: item.code,
+            quantity: item.quantity,
+            category: item.productResponse.categoryName
+        }))
+    };
+
     useEffect(() => {
         const items = JSON.parse(localStorage.getItem(`cart_${userId}`)) || [];
         setCartItems(items);
@@ -58,9 +79,12 @@ const CheckoutStep = () => {
         return `HD-${randomCode}`;
     };
 
+    console.log(addresses);
+
     const confirmOrder = async () => {
         const cartItemsLocal = cartItems;
         const orderDetailRequests = convertCartToOrderDetails(cartItemsLocal);
+        const items = convertDataProductToOrder(cartItemsLocal);
 
         const orderDTO = {
             code: generateInvoiceCode(), // Mã đơn hàng
@@ -73,9 +97,21 @@ const CheckoutStep = () => {
             orderDetailRequests, // Dữ liệu sản phẩm trong đơn hàng
         };
 
+        const createOrderGhn = {
+            toDistrictId: district,
+            toWardCode: ward,
+            weight: weight,
+            paymentType: 2,
+            shipCOD: totalShippingFee,
+            customerName: addresses.name,
+            customerPhone: addresses.phoneNumber,
+            addressDetail: addresses.addressDetail,
+            customerEmail: addresses?.customer?.email,
+            items
+        }
 
         try {
-            const res = await createOrderForOnline(
+            await createOrderForOnline(
                 orderDTO.code,
                 orderDTO.orderDate,
                 orderDTO.deliveryFee,
@@ -85,8 +121,20 @@ const CheckoutStep = () => {
                 orderDTO.moneyReceived,
                 orderDTO.orderDetailRequests
             );
-            console.log(res);
             message.success('Đơn hàng đã được tạo thành công!');
+            const res = await getCreateOrderGhn(
+                createOrderGhn.toDistrictId,
+                createOrderGhn.toWardCode,
+                createOrderGhn.weight,
+                createOrderGhn.paymentType,
+                createOrderGhn.shipCOD,
+                createOrderGhn.customerName,
+                createOrderGhn.customerPhone,
+                createOrderGhn.addressDetail,
+                createOrderGhn.customerEmail,
+                createOrderGhn.items,
+            )
+            console.log(res);
             resetCheckoutContext();
         } catch (error) {
             message.error("Lỗi khi tạo đơn hàng: " + error.message);

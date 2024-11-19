@@ -13,6 +13,7 @@ export const CheckoutProvider = ({ children }) => {
     const [serviceId, setServiceId] = useState(0);
     const [totalShippingFee, setTotalShippingFee] = useState(0);
     const [totalPriceAll, setTotalPriceAll] = useState(0);
+    const [addresses, setAddresses] = useState([]);
 
     const resetCheckoutContext = () => {
         setSelectedCoupon(null);
@@ -25,6 +26,8 @@ export const CheckoutProvider = ({ children }) => {
     return (
         <CheckoutContext.Provider
             value={{
+                addresses,
+                setAddresses,
                 district,
                 setDistrict,
                 fromDistrict,
