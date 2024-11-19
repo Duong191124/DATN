@@ -10,11 +10,16 @@ export const CheckoutProvider = ({ children }) => {
     const [fromDistrict, setFromDistrict] = useState(null);
     const [ward, setWard] = useState(null);
     const [weight, setWeight] = useState(0);
+    const [serviceId, setServiceId] = useState(0);
+    const [totalShippingFee, setTotalShippingFee] = useState(0);
+    const [totalPriceAll, setTotalPriceAll] = useState(0);
 
     const resetCheckoutContext = () => {
         setSelectedCoupon(null);
         setCouponDiscount(0);
         setTotalPrice(null);
+        setTotalShippingFee(0);
+        setTotalPriceAll(0);
     };
 
     return (
@@ -28,6 +33,12 @@ export const CheckoutProvider = ({ children }) => {
                 setWard,
                 weight,
                 setWeight,
+                serviceId,
+                setServiceId,
+                totalShippingFee,
+                setTotalShippingFee,
+                totalPriceAll,
+                setTotalPriceAll,
                 selectedCoupon,
                 setSelectedCoupon,
                 couponDiscount,

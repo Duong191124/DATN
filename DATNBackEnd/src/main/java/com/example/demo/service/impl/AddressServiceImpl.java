@@ -48,7 +48,12 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public Address add(AddressDTO addressDTO) {
-        Customer customer = customerRepo.findById(addressDTO.getCustomerId()).get();
+        boolean addressExists = addressRepo.existsByCustomerId(addressDTO.getCustomerId());
+        if (addressExists) {
+            throw new IllegalArgumentException("Customer already has an address.");
+        }
+        Customer customer = customerRepo.findById(addressDTO.getCustomerId())
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found with ID: " + addressDTO.getCustomerId()));
         Address newAddress = Address.builder()
                 .name(addressDTO.getName())
                 .phoneNumber(addressDTO.getPhoneNumber())

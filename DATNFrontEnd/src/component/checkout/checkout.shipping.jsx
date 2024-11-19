@@ -4,54 +4,76 @@ import AddressModal from '../address/address.select';
 import AddressUpdateModal from '../address/address.update';
 import { useCart } from '../context/cart.context';
 import { useCheckout } from '../context/checkout.context';
+import { Form } from 'antd';
 
 const Shipping = () => {
     // State variables for input values
     const { cartItems } = useCart()
-    const [district, setDistrict] = useState(0);
-    const [fromDistrict, setFromDistrict] = useState(0);
-    const [ward, setWard] = useState(null);
-    const [weight, setWeight] = useState(0);
-    const [serviceId, setServiceId] = useState(0);
+    const {
+        setDistrict,
+        setFromDistrict,
+        setWard,
+        setWeight,
+        setServiceId
+    } = useCheckout();
+    const [form] = Form.useForm();
     const [fullName, setFullName] = useState('');
     const [address, setAddress] = useState('');
     const [mobileNumber, setMobileNumber] = useState('');
     const [isDisabled, setIsDisabled] = useState(true); // State to manage input fields' disabled status
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [hasAddress, setHasAddress] = useState(false);
+    const [editingAddress, setEditingAddress] = useState(null);
+    const [addresses, setAddresses] = useState([]);
+    const userId = localStorage.getItem("userId");
 
     useEffect(() => {
-        getInformationForCustomer();
+        getInformationForCustomer()
     }, []);
 
     const getInformationForCustomer = async () => {
         try {
             const res = await getUserInfo();
             const addressData = await getAddressByCustomerId(res.data.data.id);
-            console.log(cartItems[0].weight.weightValue);
             if (addressData?.data?.data && addressData.data.data.length > 0) {
+                setHasAddress(true);
                 // Duyệt qua tất cả địa chỉ
-                addressData.data.data.forEach(address => {
-                    if (address) {
-                        setAddress(prev => [...prev, address.addressDetail]);  // Cập nhật state với địa chỉ mới
-                        setFullName(prev => [...prev, address?.name || ""]);
-                        setMobileNumber(prev => [...prev, address?.phoneNumber || ""]);
-                        setDistrict(prev => [...prev, address.district || 0]);
-                        setFromDistrict(prev => [...prev, address.fromDistrict || 0])
-                        setWard(prev => [...prev, address.ward || ""])
-                    }
-                });
+                setAddresses(addressData.data.data);
+                const defaultAddress = addressData.data.data[0];
+                if (defaultAddress) {
+                    setFullName(defaultAddress.name);
+                    setAddress(defaultAddress.addressDetail);
+                    setMobileNumber(defaultAddress.phoneNumber);
+                    setDistrict(defaultAddress.district);
+                    setFromDistrict(defaultAddress.fromDistrict);
+                    setWard(defaultAddress.ward);
+                    setServiceId(defaultAddress.serviceId);
+                }
             }
-            if (cartItems.length > 0) {
-                cartItems.forEach(cart => {
-                    setWeight(cart.weight?.weightValue || 0)
-                })
+            else {
+                setHasAddress(false);
             }
-            console.log(setWeight())
-            // setWeight(cartItems)
+            cartItems.forEach(cart => {
+                if (cart) {
+                    setWeight(cart.weight.weightValue);
+                }
+            })
         } catch (error) {
             console.error(error);
         }
+    };
+
+    const showModal = (addresses) => {
+        addresses.forEach(address => {
+            setEditingAddress(address);
+            if (address) {
+                form.setFieldsValue(address); // Pre-fill form with address details
+            } else {
+                form.resetFields(); // Clear form for new address
+            }
+        })
+        setIsModalVisible(true);
     };
 
     const handleAddNewAddress = () => {
@@ -90,7 +112,8 @@ const Shipping = () => {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
                     <button
-                        onClick={handleOpenAddressUpdate} // Add your change address functionality here
+                        // onClick={handleOpenAddressUpdate} // Add your change address functionality here
+                        onClick={() => showModal(addresses)}
                         style={{
                             padding: '10px 20px',
                             backgroundColor: '#1890ff',
@@ -110,6 +133,7 @@ const Shipping = () => {
                             border: 'none',
                             cursor: 'pointer',
                         }}
+                        disabled={hasAddress}
                     >
                         Thêm mới địa chỉ
                     </button>
@@ -161,13 +185,16 @@ const Shipping = () => {
             <AddressModal
                 isModalVisible={isModalVisible}
                 handleCancel={handleCancel}
-                handleSubmit={handleSubmit}
+                setIsModalVisible={setIsModalVisible}
+                form={form}
+                editingAddress={editingAddress}
+                getAddressByid={getInformationForCustomer}
             />
-            <AddressUpdateModal
+            {/* <AddressUpdateModal
                 isModalOpen={isModalOpen}
                 handleCancelUpdate={handleCancelUpdate}
                 handleSubmit={handleSubmit}
-            />
+            /> */}
         </>
     );
 };

@@ -380,8 +380,8 @@ const OrderTable = (props) => {
         return discountPrice
           ? `${discountPrice.toLocaleString()} VNĐ`
           : defaultPrice
-          ? `${defaultPrice.toLocaleString()} VNĐ`
-          : "Chưa có giá";
+            ? `${defaultPrice.toLocaleString()} VNĐ`
+            : "Chưa có giá";
       },
     },
     {
@@ -502,7 +502,7 @@ const OrderTable = (props) => {
         <h2 style="text-align: center; font-size: 24px; font-weight: bold;">HÓA ĐƠN BÁN HÀNG</h2>
         <p style="font-size: 16px;">Mã hóa đơn: ${orderDetails.code}</p>
         <p style="font-size: 16px;">Ngày: ${orderDetails.orderDate}</p>
-        <p style="font-size: 16px;">Nhân viên: ${orderDetails.staffResponse.name
+        <p style="font-size: 16px;">Nhân viên: ${orderDetails?.staffResponse?.name ?? "Không có nhân viên"
       }</p>
         <p style="font-size: 16px;">Khách hàng: ${orderDetails.customerResponse.name
       }</p>
@@ -528,7 +528,12 @@ const OrderTable = (props) => {
           <div style="width: 250px; border: 1px solid #ddd; padding: 10px;">
             <div className="result_order_detail">
               <span>Giảm giá hóa đơn:</span>
-              <span>${orderDetails.voucherId || "0"} VND</span>
+            ${orderDetails.voucherId
+        ? orderDetails.voucherId.discountAmount !== "0"
+          ? `${orderDetails.voucherId.discountAmount} VND`
+          : `${orderDetails.voucherId.discountPercent}%`
+        : "0 VND (0%)"
+      }
             </div>
             <div className="result_order_detail">
               <span>Tổng số lượng:</span>
@@ -888,9 +893,9 @@ const OrderTable = (props) => {
                 status.value === "shipped" ||
                 status.value === "cancelled" ||
                 index <=
-                  statusOptions.findIndex(
-                    (option) => option.value === selectedStatus
-                  )
+                statusOptions.findIndex(
+                  (option) => option.value === selectedStatus
+                )
               }
               onClick={() => handleUpdateStatus(status.value)}
             />

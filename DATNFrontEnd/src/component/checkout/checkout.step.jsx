@@ -4,7 +4,7 @@ import './checkout.style.css';
 import Summary from './checkout.summary';
 import Payment from './checkout.payment';
 import Shipping from './checkout.shipping';
-import { createOrderForOnline } from '../../service/api.service';
+import { createOrderForOnline, getShippingFee } from '../../service/api.service';
 import { useCart } from '../context/cart.context';
 import { useNavigate } from 'react-router-dom';
 import { useCheckout } from '../context/checkout.context';
@@ -27,7 +27,7 @@ const steps = [
 const CheckoutStep = () => {
     const { token } = theme.useToken();
     const { cartItems, setCartItems } = useCart();
-    const { selectedCoupon, totalPrice, resetCheckoutContext } = useCheckout();
+    const { selectedCoupon, totalPrice, totalPriceAll, resetCheckoutContext, district, fromDistrict, ward, weight, serviceId, setTotalShippingFee, totalShippingFee } = useCheckout();
     const navigate = useNavigate();
     const [current, setCurrent] = useState(0);
     const userId = localStorage.getItem('userId');
@@ -65,9 +65,9 @@ const CheckoutStep = () => {
         const orderDTO = {
             code: generateInvoiceCode(), // Mã đơn hàng
             orderDate: new Date().toISOString().split("T")[0], // Ngày đặt hàng
-            deliveryFee: 0,  // Phí vận chuyển
-            totalAmount: totalPrice,
-            moneyReceived: totalPrice,
+            deliveryFee: totalShippingFee,  // Phí vận chuyển
+            totalAmount: totalPriceAll,
+            moneyReceived: totalPriceAll,
             voucherId: selectedCoupon || null,  // Mã giảm giá nếu có
             customerId: userId, // Lấy customerId từ localStorage hoặc session
             orderDetailRequests, // Dữ liệu sản phẩm trong đơn hàng
@@ -95,6 +95,29 @@ const CheckoutStep = () => {
         setCartItems([]);
         navigate("/")
     };
+
+    const handleApiGhn = async () => {
+        const values = {
+            fromDistrictId: fromDistrict,
+            toDistrictId: district,
+            toWardCode: ward,
+            weight: weight,
+            serviceId: serviceId,
+        };
+        try {
+            const res = await getShippingFee(
+                values.fromDistrictId,
+                values.toDistrictId,
+                values.toWardCode,
+                values.weight,
+                values.serviceId
+            )
+            console.log(res);
+            setTotalShippingFee(res.data.data.total);
+        } catch (error) {
+            console.error(error)
+        }
+    }
 
     const items = steps.map((item) => ({
         key: item.title,
@@ -136,7 +159,12 @@ const CheckoutStep = () => {
                 {current < steps.length - 1 && (
                     <Button
                         type="primary"
-                        onClick={next}
+                        onClick={async () => {
+                            if (current === 1) {
+                                await handleApiGhn();
+                            }
+                            next();
+                        }}
                         style={{
                             backgroundColor: 'black',
                             borderColor: 'black',

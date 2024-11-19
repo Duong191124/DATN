@@ -76,9 +76,10 @@ const InfoAddress = ({ user }) => {
     const [form] = Form.useForm();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingAddress, setEditingAddress] = useState(null);
+    const userId = localStorage.getItem('userId');
 
     const getAddressByid = async () => {
-        const res = await getAddressByCustomerId(user.data.id)
+        const res = await getAddressByCustomerId(userId)
         setAddresses(res.data.data);
     }
 

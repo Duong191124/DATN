@@ -1082,6 +1082,24 @@ const getWards = (districtId) => {
   return axios.get(URL_BACKEND)
 }
 
+const getShippingFee = (
+  fromDistrictId,
+  toDistrictId,
+  toWardCode,
+  weight,
+  serviceId
+) => {
+  const URL_BACKEND = `/api/v1/ghn/shipping-fee`;
+  const data = {
+    fromDistrictId,
+    toDistrictId,
+    toWardCode,
+    weight,
+    serviceId
+  }
+  return axios.post(URL_BACKEND, data);
+}
+
 const getAddressByCustomerId = (customerId) => {
   const URL_BACKEND = `/api/v1/address/${customerId}`;
   return axios.get(URL_BACKEND);
@@ -1137,6 +1155,7 @@ const deleteAddressByid = (addressId) => {
 }
 
 export {
+  getShippingFee,
   deleteAddressByid,
   updateAddressByid,
   saveAddressByid,
