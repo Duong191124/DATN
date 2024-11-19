@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import ApexCharts from 'apexcharts';
 
 // Hàm tạo dữ liệu ngẫu nhiên
@@ -9,17 +9,20 @@ const generateFakeData = (numPoints, min, max) => {
 };
 
 const AccountStats = () => {
+
+    const [lable, setLable] = useState(['Admin', 'User', 'Guest', 'Moderator', 'Others']);
+
     useEffect(() => {
-        // Tạo dữ liệu fake cho các nhóm tài khoản
-        const fakeAccountData = generateFakeData(5, 10, 60); // 5 nhóm, giá trị từ 10 đến 60
+
+        const fakeAccountData = generateFakeData(5, 10, 60);
 
         const options = {
-            series: fakeAccountData, // Dữ liệu fake
+            series: fakeAccountData,
             chart: {
                 type: 'donut',
                 height: 350,
             },
-            labels: ['Admin', 'User', 'Guest', 'Moderator', 'Others'], // Tên các nhóm tài khoản
+            labels: lable, // Tên các nhóm tài khoản
             responsive: [
                 {
                     breakpoint: 480,
