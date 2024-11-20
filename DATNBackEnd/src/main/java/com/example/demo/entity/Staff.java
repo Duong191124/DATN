@@ -48,6 +48,8 @@ public class Staff extends BaseEntity {
     @Basic
     @Column(name = "gender")
     private int gender;
+    @Column(name = "identifier_token", length = 255)
+    private String identifierToken;
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "staff_permission", // Tên bảng trung gian

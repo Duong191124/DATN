@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import java.nio.file.AccessDeniedException;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -23,7 +25,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // Xử lý lỗi 404 - Not Found
     @ExceptionHandler(NoHandlerFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<MessageReponse> handleNoHandlerFound(NoHandlerFoundException e, WebRequest request) {
@@ -35,7 +36,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    // Xử lý lỗi 400 - Bad Request
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<MessageReponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
@@ -47,9 +47,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-
-
-    // Xử lý lỗi NullPointerException
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<MessageReponse> handleNullPointerException(NullPointerException ex) {
         MessageReponse response = MessageReponse.builder()
@@ -60,7 +57,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    // Xử lý lỗi IllegalArgumentException
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<MessageReponse> handleIllegalArgumentException(IllegalArgumentException ex) {
         MessageReponse response = MessageReponse.builder()
@@ -70,4 +66,27 @@ public class GlobalExceptionHandler {
                 .build();
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(SecurityException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<MessageReponse> handleUnauthorized(SecurityException ex) {
+        MessageReponse response = MessageReponse.builder()
+                .message("Unauthorized: " + ex.getMessage())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .data(null)
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<MessageReponse> handleForbidden(AccessDeniedException ex) {
+        MessageReponse response = MessageReponse.builder()
+                .message("Forbidden: Access is denied. " + ex.getMessage())
+                .status(HttpStatus.FORBIDDEN.value())
+                .data(null)
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
 }
+

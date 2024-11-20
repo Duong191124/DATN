@@ -13,4 +13,5 @@ public interface GhnService {
     String getWards(int districtId);
 
     String createOrder(GhnOrderDTO ghnOrderDTO) throws JsonProcessingException;
+    String cancelOrder(String trackingCode) throws JsonProcessingException;
 }

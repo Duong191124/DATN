@@ -19,16 +19,22 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 const productDetailsRes = await fetchDataProductDetail();
                 if (productDetailsRes?.data?.data) {
                     const fetchedProductDetails = productDetailsRes.data.data;
-
-                    // Lọc ra các sản phẩm không có khuyến mãi hoặc chỉ có khuyến mãi trùng với khuyến mãi hiện tại
-                    const availableProductDetails = fetchedProductDetails.filter(item => {
-                        // Chỉ lấy sản phẩm không có khuyến mãi hoặc khuyến mãi trùng với ID hiện tại
-                        return !item.activePromotionId || item.activePromotionId === id;
+        
+                    // Ensure each product detail has the activePromotionId, either from the product or by applying your logic
+                    const availableProductDetails = fetchedProductDetails.map(item => {
+                        // If the item has a promotion, set the activePromotionId accordingly
+                        if (item.promotions && item.promotions.length > 0) {
+                            // Assuming that we can get the active promotion ID from the product's promotions
+                            item.activePromotionId = item.promotions[0].id; // Modify according to your data structure
+                        } else {
+                            item.activePromotionId = null; // Set as null if no active promotion
+                        }
+                        return item;
                     });
-
+        
                     setProductDetails(availableProductDetails);
                 }
-
+        
                 if (id) {
                     const promotionRes = await detailPromotion(id);
                     if (promotionRes?.data?.data) {
@@ -162,15 +168,20 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
 
 
     const handleSelectAll = () => {
-        const filteredIds = productDetails
-            .filter(item => selectedSize === null || item.size?.name === selectedSize)
+        // Lọc các sản phẩm không bị dính khuyến mãi khác
+        const availableIds = filteredData
+            .filter(item => item.activePromotionId === null || item.activePromotionId === id) // chỉ chọn sản phẩm không có khuyến mãi khác
             .map(item => item.id);
-
+    
+        // Kiểm tra nếu tất cả các sản phẩm hợp lệ chưa được chọn, chọn tất cả, nếu đã chọn thì bỏ chọn
         setSelectedDetails(prev =>
-            allSelected ? prev.filter(id => !filteredIds.includes(id)) : [...new Set([...prev, ...filteredIds])]
+            allSelected
+                ? prev.filter(id => !availableIds.includes(id)) // Bỏ chọn các sản phẩm hợp lệ
+                : [...new Set([...prev, ...availableIds])] // Chọn tất cả các sản phẩm hợp lệ
         );
         setAllSelected(prev => !prev);
     };
+    
 
     const handleSizeChange = (size) => {
         setSelectedSize(size);
@@ -178,12 +189,10 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
     };
 
     const filteredData = productDetails.filter(item => {
-        // Lọc theo size (nếu có) và loại bỏ các sản phẩm đã áp dụng khuyến mãi khác
-        return (
-            (selectedSize === null || item.size?.name === selectedSize) &&
-            (!item.activePromotionId || item.activePromotionId === id)
-        );
+        // Lọc theo size (nếu có), nhưng không lọc các sản phẩm đã có khuyến mãi khác
+        return selectedSize === null || item.size?.name === selectedSize;
     });
+    
 
 
     const columns = [
@@ -216,13 +225,18 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
         {
             title: 'Chọn',
             key: 'select',
-            render: (_, record) => (
-                <Checkbox
-                    checked={selectedDetails.includes(record.id)}
-                    onChange={() => handleSelect(record.id)}
-                    disabled={!filteredData.some(item => item.id === record.id)} // Disable nếu sản phẩm không thuộc filteredData
-                />
-            ),
+            render: (_, record) => {
+                console.log('Rendering checkbox for product ID:', record.id, 'with active promotion ID:', record.activePromotionId);
+                console.log('Current promotion ID:', id);
+            
+                return (
+                    <Checkbox
+                        checked={selectedDetails.includes(record.id)}
+                        onChange={() => handleSelect(record.id)}
+                        disabled={record.activePromotionId !== null && record.activePromotionId !== id} // Disable if product has a different active promotion
+                    />
+                );
+            },
         }
     ];
 

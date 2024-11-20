@@ -19,6 +19,48 @@ const PromotionTable = (props) => {
     });
     const [promotionId, setPromotionId] = useState(null);
 
+    const checkAndUpdateExpiredPromotions = async () => {
+        const currentDate = new Date();
+    
+        for (const promotion of dataPromotion) {
+            const promotionEndDate = new Date(promotion.endDate);
+    
+            // Kiểm tra nếu khuyến mãi đang "hoạt động" và ngày kết thúc đã qua
+            if (promotion.status === 1 && promotionEndDate < currentDate) {
+                try {
+                    // Gọi API để cập nhật trạng thái
+                    const response = await chandleStatusPromotion(promotion.id);
+    
+                    if (response.status === 200 || response.status === 204) {
+                        notification.info({
+                            message: "Cập nhật trạng thái",
+                            description: `Khuyến mãi "${promotion.name}" đã được chuyển sang trạng thái "Hết hạn".`,
+                        });
+                    } else {
+                        notification.error({
+                            message: "Cập nhật trạng thái",
+                            description: `Lỗi xảy ra khi cập nhật trạng thái cho khuyến mãi "${promotion.name}".`,
+                        });
+                    }
+                } catch (error) {
+                    notification.error({
+                        message: "Cập nhật trạng thái",
+                        description: `Lỗi xảy ra khi cập nhật trạng thái cho khuyến mãi "${promotion.name}".`,
+                    });
+                }
+            }
+        }
+    
+        // Tải lại dữ liệu sau khi kiểm tra
+        loadData();
+    };
+    
+    useEffect(() => {
+        // Chạy kiểm tra chỉ khi component được mount lần đầu
+        checkAndUpdateExpiredPromotions();
+    }, []); // Dependency là mảng rỗng để chỉ chạy một lần
+    
+    
     const showDeleteConfirm = (id, productDetailsIds) => {
         Modal.confirm({
             title: 'Bạn có muốn xóa khuyến mãi này không?',
@@ -29,33 +71,6 @@ const PromotionTable = (props) => {
             onOk: () => handleDelete(id, productDetailsIds),
         });
     };
-    // const checkExpiredPromotions = async () => {
-    //     const currentDate = new Date();
-
-    //     for (const promotion of dataPromotion) {
-    //         const promotionEndDate = new Date(promotion.endDate);
-    //         if (promotion.status === 1 && promotionEndDate < currentDate) {
-    //             // Nếu khuyến mãi đã kết thúc, cập nhật trạng thái
-    //             try {
-    //                 await chandleStatusPromotion(promotion.id);
-    //                 notification.info({
-    //                     message: "Cập nhật trạng thái",
-    //                     description: `Khuyến mãi "${promotion.name}" đã được chuyển sang trạng thái "Hết hạn" vì đã quá hạn.`,
-    //                 });
-    //             } catch (error) {
-    //                 notification.error({
-    //                     message: "Cập nhật trạng thái",
-    //                     description: `Lỗi xảy ra khi cập nhật trạng thái cho khuyến mãi "${promotion.name}".`,
-    //                 });
-    //             }
-    //         }
-    //     }
-    //     loadData(); // Tải lại dữ liệu sau khi kiểm tra
-    // };
-
-    // useEffect(() => {
-    //     checkExpiredPromotions();
-    // }, [dataPromotion])
     const handleDelete = async (id, productDetailsIds) => {
         if (productDetailsIds && productDetailsIds.length > 0) {
             notification.warning({
@@ -116,13 +131,6 @@ const PromotionTable = (props) => {
         }
     };
 
-
-    const isEndDateValid = (endDate) => {
-        const currentDate = new Date();
-        const promotionEndDate = new Date(endDate);
-        return promotionEndDate > currentDate;
-    };
-
     const handleChangeStatus = async (id, endDate, currentStatus) => {
         // Kiểm tra ngày kết thúc
         const currentDate = new Date();
@@ -132,7 +140,7 @@ const PromotionTable = (props) => {
             if (currentStatus === 0) {
                 notification.info({
                     message: "Trạng thái hiện tại",
-                    description: "Khuyến mãi đã hết hạn. Không cần thay đổi trạng thái.",
+                    description: "Khuyến mãi đã hết hạn. Không thể thay đổi trạng thái.",
                 });
             } else {
                 notification.warning({
@@ -180,10 +188,6 @@ const PromotionTable = (props) => {
             render: (text, record, index) =>
                 (pagination.current - 1) * pagination.pageSize + index + 1,
         },
-        // {
-        //     title: 'ID',
-        //     dataIndex: 'id',
-        // },
         {
             title: 'Tên',
             dataIndex: 'name',

@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -40,10 +41,12 @@ public class SecurityConfiguration {
 
     public final MacAlgorithm macAlgorithm = MacAlgorithm.HS512;
 
+    @Autowired
+    private JwtTokenFilter jwtTokenFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/v1/role").hasRole("STAFF")
                         .anyRequest().permitAll()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
@@ -54,7 +57,8 @@ public class SecurityConfiguration {
                 .csrf(c -> c.disable())
                 .exceptionHandling(ex -> ex
                         .accessDeniedHandler(customAccessDeniedHandler)
-                );
+                )
+                .addFilterAfter(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
