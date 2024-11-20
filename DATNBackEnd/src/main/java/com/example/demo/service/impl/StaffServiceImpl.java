@@ -5,7 +5,9 @@ import com.example.demo.dto.UserPermissionDTO;
 import com.example.demo.entity.Customer;
 import com.example.demo.entity.Permission;
 import com.example.demo.entity.Staff;
+import com.example.demo.exception.EmailExisting;
 import com.example.demo.exception.UsernameExisting;
+import com.example.demo.repository.CustomerRepo;
 import com.example.demo.repository.PermissionRepo;
 import com.example.demo.repository.StaffRepo;
 import com.example.demo.service.StaffService;
@@ -25,6 +27,8 @@ import java.util.function.Predicate;
 public class StaffServiceImpl implements StaffService {
 
     private final StaffRepo staffRepo;
+
+    private final CustomerRepo customerRepo;
     private final PermissionRepo permissionRepo;
 
     @Override
@@ -34,8 +38,11 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public Staff save(StaffDTO staff) {
-        if(staffRepo.existsByUsername(staff.getUsername())){
+        if(customerRepo.existsByUsername(staff.getUsername()) || staffRepo.existsByUsername(staff.getUsername())){
             throw new UsernameExisting();
+        }
+        if(customerRepo.existsByEmail(staff.getUsername()) || staffRepo.existsByEmail(staff.getUsername())){
+            throw new EmailExisting();
         }
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         Staff newStaff = Staff
