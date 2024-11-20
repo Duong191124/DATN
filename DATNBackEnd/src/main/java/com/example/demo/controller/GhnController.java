@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.GhnDTO;
 import com.example.demo.dto.GhnOrderDTO;
+import com.example.demo.dto.GhnCancelDTO;
 import com.example.demo.dto.ServiceGhnDTO;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.service.impl.GhnServiceImpl;
@@ -78,5 +79,10 @@ public class GhnController {
                         .message("Please check your email to get tracking order")
                         .build()
         );
+    }
+
+    @PostMapping("cancel-order")
+    public String cancelOrder(@RequestBody GhnCancelDTO cancel) throws JsonProcessingException {
+        return  ghnService.cancelOrder(cancel.getTrackingId());
     }
 }
