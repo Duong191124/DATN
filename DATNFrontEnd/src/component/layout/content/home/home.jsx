@@ -5,7 +5,6 @@ import HomeSlider from "../../../home/home.slider";
 import ProductList from "../../../home/product.listing";
 
 const Home = () => {
-
   return (
     <>
       <div style={{ height: 100 }}></div>
@@ -24,7 +23,6 @@ const Home = () => {
       {/* product listing */}
       <ProductList />
       <Divider />
-
     </>
   );
 };

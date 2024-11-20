@@ -146,7 +146,6 @@ const ProductList = () => {
       default:
         break;
     }
-
     return filtered;
   };
 

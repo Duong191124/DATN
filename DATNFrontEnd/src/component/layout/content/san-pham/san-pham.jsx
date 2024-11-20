@@ -165,7 +165,7 @@ const SanPham = () => {
                       <Form.Item name={["range", "to"]}>
                         <InputNumber
                           name="to"
-                          min={0}
+                          max={10000000}
                           placeholder="đ ĐẾN"
                           formatter={(value) =>
                             `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
