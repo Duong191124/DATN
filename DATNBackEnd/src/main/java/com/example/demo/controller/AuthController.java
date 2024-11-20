@@ -87,6 +87,7 @@ public class AuthController {
                                 .message(messageSource.getMessage("auth.login.success", null, LocaleContextHolder.getLocale()))
                                 .status(HttpStatus.OK.value())
                                 .token(token)
+                                .role("customer")
                                 .build()
                 );
             }else if(staffRepo.existsByUsername(loginDTO.getUsername())) {
@@ -95,6 +96,7 @@ public class AuthController {
                                 .message(messageSource.getMessage("auth.login.success", null, LocaleContextHolder.getLocale()))
                                 .status(HttpStatus.CREATED.value())
                                 .token(token)
+                                .role("staff")
                                 .build()
                 );
             }

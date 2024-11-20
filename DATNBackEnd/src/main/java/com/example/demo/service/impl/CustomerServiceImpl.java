@@ -3,6 +3,7 @@ package com.example.demo.service.impl;
 import com.example.demo.dto.CustomerDTO;
 import com.example.demo.entity.Customer;
 import com.example.demo.entity.Voucher;
+import com.example.demo.exception.EmailExisting;
 import com.example.demo.exception.UsernameExisting;
 import com.example.demo.repository.CustomerRepo;
 import com.example.demo.repository.StaffRepo;
@@ -37,6 +38,9 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponse add(CustomerDTO customer) {
         if(customerRepo.existsByUsername(customer.getUsername()) || staffRepo.existsByUsername(customer.getUsername())){
             throw new UsernameExisting();
+        }
+        if(customerRepo.existsByEmail(customer.getUsername()) || staffRepo.existsByEmail(customer.getUsername())){
+            throw new EmailExisting();
         }
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         Customer newCustomer = Customer
