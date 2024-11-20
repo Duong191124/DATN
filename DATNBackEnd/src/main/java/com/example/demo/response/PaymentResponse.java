@@ -17,6 +17,7 @@ public class PaymentResponse {
     private LocalDateTime paymentDate;
     private String paymentMethod;
     private OrderDataPaymentResponse orderDataPaymentResponse;
+    private String paymentUrl;
 
     public static PaymentResponse convertPaymentResponse(Payment payment) {
         return PaymentResponse.builder()
@@ -26,6 +27,17 @@ public class PaymentResponse {
                         .toLocalDateTime())
                 .paymentMethod(payment.getPaymentMethod())
                 .orderDataPaymentResponse(OrderDataPaymentResponse.convertOrderDataPaymentResponse(payment.getOrders()))
+                .build();
+    }
+    public static PaymentResponse convertPaymentResponseUrl(Payment payment,String paymentUrl) {
+        return PaymentResponse.builder()
+                .id(payment.getId())
+                .paymentDate(payment.getPaymentDate().toInstant()
+                        .atZone(ZoneId.of("Asia/Ho_Chi_Minh"))
+                        .toLocalDateTime())
+                .paymentMethod(payment.getPaymentMethod())
+                .orderDataPaymentResponse(OrderDataPaymentResponse.convertOrderDataPaymentResponse(payment.getOrders()))
+                .paymentUrl(paymentUrl)
                 .build();
     }
 

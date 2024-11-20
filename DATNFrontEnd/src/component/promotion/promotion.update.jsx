@@ -184,7 +184,7 @@ const PromotionUpdate = (props) => {
                     />
                 </Form.Item>
 
-                {/* <Form.Item
+                <Form.Item
                     label="Trạng Thái"
                     name="status"
                     rules={[{ required: true, message: 'Vui lòng chọn trạng thái!' }]}>
@@ -192,7 +192,7 @@ const PromotionUpdate = (props) => {
                         <Select.Option value={1}>Hoạt động</Select.Option>
                         <Select.Option value={0}>Ngừng hoạt động</Select.Option>
                     </Select>
-                </Form.Item> */}
+                </Form.Item>
             </Form>
         </Modal>
     );

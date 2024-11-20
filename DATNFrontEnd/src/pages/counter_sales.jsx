@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Button, Drawer, Dropdown, Menu, message, notification } from "antd";
+import {
+  Button,
+  Drawer,
+  Dropdown,
+  Menu,
+  message,
+  notification,
+  Tour,
+} from "antd";
 import CounterSalesProductDetail from "../component/layout/admin/counter.sale/counter.sale.product-detail";
 import CounterSaleCart from "../component/layout/admin/counter.sale/counter.sale.cart";
 import CounterSalePayment from "../component/layout/admin/counter.sale/counter.sale.payment";
@@ -47,6 +55,7 @@ const CounterSales = () => {
   const [pageSizeProductDetail] = useState(5);
   const [dataColor, setDataColor] = useState([]);
   const [dataSize, setDataSize] = useState([]);
+  const [isTourOpen, setIsTourOpen] = useState(false);
   const [filter, setFilter] = useState({
     productName: "",
     productCode: "",
@@ -439,35 +448,63 @@ const CounterSales = () => {
           paymentMethod: paymentInfo.paymentMethod,
           orderId: orderResponse.data.data.id,
         };
-
-        const paymentResponse = await createPayment(
-          paymentDTO.paymentDate,
-          paymentDTO.paymentMethod,
-          paymentDTO.orderId
-        );
-        if (paymentResponse.status === 201) {
-          notification.success({
-            message: "Thanh toán thành công",
-            description: `Bạn đã thanh toán thành công`,
-          });
-
-          // Reset state and local storage
-          setPaymentInfo({ paymentMethod: "", voucherId: null }); // Reset voucherId after payment
-          setCustomerPaid(0);
-          const updatedCartItems = { ...cartItemsByBill };
-          setCartItemsByBill((prev) => {
-            const updated = { ...prev };
-            delete updated[selectedBill];
-            return updated;
-          });
-          setBillWaiting(orderResponse.data.data);
-          localStorage.setItem(
-            "cartItemsByBill",
-            JSON.stringify(updatedCartItems)
+        if (paymentDTO.paymentMethod === "VNP") {
+          const vnPayResponse = await createPayment(
+            paymentDTO.paymentDate,
+            paymentDTO.paymentMethod,
+            paymentDTO.orderId
           );
-          return { success: true, message: "Thanh toán thành công" };
+          if (vnPayResponse.status === 201) {
+            // Hiển thị QR code cho người dùng
+            window.location.href = vnPayResponse.data.paymentUrl;
+            // Nếu thanh toán thành công, thực hiện các hành động tiếp theo
+            setPaymentInfo({ paymentMethod: "", voucherId: null });
+            setCustomerPaid(0);
+            const updatedCartItems = { ...cartItemsByBill };
+            setCartItemsByBill((prev) => {
+              const updated = { ...prev };
+              delete updated[selectedBill];
+              return updated;
+            });
+            setSelectedBill(null);
+            setBillWaiting(orderResponse.data.data);
+            localStorage.setItem(
+              "cartItemsByBill",
+              JSON.stringify(updatedCartItems)
+            );
+            return { success: true, message: "Thanh toán thành công" };
+          }
         } else {
-          throw new Error("Payment failed");
+          const paymentResponse = await createPayment(
+            paymentDTO.paymentDate,
+            paymentDTO.paymentMethod,
+            paymentDTO.orderId
+          );
+          if (paymentResponse.status === 201) {
+            notification.success({
+              message: "Thanh toán thành công",
+              description: `Bạn đã thanh toán thành công`,
+            });
+
+            // Reset state and local storage
+            setPaymentInfo({ paymentMethod: "", voucherId: null }); // Reset voucherId after payment
+            setCustomerPaid(0);
+            const updatedCartItems = { ...cartItemsByBill };
+            setCartItemsByBill((prev) => {
+              const updated = { ...prev };
+              delete updated[selectedBill];
+              return updated;
+            });
+            setBillWaiting(orderResponse.data.data);
+            localStorage.setItem(
+              "cartItemsByBill",
+              JSON.stringify(updatedCartItems)
+            );
+            setSelectedBill(null);
+            return { success: true, message: "Thanh toán thành công" };
+          } else {
+            throw new Error("Payment failed");
+          }
         }
       } else {
         throw new Error("Order update failed");
@@ -518,14 +555,60 @@ const CounterSales = () => {
       </Menu.Item>
     </Menu>
   );
+  useEffect(() => {
+    if (staff) {
+      const tourKey = `hasSeenTour_${staff.id}`;
+      const hasSeenTour = localStorage.getItem(tourKey);
+      if (!hasSeenTour) {
+        setIsTourOpen(true);
+      }
+    }
+  }, [staff]);
+  const handleCloseTour = () => {
+    if (staff) {
+      const tourKey = `hasSeenTour_${staff.id}`;
+      localStorage.setItem(tourKey, "true");
+    }
+    setIsTourOpen(false);
+    notification.success({ message: "Hướng dẫn hoàn tất!" });
+  };
+  const steps = [
+    {
+      title: "Tìm kiếm",
+      description: "Tìm kiếm khách hàng",
+      target: () => document.getElementById("customer"),
+    },
+    {
+      title: "Tạo hóa đơn",
+      description: "Nhấn tạo hóa đơn",
+      target: () => document.getElementById("created-bill"),
+    },
+    {
+      title: "Chọn hóa đơn",
+      description: "Chọn hóa đơn để mua hàng",
+      target: () => document.getElementById("selected-bill"),
+    },
+    {
+      title: "Chọn sản phẩm",
+      description: "Chọn sản phẩm thêm sản phẩm muốn mua",
+      target: () => document.getElementById("product"),
+    },
+    {
+      title: "Nhấn thanh toán",
+      description: "Nhấn thanh toán để mua hàng",
+      target: () => document.getElementById("buy"),
+    },
+  ];
   return (
     <div
       style={{
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        background: "#EDEEF1",
       }}
     >
+      <Tour open={isTourOpen} onClose={handleCloseTour} steps={steps} />
       <div
         style={{
           width: "100%",
@@ -572,10 +655,11 @@ const CounterSales = () => {
         style={{
           display: "flex",
           width: "100%",
-          padding: "0 30px",
+          padding: "10px",
+          justifyContent: "space-between",
         }}
       >
-        <div style={{ width: "70%" }}>
+        <div style={{ width: "69%" }}>
           <CounterSaleCart
             cartItems={cartItemsByBill[selectedBill] || []}
             onUpdateQuantity={onUpdateQuantity}
@@ -586,10 +670,14 @@ const CounterSales = () => {
         <div
           style={{
             width: "30%",
-            backgroundColor: "#ddd",
+            backgroundColor: "#fff",
             padding: "15px",
-            minHeight: "625px",
+            minHeight: "600px",
             overflowY: "auto",
+            borderRadius: "20px",
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
           }}
         >
           <CounterSaleCustomer

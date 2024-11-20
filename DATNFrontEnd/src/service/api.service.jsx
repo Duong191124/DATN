@@ -394,6 +394,13 @@ const hasCustomerUsedVoucher = (customerId, voucherId) => {
   const URL_BACKEND = `api/v1/orders/hasUsedVoucher/${customerId}/${voucherId}`;
   return axios.get(URL_BACKEND);
 };
+const paymentCallBack = (orderId) => {
+  const URL_BACKEND = `api/v1/payments/payment-callback`;
+  const params = {
+    vnp_OrderInfo: orderId,
+  };
+  return axios.get(URL_BACKEND, { params });
+};
 /*
   API Product detail
 */
@@ -789,6 +796,7 @@ const updatePromotion = (
     discountAmount,
     status,
     productDetailsIds,
+    
   }
 ) => {
   // Sửa 'productDetailsId' thành 'productDetailsIds'
@@ -801,7 +809,8 @@ const updatePromotion = (
     discountPercent,
     discountAmount,
     status,
-    productDetailsIds, // Chú ý tên trường ở đây
+    productDetailsIds,
+     // Chú ý tên trường ở đây
   };
 
   return axios.put(URL_BACKEND, data); // Gọi PUT với URL và dữ liệu
@@ -1315,4 +1324,5 @@ export {
   hasCustomerUsedVoucher,
   fetchTopFeaturedProducts,
   fetchProductsByProductDetails,
+  paymentCallBack,
 };
