@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -105,6 +106,30 @@ public class GhnServiceImpl implements GhnService {
 
         return orderCode;
     }
+
+    @Override
+    public String cancelOrder(String trackingCode) throws JsonProcessingException {
+        String url = baseUrl + "/v2/switch-status/cancel";
+
+        // Set HTTP headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Token", key);
+        headers.set("shop_id", shopId);
+
+        // Set request body
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("order_codes", Collections.singletonList(trackingCode));
+
+        // Create HttpEntity with body and headers
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+
+        // Send HTTP POST request
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+
+        // Return response body
+        return response.getBody();
+    }
+
 
     @Override
     public String getService(ServiceGhnDTO serviceGhnDTO) {
