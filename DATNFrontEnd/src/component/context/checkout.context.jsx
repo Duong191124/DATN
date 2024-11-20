@@ -23,6 +23,10 @@ export const CheckoutProvider = ({ children }) => {
         setTotalPriceAll(0);
     };
 
+    const resetGhnTotalPrice = () => {
+        setTotalShippingFee(0);
+    }
+
     return (
         <CheckoutContext.Provider
             value={{
@@ -48,7 +52,8 @@ export const CheckoutProvider = ({ children }) => {
                 setCouponDiscount,
                 totalPrice,
                 setTotalPrice,
-                resetCheckoutContext
+                resetCheckoutContext,
+                resetGhnTotalPrice
             }}
         >
             {children}

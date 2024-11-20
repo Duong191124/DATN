@@ -36,7 +36,7 @@ public class AddressServiceImpl implements AddressService {
                             .phoneNumber(address.getPhoneNumber())
                             .city(address.getCity())
                             .district(address.getDistrict())
-                            .fromDistrict(3440) // Giá trị mặc định
+                            .fromDistrict(2004) // Giá trị mặc định
                             .ward(address.getWard())
                             .serviceId(53321) // Giá trị mặc định
                             .addressDetail(address.getAddressDetail())
@@ -59,7 +59,7 @@ public class AddressServiceImpl implements AddressService {
                 .phoneNumber(addressDTO.getPhoneNumber())
                 .city(addressDTO.getCity())
                 .district(addressDTO.getDistrict())
-                .fromDistrict(3440)
+                .fromDistrict(2004)
                 .ward(addressDTO.getWard())
                 .serviceId(53321)
                 .customer(customer)
@@ -75,7 +75,7 @@ public class AddressServiceImpl implements AddressService {
         existingAddress.setPhoneNumber(addressUpdateDTO.getPhoneNumber());
         existingAddress.setCity(addressUpdateDTO.getCity());
         existingAddress.setDistrict(addressUpdateDTO.getDistrict());
-        existingAddress.setFromDistrict(3440);
+        existingAddress.setFromDistrict(2004);
         existingAddress.setWard(addressUpdateDTO.getWard());
         existingAddress.setServiceId(53321);
         existingAddress.setAddressDetail(addressUpdateDTO.getAddressDetail());

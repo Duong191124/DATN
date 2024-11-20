@@ -61,12 +61,15 @@ const CheckoutStep = () => {
     };
 
     const convertDataProductToOrder = (cartItemsLocal) => {
+        console.log(cartItemsLocal);
         return cartItemsLocal.map(item => ({
-            name: item.productResponse.name,
+            product: {
+                name: item.productResponse.name,
+                categoryName: item.productResponse.categoryName
+            },
             code: item.code,
-            quantity: item.quantity,
-            category: item.productResponse.categoryName
-        }))
+            quantity: item.quantity
+        }));
     };
 
     useEffect(() => {
@@ -79,12 +82,11 @@ const CheckoutStep = () => {
         return `HD-${randomCode}`;
     };
 
-    console.log(addresses);
-
     const confirmOrder = async () => {
         const cartItemsLocal = cartItems;
         const orderDetailRequests = convertCartToOrderDetails(cartItemsLocal);
-        const items = convertDataProductToOrder(cartItemsLocal);
+        const itemsProduct = convertDataProductToOrder(cartItemsLocal);
+        console.log(itemsProduct);
 
         const orderDTO = {
             code: generateInvoiceCode(), // Mã đơn hàng
@@ -107,7 +109,7 @@ const CheckoutStep = () => {
             customerPhone: addresses.phoneNumber,
             addressDetail: addresses.addressDetail,
             customerEmail: addresses?.customer?.email,
-            items
+            itemsProduct
         }
 
         try {
@@ -121,7 +123,6 @@ const CheckoutStep = () => {
                 orderDTO.moneyReceived,
                 orderDTO.orderDetailRequests
             );
-            message.success('Đơn hàng đã được tạo thành công!');
             const res = await getCreateOrderGhn(
                 createOrderGhn.toDistrictId,
                 createOrderGhn.toWardCode,
@@ -132,16 +133,28 @@ const CheckoutStep = () => {
                 createOrderGhn.customerPhone,
                 createOrderGhn.addressDetail,
                 createOrderGhn.customerEmail,
-                createOrderGhn.items,
+                createOrderGhn.itemsProduct,
             )
             console.log(res);
+            if (res?.error) {
+                throw new Error(res.error || "Đơn hàng giao hàng thất bại");
+            }
+            message.success('Đơn hàng đã được tạo thành công!');
             resetCheckoutContext();
+            localStorage.removeItem(`cart_${userId}`);
+            setCartItems([]);
+            navigate("/")
         } catch (error) {
-            message.error("Lỗi khi tạo đơn hàng: " + error.message);
+            let errorMessage = error?.response?.data?.message || "Giao hàng nhanh không hỗ trợ xã này";
+
+            // Cắt chuỗi để chỉ lấy phần từ "GHN" trở đi
+            const ghnIndex = errorMessage.indexOf("Giao");
+            if (ghnIndex !== -1) {
+                errorMessage = errorMessage.substring(ghnIndex);
+            }
+
+            message.error(errorMessage);
         }
-        localStorage.removeItem(`cart_${userId}`);
-        setCartItems([]);
-        navigate("/")
     };
 
     const handleApiGhn = async () => {
@@ -163,7 +176,15 @@ const CheckoutStep = () => {
             console.log(res);
             setTotalShippingFee(res.data.data.total);
         } catch (error) {
-            console.error(error)
+            let errorMessage = error?.response?.data?.message || "Giao hàng nhanh không hỗ trợ xã này";
+
+            // Cắt chuỗi để chỉ lấy phần từ "GHN" trở đi
+            const ghnIndex = errorMessage.indexOf("Giao");
+            if (ghnIndex !== -1) {
+                errorMessage = errorMessage.substring(ghnIndex);
+            }
+
+            message.error(errorMessage);
         }
     }
 

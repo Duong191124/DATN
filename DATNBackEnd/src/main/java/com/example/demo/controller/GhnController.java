@@ -68,6 +68,7 @@ public class GhnController {
                             .build()
             );
         }
+
         String trackingID = ghnService.createOrder(ghnOrderDTO);
         mailService.sendTrackingOrder(ghnOrderDTO.getCustomerEmail(), trackingID);
         return ResponseEntity.ok(
