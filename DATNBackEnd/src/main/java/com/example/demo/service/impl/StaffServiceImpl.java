@@ -105,6 +105,7 @@ public class StaffServiceImpl implements StaffService {
         }
 
         staff.setPermission(currentPermission);
+        staff.setIdentifierToken("please get new token");
         return staffRepo.save(staff);
     }
 
