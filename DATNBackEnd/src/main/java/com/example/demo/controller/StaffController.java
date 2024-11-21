@@ -36,7 +36,6 @@ public class StaffController {
 //                .build()
 //        );
 //    }
-    @PreAuthorize("hasAuthority('READ_STAFF')")
     @GetMapping("/getAll")
     public ResponseEntity<MessageReponse> getAll(
             @RequestParam(name = "username", required = false) String username,
@@ -116,7 +115,6 @@ public class StaffController {
                 .status(HttpStatus.OK.value())
                 .build());
     }
-    @PreAuthorize("hasAuthority('READ_STAFF')")
     @GetMapping("/{id}")
     public ResponseEntity<MessageReponse> getById(@PathVariable("id")int id){
         try{

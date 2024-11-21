@@ -25,7 +25,7 @@ public class CustomerController {
     private final CustomerServiceImpl customerService;
     private final NoticeServiceImpl noticeService;
 
-    @PreAuthorize("hasAuthority('READ_CUSTOMER')")
+
     @GetMapping("/getAll")
     public ResponseEntity<MessageReponse> getAll(
             @RequestParam(name = "page", defaultValue = "1")int page,
@@ -99,7 +99,7 @@ public class CustomerController {
                 .build());
     }
 
-    @PreAuthorize("hasAuthority('READ_CUSTOMER')")
+
     @GetMapping("{id}")
     public ResponseEntity<?> getById(@PathVariable("id") Integer id)throws Exception{
 
