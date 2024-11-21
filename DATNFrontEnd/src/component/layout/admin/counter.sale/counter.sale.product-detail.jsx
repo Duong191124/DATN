@@ -199,7 +199,11 @@ const CounterSalesProductDetail = ({
   };
   const showFilterModal = () => {
     if (!selectedBill) {
-      message.warning("vui lòng nhấn chọn hóa đơn để mua hàng");
+      notification.warning({
+        message: "Cảnh báo",
+        description: "Vui lòng nhấn chọn hóa đơn để mua hàng",
+        duration: 2,
+      });
       return;
     }
     setIsModalVisible(true);

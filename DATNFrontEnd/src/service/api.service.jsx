@@ -394,11 +394,9 @@ const hasCustomerUsedVoucher = (customerId, voucherId) => {
   const URL_BACKEND = `api/v1/orders/hasUsedVoucher/${customerId}/${voucherId}`;
   return axios.get(URL_BACKEND);
 };
-const paymentCallBack = (orderId) => {
+const paymentCallBack = () => {
+  const params = new URLSearchParams(window.location.search);
   const URL_BACKEND = `api/v1/payments/payment-callback`;
-  const params = {
-    vnp_OrderInfo: orderId,
-  };
   return axios.get(URL_BACKEND, { params });
 };
 /*
@@ -796,7 +794,6 @@ const updatePromotion = (
     discountAmount,
     status,
     productDetailsIds,
-    
   }
 ) => {
   // Sửa 'productDetailsId' thành 'productDetailsIds'
@@ -810,7 +807,7 @@ const updatePromotion = (
     discountAmount,
     status,
     productDetailsIds,
-     // Chú ý tên trường ở đây
+    // Chú ý tên trường ở đây
   };
 
   return axios.put(URL_BACKEND, data); // Gọi PUT với URL và dữ liệu
@@ -1116,10 +1113,10 @@ const getShippingFee = (
     toDistrictId,
     toWardCode,
     weight,
-    serviceId
-  }
+    serviceId,
+  };
   return axios.post(URL_BACKEND, data);
-}
+};
 
 const getAddressByCustomerId = (customerId) => {
   const URL_BACKEND = `/api/v1/address/${customerId}`;

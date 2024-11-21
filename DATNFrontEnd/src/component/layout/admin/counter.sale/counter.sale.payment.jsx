@@ -8,6 +8,7 @@ import {
   message,
   Drawer,
   Radio,
+  notification,
 } from "antd";
 import QRCode from "qrcode";
 import html2pdf from "html2pdf.js";
@@ -132,13 +133,17 @@ const CounterSalePayment = ({
   }, [selectedBill, cartItems, selectedVoucher]);
 
   // Tính lại khi thay đổi hóa đơn, giỏ hàng hoặc voucher
-  console.log("customer", info);
   const openDrawer = () => {
     setIsDrawerVisible(true);
   };
   const handleAddAccount = () => {
     if (!newAccount.bankName || !newAccount.accountNumber) {
-      message.error("Vui lòng điền đầy đủ thông tin tài khoản ngân hàng.");
+      notification.warning({
+        message: "Tài khoản",
+        description: `Vui lòng điền đầy đủ thông tin tài khoản ngân hàng.`,
+        placement: "bottomLeft",
+        duration: 2,
+      });
       return;
     }
     // Kiểm tra xem tài khoản đã tồn tại chưa
@@ -147,7 +152,12 @@ const CounterSalePayment = ({
     );
 
     if (accountExists) {
-      message.error("Mỗi ngân hàng chỉ được liên kết một lần.");
+      notification.warning({
+        message: "Tài khoản",
+        description: `Mỗi ngân hàng chỉ được liên kết một lần.`,
+        placement: "bottomLeft",
+        duration: 2,
+      });
       return;
     }
     const bankOption = bankOptions.find(
@@ -160,7 +170,12 @@ const CounterSalePayment = ({
       ];
       localStorage.setItem("bankAccounts", JSON.stringify(updatedAccounts));
       setBankAccounts(updatedAccounts);
-      message.success("Tài khoản ngân hàng đã được thêm thành công.");
+      notification.success({
+        message: "Tài khoản",
+        description: `Tài khoản ngân hàng đã được thêm thành công.`,
+        placement: "bottomLeft",
+        duration: 2,
+      });
     }
     setNewAccount({
       bankName: "",
@@ -218,7 +233,12 @@ const CounterSalePayment = ({
         (account) => account.accountNumber === selectedAccount
       );
       if (!selectedAccountInfo) {
-        message.error("Tài khoản ngân hàng không hợp lệ.");
+        notification.warning({
+          message: "Tài khoản",
+          description: `Tài khoản ngân hàng không hợp lệ.`,
+          placement: "bottomLeft",
+          duration: 2,
+        });
         return;
       }
       const qrCodeData = JSON.stringify({
@@ -391,7 +411,7 @@ const CounterSalePayment = ({
         fetchVouchers(billCode); // Lấy voucher khi có hóa đơn đã chọn
         setInfo(billCode);
       } else {
-        setVoucher([]); // Nếu không tìm thấy hóa đơn, reset voucher
+        setVoucher([]);
       }
     } else {
       setVoucher([]); // Nếu không có hóa đơn chọn, reset voucher
@@ -437,7 +457,12 @@ const CounterSalePayment = ({
     }
     setBankAccounts(updatedAccounts);
     localStorage.setItem("bankAccounts", JSON.stringify(updatedAccounts)); // Cập nhật localStorage
-    message.success("Tài khoản ngân hàng đã được xóa.");
+    notification.success({
+      message: "Tài khoản",
+      description: `Tài khoản ngân hàng đã được xóa.`,
+      placement: "bottomRight",
+      duration: 2,
+    });
   };
 
   const handleAccountChange = async (value) => {
@@ -481,7 +506,11 @@ const CounterSalePayment = ({
 
         // Kiểm tra nếu voucher đã hết hạn
         if (currentTime > expirationTime) {
-          message.error("Voucher này đã hết hạn.");
+          notification.warning({
+            message: "Voucher",
+            description: `Voucher này đã hết hạn.`,
+            placement: "bottomRight",
+          });
           setSelectedVoucher(null);
           setTotalAmountAfterDiscount(totalAmount); // Đặt lại tổng tiền sau giảm giá
           setPaymentInfo({
@@ -491,14 +520,17 @@ const CounterSalePayment = ({
           });
           return;
         }
-
         // Kiểm tra nếu tổng tiền đủ điều kiện áp dụng voucher
         if (totalAmount < voucher.minPurchaseAmount) {
-          message.error(
-            `Voucher chỉ áp dụng cho đơn hàng từ ${new Intl.NumberFormat(
+          notification.warning({
+            message: "Voucher",
+            description: `Voucher chỉ áp dụng cho đơn hàng từ ${new Intl.NumberFormat(
               "vi-VN"
-            ).format(voucher.minPurchaseAmount)} VND trở lên.`
-          );
+            ).format(voucher.minPurchaseAmount)} VND trở lên.`,
+            duration: 2,
+            placement: "bottomLeft",
+          });
+
           setSelectedVoucher(null);
           setTotalAmountAfterDiscount(totalAmount); // Đặt lại tổng tiền sau giảm giá
           setPaymentInfo({
@@ -516,7 +548,11 @@ const CounterSalePayment = ({
             voucher.id
           );
           if (response.data) {
-            message.error("Bạn đã sử dụng voucher này rồi.");
+            notification.warning({
+              message: "Voucher", // Tiêu đề thông báo
+              description: `Bạn đã sử dụng voucher này rồi`, // Nội dung thông báo
+              placement: "bottomRight", // Vị trí thông báo (có thể chọn 'topLeft', 'topRight', 'bottomLeft', 'bottomRight')
+            });
             setSelectedVoucher(null);
             setTotalAmountAfterDiscount(totalAmount); // Đặt lại tổng tiền sau giảm giá
             setPaymentInfo({
@@ -562,11 +598,14 @@ const CounterSalePayment = ({
           amountPaid: totalAfterDiscount,
         });
 
-        message.success(
-          `Voucher đã được áp dụng. Số tiền giảm: ${new Intl.NumberFormat(
-            "vi-VN"
-          ).format(discount)} VND.`
-        );
+        notification.success({
+          message: "Voucher đã được áp dụng", // Tiêu đề thông báo
+          description: `Số tiền giảm: ${new Intl.NumberFormat("vi-VN").format(
+            discount
+          )} VND.`,
+          duration: 2,
+          placement: "bottomLeft",
+        });
         closeModal();
       }
     }
@@ -612,26 +651,41 @@ const CounterSalePayment = ({
 
   const handlePayment = async () => {
     if (paymentInfo.paymentMethod === "Bank Transfer" && !selectedAccount) {
-      message.error(`Vui lòng chọn ngân hàng để thanh toán`);
+      notification.warning({
+        message: "Thanh toán",
+        description: `Vui lòng chọn ngân hàng để thanh toán`,
+        duration: 2,
+        placement: "bottomLeft",
+      });
       return;
     }
     if (
       customerPaid < totalAmountAfterDiscount &&
       paymentInfo.paymentMethod === "Cash"
     ) {
-      message.error(
-        `Thanh toán không đủ. Vui lòng nhập đủ tiền. Tổng tiền cần thanh toán là ${totalAmountAfterDiscount.toLocaleString()} VNĐ.`
-      );
+      notification.warning({
+        message: "Thanh toán",
+        description: `Thanh toán không đủ. Vui lòng nhập đủ tiền. Tổng tiền cần thanh toán là ${totalAmountAfterDiscount.toLocaleString()} VNĐ.`,
+        duration: 2,
+        placement: "bottomLeft",
+      });
       return;
     }
     setTotalAmount(totalAmountAfterDiscount);
     // Tiến hành thanh toán nếu đủ tiền
     const paymentSuccess = await onPayment();
-    if (paymentSuccess) {
+    if (paymentSuccess.success === true) {
       handleShowInvoice();
       setVoucher([]);
       setSelectedVoucher(null);
       setSelectedBill(null);
+    } else {
+      notification.warning({
+        message: "Thanh toán không thành công",
+        description: paymentSuccess.message,
+        duration: 2,
+        placement: "bottomLeft",
+      });
     }
   };
   return (
