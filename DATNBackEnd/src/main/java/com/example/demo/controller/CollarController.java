@@ -61,7 +61,7 @@ public class CollarController {
     }
 
     // Lấy cổ áo theo id
-    @PreAuthorize("hasAuthority('READ_COLLAR')")
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getCollarById(@PathVariable Integer id) {
         try {

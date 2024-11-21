@@ -24,7 +24,6 @@ public class PromotionController {
 
     private final PromotionServiceImpl promotionService;
 
-    @PreAuthorize("hasAuthority('READ_PROMOTION')")
     @GetMapping("")
     public ResponseEntity<?> getAll(){
         List<PromotionResponse> promotionList = promotionService.getAll().stream().map(PromotionResponse::fromPromotionResponse).toList();
@@ -123,7 +122,6 @@ public class PromotionController {
     }
 
 
-    @PreAuthorize("hasAuthority('READ_PROMOTION')")
     @GetMapping("detail/{id}")
     public ResponseEntity<?> getPromotionDetail(@PathVariable("id") Integer id) {
         try {

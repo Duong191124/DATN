@@ -25,7 +25,7 @@ import java.util.*;
 public class PaymentController {
     @Autowired
     PaymentService paymentService;
-    @PreAuthorize("hasAuthority('READ_PAYMENT')")
+
     @GetMapping("list")
     public ResponseEntity<?> getAllPayment(){
         List<PaymentResponse> paymentResponses = paymentService.getAll();
@@ -73,7 +73,7 @@ public class PaymentController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    @PreAuthorize("hasAuthority('READ_PAYMENT')")
+
     @GetMapping("/findById")
     public ResponseEntity<?> findById(@RequestParam int id){
         try {

@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 public class VoucherController {
     @Autowired
     private VoucherServiceImpl voucherService;
-    @PreAuthorize("hasAuthority('READ_VOUCHER')")
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAllVouchers() {
         List<VoucherResponse> voucherList = voucherService.getAll()
@@ -98,7 +97,6 @@ public class VoucherController {
     }
 
 
-    @PreAuthorize("hasAuthority('READ_VOUCHER')")
     @GetMapping("detail/{id}")
     public ResponseEntity<MessageReponse> getVoucherById(@PathVariable("id") Integer id) {
         try {

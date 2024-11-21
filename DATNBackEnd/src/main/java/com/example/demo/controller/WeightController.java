@@ -20,7 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WeightController {
     private final WeightService weightService;
-    @PreAuthorize("hasAuthority('READ_WEIGHT')")
     @GetMapping
     public ResponseEntity<MessageReponse> getAll() {
         List<Weight> listWeight = weightService.getAll();
