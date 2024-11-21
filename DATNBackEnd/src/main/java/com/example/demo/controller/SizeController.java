@@ -22,7 +22,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SizeController {
     private final SizeServiceImpl sizeService;
-    @PreAuthorize("hasAuthority('READ_SIZE')")
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAll(){
         List<Size> sizeList = sizeService.getAll();
@@ -77,7 +76,6 @@ public class SizeController {
                 .build());
     }
 
-    @PreAuthorize("hasAuthority('READ_SIZE')")
     @GetMapping("/{id}")
     public ResponseEntity<?> sizeFindById(@PathVariable Integer id){
         try {

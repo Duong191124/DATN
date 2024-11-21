@@ -25,7 +25,7 @@ import java.util.List;
 public class ColorController {
 
     private final ColorServiceImpl colorService;
-    @PreAuthorize("hasAuthority('READ_COLOR')")
+
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAll() {
         List<Color> colorList = colorService.getAll();
@@ -90,7 +90,7 @@ public class ColorController {
     }
 
 
-    @PreAuthorize("hasAuthority('READ_COLOR')")
+
     @GetMapping("/{id}")
     public ResponseEntity<?> sizeFindById(@PathVariable Integer id) {
         try {

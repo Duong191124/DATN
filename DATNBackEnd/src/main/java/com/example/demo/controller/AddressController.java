@@ -22,7 +22,6 @@ import java.util.List;
 public class AddressController {
     @Autowired
     private AddressService addressService;
-    @PreAuthorize("hasAuthority('READ_ADDRESS')")
     @GetMapping("{customerId}")
     public ResponseEntity<MessageReponse> getAll(@PathVariable Integer customerId) {
         List<Address> addressList = addressService.getAddressList(customerId);

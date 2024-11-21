@@ -22,7 +22,6 @@ public class PermissionController {
 
     @Autowired
     PermissionService permissionService;
-    @PreAuthorize("hasAuthority('READ_PERMISSION')")
     @GetMapping("/getAll")
     public ResponseEntity<MessageReponse> getAllPermition(
             @RequestParam(name = "page", defaultValue = "1")int page,
@@ -47,14 +46,12 @@ public class PermissionController {
             );
         }
     }
-    @PreAuthorize("hasAuthority('READ_PERMISSION')")
     @GetMapping("/all")
     public ResponseEntity<?> getAllPermitions() {
         List<Permission> permissionList = permissionService.all();
         return ResponseEntity.ok(permissionList);
     }
 
-    @PreAuthorize("hasAuthority('READ_PERMISSION')")
     @GetMapping("/{id}")
     public ResponseEntity<MessageReponse> getById(@PathVariable("id")int id){
         try{

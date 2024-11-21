@@ -22,7 +22,6 @@ public class SleeveController {
     private SleeveService sleeveService;
 
     // Lấy tất cả các ống tay
-    @PreAuthorize("hasAuthority('READ_SLEEVE')")
     @GetMapping
     public ResponseEntity<List<Sleeve>> getAllSleeves() {
         List<Sleeve> sleeves = sleeveService.getAll();
@@ -66,7 +65,6 @@ public class SleeveController {
     }
 
     // Lấy ống tay theo id
-    @PreAuthorize("hasAuthority('READ_SLEEVE')")
     @GetMapping("/{id}")
     public ResponseEntity<?> getSleeveById(@PathVariable Integer id) {
         try {
