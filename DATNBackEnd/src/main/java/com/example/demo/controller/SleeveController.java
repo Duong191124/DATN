@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ public class SleeveController {
     private SleeveService sleeveService;
 
     // Lấy tất cả các ống tay
+    @PreAuthorize("hasAuthority('READ_SLEEVE')")
     @GetMapping
     public ResponseEntity<List<Sleeve>> getAllSleeves() {
         List<Sleeve> sleeves = sleeveService.getAll();
@@ -28,6 +30,7 @@ public class SleeveController {
     }
 
     // Thêm một ống tay mới
+    @PreAuthorize("hasAuthority('CREATE_SLEEVE')")
     @PostMapping
     public ResponseEntity<?> addSleeve(@Valid @RequestBody SleeveDTO sleeveDTO, BindingResult result) {
         try {
@@ -45,6 +48,7 @@ public class SleeveController {
     }
 
     // Cập nhật ống tay theo id
+    @PreAuthorize("hasAuthority('UPDATE_SLEEVE')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSleeve(@PathVariable Integer id, @Valid @RequestBody SleeveDTO sleeveDTO, BindingResult result) {
         try {
@@ -62,6 +66,7 @@ public class SleeveController {
     }
 
     // Lấy ống tay theo id
+    @PreAuthorize("hasAuthority('READ_SLEEVE')")
     @GetMapping("/{id}")
     public ResponseEntity<?> getSleeveById(@PathVariable Integer id) {
         try {
@@ -73,6 +78,7 @@ public class SleeveController {
     }
 
     // Xóa ống tay theo id
+    @PreAuthorize("hasAuthority('DELETE_SLEEVE')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteSleeve(@PathVariable Integer id) {
         try {

@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 public class VoucherController {
     @Autowired
     private VoucherServiceImpl voucherService;
-
+    @PreAuthorize("hasAuthority('READ_VOUCHER')")
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAllVouchers() {
         List<VoucherResponse> voucherList = voucherService.getAll()
@@ -35,7 +36,7 @@ public class VoucherController {
                 .build()
         );
     }
-
+    @PreAuthorize("hasAuthority('CREATE_VOUCHER')")
     @PostMapping("")
     public ResponseEntity<?> createVoucher(@Valid @RequestBody VoucherDTO voucherDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -51,7 +52,7 @@ public class VoucherController {
         VoucherResponse createdVoucher = voucherService.add(voucherDTO);
         return new ResponseEntity<>(createdVoucher, HttpStatus.CREATED);
     }
-
+    @PreAuthorize("hasAuthority('UPDATE_VOUCHER')")
     @PutMapping("{id}")
     public ResponseEntity<?> updateVoucher(@PathVariable("id") Integer id,
                                            @Valid @RequestBody VoucherDTO voucherDTO,
@@ -78,14 +79,14 @@ public class VoucherController {
             );
         }
     }
-
+    @PreAuthorize("hasAuthority('UPDATE_CUSTOMER')")
     @PutMapping("/{id}/customer")
     public ResponseEntity<?> updateCustomer(@PathVariable Integer id, @RequestBody VoucherDTO voucherDTO) throws Exception {
         // Gửi toàn bộ danh sách customerIds tới service, cho phép null hoặc trống
         VoucherResponse updatedVoucher = voucherService.updateCustomer(id, voucherDTO.getCustomers());
         return ResponseEntity.ok(updatedVoucher);
     }
-
+    @PreAuthorize("hasAuthority('UPDATE_VOUCHER')")
     @PutMapping("/{id}/status")
     public ResponseEntity<?> changeStatus(@PathVariable Integer id) {
         try {
@@ -97,7 +98,7 @@ public class VoucherController {
     }
 
 
-
+    @PreAuthorize("hasAuthority('READ_VOUCHER')")
     @GetMapping("detail/{id}")
     public ResponseEntity<MessageReponse> getVoucherById(@PathVariable("id") Integer id) {
         try {
@@ -112,7 +113,7 @@ public class VoucherController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
+    @PreAuthorize("hasAuthority('DELETE_VOUCHER')")
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteVoucher(@PathVariable("id") Integer id) {
         try {

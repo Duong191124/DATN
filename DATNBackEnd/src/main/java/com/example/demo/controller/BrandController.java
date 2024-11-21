@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class BrandController {
     private final BrandService brandService;
 
     private final MessageSource messageSource;
-
+    @PreAuthorize("hasAuthority('READ_BRAND')")
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAll() {
         List<Brand> brandList = brandService.getAll();
@@ -33,7 +34,7 @@ public class BrandController {
                 .data(brandList)
                 .build());
     }
-
+    @PreAuthorize("hasAuthority('CREATE_BRAND')")
     @PostMapping("")
     public ResponseEntity<MessageReponse> add(@Valid @RequestBody BrandDTO brandDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -53,7 +54,7 @@ public class BrandController {
                 .data(newBrand)
                 .build());
     }
-
+    @PreAuthorize("hasAuthority('UPDATE_BRAND')")
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
@@ -76,7 +77,7 @@ public class BrandController {
 //            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot delete, foreign key constraint.");
 //        }
 //    }
-
+    @PreAuthorize("hasAuthority('DELETE_BRAND')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBrand(@PathVariable("id") Integer id) {
         try {

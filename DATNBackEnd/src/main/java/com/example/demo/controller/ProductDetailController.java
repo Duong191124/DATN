@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,6 +53,8 @@ public class ProductDetailController {
                 .build()    
         );
     }
+
+    @PreAuthorize("hasAuthority('CREATE_PRODUCT_DETAIL')")
     @PostMapping("")
     public ResponseEntity<?> addProductDetail(@Valid @RequestBody ProductDetailDTO productDetailDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -65,7 +68,7 @@ public class ProductDetailController {
         }
     }
 
-
+    @PreAuthorize("hasAuthority('UPDATE_PRODUCT_DETAIL')")
     @PutMapping("{id}")
     public ResponseEntity<?> updateProductDetail(@PathVariable("id") Integer id,
                                                  @Valid @RequestBody ProductDetailDTO productDetailDTO,
@@ -98,7 +101,7 @@ public class ProductDetailController {
             return  ResponseEntity.badRequest().body(HttpStatus.NOT_FOUND);
         }
     }
-
+    @PreAuthorize("hasAuthority('DELETE_PRODUCT_DETAIL')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProductDetail(@PathVariable("id") Integer id) {
         try {

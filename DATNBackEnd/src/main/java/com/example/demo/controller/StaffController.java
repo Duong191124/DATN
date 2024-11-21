@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +36,7 @@ public class StaffController {
 //                .build()
 //        );
 //    }
-
+    @PreAuthorize("hasAuthority('READ_STAFF')")
     @GetMapping("/getAll")
     public ResponseEntity<MessageReponse> getAll(
             @RequestParam(name = "username", required = false) String username,
@@ -97,7 +98,7 @@ public class StaffController {
         }
 
     }
-
+    @PreAuthorize("hasAuthority('UPDATE_STAFF')")
     @PutMapping("/update-status/{id}")
     public ResponseEntity<?> updateStaff(@PathVariable("id") Integer id){
         String updateStatus = staffService.updateStatus(id);
@@ -106,7 +107,7 @@ public class StaffController {
                 .status(HttpStatus.OK.value())
                 .build());
     }
-
+    @PreAuthorize("hasAuthority('DELETE_STAFF')")
     @PutMapping("/soft-delete/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Integer id)throws Exception{
         String delete = staffService.softDelete(id);
@@ -115,7 +116,7 @@ public class StaffController {
                 .status(HttpStatus.OK.value())
                 .build());
     }
-
+    @PreAuthorize("hasAuthority('READ_STAFF')")
     @GetMapping("/{id}")
     public ResponseEntity<MessageReponse> getById(@PathVariable("id")int id){
         try{
@@ -136,7 +137,7 @@ public class StaffController {
             );
         }
     }
-
+    @PreAuthorize("hasAuthority('UPDATE_PERMISSION')")
     @PutMapping("/update-permission/{id}")
     public ResponseEntity<MessageReponse> updateStaff(
             @PathVariable("id")int id,
