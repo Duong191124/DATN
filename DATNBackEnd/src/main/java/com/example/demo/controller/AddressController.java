@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ import java.util.List;
 public class AddressController {
     @Autowired
     private AddressService addressService;
-
+    @PreAuthorize("hasAuthority('READ_ADDRESS')")
     @GetMapping("{customerId}")
     public ResponseEntity<MessageReponse> getAll(@PathVariable Integer customerId) {
         List<Address> addressList = addressService.getAddressList(customerId);
@@ -31,7 +32,7 @@ public class AddressController {
                 .data(addressList)
                 .build());
     }
-
+    @PreAuthorize("hasAuthority('CREATE_ADDRESS')")
     @PostMapping("")
     public ResponseEntity<MessageReponse> add(@Valid @RequestBody AddressDTO addressDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -51,7 +52,7 @@ public class AddressController {
                 .data(newAddress)
                 .build());
     }
-
+    @PreAuthorize("hasAuthority('UPDATE_ADDRESS')")
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
@@ -63,7 +64,7 @@ public class AddressController {
                 .data(updateAddress)
                 .build());
     }
-
+    @PreAuthorize("hasAuthority('DELETE_ADDRESS')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBrand(@PathVariable("id") Integer id) {
         try {

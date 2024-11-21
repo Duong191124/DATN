@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,7 @@ import java.util.*;
 public class PaymentController {
     @Autowired
     PaymentService paymentService;
+    @PreAuthorize("hasAuthority('READ_PAYMENT')")
     @GetMapping("list")
     public ResponseEntity<?> getAllPayment(){
         List<PaymentResponse> paymentResponses = paymentService.getAll();
@@ -32,6 +34,7 @@ public class PaymentController {
         }
         return ResponseEntity.ok(new MessageReponse("success",200,paymentResponses)) ;
     }
+    @PreAuthorize("hasAuthority('CREATE_PAYMENT')")
     @PostMapping("/add")
     public ResponseEntity<?> addPayment(@Valid @RequestBody PaymentDTO paymentDTO, BindingResult result){
         try {
@@ -45,6 +48,7 @@ public class PaymentController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    @PreAuthorize("hasAuthority('UPDATE_PAYMENT')")
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updatePayment(@PathVariable int id,@Valid @RequestBody PaymentDTO paymentDTO,BindingResult result){
 
@@ -59,6 +63,7 @@ public class PaymentController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    @PreAuthorize("hasAuthority('DELETE_PAYMENT')")
     @DeleteMapping("/delete")
     public ResponseEntity<?> deletePayment(@RequestParam int id){
         try {
@@ -68,6 +73,7 @@ public class PaymentController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    @PreAuthorize("hasAuthority('READ_PAYMENT')")
     @GetMapping("/findById")
     public ResponseEntity<?> findById(@RequestParam int id){
         try {
@@ -81,6 +87,7 @@ public class PaymentController {
                     .body(new MessageReponse("Error occurred: " + e.getMessage(), 400, null));
         }
     }
+
     @GetMapping("/payment-callback")
     public ResponseEntity<Map<String, String>> paymentCallback(@RequestParam Map<String, String> params) {
         Integer orderId = Integer.valueOf(params.get("vnp_OrderInfo"));

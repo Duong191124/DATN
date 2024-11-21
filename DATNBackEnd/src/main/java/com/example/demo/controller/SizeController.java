@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SizeController {
     private final SizeServiceImpl sizeService;
-
+    @PreAuthorize("hasAuthority('READ_SIZE')")
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAll(){
         List<Size> sizeList = sizeService.getAll();
@@ -43,7 +44,7 @@ public class SizeController {
         response.put("exists", exists);
         return ResponseEntity.ok(response);
     }
-
+    @PreAuthorize("hasAuthority('CREATE_SIZE')")
     @PostMapping("")
     public ResponseEntity<MessageReponse> add(@Valid @RequestBody SizeDTO sizeDTO, BindingResult result){
         if(result.hasErrors()){
@@ -63,7 +64,7 @@ public class SizeController {
                 .data(newSize)
                 .build());
     }
-
+    @PreAuthorize("hasAuthority('UPDATE_SIZE')")
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
@@ -76,7 +77,7 @@ public class SizeController {
                 .build());
     }
 
-
+    @PreAuthorize("hasAuthority('READ_SIZE')")
     @GetMapping("/{id}")
     public ResponseEntity<?> sizeFindById(@PathVariable Integer id){
         try {

@@ -10,6 +10,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,7 @@ public class CategoryController {
     private final CategoryServiceImpl categoryService;
 
     private final MessageSource messageSource;
-
+    @PreAuthorize("hasAuthority('READ_CATEGORY')")
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAll() {
         List<Category> categoryList = categoryService.getAll();
@@ -33,7 +34,7 @@ public class CategoryController {
                 .data(categoryList)
                 .build());
     }
-
+    @PreAuthorize("hasAuthority('CREATE_CATEGORY')")
     @PostMapping("")
     public ResponseEntity<MessageReponse> add(@Valid @RequestBody CategoryDTO category, BindingResult result) {
         if (result.hasErrors()) {
@@ -53,7 +54,7 @@ public class CategoryController {
                 .data(newCategory)
                 .build());
     }
-
+    @PreAuthorize("hasAuthority('UPDATE_CATEGORY')")
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
@@ -65,7 +66,7 @@ public class CategoryController {
                 .data(categoryDTO)
                 .build());
     }
-
+    @PreAuthorize("hasAuthority('DELETE_CATEGORY')")
     @DeleteMapping("{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception {
         try {

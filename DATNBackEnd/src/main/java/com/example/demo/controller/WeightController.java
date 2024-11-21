@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WeightController {
     private final WeightService weightService;
-
+    @PreAuthorize("hasAuthority('READ_WEIGHT')")
     @GetMapping
     public ResponseEntity<MessageReponse> getAll() {
         List<Weight> listWeight = weightService.getAll();
@@ -29,7 +30,7 @@ public class WeightController {
                 .status(HttpStatus.OK.value())
                 .build());
     }
-
+    @PreAuthorize("hasAuthority('CREATE_WEIGHT')")
     @PostMapping
     public ResponseEntity<MessageReponse> createWeight(@Valid @RequestBody WeightDTO weightDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -50,6 +51,7 @@ public class WeightController {
                 .build());
     }
 
+    @PreAuthorize("hasAuthority('UPDATE_WEIGHT')")
     @PutMapping("/{id}")
     public ResponseEntity<MessageReponse> updateWeight(
             @PathVariable("id") Integer id,
