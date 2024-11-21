@@ -6,7 +6,7 @@ const Payment = () => {
     const [selectedOption, setSelectedOption] = useState('Cash');
 
     const handleMinusTotalPrice = () => {
-        const subTotal = totalPrice - totalShippingFee;
+        const subTotal = totalPrice + totalShippingFee;
         setTotalPriceAll(subTotal);
     }
 
@@ -118,11 +118,11 @@ const Payment = () => {
                         {totalShippingFee > 0 && (
                             <div style={{ marginBottom: "8px", color: "#f5222d" }}>
                                 <span style={{ fontWeight: "bold" }}>Total Shipping:</span>
-                                <span style={{ marginLeft: "8px" }}>- ${totalShippingFee.toFixed(2)}</span>
+                                <span style={{ marginLeft: "8px" }}> {totalShippingFee} đ</span>
                             </div>
                         )}
                         <strong>Total:</strong>
-                        <span style={{ fontSize: 24, marginLeft: 10 }}>${totalPriceAll.toFixed(2)}</span>
+                        <span style={{ fontSize: 24, marginLeft: 10 }}>{totalPriceAll} đ</span>
                     </div>
                 </div>
             </div>

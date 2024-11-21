@@ -39,9 +39,10 @@ const Header = () => {
 
   const handleLogout = () => {
     try {
+      const userId = 1;
       localStorage.removeItem("access_token");
       localStorage.removeItem("user");
-      localStorage.removeItem("userId");
+      localStorage.setItem("userId", userId);
       localStorage.removeItem("loginStatus");
       const guestCart = JSON.parse(localStorage.getItem("guestCart")) || [];
       setCartItems(guestCart);

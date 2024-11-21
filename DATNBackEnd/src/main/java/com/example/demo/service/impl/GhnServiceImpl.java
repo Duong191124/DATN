@@ -95,16 +95,16 @@ public class GhnServiceImpl implements GhnService {
 
         HttpEntity<String> entity = new HttpEntity<>(requestBody.toString(), headers);
 
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+            JsonNode rootNode = new ObjectMapper().readTree(response.getBody());
+            String messageDisplay = rootNode.path("message_display").asText();
 
-        //tackle mess to get tracking code
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode rootNode = objectMapper.readTree(response.getBody());
-        String messageDisplay = rootNode.path("message_display").asText();
-        String orderCode = messageDisplay.replace("Tạo đơn hàng thành công. Mã đơn hàng: ", "").trim();
-
-        return orderCode;
+            return messageDisplay.replace("Tạo đơn hàng thành công. Mã đơn hàng: ", "").trim();
+        } catch (Exception e) {
+            throw new RuntimeException("Giao hàng nhanh không hỗ trợ xã này");
+        }
     }
 
     @Override
@@ -169,9 +169,8 @@ public class GhnServiceImpl implements GhnService {
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
             return response.getBody();
-        } catch (HttpClientErrorException e) {
-            System.out.println("Error in API call: " + e.getResponseBodyAsString());
-            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Giao hàng nhanh không hỗ trợ xã này");
         }
     }
 

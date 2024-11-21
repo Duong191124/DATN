@@ -4,7 +4,7 @@ import './checkout.style.css';
 import Summary from './checkout.summary';
 import Payment from './checkout.payment';
 import Shipping from './checkout.shipping';
-import { createOrderForOnline, getShippingFee } from '../../service/api.service';
+import { createOrderForOnline, getCreateOrderGhn, getShippingFee } from '../../service/api.service';
 import { useCart } from '../context/cart.context';
 import { useNavigate } from 'react-router-dom';
 import { useCheckout } from '../context/checkout.context';
@@ -27,7 +27,19 @@ const steps = [
 const CheckoutStep = () => {
     const { token } = theme.useToken();
     const { cartItems, setCartItems } = useCart();
-    const { selectedCoupon, totalPrice, totalPriceAll, resetCheckoutContext, district, fromDistrict, ward, weight, serviceId, setTotalShippingFee, totalShippingFee } = useCheckout();
+    const {
+        selectedCoupon,
+        totalPriceAll,
+        resetCheckoutContext,
+        district,
+        fromDistrict,
+        ward,
+        weight,
+        serviceId,
+        setTotalShippingFee,
+        totalShippingFee,
+        addresses
+    } = useCheckout();
     const navigate = useNavigate();
     const [current, setCurrent] = useState(0);
     const userId = localStorage.getItem('userId');
@@ -48,6 +60,18 @@ const CheckoutStep = () => {
         }));
     };
 
+    const convertDataProductToOrder = (cartItemsLocal) => {
+        console.log(cartItemsLocal);
+        return cartItemsLocal.map(item => ({
+            product: {
+                name: item.productResponse.name,
+                categoryName: item.productResponse.categoryName
+            },
+            code: item.code,
+            quantity: item.quantity
+        }));
+    };
+
     useEffect(() => {
         const items = JSON.parse(localStorage.getItem(`cart_${userId}`)) || [];
         setCartItems(items);
@@ -61,6 +85,8 @@ const CheckoutStep = () => {
     const confirmOrder = async () => {
         const cartItemsLocal = cartItems;
         const orderDetailRequests = convertCartToOrderDetails(cartItemsLocal);
+        const itemsProduct = convertDataProductToOrder(cartItemsLocal);
+        console.log(itemsProduct);
 
         const orderDTO = {
             code: generateInvoiceCode(), // Mã đơn hàng
@@ -73,9 +99,21 @@ const CheckoutStep = () => {
             orderDetailRequests, // Dữ liệu sản phẩm trong đơn hàng
         };
 
+        const createOrderGhn = {
+            toDistrictId: district,
+            toWardCode: ward,
+            weight: weight,
+            paymentType: 2,
+            shipCOD: totalShippingFee,
+            customerName: addresses.name,
+            customerPhone: addresses.phoneNumber,
+            addressDetail: addresses.addressDetail,
+            customerEmail: addresses?.customer?.email,
+            itemsProduct
+        }
 
         try {
-            const res = await createOrderForOnline(
+            await createOrderForOnline(
                 orderDTO.code,
                 orderDTO.orderDate,
                 orderDTO.deliveryFee,
@@ -85,15 +123,38 @@ const CheckoutStep = () => {
                 orderDTO.moneyReceived,
                 orderDTO.orderDetailRequests
             );
+            const res = await getCreateOrderGhn(
+                createOrderGhn.toDistrictId,
+                createOrderGhn.toWardCode,
+                createOrderGhn.weight,
+                createOrderGhn.paymentType,
+                createOrderGhn.shipCOD,
+                createOrderGhn.customerName,
+                createOrderGhn.customerPhone,
+                createOrderGhn.addressDetail,
+                createOrderGhn.customerEmail,
+                createOrderGhn.itemsProduct,
+            )
             console.log(res);
+            if (res?.error) {
+                throw new Error(res.error || "Đơn hàng giao hàng thất bại");
+            }
             message.success('Đơn hàng đã được tạo thành công!');
             resetCheckoutContext();
+            localStorage.removeItem(`cart_${userId}`);
+            setCartItems([]);
+            navigate("/")
         } catch (error) {
-            message.error("Lỗi khi tạo đơn hàng: " + error.message);
+            let errorMessage = error?.response?.data?.message || "Giao hàng nhanh không hỗ trợ xã này";
+
+            // Cắt chuỗi để chỉ lấy phần từ "GHN" trở đi
+            const ghnIndex = errorMessage.indexOf("Giao");
+            if (ghnIndex !== -1) {
+                errorMessage = errorMessage.substring(ghnIndex);
+            }
+
+            message.error(errorMessage);
         }
-        localStorage.removeItem(`cart_${userId}`);
-        setCartItems([]);
-        navigate("/")
     };
 
     const handleApiGhn = async () => {
@@ -115,7 +176,15 @@ const CheckoutStep = () => {
             console.log(res);
             setTotalShippingFee(res.data.data.total);
         } catch (error) {
-            console.error(error)
+            let errorMessage = error?.response?.data?.message || "Giao hàng nhanh không hỗ trợ xã này";
+
+            // Cắt chuỗi để chỉ lấy phần từ "GHN" trở đi
+            const ghnIndex = errorMessage.indexOf("Giao");
+            if (ghnIndex !== -1) {
+                errorMessage = errorMessage.substring(ghnIndex);
+            }
+
+            message.error(errorMessage);
         }
     }
 

@@ -6,6 +6,7 @@ export const CheckoutProvider = ({ children }) => {
     const [selectedCoupon, setSelectedCoupon] = useState(null);
     const [couponDiscount, setCouponDiscount] = useState(0);
     const [totalPrice, setTotalPrice] = useState(null);
+    const [provinces, setProvinces] = useState(0);
     const [district, setDistrict] = useState(null);
     const [fromDistrict, setFromDistrict] = useState(null);
     const [ward, setWard] = useState(null);
@@ -13,6 +14,7 @@ export const CheckoutProvider = ({ children }) => {
     const [serviceId, setServiceId] = useState(0);
     const [totalShippingFee, setTotalShippingFee] = useState(0);
     const [totalPriceAll, setTotalPriceAll] = useState(0);
+    const [addresses, setAddresses] = useState([]);
 
     const resetCheckoutContext = () => {
         setSelectedCoupon(null);
@@ -22,9 +24,17 @@ export const CheckoutProvider = ({ children }) => {
         setTotalPriceAll(0);
     };
 
+    const resetGhnTotalPrice = () => {
+        setTotalShippingFee(0);
+    }
+
     return (
         <CheckoutContext.Provider
             value={{
+                provinces,
+                setProvinces,
+                addresses,
+                setAddresses,
                 district,
                 setDistrict,
                 fromDistrict,
@@ -45,7 +55,8 @@ export const CheckoutProvider = ({ children }) => {
                 setCouponDiscount,
                 totalPrice,
                 setTotalPrice,
-                resetCheckoutContext
+                resetCheckoutContext,
+                resetGhnTotalPrice
             }}
         >
             {children}
