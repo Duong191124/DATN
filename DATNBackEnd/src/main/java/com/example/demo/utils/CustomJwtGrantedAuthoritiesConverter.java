@@ -21,7 +21,7 @@ public class CustomJwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
         // Kiểm tra xem claim "huudungdz" có tồn tại hay không
         Map<String, Object> huudungdz = (Map<String, Object>) claims.get("huudungdz");
         if (huudungdz == null) {
-            // Nếu không tồn tại, trả về một danh sách quyền rỗng
+            System.out.println("huudungdz is empty");
             return Collections.emptyList();
         }
 
@@ -29,9 +29,11 @@ public class CustomJwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
         List<Map<String, Object>> authorities = (List<Map<String, Object>>) huudungdz.get("authorities");
         if (authorities == null) {
             // Nếu không có danh sách quyền, trả về danh sách quyền rỗng
+            System.out.println("authorities is empty");
             return Collections.emptyList();
         }
 
+        System.out.println("evething is not empty");
         // Chuyển đổi danh sách authorities thành danh sách GrantedAuthority
         return authorities.stream()
                 .map(authority -> (Map<String, Object>) authority.get("arg$1")) // Lấy đối tượng quyền
