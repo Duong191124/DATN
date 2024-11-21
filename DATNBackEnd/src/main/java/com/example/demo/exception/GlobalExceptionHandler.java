@@ -17,12 +17,21 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<MessageReponse> handleAllExceptions(Exception ex) {
-        MessageReponse response = MessageReponse.builder()
-                .message("An unexpected error occurred: " + ex.getMessage())
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .data(null)
-                .build();
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        if(ex.getMessage().equalsIgnoreCase("Access Denied")){
+            MessageReponse response = MessageReponse.builder()
+                    .message( "Xê ra em êyyy: " + ex.getMessage())
+                    .status(HttpStatus.FORBIDDEN.value())
+                    .data(null)
+                    .build();
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+        }else {
+            MessageReponse response = MessageReponse.builder()
+                    .message("An unexpected error occurred: " + ex.getMessage())
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .data(null)
+                    .build();
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
