@@ -111,7 +111,6 @@ public class AuthController {
             );
         }
     }
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/getInformation")
     public ResponseEntity<?> getInfoUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
