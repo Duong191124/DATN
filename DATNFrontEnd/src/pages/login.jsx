@@ -23,7 +23,6 @@ const LoginPage = () => {
                 const userInfoRes = await getUserInfo(res.data.token);
                 console.log(userInfoRes);
                 if (userInfoRes.status === 200) {
-                    localStorage.setItem("user", JSON.stringify(userInfoRes.data));
                     localStorage.setItem("userId", userInfoRes.data.data.id);
                     const userCart = JSON.parse(localStorage.getItem(`cart_${userInfoRes.data.data.id}`)) || [];
                     setCartItems(userCart);
