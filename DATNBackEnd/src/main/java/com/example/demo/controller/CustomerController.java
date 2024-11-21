@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -74,7 +75,7 @@ public class CustomerController {
             }
 
     }
-
+    @PreAuthorize("hasAuthority('UPDATE_CUSTOMER')")
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
@@ -88,6 +89,7 @@ public class CustomerController {
         );
 
     }
+    @PreAuthorize("hasAuthority('DELETE_CUSTOMER')")
     @DeleteMapping("{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Integer id)throws Exception{
         customerService.delete(id);
@@ -96,6 +98,7 @@ public class CustomerController {
                 .status(HttpStatus.OK.value())
                 .build());
     }
+
 
     @GetMapping("{id}")
     public ResponseEntity<?> getById(@PathVariable("id") Integer id)throws Exception{
@@ -107,6 +110,7 @@ public class CustomerController {
                 .build());
     }
 
+    @PreAuthorize("hasAuthority('DELETE_CUSTOMER')")
     @PutMapping("soft-delete/{id}")
     public ResponseEntity<?> softDelete(
             @PathVariable("id") Integer id) throws Exception {

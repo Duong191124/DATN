@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,7 @@ public class CollarController {
     }
 
     // Thêm một cổ áo mới
+    @PreAuthorize("hasAuthority('CREATE_COLLAR')")
     @PostMapping()
     public ResponseEntity<?> addCollar(@Valid @RequestBody CollarDTO collarDTO, BindingResult result) {
         try {
@@ -43,6 +45,7 @@ public class CollarController {
     }
 
     // Cập nhật cổ áo theo id
+    @PreAuthorize("hasAuthority('UPDATE_COLLAR')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCollar(@PathVariable Integer id, @Valid @RequestBody CollarDTO collarDTO,BindingResult result) {
         try {
@@ -58,6 +61,7 @@ public class CollarController {
     }
 
     // Lấy cổ áo theo id
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getCollarById(@PathVariable Integer id) {
         try {
@@ -69,6 +73,7 @@ public class CollarController {
     }
 
     // Xóa cổ áo theo id
+    @PreAuthorize("hasAuthority('DELETE_COLLAR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCollar(@PathVariable Integer id) {
         try {

@@ -19,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -93,7 +94,7 @@ public class ProductController {
                 .totalElement(totalElement)
                 .build());
     }
-
+    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
     @PostMapping("")
     public ResponseEntity<?> addProduct(@Valid @RequestBody ProductDTO productDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -109,6 +110,7 @@ public class ProductController {
         }
     }
 
+    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
     @PostMapping(value = "upload/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadImage(@PathVariable() int id, @ModelAttribute("file") MultipartFile file) {
         try {
@@ -122,7 +124,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-
+    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
     @PostMapping(value = "uploadForProductDetail/{productId}/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadImageForProductDetail(@PathVariable("productId") int productId,
                                                          @PathVariable("id") int productDetailId,
@@ -139,7 +141,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-
+    @PreAuthorize("hasAuthority('UPDATE_PRODUCT')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable Integer id, @Valid @RequestBody ProductDTO productDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -153,7 +155,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-
+    @PreAuthorize("hasAuthority('DELETE_PRODUCT')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable int id) {
         try {

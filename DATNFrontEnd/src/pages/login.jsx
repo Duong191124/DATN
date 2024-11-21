@@ -21,11 +21,9 @@ const LoginPage = () => {
                 localStorage.setItem("access_token", res.data.token);
 
                 const userInfoRes = await getUserInfo(res.data.token);
-                console.log(userInfoRes);
                 if (userInfoRes.status === 200) {
-                    localStorage.setItem("user", JSON.stringify(userInfoRes.data));
-                    localStorage.setItem("userId", userInfoRes.data.data.id);
-                    const userCart = JSON.parse(localStorage.getItem(`cart_${userInfoRes.data.data.id}`)) || [];
+                    localStorage.setItem("userId", userInfoRes.data.id);
+                    const userCart = JSON.parse(localStorage.getItem(`cart_${userInfoRes.data.id}`)) || [];
                     setCartItems(userCart);
                     setUser(userInfoRes.data);
                     setLoginStatus(res.status.toString());

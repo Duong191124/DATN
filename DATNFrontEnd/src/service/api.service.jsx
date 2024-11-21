@@ -1117,7 +1117,33 @@ const getShippingFee = (
   };
   return axios.post(URL_BACKEND, data);
 };
-
+const getCreateOrderGhn = (
+  toDistrictId,
+  toWardCode,
+  weight,
+  paymentType,
+  shipCOD,
+  customerName,
+  customerPhone,
+  addressDetail,
+  customerEmail,
+  items
+) => {
+  const URL_BACKEND = `/api/v1/ghn/create-order-ghn`;
+  const data = {
+    toDistrictId,
+    toWardCode,
+    weight,
+    paymentType,
+    shipCOD,
+    customerName,
+    customerPhone,
+    addressDetail,
+    customerEmail,
+    items,
+  };
+  return axios.post(URL_BACKEND, data);
+};
 const getAddressByCustomerId = (customerId) => {
   const URL_BACKEND = `/api/v1/address/${customerId}`;
   return axios.get(URL_BACKEND);
@@ -1173,6 +1199,7 @@ const deleteAddressByid = (addressId) => {
 };
 
 export {
+  getCreateOrderGhn,
   getShippingFee,
   deleteAddressByid,
   updateAddressByid,

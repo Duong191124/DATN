@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,6 @@ public class PermissionController {
 
     @Autowired
     PermissionService permissionService;
-
     @GetMapping("/getAll")
     public ResponseEntity<MessageReponse> getAllPermition(
             @RequestParam(name = "page", defaultValue = "1")int page,
@@ -46,13 +46,11 @@ public class PermissionController {
             );
         }
     }
-
     @GetMapping("/all")
     public ResponseEntity<?> getAllPermitions() {
         List<Permission> permissionList = permissionService.all();
         return ResponseEntity.ok(permissionList);
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<MessageReponse> getById(@PathVariable("id")int id){
@@ -74,7 +72,7 @@ public class PermissionController {
             );
         }
     }
-
+    @PreAuthorize("hasAuthority('CREATE_PERMISSION')")
     @PostMapping("/")
     public ResponseEntity<MessageReponse> createNew(@Validated @RequestBody Permission permission, BindingResult result){
         try {
@@ -105,7 +103,7 @@ public class PermissionController {
             );
         }
     }
-
+    @PreAuthorize("hasAuthority('DELETE_PERMISSION')")
     @DeleteMapping("/{id}")
     public ResponseEntity<MessageReponse> deleteById(@PathVariable("id")int id){
         try{
@@ -126,7 +124,7 @@ public class PermissionController {
             );
         }
     }
-
+    @PreAuthorize("hasAuthority('UPDATE_PERMISSION')")
     @PutMapping("/{id}")
     public ResponseEntity<MessageReponse> updateById(@PathVariable("id")int id, @Validated @RequestBody Permission permission, BindingResult result){
         try{

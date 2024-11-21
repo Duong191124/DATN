@@ -19,6 +19,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -29,7 +30,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.InputMismatchException;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -111,7 +111,6 @@ public class AuthController {
             );
         }
     }
-
     @GetMapping("/getInformation")
     public ResponseEntity<?> getInfoUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

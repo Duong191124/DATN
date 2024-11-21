@@ -19,6 +19,11 @@ target/
 *.iml
 *.ipr
 
+# Spring Boot application.properties or application.yml
+# Uncomment if you don't want to include local configuration files
+ /src/main/resources/application.properties
+ /src/main/resources/application.yml
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
