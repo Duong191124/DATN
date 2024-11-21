@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CartDetailController {
     private final CartDetailServiceImpl cartDetailService;
-
+    @PreAuthorize("hasAuthority('READ_CART_DETAIL')")
     @GetMapping("{customerId}")
     public ResponseEntity<MessageReponse> getAll(@PathVariable("customerId") int customerId){
         List<CartDetailResponse> cartDetailList = cartDetailService.getAll(customerId)
@@ -32,7 +33,7 @@ public class CartDetailController {
                 .data(cartDetailList)
                 .build());
     }
-
+    @PreAuthorize("hasAuthority('CREATE_CART_DETAIL')")
     @PostMapping("")
     public ResponseEntity<MessageReponse> add(
             @Valid @RequestBody CartDetailDTO cartDetailDTO,
@@ -55,7 +56,7 @@ public class CartDetailController {
                 .build());
 
     }
-
+    @PreAuthorize("hasAuthority('UPDATE_CART_DETAIL')")
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
@@ -68,7 +69,7 @@ public class CartDetailController {
                 .data(updateCartDetail)
                 .build());
     }
-
+    @PreAuthorize("hasAuthority('DELETE_CART_DETAIL')")
     @DeleteMapping("{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Integer id)throws Exception{
         cartDetailService.delete(id);
