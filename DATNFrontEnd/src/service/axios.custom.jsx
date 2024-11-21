@@ -20,7 +20,7 @@ instance.interceptors.request.use(function (config) {
 
 instance.interceptors.response.use(function (response) {
   if (response.data && response.data.data) {
-    return response.data
+    return response;
   }
   return response;
 }, function (error) {

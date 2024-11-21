@@ -115,6 +115,8 @@ const Summary = () => {
         fetchDataVoucher();
     }, []);
 
+    console.log(vouchers);
+
     return (
         <>
             <div style={{ textAlign: 'center', padding: '20px' }}>
