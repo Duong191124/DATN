@@ -2,10 +2,13 @@ package com.example.demo.controller;
 
 import com.example.demo.config.VNPayConfig;
 import com.example.demo.dto.PaymentDTO;
-import com.example.demo.entity.Orders;
-import com.example.demo.entity.Payment;
+import com.example.demo.entity.*;
+import com.example.demo.repository.OrderRepo;
+import com.example.demo.repository.PaymentRepo;
+import com.example.demo.repository.ProductDetailRepo;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.PaymentResponse;
+import com.example.demo.service.OrderService;
 import com.example.demo.service.PaymentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,14 @@ import java.util.*;
 public class PaymentController {
     @Autowired
     PaymentService paymentService;
+    @Autowired
+    OrderService orderService;
+    @Autowired
+    PaymentRepo paymentRepo;
+    @Autowired
+    OrderRepo orderRepo;
+    @Autowired
+    ProductDetailRepo productDetailRepo;
 
     @GetMapping("list")
     public ResponseEntity<?> getAllPayment(){
@@ -34,7 +45,7 @@ public class PaymentController {
         }
         return ResponseEntity.ok(new MessageReponse("success",200,paymentResponses)) ;
     }
-    @PreAuthorize("hasAuthority('CREATE_PAYMENT')")
+//    @PreAuthorize("hasAuthority('CREATE_PAYMENT')")
     @PostMapping("/add")
     public ResponseEntity<?> addPayment(@Valid @RequestBody PaymentDTO paymentDTO, BindingResult result){
         try {
@@ -90,39 +101,48 @@ public class PaymentController {
 
     @GetMapping("/payment-callback")
     public ResponseEntity<Map<String, String>> paymentCallback(@RequestParam Map<String, String> params) {
-        Integer orderId = Integer.valueOf(params.get("vnp_OrderInfo"));
+        Integer orderId = Integer.valueOf(params.get("vnp_TxnRef"));
         String vnp_SecureHash = params.get("vnp_SecureHash");
 
         String calculatedHash = generateSecureHash(params);
-
+        Orders order = orderRepo.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
         if (vnp_SecureHash.equals(calculatedHash)) {
             String paymentStatus = params.get("vnp_ResponseCode");
-
-            // Tìm Payment theo txnRef
-            // Lấy payment dựa trên orderId
-            Payment payment = paymentService.findByOrdersId(orderId);
-            if (payment != null) {
-                Orders order = payment.getOrders(); // Lấy Order từ Payment
-                if (order != null) {
                     if ("00".equals(paymentStatus)) {
                         // Cập nhật trạng thái thanh toán thành công
-//            paymentService.updatePaymentStatus(payment.getId(), PaymentStatus.SUCCESS);
+                        order.setStatus(OrderStatus.shipped);
+                        orderRepo.save(order);
+                        Payment payment = new Payment();
+                        payment.setPaymentMethod("VNP");
+                        payment.setPaymentDate(new Date());
+                        payment.setOrders(order);
+                        paymentRepo.save(payment);
                         Map<String, String> response = new HashMap<>();
                         response.put("status", "SUCCESS");
                         response.put("message", "Thanh toán thành công");
-                        response.put("orderId", order.getId().toString()); // Trả về orderId
+                        response.put("orderId", order.getCode()); // Trả về orderId
                         return ResponseEntity.ok(response);
                     } else {
-                        // Cập nhật trạng thái thanh toán thất bại
-//            paymentService.updatePaymentStatus(payment.getId(), PaymentStatus.FAILED);
+                            // Duyệt qua các chi tiết đơn hàng để cập nhật số lượng sản phẩm
+                        Iterator<OrderDetail> iterator = order.getOrderDetails().iterator();
+                        while (iterator.hasNext()) {
+                            OrderDetail orderDetail = iterator.next();
+                            ProductDetail productDetail = orderDetail.getProductDetail();
+                            int quantityOrdered = orderDetail.getQuantity();
+
+                            // Cập nhật lại số lượng sản phẩm trong kho (tăng lại số lượng)
+                            productDetail.setQuantity(productDetail.getQuantity() + quantityOrdered);
+                            productDetailRepo.save(productDetail);  // Lưu sản phẩm sau khi cập nhật
+
+                            // Xóa OrderDetail khỏi Order
+                            iterator.remove();  // Xóa OrderDetail khỏi danh sách
+                        }
+                        order.setTotalAmount(0.0);
+// Lưu lại Order sau khi đã xóa OrderDetails
+                        orderRepo.save(order);
+
                         return ResponseEntity.ok(Map.of("status", "FAILED", "message", "Thanh toán thất bại"));
                     }
-                } else {
-                    return ResponseEntity.ok(Map.of("status", "FAILED", "message", "Đơn hàng không tồn tại"));
-                }
-            } else {
-                return ResponseEntity.ok(Map.of("status", "FAILED", "message", "Thanh toán không tồn tại"));
-            }
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("status", "INVALID", "message", "Mã bảo mật không hợp lệ"));
         }

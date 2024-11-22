@@ -37,18 +37,28 @@ public class PaymentServiceIml implements PaymentService {
             if(!paymentDTO.getPaymentMethod().equalsIgnoreCase("ocd")){
                 if(paymentDTO.getPaymentMethod().equalsIgnoreCase("vnp")){
                      paymentUrl = createPaymentUrl(orders.getId(), orders.getTotalAmount().longValue());
+                    return PaymentResponse.convertPaymentResponseUrl(null, paymentUrl);
                 }
-                orders.setStatus(OrderStatus.shipped);
-                orderRepo.save(orders);
+                else {
+                    Payment payment = PaymentDTO.convertPayment(paymentDTO, orderRepo);
+                    payment.setPaymentMethod(paymentDTO.getPaymentMethod());
+                    payment.setPaymentDate(paymentDTO.getPaymentDate());
+                    payment.getOrders().setId(paymentDTO.getOrderId());
+                    paymentRepo.save(payment);
+                    orders.setStatus(OrderStatus.shipped);
+                    orderRepo.save(orders);
+                    return PaymentResponse.convertPaymentResponseUrl(payment, null);
+                }
             }
-            // Tạo URL thanh toán VNPay
+            orders.setStatus(OrderStatus.pending);
+            orderRepo.save(orders);
             paymentDTO.setOrderId(orders.getId());
             Payment payment = PaymentDTO.convertPayment(paymentDTO,orderRepo);
             payment.setPaymentMethod(paymentDTO.getPaymentMethod());
             payment.setPaymentDate(paymentDTO.getPaymentDate());
             payment.getOrders().setId(paymentDTO.getOrderId());
             paymentRepo.save(payment);
-            return PaymentResponse.convertPaymentResponseUrl(payment,paymentUrl);
+            return PaymentResponse.convertPaymentResponseUrl(payment,null);
         }catch (Exception e){
             throw new RuntimeException("not found payment"+e.getMessage());
         }
@@ -75,9 +85,8 @@ public class PaymentServiceIml implements PaymentService {
         vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
         vnp_Params.put("vnp_OrderType", orderType);
         vnp_Params.put("vnp_Locale", "vn");
-        vnp_Params.put("vnp_ReturnUrl", "http://localhost:3000/counter-sales");
+        vnp_Params.put("vnp_ReturnUrl", "http://localhost:3000/payments/payment-callback");
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
-
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         String vnp_CreateDate = formatter.format(cld.getTime());

@@ -183,7 +183,6 @@ const ProductDetailCard = ({ product, onAddToWishlist, onQuickView }) => {
     image,
     promotions,
   } = product;
-  console.log("s", size);
   const { addToCart } = useCart();
   const handleAddToCart = () => {
     const cartItem = {

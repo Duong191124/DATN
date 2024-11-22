@@ -37,6 +37,7 @@ import LandingPage from "./pages/landing.jsx";
 import { CheckoutProvider } from "./component/context/checkout.context.jsx";
 import TrackingPage from "./pages/tracking.jsx";
 import ChartPage from "./pages/chart.jsx";
+import PaymentCallback from "./component/layout/admin/vnp/payment.callback.jsx";
 import LoginFork from "./pages/login.fork.jsx";
 
 const router = createBrowserRouter([
@@ -116,12 +117,16 @@ const router = createBrowserRouter([
       {
         path: "weight",
         element: <WeightPage />,
-      }
+      },
     ],
   },
   {
     path: "/counter-sales",
     element: <CounterSales />,
+  },
+  {
+    path: "/payments/payment-callback",
+    element: <PaymentCallback />,
   },
   {
     path: "/",
