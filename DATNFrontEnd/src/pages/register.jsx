@@ -1,210 +1,278 @@
-import { Button, Input, Form, notification, DatePicker, Row, Col, Divider } from "antd";
+import { Button, Input, Form, notification, DatePicker, Row, Col, Divider, Steps } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { registerCustomerAPI } from "../service/api.service";
 import { useState } from "react";
 
-
 const RegisterPage = () => {
     const [form] = Form.useForm();
     const [usernameError, setUsernameError] = useState("");
+    const [currentStep, setCurrentStep] = useState(0);
     const navigate = useNavigate();
 
+    const containerStyle = {
+        minHeight: '100vh',
+        backgroundColor: '#f5f5f5',
+        padding: '20px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+    };
+
+    const formCardStyle = {
+        backgroundColor: '#ffffff',
+        padding: '30px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        width: '100%',
+        maxWidth: '400px'
+    };
+
+    const headerStyle = {
+        textAlign: 'center',
+        fontSize: '20px',
+        fontWeight: '600',
+        color: '#000000',
+        marginBottom: '20px',
+        textTransform: 'uppercase',
+        letterSpacing: '1px'
+    };
+
+    const inputStyle = {
+        height: '40px',
+        borderRadius: '4px',
+        border: '1px solid #d9d9d9'
+    };
+
+    const buttonStyle = {
+        height: '40px',
+        backgroundColor: '#000000',
+        borderColor: '#000000',
+        borderRadius: '4px',
+        fontSize: '14px',
+        fontWeight: '500'
+    };
+
+    const linkStyle = {
+        color: '#000000',
+        textDecoration: 'underline',
+        fontWeight: '500'
+    };
+
+    const labelStyle = {
+        color: '#000000',
+        fontWeight: '500',
+        marginBottom: '4px'
+    };
+
+    const stepsStyle = {
+        marginBottom: '24px'
+    };
+
     const onFinish = async (values) => {
-        setUsernameError(""); // Reset the username error message before new submission
-
-        try {
-            // Call the API
-            const res = await registerCustomerAPI(
-                values.username,
-                values.password,
-                values.confirm_password,
-                values.phone,
-                values.email,
-                values.dateOfBirth,
-                values.name
-            );
-
-            if (res.data) {
-                notification.success({
-                    message: "Register user",
-                    description: "Đăng ký user thành công"
-                });
-                navigate("/login");
+        if (currentStep === 0) {
+            // Validate first step
+            try {
+                await form.validateFields(['username', 'password', 'confirm_password']);
+                setCurrentStep(1);
+            } catch (error) {
+                return;
             }
-        } catch (error) {
-            if (error.response && error.response.status === 406 && error.response.data.message.includes("Username has been taken")) {
-                setUsernameError("Username has been taken");
-            } else {
-                notification.error({
-                    message: "Register user error",
-                    description: JSON.stringify(error.message)
-                });
+        } else {
+            // Submit final form
+            try {
+                const res = await registerCustomerAPI(
+                    values.username,
+                    values.password,
+                    values.confirm_password,
+                    values.phone,
+                    values.email,
+                    values.dateOfBirth
+                );
+
+                if (res.data) {
+                    notification.success({
+                        message: "Success",
+                        description: "Registration successful",
+                        style: { borderRadius: '4px' }
+                    });
+                    navigate("/login");
+                }
+            } catch (error) {
+                if (error.response && error.response.status === 406 && error.response.data.message.includes("Username has been taken")) {
+                    setUsernameError("Username has been taken");
+                    setCurrentStep(0); // Go back to first step if username is taken
+                } else {
+                    notification.error({
+                        message: "Registration Error",
+                        description: error.message,
+                        style: { borderRadius: '4px' }
+                    });
+                }
             }
         }
-    }
+    };
 
-
-
-    return (
-        <Form
-            form={form}
-            layout="vertical"
-            onFinish={onFinish}
-            style={{ margin: "30px" }}
-        >
-            <h3 style={{ textAlign: "center" }}>Đăng ký tài khoản</h3>
-            <Row justify={"center"}>
-                <Col xs={24} md={8} >
+    const steps = [
+        {
+            title: 'Account',
+            content: (
+                <>
                     <Form.Item
-                        label="Username"
+                        label={<span style={labelStyle}>Username</span>}
                         name="username"
                         validateStatus={usernameError ? "error" : ""}
-                        help={usernameError}
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input your username!',
+                                message: 'Please input your username',
                             },
                         ]}
                     >
-                        <Input />
+                        <Input style={inputStyle} />
                     </Form.Item>
-                </Col>
-            </Row>
-            <Row justify={"center"}>
-                <Col xs={24} md={8}>
+
                     <Form.Item
-                        label="Password"
+                        label={<span style={labelStyle}>Password</span>}
                         name="password"
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input your password!',
+                                message: 'Please input your password',
                             },
                         ]}
                     >
-                        <Input.Password />
+                        <Input.Password style={inputStyle} />
                     </Form.Item>
-                </Col>
-            </Row>
-            <Row justify={"center"}>
-                <Col xs={24} md={8}>
+
                     <Form.Item
-                        label="Confirm Password"
+                        label={<span style={labelStyle}>Confirm Password</span>}
                         name="confirm_password"
                         dependencies={['password']}
-                        hasFeedback={false}
-                        validateTrigger="onBlur"
                         rules={[
                             {
                                 required: true,
-                                message: 'Please confirm your password!',
+                                message: 'Please confirm your password',
                             },
                             ({ getFieldValue }) => ({
                                 validator(_, value) {
                                     if (!value || getFieldValue('password') === value) {
                                         return Promise.resolve();
                                     }
-                                    return Promise.reject(new Error('Passwords do not match!'));
+                                    return Promise.reject(new Error('Passwords do not match'));
                                 },
                             }),
                         ]}
                     >
-                        <Input.Password onBlur={() => form.validateFields(['confirm_password'])} />
+                        <Input.Password style={inputStyle} />
                     </Form.Item>
-                </Col>
-            </Row>
-            <Row justify={"center"}>
-                <Col xs={24} md={8} >
+                </>
+            ),
+        },
+        {
+            title: 'Info',
+            content: (
+                <>
                     <Form.Item
-                        label="name"
-                        name="name"
-                        validateStatus={usernameError ? "error" : ""}
-                        help={usernameError}
+                        label={<span style={labelStyle}>Phone Number</span>}
+                        name="phone"
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input your username!',
-                            },
+                                pattern: new RegExp(/\d+/g),
+                                message: "Please enter a valid phone number"
+                            }
                         ]}
                     >
-                        <Input />
+                        <Input style={inputStyle} />
                     </Form.Item>
-                </Col>
-            </Row>
-            <Row justify={"center"}>
-                <Col xs={24} md={8}>
+
                     <Form.Item
-                        label="name"
-                        name="name"
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please input your name!',
-                            },
-                        ]}
-                    >
-                        <Input />
-                    </Form.Item>
-                </Col>
-            </Row>
-            <Row justify={"center"}>
-                <Col xs={24} md={8}>
-                    <Form.Item
-                        label="Email"
+                        label={<span style={labelStyle}>Email</span>}
                         name="email"
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input your email!',
+                                message: 'Please input your email',
                             },
                             {
                                 type: "email",
-                                message: 'Email không đúng định dạng!',
+                                message: 'Please enter a valid email address',
                             },
                         ]}
                     >
-                        <Input />
+                        <Input style={inputStyle} />
                     </Form.Item>
-                </Col>
-            </Row>
-            <Row justify={"center"}>
-                <Col xs={24} md={8}>
+
                     <Form.Item
-                        label="Date of birth"
+                        label={<span style={labelStyle}>Date of Birth</span>}
                         name="dateOfBirth"
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input your date of birth!',
+                                message: 'Please input your date of birth',
                             },
                         ]}
                     >
-                        <DatePicker />
+                        <DatePicker style={inputStyle} />
                     </Form.Item>
-                </Col>
-            </Row>
+                </>
+            ),
+        },
+    ];
 
-            <Row justify={"center"}>
-                <Col xs={24} md={8}>
-                    <div style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center"
-                    }}>
+    const prev = () => {
+        setCurrentStep(currentStep - 1);
+    };
+
+    return (
+        <div style={containerStyle}>
+            <div style={formCardStyle}>
+                <h3 style={headerStyle}>Create Account</h3>
+
+                <Steps
+                    current={currentStep}
+                    items={steps.map(item => ({ title: item.title }))}
+                    style={stepsStyle}
+                    size="small"
+                />
+
+                <Form
+                    form={form}
+                    layout="vertical"
+                    onFinish={onFinish}
+                >
+                    {steps[currentStep].content}
+
+                    <div style={{ marginTop: '24px', display: 'flex', gap: '8px' }}>
+                        {currentStep > 0 && (
+                            <Button
+                                style={{ ...buttonStyle, backgroundColor: '#fff', color: '#000' }}
+                                onClick={prev}
+                            >
+                                Previous
+                            </Button>
+                        )}
                         <Button
-                            style={{ width: "100%" }}
+                            type="primary"
                             onClick={() => form.submit()}
-                            type="primary">Register</Button>
+                            style={{ ...buttonStyle, flex: 1 }}
+                        >
+                            {currentStep === steps.length - 1 ? 'Register' : 'Next'}
+                        </Button>
                     </div>
-                    <Divider />
-                    <div style={{ textAlign: "center" }}>Đã có tài khoản? <Link to={"/login"}>Đăng nhập tại đây</Link></div>
-                </Col>
-            </Row>
 
-        </Form >
+                    <Divider style={{ margin: '24px 0', borderColor: '#d9d9d9' }} />
 
-    )
-}
+                    <div style={{ textAlign: 'center', fontSize: '14px' }}>
+                        Already have an account?{' '}
+                        <Link to="/login" style={linkStyle}>
+                            Sign in here
+                        </Link>
+                    </div>
+                </Form>
+            </div>
+        </div>
+    );
+};
 
 export default RegisterPage;
