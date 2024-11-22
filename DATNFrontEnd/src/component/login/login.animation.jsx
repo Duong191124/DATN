@@ -87,6 +87,12 @@ const LoginAnimation = () => {
     // setToggle(true);
   };
 
+   const inputStyle = {
+        height: '40px',
+        borderRadius: '4px',
+        border: '1px solid #d9d9d9'
+    };
+
   const arms = [<Arm1 key="arm-1" cheat={cheat} />, <Arm2 key="arm-2" />];
   const argOb = arms.map((_, i) => ({
     transform: toggle
@@ -364,6 +370,7 @@ const LoginAnimation = () => {
                 rules={[{ required: true, message: 'Please input your username!' }]}
                 >
                             <Input
+                            style={inputStyle}
                         type="text"
                         name="username"
                         placeholder="Enter Username"
@@ -380,6 +387,7 @@ const LoginAnimation = () => {
                 rules={[{ required: true, message: 'Please input your password!' }]}
                 >
                         <Input.Password
+                        style={inputStyle}
                         type="password"
                         name="password"
                         value={password}
