@@ -37,6 +37,7 @@ import LandingPage from "./pages/landing.jsx";
 import { CheckoutProvider } from "./component/context/checkout.context.jsx";
 import TrackingPage from "./pages/tracking.jsx";
 import ChartPage from "./pages/chart.jsx";
+import LoginFork from "./pages/login.fork.jsx";
 
 const router = createBrowserRouter([
   {
@@ -171,6 +172,10 @@ const router = createBrowserRouter([
   {
     path: "/reset-password",
     element: <ResetPassword />,
+  },
+  {
+    path: "/login-fork",
+    element: <LoginFork />,
   },
   {
     path: "/checkout",
