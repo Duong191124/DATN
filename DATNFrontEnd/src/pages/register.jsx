@@ -228,7 +228,7 @@ const RegisterPage = () => {
         <div style={containerStyle}>
             <div style={formCardStyle}>
                 <h3 style={headerStyle}>Create Account</h3>
-                
+
                 <Steps
                     current={currentStep}
                     items={steps.map(item => ({ title: item.title }))}
@@ -245,7 +245,7 @@ const RegisterPage = () => {
 
                     <div style={{ marginTop: '24px', display: 'flex', gap: '8px' }}>
                         {currentStep > 0 && (
-                            <Button 
+                            <Button
                                 style={{ ...buttonStyle, backgroundColor: '#fff', color: '#000' }}
                                 onClick={prev}
                             >
@@ -262,7 +262,7 @@ const RegisterPage = () => {
                     </div>
 
                     <Divider style={{ margin: '24px 0', borderColor: '#d9d9d9' }} />
-                    
+
                     <div style={{ textAlign: 'center', fontSize: '14px' }}>
                         Already have an account?{' '}
                         <Link to="/login" style={linkStyle}>
