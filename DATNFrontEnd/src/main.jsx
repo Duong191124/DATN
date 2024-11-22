@@ -38,6 +38,7 @@ import { CheckoutProvider } from "./component/context/checkout.context.jsx";
 import TrackingPage from "./pages/tracking.jsx";
 import ChartPage from "./pages/chart.jsx";
 import PaymentCallback from "./component/layout/admin/vnp/payment.callback.jsx";
+import LoginFork from "./pages/login.fork.jsx";
 
 const router = createBrowserRouter([
   {
@@ -176,6 +177,10 @@ const router = createBrowserRouter([
   {
     path: "/reset-password",
     element: <ResetPassword />,
+  },
+  {
+    path: "/login-fork",
+    element: <LoginFork />,
   },
   {
     path: "/checkout",
