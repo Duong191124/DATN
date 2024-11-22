@@ -403,31 +403,53 @@ const LoginAnimation = () => {
                 Login
              </Button>
              <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        gap: "5px", // Khoảng cách giữa các link
-        marginTop: "20px", // Khoảng cách từ các phần tử phía trên
-      }}
+        style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "8px",
+            marginTop: "24px",
+            fontSize: "14px",
+            color: "#666"
+        }}
     >
-      <Link
-        to="/register"
-        style={{
-          color: "black", // Màu xanh nổi bật
-        }}
-      >
-        Register
-      </Link>
-      or
-      <Link
-        to="/forgot-password"
-        style={{
-          color: "black", // Màu xanh nổi bật
-        }}
-      >
-        Forgot Password
-      </Link>
+        <Link
+            to="/register"
+            style={{
+                color: "#000",
+                textDecoration: "underline",
+                textDecorationThickness: "1px",
+                textUnderlineOffset: "2px",
+                transition: "text-decoration-color 0.2s ease",
+            }}
+            onMouseEnter={e => {
+                e.target.style.textDecorationColor = "#666";
+            }}
+            onMouseLeave={e => {
+                e.target.style.textDecorationColor = "#000";
+            }}
+        >
+            Register
+        </Link>
+        <span>or</span>
+        <Link
+            to="/forgot-password"
+            style={{
+                color: "#000",
+                textDecoration: "underline",
+                textDecorationThickness: "1px",
+                textUnderlineOffset: "2px",
+                transition: "text-decoration-color 0.2s ease",
+            }}
+            onMouseEnter={e => {
+                e.target.style.textDecorationColor = "#666";
+            }}
+            onMouseLeave={e => {
+                e.target.style.textDecorationColor = "#000";
+            }}
+        >
+            Forgot Password
+        </Link>
     </div>
             </Form>
         </div>
