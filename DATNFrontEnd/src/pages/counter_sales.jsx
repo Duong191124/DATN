@@ -252,6 +252,7 @@ const CounterSales = () => {
   );
   const addToCart = useCallback(
     async (productDetailId, quantity) => {
+      debugger;
       if (!selectedBill) {
         message.warning("Vui lòng chọn hóa đơn để mua hàng!");
         return false;
@@ -264,9 +265,9 @@ const CounterSales = () => {
         productDetailId.id
       );
       if (existingItemIndex > -1) {
-        const countQuantity = (updatedItems[existingItemIndex].quantity +=
-          quantity);
-        if (countQuantity > countProductDetailId.data.data.quantity) {
+        const currentQuantity = updatedItems[existingItemIndex].quantity;
+        const newQuantity = currentQuantity + quantity;
+        if (newQuantity > countProductDetailId.data.data.quantity) {
           notification.warning({
             message: "Số lượng không đủ",
             description: `Sản phẩm trong kho không đủ.`,
@@ -275,6 +276,7 @@ const CounterSales = () => {
           });
           return false;
         }
+        updatedItems[existingItemIndex].quantity = newQuantity;
       } else {
         updatedItems.push({ ...productDetailId, quantity });
       }

@@ -31,7 +31,6 @@ const OrderPage = () => {
   // Cập nhật URL khi bộ lọc thay đổi
   const updateUrl = (newFilters) => {
     const params = new URLSearchParams();
-
     if (newFilters.staffName) params.append("staffName", newFilters.staffName);
     if (newFilters.startDate) params.append("startDate", newFilters.startDate);
     if (newFilters.endDate) params.append("endDate", newFilters.endDate);

@@ -145,22 +145,22 @@ const CounterSalesProductDetail = ({
     setSelectedRow(record);
     if (!selectedBill) {
       message.warning({
-        message: "Lỗi",
+        message: "Hóa đơn",
         description: "Vui lòng chọn hóa đơn trước khi thêm sản phẩm.",
       });
       return;
     }
+    debugger;
     if (record) {
       const productToAdd = {
         ...record,
       };
       const addCart = await onAddToCart(productToAdd, quantity);
       if (addCart) {
-        message.success(`Thêm ${quantity} sản phẩm thành công`);
-      } else {
-        notification.error({
-          message: "Lỗi",
-          description: "Không thể thêm sản phẩm vào giỏ.",
+        notification.success({
+          message: "Số lượng",
+          description: `Thêm ${quantity} sản phẩm thành công`,
+          duration: 1,
         });
       }
     } else {

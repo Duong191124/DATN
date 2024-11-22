@@ -45,7 +45,7 @@ public class PaymentController {
         }
         return ResponseEntity.ok(new MessageReponse("success",200,paymentResponses)) ;
     }
-    @PreAuthorize("hasAuthority('CREATE_PAYMENT')")
+//    @PreAuthorize("hasAuthority('CREATE_PAYMENT')")
     @PostMapping("/add")
     public ResponseEntity<?> addPayment(@Valid @RequestBody PaymentDTO paymentDTO, BindingResult result){
         try {

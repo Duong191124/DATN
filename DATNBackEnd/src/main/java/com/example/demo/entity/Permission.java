@@ -18,4 +18,5 @@ public class Permission {
     @Basic
     @Column(name = "name", nullable = false, length = 255)
     private String name;
+
 }

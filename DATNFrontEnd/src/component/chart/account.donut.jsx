@@ -1,26 +1,35 @@
 import React, { useEffect, useState } from "react";
 import ApexCharts from "apexcharts";
-
-// Hàm tạo dữ liệu ngẫu nhiên
-const generateFakeData = (numPoints, min, max) => {
-  return Array.from(
-    { length: numPoints },
-    () => Math.floor(Math.random() * (max - min + 1)) + min
-  );
-};
+import { accountStatistics } from "../../service/api.service";
 
 const AccountStats = () => {
-  useEffect(() => {
-    // Tạo dữ liệu fake cho các nhóm tài khoản
-    const fakeAccountData = generateFakeData(5, 10, 60); // 5 nhóm, giá trị từ 10 đến 60
+  const [dataAccount, setDataAccount] = useState(null);
 
+  const getAccountStatistics = async () => {
+    const response = await accountStatistics();
+    if (response?.data) {
+      setDataAccount(response.data);
+    }
+  };
+
+  useEffect(() => {
+    getAccountStatistics();
+  }, []);
+
+  useEffect(() => {
+    if (!dataAccount) return;
+
+    // Dữ liệu từ API
+    const { adminCount, managerCount, normalEmployeeCount, customer } =
+      dataAccount;
+    // Chuẩn bị dữ liệu cho ApexCharts
     const options = {
-      series: fakeAccountData, // Dữ liệu fake
+      series: [adminCount, managerCount, normalEmployeeCount, customer],
       chart: {
         type: "donut",
         height: 350,
       },
-      labels: ["Admin", "User", "Guest", "Moderator", "Others"], // Tên các nhóm tài khoản
+      labels: ["Admin", "Manager", "Employee", "Customer"],
       responsive: [
         {
           breakpoint: 480,
@@ -43,17 +52,18 @@ const AccountStats = () => {
       },
     };
 
+    // Tạo biểu đồ với ApexCharts
     const chart = new ApexCharts(
       document.querySelector("#account-chart"),
       options
     );
     chart.render();
 
-    // Cleanup chart on component unmount
+    // Dọn dẹp khi unmount component
     return () => {
       chart.destroy();
     };
-  }, []);
+  }, [dataAccount]); // Re-render khi `dataAccount` thay đổi
 
   return (
     <div>

@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface StaffRepo extends JpaRepository<Staff, Integer> {
@@ -24,5 +24,15 @@ public interface StaffRepo extends JpaRepository<Staff, Integer> {
     public boolean existsByEmail(String email);
     public Staff findByUsername(String username);
     public Staff findByEmail(String email);
+
+    @Query(value = "SELECT " +
+            "SUM(CASE WHEN p.id = 1 THEN 1 ELSE 0 END) AS adminCount, " +
+            "SUM(CASE WHEN p.id = 2 THEN 1 ELSE 0 END) AS managerCount, " +
+            "COUNT(s.id) - COUNT(p.id) AS normalEmployeeCount " +
+            "FROM staff s " +
+            "LEFT JOIN staff_permission sp ON s.id = sp.staff_id " +
+            "LEFT JOIN permission p ON sp.permission_id = p.id",
+            nativeQuery = true)
+    List<Object[]> getStaffStatistics();
 
 }
