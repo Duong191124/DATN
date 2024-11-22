@@ -121,9 +121,6 @@ public class AuthController {
             currentPrincipalName = authentication.getName();
         }
 
-        // In ra để kiểm tra giá trị của currentPrincipalName
-        System.out.println("Current principal name: " + currentPrincipalName);
-
         if (currentPrincipalName != null && !currentPrincipalName.isEmpty() && customerRepo.existsByUsername(currentPrincipalName)) {
             // Nếu người dùng đã đăng nhập là khách hàng
             Customer customer = customerRepo.findByUsername(currentPrincipalName);

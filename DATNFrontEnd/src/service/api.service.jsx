@@ -6,7 +6,8 @@ const registerCustomerAPI = (
   confirm_password,
   phone,
   email,
-  dateOfBirth
+  dateOfBirth,
+  name
 ) => {
   const URL_BACKEND = "/api/v1/customer/register";
   const data = {
@@ -16,6 +17,7 @@ const registerCustomerAPI = (
     phone: phone,
     email: email,
     dateOfBirth: dateOfBirth,
+    name: name
   };
   return axios.post(URL_BACKEND, data);
 };

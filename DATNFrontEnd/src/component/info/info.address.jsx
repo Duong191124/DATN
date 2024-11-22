@@ -225,7 +225,7 @@ const InfoAddress = ({ user }) => {
             {/* Address Modal Component */}
             <AddressModal
                 setIsModalVisible={setIsModalVisible}
-                userID={user.data.id}
+                userID={user.id}
                 isModalVisible={isModalVisible}
                 handleCancel={handleCancel}
                 handleSubmit={handleSubmit}

@@ -85,7 +85,7 @@ const InfoPanel = ({ user }) => {
 
     const fetchUserInfo = async () => {
         try {
-            const res = await getCustomerById(user.data.id);
+            const res = await getCustomerById(user.id);
             const userData = res.data.data;
             // Map API response to form fields
             form.setFieldsValue({
@@ -108,7 +108,7 @@ const InfoPanel = ({ user }) => {
         setLoading(true);
         try {
             await updateCustomerInfo(
-                user.data.id,
+                user.id,
                 values.email,
                 values.address,
                 values.phone,

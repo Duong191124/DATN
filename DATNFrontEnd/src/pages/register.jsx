@@ -20,7 +20,8 @@ const RegisterPage = () => {
                 values.confirm_password,
                 values.phone,
                 values.email,
-                values.dateOfBirth
+                values.dateOfBirth,
+                values.name
             );
 
             if (res.data) {
@@ -114,16 +115,33 @@ const RegisterPage = () => {
                 </Col>
             </Row>
             <Row justify={"center"}>
-                <Col xs={24} md={8}>
+                <Col xs={24} md={8} >
                     <Form.Item
-                        label="Phone number"
-                        name="phone"
+                        label="name"
+                        name="name"
+                        validateStatus={usernameError ? "error" : ""}
+                        help={usernameError}
                         rules={[
                             {
                                 required: true,
-                                pattern: new RegExp(/\d+/g),
-                                message: "Wrong format!"
-                            }
+                                message: 'Please input your username!',
+                            },
+                        ]}
+                    >
+                        <Input />
+                    </Form.Item>
+                </Col>
+            </Row>
+            <Row justify={"center"}>
+                <Col xs={24} md={8}>
+                    <Form.Item
+                        label="name"
+                        name="name"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please input your name!',
+                            },
                         ]}
                     >
                         <Input />
