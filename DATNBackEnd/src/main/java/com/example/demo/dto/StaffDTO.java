@@ -2,6 +2,7 @@ package com.example.demo.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.util.Date;
@@ -12,13 +13,15 @@ import java.util.Date;
 @Getter
 @Setter
 public class StaffDTO {
+    @NotBlank(message = "username not be blank")
     private String username;
-
+    @NotBlank(message = "password not be blank")
     private String password;
+    @NotBlank
     private String email;
 
     private String address;
-
+    @NotBlank(message = "phoneNumber not be blank")
     private String phoneNumber;
 
     private int status;

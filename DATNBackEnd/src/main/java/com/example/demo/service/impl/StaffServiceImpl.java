@@ -41,7 +41,7 @@ public class StaffServiceImpl implements StaffService {
         if(customerRepo.existsByUsername(staff.getUsername()) || staffRepo.existsByUsername(staff.getUsername())){
             throw new UsernameExisting();
         }
-        if(customerRepo.existsByEmail(staff.getUsername()) || staffRepo.existsByEmail(staff.getUsername())){
+        if(customerRepo.existsByEmail(staff.getEmail()) || staffRepo.existsByEmail(staff.getEmail())){
             throw new EmailExisting();
         }
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
