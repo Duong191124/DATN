@@ -86,8 +86,10 @@ const RegisterPage = () => {
                     values.confirm_password,
                     values.phone,
                     values.email,
-                    values.dateOfBirth
+                    values.dateOfBirth,
+                    values.name
                 );
+                console.log(res);
 
                 if (res.data) {
                     notification.success({
@@ -197,6 +199,19 @@ const RegisterPage = () => {
                             {
                                 type: "email",
                                 message: 'Please enter a valid email address',
+                            },
+                        ]}
+                    >
+                        <Input style={inputStyle} />
+                    </Form.Item>
+
+                    <Form.Item
+                        label={<span style={labelStyle}>Name</span>}
+                        name="name"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please input your name',
                             },
                         ]}
                     >

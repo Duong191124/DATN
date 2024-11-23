@@ -18,6 +18,7 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
 
     const defaultOption = { ProvinceID: '', DistrictID: '', WardCode: '', ProvinceName: t('MES-024'), DistrictName: t('MES-027'), WardName: t('MES-030') };
 
+    // Fetch provinces on component mount
     useEffect(() => {
         const fetchProvinces = async () => {
             const res = await getProvinces();
@@ -31,6 +32,7 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
         i18n.changeLanguage(language);
     }, [i18n, language]);
 
+    // Pre-fill form if editingAddress is provided
     useEffect(() => {
         if (editingAddress) {
             const { name, phoneNumber, city, district, ward, addressDetail } = editingAddress;
@@ -48,6 +50,7 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
         }
     }, [editingAddress, form]);
 
+    // Fetch districts when province is selected
     useEffect(() => {
         if (selectedProvince && selectedProvince !== defaultOption.ProvinceID) {
             const fetchDistricts = async () => {
@@ -61,6 +64,7 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
         }
     }, [selectedProvince]);
 
+    // Fetch wards when district is selected
     useEffect(() => {
         if (selectedDistrict && selectedDistrict !== defaultOption.DistrictID) {
             const fetchWards = async () => {
@@ -73,8 +77,8 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
         }
     }, [selectedDistrict]);
 
+    // Handle form submission
     const onFormSubmit = async (values) => {
-        console.log(editingAddress);
         if (editingAddress) {
             try {
                 await updateAddressByid(
@@ -87,10 +91,10 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                     values.address,
                 );
                 setIsModalVisible(false);
-                message.success("update success")
+                message.success("Update successful");
                 getAddressByid();
             } catch (error) {
-                message.error("check error: ", error);
+                message.error("Error: ", error);
             }
         } else {
             try {
@@ -104,13 +108,12 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                     values.address,
                 );
                 setIsModalVisible(false);
-                message.success("create success");
+                message.success("Address saved successfully");
                 getAddressByid();
             } catch (error) {
-                message.error("check error: ", error);
+                message.error("Error: ", error);
             }
         }
-
     };
 
     return (

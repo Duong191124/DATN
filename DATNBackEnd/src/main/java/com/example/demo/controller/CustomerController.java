@@ -66,12 +66,6 @@ public class CustomerController {
                         .data(newCustomer)
                         .build()
                 );
-            }catch (Exception e){
-                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(MessageReponse.builder()
-                                .data(null)
-                                .message("Username has been taken")
-                                .status(HttpStatus.NOT_ACCEPTABLE.value())
-                        .build());
             }
 
     }
