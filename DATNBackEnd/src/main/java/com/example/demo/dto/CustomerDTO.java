@@ -1,6 +1,8 @@
 package com.example.demo.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -21,15 +23,14 @@ public class CustomerDTO {
     @NotBlank(message = "email not be blank")
     private String email;
 
-    private String address;
     @NotBlank(message = "phoneNumber not be blank")
     private String phoneNumber;
-
+    private String name;
+    private LocalDateTime dateOfBirth;
+    private String address;
     private int status;
 
-    private LocalDateTime dateOfBirth;
 
-    private String name;
 
     private String notes;
 

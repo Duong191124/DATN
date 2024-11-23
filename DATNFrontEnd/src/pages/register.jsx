@@ -2,6 +2,7 @@ import { Button, Input, Form, notification, DatePicker, Steps, Divider } from "a
 import { Link, useNavigate } from "react-router-dom";
 import { registerCustomerAPI } from "../service/api.service";
 import { useEffect, useState } from "react";
+import moment from "moment/moment";
 
 const RegisterPage = () => {
     const [form] = Form.useForm();
@@ -73,9 +74,10 @@ const RegisterPage = () => {
         const mergedData = {
             ...formData,
             ...values,
-            dateOfBirth: values.dateOfBirth ? values.dateOfBirth.format("DD-MM-YYYY") : null,
+            dateOfBirth: values.dateOfBirth
+                ? moment(values.dateOfBirth).format("YYYY-MM-DDTHH:mm:ss") // Định dạng đúng yêu cầu backend
+                : null,
         };
-
 
         if (currentStep === 0) {
             try {
@@ -87,20 +89,29 @@ const RegisterPage = () => {
             }
         } else {
             try {
-                const res = await registerCustomerAPI(
-                    formData.username,
-                    formData.password,
-                    formData.confirm_password,
-                    formData.phoneNumber,
-                    formData.email,
-                    formData.dateOfBirth,
-                    formData.name
-                );
-                console.log("API Response: ", res);  // Console ra phản hồi API
-                console.log("Full data:", mergedData);
+                // Transform the payload keys here
+                const apiPayload = {
+                    username: mergedData.username,
+                    password: mergedData.password,
+                    confirm_password: mergedData.confirm_password,
+                    phoneNumber: mergedData.phoneNumber, // Không đổi
+                    email: mergedData.email,
+                    dateOfBirth: mergedData.dateOfBirth,
+                    name: mergedData.name || "",
+                };
 
+                const res = await registerCustomerAPI(apiPayload);
+                console.log("API Response: ", res);
+                console.log("Payload Sent:", apiPayload);
+
+                notification.success({
+                    message: "Registration Successful",
+                    description: "Your account has been successfully created.",
+                    style: { borderRadius: '4px' },
+                });
+
+                navigate('/login-fork'); // Redirect to login page upon success
             } catch (error) {
-
                 notification.error({
                     message: "Registration Error",
                     description: error.message,
@@ -253,7 +264,7 @@ const RegisterPage = () => {
                             },
                         ]}
                     >
-                        <DatePicker style={inputStyle} />
+                        <DatePicker format="YYYY-MM-DDTHH:mm:ss" style={inputStyle} />
                     </Form.Item>
                 </>
             ),
