@@ -59,15 +59,16 @@ public class CustomerController {
                     .build()
             );
         }
-                CustomerResponse newCustomer =customerService.add(customer);
-                noticeService.create(new Notice(null,"New customer hihi", "new customer just register account", "/admin/customer", 0));
-                return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
-                        .message("them thanh cong")
-                        .status(HttpStatus.OK.value())
-                        .data(newCustomer)
-                        .build()
-                );
-            }
+        CustomerResponse newCustomer =customerService.add(customer);
+        noticeService.create(new Notice(null,"New customer hihi", "new customer just register account", "/admin/customer", 0));
+        return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
+                .message("them thanh cong")
+                .status(HttpStatus.OK.value())
+                .data(newCustomer)
+                .build()
+        );
+
+
     }
     @PreAuthorize("hasAuthority('UPDATE_CUSTOMER')")
     @PutMapping("{id}")
