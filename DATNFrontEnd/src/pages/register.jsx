@@ -1,4 +1,4 @@
-import { Button, Input, Form, notification, DatePicker, Row, Col, Divider, Steps } from "antd";
+import { Button, Input, Form, notification, DatePicker, Steps, Divider } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { registerCustomerAPI } from "../service/api.service";
 import { useEffect, useState } from "react";
@@ -7,7 +7,7 @@ const RegisterPage = () => {
     const [form] = Form.useForm();
     const [usernameError, setUsernameError] = useState("");
     const [currentStep, setCurrentStep] = useState(0);
-    const [formData, setFormData] = useState({}); // Lưu trữ giá trị form
+    const [formData, setFormData] = useState({});
     const navigate = useNavigate();
 
     const containerStyle = {
@@ -16,7 +16,7 @@ const RegisterPage = () => {
         padding: '20px',
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
     };
 
     const formCardStyle = {
@@ -25,7 +25,7 @@ const RegisterPage = () => {
         borderRadius: '8px',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         width: '100%',
-        maxWidth: '400px'
+        maxWidth: '400px',
     };
 
     const headerStyle = {
@@ -35,13 +35,13 @@ const RegisterPage = () => {
         color: '#000000',
         marginBottom: '20px',
         textTransform: 'uppercase',
-        letterSpacing: '1px'
+        letterSpacing: '1px',
     };
 
     const inputStyle = {
         height: '40px',
         borderRadius: '4px',
-        border: '1px solid #d9d9d9'
+        border: '1px solid #d9d9d9',
     };
 
     const buttonStyle = {
@@ -50,36 +50,37 @@ const RegisterPage = () => {
         borderColor: '#000000',
         borderRadius: '4px',
         fontSize: '14px',
-        fontWeight: '500'
+        fontWeight: '500',
     };
 
     const linkStyle = {
         color: '#000000',
         textDecoration: 'underline',
-        fontWeight: '500'
+        fontWeight: '500',
     };
 
     const labelStyle = {
         color: '#000000',
         fontWeight: '500',
-        marginBottom: '4px'
+        marginBottom: '4px',
     };
 
     const stepsStyle = {
-        marginBottom: '24px'
+        marginBottom: '24px',
     };
 
     const onFinish = async (values) => {
+        const mergedData = {
+            ...formData,
+            ...values,
+            dateOfBirth: values.dateOfBirth ? values.dateOfBirth.format("DD-MM-YYYY") : null,
+        };
 
-        // Lưu dữ liệu vào state formData khi hoàn thành bước
-        setFormData({ ...formData, ...values });
-
-        console.log(formData);
 
         if (currentStep === 0) {
-            // Validate first step
             try {
                 await form.validateFields(['username', 'password', 'confirm_password']);
+                setFormData(mergedData);
                 setCurrentStep(1);
             } catch (error) {
                 return;
@@ -96,26 +97,15 @@ const RegisterPage = () => {
                     formData.name
                 );
                 console.log("API Response: ", res);  // Console ra phản hồi API
+                console.log("Full data:", mergedData);
 
-                if (res.data) {
-                    notification.success({
-                        message: "Success",
-                        description: "Registration successful",
-                        style: { borderRadius: '4px' }
-                    });
-                    navigate("/login");
-                }
             } catch (error) {
-                if (error.response && error.response.status === 406 && error.response.data.message.includes("Username has been taken")) {
-                    setUsernameError("Username has been taken");
-                    setCurrentStep(0); // Go back to first step if username is taken
-                } else {
-                    notification.error({
-                        message: "Registration Error",
-                        description: error.message,
-                        style: { borderRadius: '4px' }
-                    });
-                }
+
+                notification.error({
+                    message: "Registration Error",
+                    description: error.message,
+                    style: { borderRadius: '4px' },
+                });
             }
         }
     };
@@ -135,6 +125,10 @@ const RegisterPage = () => {
                                 required: true,
                                 message: 'Please input your username',
                             },
+                            {
+                                min: 6,
+                                message: 'Username must be at least 6 characters',
+                            },
                         ]}
                     >
                         <Input style={inputStyle} />
@@ -148,6 +142,14 @@ const RegisterPage = () => {
                             {
                                 required: true,
                                 message: 'Please input your password',
+                            },
+                            {
+                                min: 6,
+                                message: 'Password must be at least 6 characters',
+                            },
+                            {
+                                pattern: /^(?=.*[a-zA-Z])(?=.*\d).{6,}$/,
+                                message: 'Password must include at least one letter and one number',
                             },
                         ]}
                     >
@@ -190,9 +192,12 @@ const RegisterPage = () => {
                         rules={[
                             {
                                 required: true,
-                                pattern: new RegExp(/\d+/g),
-                                message: "Please enter a valid phone number"
-                            }
+                                message: 'Please enter your phone number',
+                            },
+                            {
+                                pattern: /^(0|\+84)[3-9]\d{8}$/,
+                                message: 'Please enter a valid Vietnamese phone number',
+                            },
                         ]}
                     >
                         <Input style={inputStyle} />
@@ -205,10 +210,7 @@ const RegisterPage = () => {
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input your email',
-                            },
-                            {
-                                type: "email",
+                                type: 'email',
                                 message: 'Please enter a valid email address',
                             },
                         ]}
@@ -237,7 +239,17 @@ const RegisterPage = () => {
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input your date of birth',
+                                message: 'Please select your date of birth',
+                            },
+                            {
+                                validator(_, value) {
+                                    const now = new Date();
+                                    const minAgeDate = new Date(now.getFullYear() - 16, now.getMonth(), now.getDate());
+                                    if (value && value.toDate() > minAgeDate) {
+                                        return Promise.reject(new Error('You must be at least 16 years old'));
+                                    }
+                                    return Promise.resolve();
+                                },
                             },
                         ]}
                     >
@@ -259,7 +271,7 @@ const RegisterPage = () => {
 
                 <Steps
                     current={currentStep}
-                    items={steps.map(item => ({ title: item.title }))}
+                    items={steps.map((item) => ({ title: item.title }))}
                     style={stepsStyle}
                     size="small"
                 />
