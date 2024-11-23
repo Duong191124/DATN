@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -66,6 +67,7 @@ public class StaffController {
 
     @PostMapping("/register")
     public ResponseEntity<MessageReponse> createStaff(
+            @Validated
             @RequestBody StaffDTO staffDTO,
             BindingResult result
     ){
@@ -80,7 +82,6 @@ public class StaffController {
                     .build()
             );
         }
-        try{
             Staff newStaff = staffService.save(staffDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
                     .message("register successfully")
@@ -88,13 +89,7 @@ public class StaffController {
                     .data(newStaff)
                     .build()
             );
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(MessageReponse.builder()
-                    .data(null)
-                    .message(e.getMessage())
-                    .status(HttpStatus.NOT_ACCEPTABLE.value())
-                    .build());
-        }
+
 
     }
     @PreAuthorize("hasAuthority('UPDATE_STAFF')")

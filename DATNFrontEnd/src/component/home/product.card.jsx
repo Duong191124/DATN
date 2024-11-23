@@ -13,6 +13,7 @@ import { useCart } from "../context/cart.context";
 import { findByProductId } from "../../service/api.service";
 const { Text } = Typography;
 import "../layout/content/san-pham/product.detail.page.css";
+import { data } from "framer-motion/client";
 
 const ProductCardWrapper = styled(motion.div)`
   position: relative;
@@ -194,17 +195,81 @@ const ProductCard = ({
   const [availableColors, setAvailableColors] = useState([]);
   const [availableSizes, setAvailableSizes] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false); // Trạng thái modal
+  const [colorError, setColorError] = useState(false);
+  const [sizeError, setSizeError] = useState(false);
   const { addToCart } = useCart();
 
   const min = (minPrice || 0).toLocaleString("vi-VN", {
     style: "currency",
     currency: "VND",
   });
+  const handleColorChange = (colorName) => {
+    const newColor = selectedColor === colorName ? null : colorName;
+    setSelectedColor(newColor);
+    if (newColor) {
+      setColorError(false);
+      const sizesForColor = details
+        .filter((item) => item.color.name === colorName)
+        .map((item) => item.size.name);
+      setAvailableSizes(sizesForColor);
+      const selectedProduct = details.find(
+        (item) => item.color.name === newColor
+      );
+      setProductNew(selectedProduct || {});
+      if (
+        !sizesForColor.includes(selectedSize) ||
+        selectedColor === undefined
+      ) {
+        setSelectedSize(""); // Reset size
+      }
+    } else {
+      // Khi bỏ chọn size, hiển thị tất cả các màu có sẵn
+      const allSize = details.map((item) => item.size.name);
+      setAvailableSizes([...new Set(allSize)]); // Cập nhật lại danh sách tất cả các màu có sẵn
+    }
+  };
+
+  const handleSizeChange = (sizeName) => {
+    const newSize = selectedSize === sizeName ? null : sizeName;
+    setSelectedSize(newSize);
+
+    if (newSize) {
+      setSizeError(false);
+      // Khi chọn size, chỉ lọc các màu có sẵn cho size này
+      const colorsForSize = details
+        .filter((item) => item.size.name === sizeName)
+        .map((item) => item.color.name);
+      setAvailableColors(colorsForSize);
+
+      // Nếu màu đã chọn không có trong danh sách màu cho size này, reset màu đã chọn
+      if (!colorsForSize.includes(selectedColor)) {
+        setSelectedColor(""); // Reset màu
+      }
+    } else {
+      // Khi bỏ chọn size, hiển thị tất cả các màu có sẵn
+      const allColors = details.map((item) => item.color.name);
+      setAvailableColors([...new Set(allColors)]); // Cập nhật lại danh sách tất cả các màu có sẵn
+    }
+  };
+
   const handleAddToCart = () => {
-    if (!selectedSize || !selectedColor) {
-      alert("Please select size and color");
+    let hasError = false;
+    if (!selectedColor) {
+      setColorError(true);
+      hasError = true;
+    } else {
+      setColorError(false);
+    }
+    if (!selectedSize) {
+      setSizeError(true);
+      hasError = true;
+    } else {
+      setSizeError(false);
+    }
+    if (hasError) {
       return;
     }
+
     const cartItem = {
       ...productNew,
       size: selectedSize,
@@ -230,9 +295,7 @@ const ProductCard = ({
     setIsModalVisible(true);
     fetchProductFindById(products);
   };
-  useEffect(() => {
-    fetchProductFindById(products);
-  }, [products, selectedColor]);
+
   return (
     <ProductCardWrapper variants={itemVariants}>
       <StockBadge inStock={totalQuantity > 0}>
@@ -301,19 +364,19 @@ const ProductCard = ({
                               ? "disabled-size"
                               : ""
                           }`}
-                          onClick={() => setSelectedSize(size.name)}
-                          style={{
-                            display: availableSizes.includes(size.name)
-                              ? "inline-block"
-                              : "none",
-                          }}
+                          onClick={() => handleSizeChange(size.name)}
+                          disabled={!availableSizes.includes(size.name)}
                         >
                           {size.name}
                         </button>
                       ))}
                   </div>
                 </div>
-
+                {sizeError && (
+                  <p style={{ color: "red", marginTop: "8px" }}>
+                    Vui lòng chọn size!
+                  </p>
+                )}
                 <div className="select-color" style={{ flexWrap: "wrap" }}>
                   <label>Color:</label>
                   <div className="color-options" style={{ flexWrap: "wrap" }}>
@@ -329,19 +392,19 @@ const ProductCard = ({
                               ? "disabled-color"
                               : ""
                           }`}
-                          onClick={() => setSelectedColor(color.name)}
-                          style={{
-                            display: availableColors.includes(color.name)
-                              ? "inline-block"
-                              : "none",
-                          }}
+                          onClick={() => handleColorChange(color.name)}
+                          disabled={!availableColors.includes(color.name)}
                         >
                           {color.name}
                         </button>
                       ))}
                   </div>
                 </div>
-
+                {colorError && (
+                  <p style={{ color: "red", marginTop: "8px" }}>
+                    Vui lòng chọn màu!
+                  </p>
+                )}
                 <div className="quantity">
                   <button
                     className="quantity-btn"

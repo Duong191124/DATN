@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -290,13 +291,17 @@ public class OrderServiceImpl implements OrderService {
         // Kiểm tra nếu trạng thái là "hủy"
         if (orderStatus == OrderStatus.cancelled) {
             // Duyệt qua các chi tiết đơn hàng để cập nhật số lượng sản phẩm
-            for (OrderDetail orderDetail : orders.getOrderDetails()) {
+            Iterator<OrderDetail> iterator = orders.getOrderDetails().iterator();
+            while (iterator.hasNext()) {
+                OrderDetail orderDetail = iterator.next();
                 ProductDetail productDetail = orderDetail.getProductDetail();
                 int quantityOrdered = orderDetail.getQuantity();
 
                 // Cập nhật lại số lượng sản phẩm trong kho (tăng lại số lượng)
                 productDetail.setQuantity(productDetail.getQuantity() + quantityOrdered);
-                productDetailRepo.save(productDetail); // Lưu sản phẩm sau khi cập nhật
+                productDetailRepo.save(productDetail);  // Lưu sản phẩm sau khi cập nhật
+                // Xóa OrderDetail khỏi Order
+                iterator.remove();  // Xóa OrderDetail khỏi danh sách
             }
         }
         // Cập nhật trạng thái đơn hàng
@@ -343,11 +348,13 @@ public class OrderServiceImpl implements OrderService {
         Customer customer = customerRepo.findById(order.getCustomer().getId())
                 .orElseThrow(() -> new RuntimeException("Not found customer with id: " + order.getCustomer().getId()));
 
-        // Xử lý chi tiết sản phẩm (orderDetailRequests)
-        List<OrderDetail> orderDetailsToSave = new ArrayList<>();
-        Double totalAmount = orderUpdateRequest.getTotal();  // Sử dụng BigDecimal cho tổng số tiền
+        // Nếu là thanh toán qua VNPay, không cho phép cập nhật bất kỳ thông tin nào
 
-        // Xử lý từng chi tiết sản phẩm trong yêu cầu
+        // Nếu không phải VNPay, thực hiện các cập nhật như bình thường
+        List<OrderDetail> orderDetailsToSave = new ArrayList<>();
+        Double totalAmount = orderUpdateRequest.getTotal();
+
+        // Xử lý chi tiết sản phẩm trong yêu cầu
         for (OrderDetailRequest detailRequest : orderUpdateRequest.getOrderDetailRequests()) {
             ProductDetail productDetail = productDetailRepo.findById(detailRequest.getProductDetailId())
                     .orElseThrow(() -> new RuntimeException("Product detail not found"));
@@ -357,10 +364,10 @@ public class OrderServiceImpl implements OrderService {
                 throw new RuntimeException("Insufficient quantity for product detail ID " + detailRequest.getProductDetailId());
             }
 
-            // Cập nhật số lượng sản phẩm
+            // Giảm số lượng sản phẩm khi không phải VNPay
             productDetail.setQuantity(productDetail.getQuantity() - detailRequest.getQuantity());
             if (productDetail.getQuantity() == 0) {
-                productDetail.setStatus(0);
+                productDetail.setStatus(0);  // Đánh dấu sản phẩm hết hàng
             }
             productDetailRepo.save(productDetail);
 
@@ -375,7 +382,7 @@ public class OrderServiceImpl implements OrderService {
             BigDecimal priceToUse = (discountPriceBigDecimal.compareTo(BigDecimal.ZERO) > 0)
                     ? discountPriceBigDecimal // Giữ nguyên BigDecimal nếu có giá giảm
                     : BigDecimal.valueOf(productDetail.getDefaultPrice());
-            // Nếu không có giá giảm, sử dụng giá mặc định và giữ nguyên BigDecimal
+
             orderDetail.setPrice(priceToUse.doubleValue());  // Chuyển đổi BigDecimal thành Double khi lưu vào OrderDetail
             orderDetail.setQuantity(detailRequest.getQuantity());
 
@@ -411,8 +418,8 @@ public class OrderServiceImpl implements OrderService {
             customer.getVouchers().add(voucher);
             customerRepo.save(customer);
         }
+            order.setTotalAmount(totalAmount);
 
-        order.setTotalAmount(totalAmount);
         orderRepo.save(order);
 
         // Trả về phản hồi đơn hàng đã cập nhật

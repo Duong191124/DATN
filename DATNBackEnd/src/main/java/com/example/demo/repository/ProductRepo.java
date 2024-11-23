@@ -1,6 +1,10 @@
 package com.example.demo.repository;
 
+import com.example.demo.dto.TopSellingProductDTO;
 import com.example.demo.entity.Product;
+import com.example.demo.response.TopSellingProductsAttributesResponse;
+import com.example.demo.response.TotalQuantityProductStatisticsResponse;
+import com.example.demo.response.TotalQuantityProductsAttributeResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -47,4 +51,64 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     List<Product> findBySleeveId(Integer sleeveId);
 
     List<Product> findByCategoryId(Integer categoryId);
+
+    @Query("SELECT new com.example.demo.dto.TopSellingProductDTO(" +
+            "p.code, " +
+            "p.name, " +
+            "SUM(od.quantity)) " +
+            "FROM Product p " +
+            "JOIN ProductDetail pd on pd.product.id = p.id " +
+            "JOIN OrderDetail od on od.productDetail.id = pd.id " +
+            "JOIN od.orders o " +
+            "WHERE " +
+            "(:day IS NULL OR FUNCTION('DAY', o.orderDate) = :day) " +
+            "AND (:month IS NULL OR FUNCTION('MONTH', o.orderDate) = :month) " +
+            "AND (:year IS NULL OR FUNCTION('YEAR', o.orderDate) = :year) " +
+            "AND o.status = 'shipped' " +
+            "GROUP BY p.code, p.name " +
+            "ORDER BY SUM(od.quantity) DESC")
+    List<TopSellingProductDTO> findTop10SellingProducts(
+            @Param("day") Integer day,
+            @Param("month") Integer month,
+            @Param("year") Integer year
+    );
+
+    @Query("SELECT new com.example.demo.response.TopSellingProductsAttributesResponse(" +
+            "p.code, " +
+            "p.name, " +
+            "pd.color.name, " +
+            "pd.size.name, " +
+            "SUM(od.quantity)) " +
+            "FROM Product p " +
+            "JOIN ProductDetail pd on pd.product.id = p.id " +
+            "JOIN OrderDetail od on od.productDetail.id = pd.id " +
+            "JOIN od.orders o " +
+            "WHERE " +
+            "(:day IS NULL OR FUNCTION('DAY', o.orderDate) = :day) " +
+            "AND (:month IS NULL OR FUNCTION('MONTH', o.orderDate) = :month) " +
+            "AND (:year IS NULL OR FUNCTION('YEAR', o.orderDate) = :year) " +
+            "AND o.status = 'shipped' " +
+            "GROUP BY p.code, p.name, pd.color, pd.size " +
+            "ORDER BY SUM(od.quantity) DESC")
+    List<TopSellingProductsAttributesResponse> findTopSellingProductsByAttributes(
+            @Param("day") Integer day,
+            @Param("month") Integer month,
+            @Param("year") Integer year
+    );
+
+    @Query("SELECT new com.example.demo.response.TotalQuantityProductStatisticsResponse(p.name, SUM(pd.quantity)) " +
+            "FROM Product p " +
+            "LEFT JOIN ProductDetail pd ON p.id = pd.product.id " +
+            "GROUP BY p.name " +
+            "ORDER BY SUM(pd.quantity) DESC")
+    List<TotalQuantityProductStatisticsResponse> findTotalQuantityByProductName();
+
+    @Query("SELECT new com.example.demo.response.TotalQuantityProductsAttributeResponse(p.name, s.name, c.name, SUM(pd.quantity)) " +
+            "FROM Product p " +
+            "JOIN ProductDetail pd ON p.id = pd.product.id " +
+            "JOIN Size s ON pd.size.id = s.id " +
+            "JOIN Color c ON pd.color.id = c.id " +
+            "GROUP BY p.name, s.name, c.name " +
+            "ORDER BY p.name, s.name, c.name")
+    List<TotalQuantityProductsAttributeResponse> findTotalQuantityByProductSizeColor();
 }
