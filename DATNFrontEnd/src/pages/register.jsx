@@ -1,12 +1,13 @@
 import { Button, Input, Form, notification, DatePicker, Row, Col, Divider, Steps } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { registerCustomerAPI } from "../service/api.service";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const RegisterPage = () => {
     const [form] = Form.useForm();
     const [usernameError, setUsernameError] = useState("");
     const [currentStep, setCurrentStep] = useState(0);
+    const [formData, setFormData] = useState({}); // Lưu trữ giá trị form
     const navigate = useNavigate();
 
     const containerStyle = {
@@ -69,6 +70,12 @@ const RegisterPage = () => {
     };
 
     const onFinish = async (values) => {
+
+        // Lưu dữ liệu vào state formData khi hoàn thành bước
+        setFormData({ ...formData, ...values });
+
+        console.log(formData);
+
         if (currentStep === 0) {
             // Validate first step
             try {
@@ -78,18 +85,17 @@ const RegisterPage = () => {
                 return;
             }
         } else {
-            // Submit final form
             try {
                 const res = await registerCustomerAPI(
-                    values.username,
-                    values.password,
-                    values.confirm_password,
-                    values.phone,
-                    values.email,
-                    values.dateOfBirth,
-                    values.name
+                    formData.username,
+                    formData.password,
+                    formData.confirm_password,
+                    formData.phoneNumber,
+                    formData.email,
+                    formData.dateOfBirth,
+                    formData.name
                 );
-                console.log(res);
+                console.log("API Response: ", res);  // Console ra phản hồi API
 
                 if (res.data) {
                     notification.success({
@@ -123,6 +129,7 @@ const RegisterPage = () => {
                         label={<span style={labelStyle}>Username</span>}
                         name="username"
                         validateStatus={usernameError ? "error" : ""}
+                        initialValue={formData.username} // Set initial value from formData
                         rules={[
                             {
                                 required: true,
@@ -136,6 +143,7 @@ const RegisterPage = () => {
                     <Form.Item
                         label={<span style={labelStyle}>Password</span>}
                         name="password"
+                        initialValue={formData.password} // Set initial value from formData
                         rules={[
                             {
                                 required: true,
@@ -149,6 +157,7 @@ const RegisterPage = () => {
                     <Form.Item
                         label={<span style={labelStyle}>Confirm Password</span>}
                         name="confirm_password"
+                        initialValue={formData.confirm_password} // Set initial value from formData
                         dependencies={['password']}
                         rules={[
                             {
@@ -176,7 +185,8 @@ const RegisterPage = () => {
                 <>
                     <Form.Item
                         label={<span style={labelStyle}>Phone Number</span>}
-                        name="phone"
+                        name="phoneNumber"
+                        initialValue={formData.phoneNumber} // Set initial value from formData
                         rules={[
                             {
                                 required: true,
@@ -191,6 +201,7 @@ const RegisterPage = () => {
                     <Form.Item
                         label={<span style={labelStyle}>Email</span>}
                         name="email"
+                        initialValue={formData.email} // Set initial value from formData
                         rules={[
                             {
                                 required: true,
@@ -208,6 +219,7 @@ const RegisterPage = () => {
                     <Form.Item
                         label={<span style={labelStyle}>Name</span>}
                         name="name"
+                        initialValue={formData.name} // Set initial value from formData
                         rules={[
                             {
                                 required: true,
@@ -221,6 +233,7 @@ const RegisterPage = () => {
                     <Form.Item
                         label={<span style={labelStyle}>Date of Birth</span>}
                         name="dateOfBirth"
+                        initialValue={formData.dateOfBirth} // Set initial value from formData
                         rules={[
                             {
                                 required: true,
@@ -274,15 +287,6 @@ const RegisterPage = () => {
                         >
                             {currentStep === steps.length - 1 ? 'Register' : 'Next'}
                         </Button>
-                    </div>
-
-                    <Divider style={{ margin: '24px 0', borderColor: '#d9d9d9' }} />
-
-                    <div style={{ textAlign: 'center', fontSize: '14px' }}>
-                        Already have an account?{' '}
-                        <Link to="/login" style={linkStyle}>
-                            Sign in here
-                        </Link>
                     </div>
                 </Form>
             </div>
