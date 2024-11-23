@@ -1,7 +1,8 @@
 import { Button, Input, Form, notification, DatePicker, Steps, Divider } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { registerCustomerAPI } from "../service/api.service";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import moment from "moment/moment";
 
 const RegisterPage = () => {
     const [form] = Form.useForm();
@@ -73,9 +74,10 @@ const RegisterPage = () => {
         const mergedData = {
             ...formData,
             ...values,
-            dateOfBirth: values.dateOfBirth ? values.dateOfBirth.format("DD-MM-YYYY") : null,
+            dateOfBirth: values.dateOfBirth
+                ? moment(values.dateOfBirth).format("YYYY-MM-DDTHH:mm:ss") // Định dạng đúng yêu cầu backend
+                : null,
         };
-
 
         if (currentStep === 0) {
             try {
@@ -87,10 +89,29 @@ const RegisterPage = () => {
             }
         } else {
             try {
-                console.log("Full data:", mergedData);
+                // Transform the payload keys here
+                const apiPayload = {
+                    username: mergedData.username,
+                    password: mergedData.password,
+                    confirm_password: mergedData.confirm_password,
+                    phoneNumber: mergedData.phoneNumber, // Không đổi
+                    email: mergedData.email,
+                    dateOfBirth: mergedData.dateOfBirth,
+                    name: mergedData.name || "",
+                };
 
+                const res = await registerCustomerAPI(apiPayload);
+                console.log("API Response: ", res);
+                console.log("Payload Sent:", apiPayload);
+
+                notification.success({
+                    message: "Registration Successful",
+                    description: "Your account has been successfully created.",
+                    style: { borderRadius: '4px' },
+                });
+
+                navigate('/login-fork'); // Redirect to login page upon success
             } catch (error) {
-
                 notification.error({
                     message: "Registration Error",
                     description: error.message,
@@ -109,6 +130,7 @@ const RegisterPage = () => {
                         label={<span style={labelStyle}>Username</span>}
                         name="username"
                         validateStatus={usernameError ? "error" : ""}
+                        initialValue={formData.username} // Set initial value from formData
                         rules={[
                             {
                                 required: true,
@@ -126,6 +148,7 @@ const RegisterPage = () => {
                     <Form.Item
                         label={<span style={labelStyle}>Password</span>}
                         name="password"
+                        initialValue={formData.password} // Set initial value from formData
                         rules={[
                             {
                                 required: true,
@@ -147,6 +170,7 @@ const RegisterPage = () => {
                     <Form.Item
                         label={<span style={labelStyle}>Confirm Password</span>}
                         name="confirm_password"
+                        initialValue={formData.confirm_password} // Set initial value from formData
                         dependencies={['password']}
                         rules={[
                             {
@@ -174,7 +198,8 @@ const RegisterPage = () => {
                 <>
                     <Form.Item
                         label={<span style={labelStyle}>Phone Number</span>}
-                        name="phone"
+                        name="phoneNumber"
+                        initialValue={formData.phoneNumber} // Set initial value from formData
                         rules={[
                             {
                                 required: true,
@@ -192,6 +217,7 @@ const RegisterPage = () => {
                     <Form.Item
                         label={<span style={labelStyle}>Email</span>}
                         name="email"
+                        initialValue={formData.email} // Set initial value from formData
                         rules={[
                             {
                                 required: true,
@@ -204,8 +230,23 @@ const RegisterPage = () => {
                     </Form.Item>
 
                     <Form.Item
+                        label={<span style={labelStyle}>Name</span>}
+                        name="name"
+                        initialValue={formData.name} // Set initial value from formData
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please input your name',
+                            },
+                        ]}
+                    >
+                        <Input style={inputStyle} />
+                    </Form.Item>
+
+                    <Form.Item
                         label={<span style={labelStyle}>Date of Birth</span>}
                         name="dateOfBirth"
+                        initialValue={formData.dateOfBirth} // Set initial value from formData
                         rules={[
                             {
                                 required: true,
@@ -223,7 +264,7 @@ const RegisterPage = () => {
                             },
                         ]}
                     >
-                        <DatePicker style={inputStyle} />
+                        <DatePicker format="YYYY-MM-DDTHH:mm:ss" style={inputStyle} />
                     </Form.Item>
                 </>
             ),
@@ -269,15 +310,6 @@ const RegisterPage = () => {
                         >
                             {currentStep === steps.length - 1 ? 'Register' : 'Next'}
                         </Button>
-                    </div>
-
-                    <Divider style={{ margin: '24px 0', borderColor: '#d9d9d9' }} />
-
-                    <div style={{ textAlign: 'center', fontSize: '14px' }}>
-                        Already have an account?{' '}
-                        <Link to="/login" style={linkStyle}>
-                            Sign in here
-                        </Link>
                     </div>
                 </Form>
             </div>

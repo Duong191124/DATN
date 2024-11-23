@@ -48,12 +48,19 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public Address add(AddressDTO addressDTO) {
-        boolean addressExists = addressRepo.existsByCustomerId(addressDTO.getCustomerId());
-        if (addressExists) {
-            throw new IllegalArgumentException("Customer already has an address.");
+        // Count the number of addresses for the customer
+        Integer addressCount = addressRepo.countByCustomerId(addressDTO.getCustomerId());
+
+        // Check if the customer already has 3 addresses
+        if (addressCount >= 3) {
+            throw new IllegalArgumentException("Customer already has the maximum allowed number of addresses (3).");
         }
+
+        // Fetch the customer
         Customer customer = customerRepo.findById(addressDTO.getCustomerId())
                 .orElseThrow(() -> new IllegalArgumentException("Customer not found with ID: " + addressDTO.getCustomerId()));
+
+        // Create and save a new Address
         Address newAddress = Address.builder()
                 .name(addressDTO.getName())
                 .phoneNumber(addressDTO.getPhoneNumber())
@@ -65,8 +72,10 @@ public class AddressServiceImpl implements AddressService {
                 .customer(customer)
                 .addressDetail(addressDTO.getAddressDetail())
                 .build();
+
         return addressRepo.save(newAddress);
     }
+
 
     @Override
     public Address update(Integer id, AddressUpdateDTO addressUpdateDTO) throws Exception {
