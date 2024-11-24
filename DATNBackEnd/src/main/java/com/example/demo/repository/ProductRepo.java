@@ -111,4 +111,5 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
             "GROUP BY p.name, s.name, c.name " +
             "ORDER BY p.name, s.name, c.name")
     List<TotalQuantityProductsAttributeResponse> findTotalQuantityByProductSizeColor();
+
 }

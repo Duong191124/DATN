@@ -357,15 +357,23 @@ const ProductCard = ({
                       .map((size) => (
                         <button
                           key={size.id}
-                          className={`size-button ${
-                            selectedSize === size.name ? "selected" : ""
-                          } ${
-                            !availableSizes.includes(size.name)
+                          className={`size-button ${selectedSize === size.name ? "selected" : ""
+                            } ${!availableSizes.includes(size.name)
                               ? "disabled-size"
                               : ""
+<<<<<<< HEAD
                           }`}
                           onClick={() => handleSizeChange(size.name)}
                           disabled={!availableSizes.includes(size.name)}
+=======
+                            }`}
+                          onClick={() => setSelectedSize(size.name)}
+                          style={{
+                            display: availableSizes.includes(size.name)
+                              ? "inline-block"
+                              : "none",
+                          }}
+>>>>>>> a359f2081a8eab6edcc1fa56b23640ab15b871d6
                         >
                           {size.name}
                         </button>
@@ -385,15 +393,23 @@ const ProductCard = ({
                       .map((color) => (
                         <button
                           key={color.id}
-                          className={`color-button ${
-                            selectedColor === color.name ? "selected" : ""
-                          } ${
-                            !availableColors.includes(color.name)
+                          className={`color-button ${selectedColor === color.name ? "selected" : ""
+                            } ${!availableColors.includes(color.name)
                               ? "disabled-color"
                               : ""
+<<<<<<< HEAD
                           }`}
                           onClick={() => handleColorChange(color.name)}
                           disabled={!availableColors.includes(color.name)}
+=======
+                            }`}
+                          onClick={() => setSelectedColor(color.name)}
+                          style={{
+                            display: availableColors.includes(color.name)
+                              ? "inline-block"
+                              : "none",
+                          }}
+>>>>>>> a359f2081a8eab6edcc1fa56b23640ab15b871d6
                         >
                           {color.name}
                         </button>
@@ -465,9 +481,9 @@ ProductCard.propTypes = {
 };
 
 ProductCard.defaultProps = {
-  onAddToCart: () => {},
-  onAddToWishlist: () => {},
-  onQuickView: () => {},
+  onAddToCart: () => { },
+  onAddToWishlist: () => { },
+  onQuickView: () => { },
 };
 
 export default ProductCard;
