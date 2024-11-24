@@ -4,31 +4,26 @@ import { Link } from "react-router-dom";
 import { AuthContext } from "../component/context/auth.context";
 
 const PrivateRoute = (props) => {
-    const { user, loginStatus } = useContext(AuthContext);
+  const { user, loginStatus } = useContext(AuthContext);
 
-    if ((user && user.id) || loginStatus === "201") {
-        return (
-            <>
-                {props.children}
-            </>
-        );
-    }
-
-
-    // If staff or admin is not logged in
-    return (
-        <Result
-            status="403"
-            title="Unauthorize!"
-            subTitle="bạn không có quyền truy cập!."
-            extra={<Button type="primary">
-                <Link to="/">
-                    <span>Back to homepage</span>
-                </Link>
-            </Button>}
-        />
-    );
+  if ((user && user.id) || loginStatus === "201") {
+    return <>{props.children}</>;
+  }
+  // If staff or admin is not logged in
+  return (
+    <Result
+      status="403"
+      title="Unauthorize!"
+      subTitle="bạn không có quyền truy cập!."
+      extra={
+        <Button type="primary">
+          <Link to="/">
+            <span>Back to homepage</span>
+          </Link>
+        </Button>
+      }
+    />
+  );
 };
 
-
-export default PrivateRoute
+export default PrivateRoute;

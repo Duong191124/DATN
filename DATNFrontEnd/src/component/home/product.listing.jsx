@@ -60,20 +60,28 @@ const ProductList = () => {
   };
   const initSize = async () => {
     const res = await fetchDataSize();
-    setSize(res.data.data);
+    if (res?.data?.data) {
+      setSize(res.data.data);
+    }
   };
 
   const initColor = async () => {
     const res = await fetchDataColor();
-    setColor(res.data.data);
+    if (res?.data?.data) {
+      setColor(res.data.data);
+    }
   };
   const getBrand = async () => {
     const res = await fetchDataBrand();
-    setBrands(res.data.data);
+    if (res?.data?.data) {
+      setBrands(res.data.data);
+    }
   };
   const getCategory = async () => {
     const res = await fetchDataCategory();
-    setCategories(res.data.data);
+    if (res?.data?.data) {
+      setCategories(res.data.data);
+    }
   };
   useEffect(() => {
     initSize();
