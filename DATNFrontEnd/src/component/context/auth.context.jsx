@@ -10,6 +10,7 @@ export const AuthContext = createContext({
 export const AuthWrapper = ({ children }) => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")) || null);
     const [loginStatus, setLoginStatus] = useState(localStorage.getItem("loginStatus") || null);
+    const [role, setRole] = useState(localStorage.getItem("role") || null);
 
     useEffect(() => {
         if (user) {
@@ -27,8 +28,16 @@ export const AuthWrapper = ({ children }) => {
         }
     }, [loginStatus]);
 
+    useEffect(() => {
+        if (role) {
+            localStorage.setItem("role", role);
+        } else {
+            localStorage.removeItem("role");
+        }
+    }, [role]);
+
     return (
-        <AuthContext.Provider value={{ user, setUser, loginStatus, setLoginStatus }}>
+        <AuthContext.Provider value={{ user, setUser, loginStatus, setLoginStatus, role, setRole }}>
             {children}
         </AuthContext.Provider>
     );

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Table, Checkbox, notification } from 'antd';
 import { getAllPermissionPagination, getStaffPermissions, updateStaffPermissions } from '../../service/api.service';
+import { useNavigate } from 'react-router-dom';
 
 const UpdatePermissionForUserModal = (props) => {
     const [permissions, setPermissions] = useState([]);
@@ -10,6 +11,7 @@ const UpdatePermissionForUserModal = (props) => {
     const [current, setCurrent] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [total, setTotal] = useState(0);
+    const navigate = useNavigate();
     const { id, open, onClose } = props
 
     useEffect(() => {

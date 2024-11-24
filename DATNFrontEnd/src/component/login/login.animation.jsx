@@ -20,7 +20,7 @@ const LoginAnimation = () => {
   const [cheat, setCheat] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { setUser, setLoginStatus } = useContext(AuthContext);
+  const { setUser, setLoginStatus, setRole } = useContext(AuthContext);
   const { setCartItems } = useCart();
 
   const handleUsernameChange = (event) => {
@@ -41,15 +41,11 @@ const LoginAnimation = () => {
     // changeLoginImage();
   };
 
-  const onFinish = (values) => {
-    handleLogin(values);
-  };
-
   const handleLogin = async (values) => {
     setLoading(true);
     try {
       const res = await loginCustomerAPI(values.username, values.password);
-
+      console.log(res);
       if (res.status === 200 || res.status === 201) {
         localStorage.setItem("access_token", res.data.token);
 
@@ -61,6 +57,7 @@ const LoginAnimation = () => {
           setCartItems(userCart);
           setUser(userInfoRes.data.data);
           setLoginStatus(res.status.toString());
+          setRole(res.data.role);
           message.success("Đăng nhập thành công");
           navigate(res.status === 200 ? "/" : "/admin");
         }
@@ -84,6 +81,10 @@ const LoginAnimation = () => {
       }
       setLoading(false);
     }
+  };
+
+  const onFinish = (values) => {
+    handleLogin(values);
   };
 
   const changeToUsernameImage = () => {

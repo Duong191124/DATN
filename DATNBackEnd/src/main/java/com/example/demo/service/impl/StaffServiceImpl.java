@@ -82,6 +82,26 @@ public class StaffServiceImpl implements StaffService {
         return "Update status successfully";
     }
 
+    public String notifyPermissionChange(Integer staffId) {
+        Optional<Staff> staffOpt = staffRepo.findById(staffId);
+
+        if (!staffOpt.isPresent()) {
+            throw new RuntimeException("Staff not found with ID: " + staffId);
+        }
+
+        Staff staff = staffOpt.get();
+
+        // Xóa token cũ (giả lập việc vô hiệu hóa token)
+        staff.setIdentifierToken("please get new token");
+        staffRepo.save(staff);
+
+        // Thông báo cho frontend
+        return String.format(
+                "Permissions for staff %s have been updated. Please re-login to continue.",
+                staff.getUsername()
+        );
+    }
+
     @Override
     public Staff updatePermissions(Integer staffId, UserPermissionDTO permissionDTO) {
         Optional<Staff> staffOpt = staffRepo.findById(staffId);
@@ -112,8 +132,16 @@ public class StaffServiceImpl implements StaffService {
         }
 
         staff.setPermission(currentPermission);
-        staff.setIdentifierToken("please get new token");
         return staffRepo.save(staff);
+    }
+
+    public void invalidateToken(Integer staffId) {
+        Optional<Staff> staffOpt = staffRepo.findById(staffId);
+        if (staffOpt.isPresent()) {
+            Staff staff = staffOpt.get();
+            staff.setIdentifierToken("please get new token"); // Thay đổi hoặc xóa token hiện tại
+            staffRepo.save(staff);  // Cập nhật lại cơ sở dữ liệu
+        }
     }
 
     @Override

@@ -727,7 +727,7 @@ const getStaffPermissions = (id) => {
   return axios.get(URL_BACKEND);
 };
 const updateStaffPermissions = (id, payload) => {
-  const URL_BACKEND = `/api/v1/staff/update-permission/${id}`;
+  const URL_BACKEND = `/api/v1/staff/${id}/update-permission`;
   return axios.put(URL_BACKEND, payload);
 };
 const createNewStaff = (
