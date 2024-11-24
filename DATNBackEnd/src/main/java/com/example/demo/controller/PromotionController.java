@@ -111,7 +111,7 @@ public class PromotionController {
     }
 
 //    @PreAuthorize("hasAuthority('UPDATE_PROMOTION')")
-    @PutMapping("/{id}/status")git 2024
+    @PutMapping("/{id}/status")
     public ResponseEntity<?> changeStatus(@PathVariable Integer id) {
         try {
             PromotionResponse promotionResponse = promotionService.changeStatus(id);
