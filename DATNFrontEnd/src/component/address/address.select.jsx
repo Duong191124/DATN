@@ -4,7 +4,7 @@ import { UserOutlined, PhoneOutlined, EnvironmentOutlined } from '@ant-design/ic
 import { useTranslation } from 'react-i18next';
 import { getDistrict, getProvinces, getWards, saveAddressByid, updateAddressByid } from '../../service/api.service';
 
-const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, editingAddress, getAddressByid }) => {
+const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, editingAddress, getAddressByid, onAddressUpdated }) => {
     const { t, i18n } = useTranslation();
     const language = localStorage.getItem("language") || "vi";
     const [provinces, setProvinces] = useState([]);
@@ -18,6 +18,7 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
 
     const defaultOption = { ProvinceID: '', DistrictID: '', WardCode: '', ProvinceName: t('MES-024'), DistrictName: t('MES-027'), WardName: t('MES-030') };
 
+    // Fetch provinces on component mount
     useEffect(() => {
         const fetchProvinces = async () => {
             const res = await getProvinces();
@@ -31,6 +32,7 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
         i18n.changeLanguage(language);
     }, [i18n, language]);
 
+    // Pre-fill form if editingAddress is provided
     useEffect(() => {
         if (editingAddress) {
             const { name, phoneNumber, city, district, ward, addressDetail } = editingAddress;
@@ -48,6 +50,7 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
         }
     }, [editingAddress, form]);
 
+    // Fetch districts when province is selected
     useEffect(() => {
         if (selectedProvince && selectedProvince !== defaultOption.ProvinceID) {
             const fetchDistricts = async () => {
@@ -61,6 +64,7 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
         }
     }, [selectedProvince]);
 
+    // Fetch wards when district is selected
     useEffect(() => {
         if (selectedDistrict && selectedDistrict !== defaultOption.DistrictID) {
             const fetchWards = async () => {
@@ -73,10 +77,10 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
         }
     }, [selectedDistrict]);
 
+    // Handle form submission
     const onFormSubmit = async (values) => {
-        console.log(editingAddress);
-        if (editingAddress) {
-            try {
+        try {
+            if (editingAddress) {
                 await updateAddressByid(
                     editingAddress.id,
                     values.province,
@@ -86,14 +90,8 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                     values.phone,
                     values.address,
                 );
-                setIsModalVisible(false);
-                message.success("update success")
-                getAddressByid();
-            } catch (error) {
-                message.error("check error: ", error);
-            }
-        } else {
-            try {
+                message.success("Update successful");
+            } else {
                 await saveAddressByid(
                     userId,
                     values.province,
@@ -103,15 +101,18 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                     values.phone,
                     values.address,
                 );
-                setIsModalVisible(false);
-                message.success("create success");
-                getAddressByid();
-            } catch (error) {
-                message.error("check error: ", error);
+                message.success("Address saved successfully");
             }
-        }
+            setIsModalVisible(false);
 
+            if (onAddressUpdated) {
+                onAddressUpdated(); // Gọi callback để đồng bộ thông tin
+            }
+        } catch (error) {
+            message.error("Error: ", error);
+        }
     };
+
 
     return (
         <Modal

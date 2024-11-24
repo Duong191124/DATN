@@ -4,12 +4,10 @@ import com.example.demo.dto.OrderDTO;
 import com.example.demo.dto.OrderOnlineDTO;
 import com.example.demo.entity.Notice;
 import com.example.demo.entity.OrderStatus;
-import com.example.demo.entity.Orders;
 import com.example.demo.request.OrderWithVoucherAndOrderDetailRequest;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.OrderPageResponse;
 import com.example.demo.response.OrderResponse;
-import com.example.demo.service.OrderService;
 import com.example.demo.service.impl.NoticeServiceImpl;
 import com.example.demo.service.impl.OrderServiceImpl;
 import jakarta.validation.Valid;
@@ -26,6 +24,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -97,12 +96,27 @@ public class  OrderController {
     @PostMapping("/add-online")
     public ResponseEntity<?> createOrder(@RequestBody OrderOnlineDTO orderDTO) {
         try {
+            // Try to create the order
             OrderResponse order = orderService.createOrderOnline(orderDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new MessageReponse("order to added successfully",201,order));
+
+            // Return a successful response
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new MessageReponse("Order added successfully", 201, order));
+
         } catch (Exception e) {
-            return new ResponseEntity<>("Lỗi khi tạo đơn hàng: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            // Log the error for debugging
+            System.err.println("Error creating order: " + e.getMessage());
+
+            // Return a structured error response
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "ORDER_CREATION_FAILED");
+            errorResponse.put("message", e.getMessage());
+
+            // Send the error message with HTTP 400 Bad Request or 500 Internal Server Error
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateOrder(@PathVariable int id, @Valid @RequestBody OrderDTO orderDTO,BindingResult result){
         try {
@@ -122,17 +136,17 @@ public class  OrderController {
     @PutMapping("/update-productDetail/{id}")
     public ResponseEntity<?> updateOrderWithProductDetail(
             @PathVariable Integer id,
-            @RequestBody OrderWithVoucherAndOrderDetailRequest orderUpdateRequest) {  // Contains both product details and voucherId
+            @RequestBody OrderWithVoucherAndOrderDetailRequest orderUpdateRequest) {
         try {
-            // Call the service method to update the order with the provided product details and voucherId
             OrderResponse orderResponse = orderService.updatedOrderWithProductDetail(id, orderUpdateRequest);
-            // Return success response with updated order details
+            // Trả về phản hồi thành công
             return ResponseEntity.ok(new MessageReponse("Updated order successfully", 201, orderResponse));
         } catch (Exception e) {
-            // Return error response if something goes wrong
+            // Trả về lỗi nếu có sự cố
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
 
     @PutMapping("update-status/{id}")

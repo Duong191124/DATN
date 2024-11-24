@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Tabs, Button, Modal, Dropdown, Menu } from "antd";
+import { Tabs, Button, Modal, Dropdown, Menu, Spin } from "antd";
 import { PlusOutlined, EllipsisOutlined } from "@ant-design/icons";
 import "./order.css";
 const CounterSaleBillWaiting = ({
@@ -7,16 +7,18 @@ const CounterSaleBillWaiting = ({
   setSelectedBill,
   canceledOrder,
   handleCreateBillWaiting,
+  activeTab,
+  setActiveTab,
 }) => {
-  const [activeTab, setActiveTab] = useState(
-    billItems.length ? billItems[0].code : ""
-  ); // Tab đang chọn
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false); // Modal chi tiết hóa đơn
   const [selectedBillDetail, setSelectedBillDetail] = useState(null); // Hóa đơn đang được xem chi tiết
-
   const handleTabChange = (key) => {
     if (key === "create") {
-      handleCreateBillWaiting(); // Gọi trực tiếp hàm tạo hóa đơn
+      const newBill = handleCreateBillWaiting();
+      if (newBill && newBill.code) {
+        setSelectedBill(newBill.code);
+        setActiveTab(newBill.code);
+      }
     } else {
       setActiveTab(key); // Cập nhật tab đang chọn
       setSelectedBill(key); // Đặt hóa đơn được chọn là tab hiện tại
@@ -52,32 +54,34 @@ const CounterSaleBillWaiting = ({
   const tabsItems = Array.isArray(billItems)
     ? billItems.map((bill) => ({
         label: (
-          <div
-            id="selected-bill"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              position: "relative",
-            }}
-          >
-            {activeTab === bill.code && (
-              <span className="tab-check-icon">✔</span>
-            )}
-            <span
-              style={{ marginLeft: activeTab === bill.code ? "20px" : "0" }}
+          <>
+            <div
+              id="selected-bill"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                position: "relative",
+              }}
             >
-              Hóa đơn {bill.code}
-            </span>
-            <Dropdown
-              overlay={moreOptionsMenu(bill)}
-              trigger={["click"]}
-              placement="bottomRight"
-            >
-              <EllipsisOutlined
-                style={{ marginLeft: "10px", cursor: "pointer" }}
-              />
-            </Dropdown>
-          </div>
+              {activeTab === bill.code && (
+                <span className="tab-check-icon">✔</span>
+              )}
+              <span
+                style={{ marginLeft: activeTab === bill.code ? "20px" : "0" }}
+              >
+                Hóa đơn {bill.code}
+              </span>
+              <Dropdown
+                overlay={moreOptionsMenu(bill)}
+                trigger={["click"]}
+                placement="bottomRight"
+              >
+                <EllipsisOutlined
+                  style={{ marginLeft: "10px", cursor: "pointer" }}
+                />
+              </Dropdown>
+            </div>
+          </>
         ),
         key: bill.code,
         closable: true,

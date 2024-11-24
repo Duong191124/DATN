@@ -10,11 +10,11 @@ import { Button, Menu } from "antd";
 import { Link } from "react-router-dom";
 
 const items = [
-  // {
-  //   key: "1",
-  //   icon: <TeamOutlined />,
-  //   label: <Link to="/admin/counter-sales">Counter-Sales Management</Link>,
-  // },
+  {
+    key: "1",
+    icon: <TeamOutlined />,
+    label: <Link to="/admin/chart">Statistical</Link>,
+  },
   {
     key: "2",
     icon: <TeamOutlined />,
@@ -92,7 +92,6 @@ const items = [
     icon: <SettingOutlined />,
     label: <Link to="/admin/customer">Customer Management</Link>,
   },
-
 ];
 const getLevelKeys = (items1) => {
   const key = {};

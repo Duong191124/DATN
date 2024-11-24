@@ -39,7 +39,7 @@ public class CustomerServiceImpl implements CustomerService {
         if(customerRepo.existsByUsername(customer.getUsername()) || staffRepo.existsByUsername(customer.getUsername())){
             throw new UsernameExisting();
         }
-        if(customerRepo.existsByEmail(customer.getUsername()) || staffRepo.existsByEmail(customer.getUsername())){
+        if(customerRepo.existsByEmail(customer.getEmail()) || staffRepo.existsByEmail(customer.getEmail())){
             throw new EmailExisting();
         }
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();

@@ -121,20 +121,15 @@ const ProductCarousel = () => {
           renderButtonGroupOutside={true} // Để sử dụng custom arrow
           arrows={false} // Ẩn arrow mặc định
         >
-          {dataTopFeatureProductDetail.map(
-            (product, index) => (
-              console.log("gavv", product),
-              (
-                <div key={index}>
-                  <ProductDetailCard
-                    product={product}
-                    style={styles.itemContent}
-                    onQuickView={handleQuickView}
-                  />
-                </div>
-              )
-            )
-          )}
+          {dataTopFeatureProductDetail.map((product, index) => (
+            <div key={index}>
+              <ProductDetailCard
+                product={product}
+                style={styles.itemContent}
+                onQuickView={handleQuickView}
+              />
+            </div>
+          ))}
         </Carousel>
 
         {/* Custom Arrow */}

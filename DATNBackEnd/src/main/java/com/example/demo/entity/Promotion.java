@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 
 
@@ -47,4 +46,5 @@ public class Promotion extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "product_detail_id") // Khóa ngoại tới bảng ProductDetail
     )
     private Set<ProductDetail> productDetails;  // Sử dụng Set để lưu các ProductDetail
+
 }

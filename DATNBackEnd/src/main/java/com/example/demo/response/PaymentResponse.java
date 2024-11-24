@@ -30,6 +30,15 @@ public class PaymentResponse {
                 .build();
     }
     public static PaymentResponse convertPaymentResponseUrl(Payment payment,String paymentUrl) {
+        if (payment == null) {
+            return PaymentResponse.builder()
+                    .id(null)
+                    .paymentDate(null)
+                    .paymentMethod(null)
+                    .orderDataPaymentResponse(null)
+                    .paymentUrl(paymentUrl)
+                    .build();
+        }
         return PaymentResponse.builder()
                 .id(payment.getId())
                 .paymentDate(payment.getPaymentDate().toInstant()

@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -43,6 +44,7 @@ public class CustomerController {
 
     @PostMapping("/register")
     public ResponseEntity<MessageReponse> add(
+            @Validated
             @RequestBody CustomerDTO customer,
             BindingResult result
     ){
@@ -57,22 +59,15 @@ public class CustomerController {
                     .build()
             );
         }
-            try{
-                CustomerResponse newCustomer =customerService.add(customer);
-                noticeService.create(new Notice(null,"New customer hihi", "new customer just register account", "/admin/customer", 0));
-                return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
-                        .message("them thanh cong")
-                        .status(HttpStatus.OK.value())
-                        .data(newCustomer)
-                        .build()
-                );
-            }catch (Exception e){
-                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(MessageReponse.builder()
-                                .data(null)
-                                .message("Username has been taken")
-                                .status(HttpStatus.NOT_ACCEPTABLE.value())
-                        .build());
-            }
+        CustomerResponse newCustomer =customerService.add(customer);
+        noticeService.create(new Notice(null,"New customer hihi", "new customer just register account", "/admin/customer", 0));
+        return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
+                .message("them thanh cong")
+                .status(HttpStatus.OK.value())
+                .data(newCustomer)
+                .build()
+        );
+
 
     }
     @PreAuthorize("hasAuthority('UPDATE_CUSTOMER')")

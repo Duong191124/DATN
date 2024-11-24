@@ -1,65 +1,76 @@
-import React, { useEffect, useState } from 'react';
-import ApexCharts from 'apexcharts';
-
-// Hàm tạo dữ liệu ngẫu nhiên
-const generateFakeData = (numPoints, min, max) => {
-    return Array.from({ length: numPoints }, () =>
-        Math.floor(Math.random() * (max - min + 1)) + min
-    );
-};
+import React, { useEffect, useState } from "react";
+import ApexCharts from "apexcharts";
+import { accountStatistics } from "../../service/api.service";
 
 const AccountStats = () => {
+  const [dataAccount, setDataAccount] = useState(null);
 
-    const [lable, setLable] = useState(['Admin', 'User', 'Guest', 'Moderator', 'Others']);
+  const getAccountStatistics = async () => {
+    const response = await accountStatistics();
+    if (response?.data) {
+      setDataAccount(response.data);
+    }
+  };
 
-    useEffect(() => {
+  useEffect(() => {
+    getAccountStatistics();
+  }, []);
 
-        const fakeAccountData = generateFakeData(5, 10, 60);
+  useEffect(() => {
+    if (!dataAccount) return;
 
-        const options = {
-            series: fakeAccountData,
+    // Dữ liệu từ API
+    const { adminCount, managerCount, normalEmployeeCount, customer } =
+      dataAccount;
+    // Chuẩn bị dữ liệu cho ApexCharts
+    const options = {
+      series: [adminCount, managerCount, normalEmployeeCount, customer],
+      chart: {
+        type: "donut",
+        height: 350,
+      },
+      labels: ["Admin", "Manager", "Employee", "Customer"],
+      responsive: [
+        {
+          breakpoint: 480,
+          options: {
             chart: {
-                type: 'donut',
-                height: 350,
+              width: 200,
             },
-            labels: lable, // Tên các nhóm tài khoản
-            responsive: [
-                {
-                    breakpoint: 480,
-                    options: {
-                        chart: {
-                            width: 200,
-                        },
-                        legend: {
-                            position: 'bottom',
-                        },
-                    },
-                },
-            ],
-            tooltip: {
-                y: {
-                    formatter: function (value) {
-                        return `${value} accounts`;
-                    },
-                },
+            legend: {
+              position: "bottom",
             },
-        };
+          },
+        },
+      ],
+      tooltip: {
+        y: {
+          formatter: function (value) {
+            return `${value} accounts`;
+          },
+        },
+      },
+    };
 
-        const chart = new ApexCharts(document.querySelector('#account-chart'), options);
-        chart.render();
-
-        // Cleanup chart on component unmount
-        return () => {
-            chart.destroy();
-        };
-    }, []);
-
-    return (
-        <div>
-            <h2>Account Statistics</h2>
-            <div id="account-chart"></div>
-        </div>
+    // Tạo biểu đồ với ApexCharts
+    const chart = new ApexCharts(
+      document.querySelector("#account-chart"),
+      options
     );
+    chart.render();
+
+    // Dọn dẹp khi unmount component
+    return () => {
+      chart.destroy();
+    };
+  }, [dataAccount]); // Re-render khi `dataAccount` thay đổi
+
+  return (
+    <div>
+      <h2>Account Statistics</h2>
+      <div id="account-chart"></div>
+    </div>
+  );
 };
 
 export default AccountStats;

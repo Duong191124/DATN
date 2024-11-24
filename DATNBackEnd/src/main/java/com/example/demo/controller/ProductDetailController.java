@@ -54,7 +54,7 @@ public class ProductDetailController {
         );
     }
 
-    @PreAuthorize("hasAuthority('CREATE_PRODUCT_DETAIL')")
+//    @PreAuthorize("hasAuthority('CREATE_PRODUCT_DETAIL')")
     @PostMapping("")
     public ResponseEntity<?> addProductDetail(@Valid @RequestBody ProductDetailDTO productDetailDTO, BindingResult result) {
         if (result.hasErrors()) {

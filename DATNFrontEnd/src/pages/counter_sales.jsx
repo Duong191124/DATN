@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Button,
-  Drawer,
   Dropdown,
   Menu,
   message,
   notification,
+  Spin,
   Tour,
 } from "antd";
 import CounterSalesProductDetail from "../component/layout/admin/counter.sale/counter.sale.product-detail";
@@ -28,7 +28,7 @@ import {
 } from "../service/api.service";
 import CounterSaleCustomer from "../component/layout/admin/counter.sale/counter.sale.customer";
 import { NavLink, useNavigate } from "react-router-dom";
-import { MenuOutlined } from "@ant-design/icons";
+import { LoadingOutlined, MenuOutlined } from "@ant-design/icons";
 const CounterSales = () => {
   const navigate = useNavigate();
   const [dataProductDetail, setDataProductDetail] = useState([]);
@@ -56,6 +56,7 @@ const CounterSales = () => {
   const [dataColor, setDataColor] = useState([]);
   const [dataSize, setDataSize] = useState([]);
   const [isTourOpen, setIsTourOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("");
   const [filter, setFilter] = useState({
     productName: "",
     productCode: "",
@@ -73,7 +74,12 @@ const CounterSales = () => {
   const loadStaff = useCallback(async () => {
     const staffFromStorage = await getUserInfo();
     if (!staffFromStorage) {
-      notification.error({ message: "Nhân viên chưa đăng nhập!" });
+      notification.warning({
+        message: "Nhân viên",
+        description: "Nhân viên chưa đăng nhập",
+        duration: 2,
+        placement: "bottomLeft",
+      });
       return;
     }
     setStaff(staffFromStorage.data.data);
@@ -101,7 +107,7 @@ const CounterSales = () => {
           );
         }
       } catch (error) {
-        console.error("Error loading product details", error);
+        message.error("Không thể load sản phẩm");
       } finally {
         setLoading(false);
       }
@@ -216,7 +222,7 @@ const CounterSales = () => {
         setTotalCustomer(response.data.data.totalElements);
       }
     } catch (error) {
-      console.error("Error loading customer list", error);
+      message.error("Không load được khách hàng");
     }
   }, []);
 
@@ -246,6 +252,7 @@ const CounterSales = () => {
   );
   const addToCart = useCallback(
     async (productDetailId, quantity) => {
+      debugger;
       if (!selectedBill) {
         message.warning("Vui lòng chọn hóa đơn để mua hàng!");
         return false;
@@ -258,15 +265,18 @@ const CounterSales = () => {
         productDetailId.id
       );
       if (existingItemIndex > -1) {
-        const countQuantity = (updatedItems[existingItemIndex].quantity +=
-          quantity);
-        if (countQuantity > countProductDetailId.data.data.quantity) {
-          notification.error({
+        const currentQuantity = updatedItems[existingItemIndex].quantity;
+        const newQuantity = currentQuantity + quantity;
+        if (newQuantity > countProductDetailId.data.data.quantity) {
+          notification.warning({
             message: "Số lượng không đủ",
             description: `Sản phẩm trong kho không đủ.`,
+            duration: 2,
+            placement: "bottomLeft",
           });
           return false;
         }
+        updatedItems[existingItemIndex].quantity = newQuantity;
       } else {
         updatedItems.push({ ...productDetailId, quantity });
       }
@@ -336,12 +346,22 @@ const CounterSales = () => {
       customerId: customerId,
       orderDetailRequests: [],
     };
+
+    // Bắt đầu loading
+    setLoading(true);
+
     try {
-      setLoading(true);
       if (billWaiting.length >= 5) {
-        message.error("Đã đạt giới hạn tối đa 5 hóa đơn!");
+        notification.warning({
+          message: "Giới hạn số lượng",
+          description: "Đã đạt giới hạn tối đa 5 hóa đơn!",
+          duration: 2,
+          placement: "bottomLeft",
+        });
         return;
       }
+
+      // Tạo hóa đơn với hiệu ứng loading 2s
       const response = await createOrder(
         orderData.code,
         orderData.orderDate,
@@ -353,25 +373,39 @@ const CounterSales = () => {
         orderData.customerId,
         orderData.orderDetailRequests
       );
-      if (response.status === 201) {
-        setBillWaiting((prevBills) => [...prevBills, response.data]);
-      }
+      setTimeout(() => {
+        if (response.status === 201) {
+          setBillWaiting((prevBills) => {
+            const updatedBills = [...prevBills, response.data];
+            setActiveTab(response.data.code); // Chọn hóa đơn mới
+            setSelectedBill(response.data.code);
+            return updatedBills;
+          });
+        }
+        setLoading(false); // Kết thúc loading sau 2s
+      }, 1000);
     } catch (error) {
+      setLoading(false); // Kết thúc loading ngay cả khi có lỗi
       notification.error({
         message: "Tạo hóa đơn thất bại",
         description:
           error.response?.data.message ||
           "Đã có lỗi xảy ra trong quá trình tạo hóa đơn.",
+        duration: 2,
+        placement: "bottomLeft",
       });
-    } finally {
-      setLoading(false);
     }
   }, [selectedCustomer, staff, customerPaid, totalAmount, billWaiting]);
   const canceledOrder = useCallback(
     async (orderId) => {
       const status = "cancelled"; // Set the status to cancelled
       if (!selectedBill) {
-        notification.error({ message: "Vui lòng chọn hóa đơn để hủy!" });
+        notification.error({
+          message: "Chọn hóa đơn",
+          description: "Vui lòng chọn hóa đơn để hủy!",
+          duration: 2,
+          placement: "bottomLeft",
+        });
         return;
       }
       try {
@@ -386,6 +420,7 @@ const CounterSales = () => {
           notification.success({
             message: "Bỏ hóa đơn thành công",
             description: `Hóa đơn ${selectedBill} đã được bỏ.`,
+            placement: "bottomLeft",
           });
           setSelectedBill(null);
         }
@@ -396,6 +431,7 @@ const CounterSales = () => {
           description:
             error.response?.data.message ||
             "Đã có lỗi xảy ra trong quá trình hủy hóa đơn.",
+          placement: "bottomLeft",
         });
       } finally {
         setLoading(false);
@@ -403,27 +439,73 @@ const CounterSales = () => {
     },
     [selectedBill, billWaiting]
   );
+  const validateCartItems = () => {
+    if (!selectedBill) {
+      return { success: false, message: "Thanh toán thất bại" };
+    }
+    const cartItems = cartItemsByBill[selectedBill] || [];
+    if (cartItems.length === 0) {
+      return {
+        success: false,
+        message: "Vui lòng chọn sản phẩm để mua trước khi thanh toán.",
+      };
+    }
+    const { paymentMethod } = paymentInfo;
+    if (!paymentMethod || paymentMethod === undefined) {
+      return {
+        success: false,
+        message: "Vui lòng chọn phương thức thanh toán.",
+      };
+    }
+    return true;
+  };
+  const handleVNPPayment = async (orderResponse, paymentDTO) => {
+    const vnPayResponse = await createPayment(
+      paymentDTO.paymentDate,
+      paymentDTO.paymentMethod,
+      paymentDTO.orderId
+    );
+    if (vnPayResponse.status === 201) {
+      window.location.href = vnPayResponse.data.paymentUrl;
+      setBillWaiting(orderResponse.data.data);
+      updateCartItemsAndBillAfterPaymentSuccess();
+      return {
+        success: true,
+        message: "Thanh toán thành công qua VNPAY",
+      };
+    }
+  };
+  const handleNormalPayment = async (orderResponse, paymentDTO) => {
+    const paymentResponse = await createPayment(
+      paymentDTO.paymentDate,
+      paymentDTO.paymentMethod,
+      paymentDTO.orderId
+    );
+    if (paymentResponse.status === 201) {
+      message.success({
+        message: "Thanh toán thành công",
+        description: `Bạn đã thanh toán thành công`,
+        placement: "bottomLeft",
+      });
+      setBillWaiting(orderResponse.data.data);
+      updateCartItemsAndBillAfterPaymentSuccess();
+      return { success: true, message: "Thanh toán thành công" };
+    }
+  };
+
   const handlePayment = useCallback(async () => {
+    if (!validateCartItems()) return;
     const cartItems = cartItemsByBill[selectedBill] || [];
     const billCode = billWaiting.find((bill) => bill.code === selectedBill);
-
+    if (billCode === undefined) {
+      return { success: false, message: "Vui lòng tạo hoặc chọn hóa đơn" };
+    }
     if (cartItems.length === 0) {
-      notification.error({
-        message: "Giỏ hàng rỗng",
-        description: "Vui lòng chọn sản phẩm để mua trước khi thanh toán.",
-      });
-      return;
+      return {
+        success: false,
+        message: "Vui lòng chọn sản phẩm để mua trước khi thanh toán.",
+      };
     }
-
-    const { paymentMethod } = paymentInfo;
-    if (!paymentMethod) {
-      notification.error({
-        message: "Thông tin thanh toán không đầy đủ",
-        description: "Vui lòng chọn phương thức thanh toán.",
-      });
-      return;
-    }
-    // Prepare product details update
     const productDetailUpdateDTO = {
       orderDetailRequests: cartItems.map((item) => ({
         product_detail_id: item.id,
@@ -433,8 +515,8 @@ const CounterSales = () => {
       voucherId: paymentInfo.voucherId,
       total: totalAmountAfterDiscount,
     };
+
     try {
-      // Update order with product details and voucher (if provided)
       const orderResponse = await updateProductDetailWithOrder(
         billCode.id,
         productDetailUpdateDTO.orderDetailRequests,
@@ -448,76 +530,53 @@ const CounterSales = () => {
           paymentMethod: paymentInfo.paymentMethod,
           orderId: orderResponse.data.data.id,
         };
-        if (paymentDTO.paymentMethod === "VNP") {
-          const vnPayResponse = await createPayment(
-            paymentDTO.paymentDate,
-            paymentDTO.paymentMethod,
-            paymentDTO.orderId
-          );
-          if (vnPayResponse.status === 201) {
-            // Hiển thị QR code cho người dùng
-            window.location.href = vnPayResponse.data.paymentUrl;
-            // Nếu thanh toán thành công, thực hiện các hành động tiếp theo
-            setPaymentInfo({ paymentMethod: "", voucherId: null });
-            setCustomerPaid(0);
-            const updatedCartItems = { ...cartItemsByBill };
-            setCartItemsByBill((prev) => {
-              const updated = { ...prev };
-              delete updated[selectedBill];
-              return updated;
-            });
-            setSelectedBill(null);
-            setBillWaiting(orderResponse.data.data);
-            localStorage.setItem(
-              "cartItemsByBill",
-              JSON.stringify(updatedCartItems)
-            );
-            return { success: true, message: "Thanh toán thành công" };
-          }
-        } else {
-          const paymentResponse = await createPayment(
-            paymentDTO.paymentDate,
-            paymentDTO.paymentMethod,
-            paymentDTO.orderId
-          );
-          if (paymentResponse.status === 201) {
-            notification.success({
-              message: "Thanh toán thành công",
-              description: `Bạn đã thanh toán thành công`,
-            });
-
-            // Reset state and local storage
-            setPaymentInfo({ paymentMethod: "", voucherId: null }); // Reset voucherId after payment
-            setCustomerPaid(0);
-            const updatedCartItems = { ...cartItemsByBill };
-            setCartItemsByBill((prev) => {
-              const updated = { ...prev };
-              delete updated[selectedBill];
-              return updated;
-            });
-            setBillWaiting(orderResponse.data.data);
-            localStorage.setItem(
-              "cartItemsByBill",
-              JSON.stringify(updatedCartItems)
-            );
-            setSelectedBill(null);
-            return { success: true, message: "Thanh toán thành công" };
-          } else {
-            throw new Error("Payment failed");
-          }
+        if (
+          paymentDTO.paymentMethod === undefined ||
+          !paymentDTO.paymentMethod
+        ) {
+          return {
+            success: false,
+            message: "Vui lòng chọn phương thức thanh toán.",
+          };
         }
-      } else {
-        throw new Error("Order update failed");
+        if (paymentInfo.paymentMethod === "VNP") {
+          await handleVNPPayment(orderResponse, paymentDTO);
+          return { success: true, message: "Thanh toán thành công" };
+        } else {
+          await handleNormalPayment(orderResponse, paymentDTO);
+          return { success: true, message: "Thanh toán thành công" };
+        }
       }
     } catch (error) {
-      console.error("Error:", error);
       notification.error({
         message: error.message || "Đã có lỗi xảy ra",
         description: "Có sự cố xảy ra trong quá trình thanh toán.",
+        duration: 2,
+        placement: "bottomLeft",
       });
     }
-  }, [cartItemsByBill, selectedBill, totalAmount, customerPaid, paymentInfo]);
+  }, [
+    cartItemsByBill,
+    selectedBill,
+    totalAmountAfterDiscount,
+    paymentInfo,
+    billWaiting,
+  ]);
 
+  const updateCartItemsAndBillAfterPaymentSuccess = () => {
+    setPaymentInfo({ paymentMethod: "", voucherId: null });
+    setCustomerPaid(0);
+    setTotalAmount(0);
+    setTotalAmountAfterDiscount(0);
+    const updatedCartItems = { ...cartItemsByBill };
+    setCartItemsByBill((prev) => {
+      const updated = { ...prev };
+      delete updated[selectedBill];
+      return updated;
+    });
+    setSelectedBill(null);
+    localStorage.setItem("cartItemsByBill", JSON.stringify(updatedCartItems));
+  };
   useEffect(() => {
     const defaultFilters = {
       productName: "",
@@ -539,7 +598,6 @@ const CounterSales = () => {
       fetchPendingBills(staff.id);
     }
   }, [
-    selectedBill,
     cartItemsByBill,
     filter,
     pageProductDetail,
@@ -643,6 +701,10 @@ const CounterSales = () => {
             setSelectedBill={setSelectedBill}
             canceledOrder={canceledOrder}
             handleCreateBillWaiting={handleCreateBillWaiting}
+            setBillItems={setBillWaiting}
+            setActiveTab={setActiveTab}
+            activeTab={activeTab}
+            loading={loading}
           />
         </div>
         <div style={{ textAlign: "end", marginRight: "35px" }}>
@@ -666,6 +728,13 @@ const CounterSales = () => {
             onRemoveFromCart={handleRemoveFromCart}
             dataProductDetail={dataProductDetail}
           />
+          <div style={{ textAlign: "center" }}>
+            {loading && (
+              <Spin
+                indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />}
+              />
+            )}
+          </div>
         </div>
         <div
           style={{

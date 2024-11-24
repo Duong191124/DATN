@@ -1,21 +1,25 @@
+import moment from "moment";
 import axios from "./axios.custom";
 
 const registerCustomerAPI = (
   username,
   password,
   confirm_password,
-  phone,
+  phoneNumber,
   email,
-  dateOfBirth
+  dateOfBirth,
+  name
 ) => {
   const URL_BACKEND = "/api/v1/customer/register";
+  const formattedDateOfBirth = dateOfBirth ? moment(dateOfBirth).toISOString() : null;
   const data = {
     username: username,
     password: password,
     confirm_password: confirm_password,
-    phone: phone,
+    phoneNumber: phoneNumber,
     email: email,
-    dateOfBirth: dateOfBirth,
+    dateOfBirth: formattedDateOfBirth,
+    name: name
   };
   return axios.post(URL_BACKEND, data);
 };
@@ -394,11 +398,9 @@ const hasCustomerUsedVoucher = (customerId, voucherId) => {
   const URL_BACKEND = `api/v1/orders/hasUsedVoucher/${customerId}/${voucherId}`;
   return axios.get(URL_BACKEND);
 };
-const paymentCallBack = (orderId) => {
+const paymentCallBack = () => {
+  const params = new URLSearchParams(window.location.search);
   const URL_BACKEND = `api/v1/payments/payment-callback`;
-  const params = {
-    vnp_OrderInfo: orderId,
-  };
   return axios.get(URL_BACKEND, { params });
 };
 /*
@@ -725,7 +727,7 @@ const getStaffPermissions = (id) => {
   return axios.get(URL_BACKEND);
 };
 const updateStaffPermissions = (id, payload) => {
-  const URL_BACKEND = `/api/v1/staff/update-permission/${id}`;
+  const URL_BACKEND = `/api/v1/staff/${id}/update-permission`;
   return axios.put(URL_BACKEND, payload);
 };
 const createNewStaff = (
@@ -796,7 +798,6 @@ const updatePromotion = (
     discountAmount,
     status,
     productDetailsIds,
-
   }
 ) => {
   // Sửa 'productDetailsId' thành 'productDetailsIds'
@@ -1116,11 +1117,10 @@ const getShippingFee = (
     toDistrictId,
     toWardCode,
     weight,
-    serviceId
-  }
+    serviceId,
+  };
   return axios.post(URL_BACKEND, data);
 };
-
 const getCreateOrderGhn = (
   toDistrictId,
   toWardCode,
@@ -1144,11 +1144,10 @@ const getCreateOrderGhn = (
     customerPhone,
     addressDetail,
     customerEmail,
-    items
-  }
+    items,
+  };
   return axios.post(URL_BACKEND, data);
-}
-
+};
 const getAddressByCustomerId = (customerId) => {
   const URL_BACKEND = `/api/v1/address/${customerId}`;
   return axios.get(URL_BACKEND);
@@ -1202,7 +1201,28 @@ const deleteAddressByid = (addressId) => {
   const URL_BACKEND = `/api/v1/address/${addressId}`;
   return axios.delete(URL_BACKEND);
 };
-
+// api statistics
+const productsStatistics = () => {
+  const URL_BACKEND = "api/v1/statistics/products";
+  return axios.get(URL_BACKEND);
+};
+const topSellingProducts = (day, month, year) => {
+  const URL_BACKEND = "/api/v1/statistics/top-selling-product";
+  const params = {
+    day: day,
+    month: month,
+    year: year,
+  };
+  return axios.get(URL_BACKEND, { params });
+};
+const accountStatistics = () => {
+  const URL_BACKEND = "/api/v1/statistics/account";
+  return axios.get(URL_BACKEND);
+};
+const getProductsWithAttributeAndCustomer = () => {
+  const URL_BACKEND = "/api/v1/statistics/products-attribute-customer";
+  return axios.get(URL_BACKEND);
+};
 export {
   getCreateOrderGhn,
   getShippingFee,
@@ -1325,4 +1345,8 @@ export {
   fetchTopFeaturedProducts,
   fetchProductsByProductDetails,
   paymentCallBack,
+  productsStatistics,
+  topSellingProducts,
+  accountStatistics,
+  getProductsWithAttributeAndCustomer,
 };

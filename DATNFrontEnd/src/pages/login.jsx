@@ -21,11 +21,12 @@ const LoginPage = () => {
                 localStorage.setItem("access_token", res.data.token);
 
                 const userInfoRes = await getUserInfo(res.data.token);
+                console.log(userInfoRes);
                 if (userInfoRes.status === 200) {
-                    localStorage.setItem("userId", userInfoRes.data.id);
-                    const userCart = JSON.parse(localStorage.getItem(`cart_${userInfoRes.data.id}`)) || [];
+                    localStorage.setItem("userId", userInfoRes.data.data.id);
+                    const userCart = JSON.parse(localStorage.getItem(`cart_${userInfoRes.data.data.id}`)) || [];
                     setCartItems(userCart);
-                    setUser(userInfoRes.data);
+                    setUser(userInfoRes.data.data);
                     setLoginStatus(res.status.toString());
                     message.success("Đăng nhập thành công");
                     navigate(res.status === 200 ? "/" : "/admin");

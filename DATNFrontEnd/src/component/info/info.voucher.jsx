@@ -127,7 +127,7 @@ const InfoVoucher = ({ user }) => {
     ]);
 
     const getVoucherData = async () => {
-        const res = await getVouchersByCustomerId(user.data.id);
+        const res = await getVouchersByCustomerId(user.id);
         setVouchers(res.data.data);
     }
 

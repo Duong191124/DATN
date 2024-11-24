@@ -1,4 +1,4 @@
-import { Table, Button, Modal, Input, message } from "antd";
+import { Table, Button, Modal, Input, message, notification } from "antd";
 import { useState } from "react";
 import { PlusOutlined, MinusOutlined, DeleteOutlined } from "@ant-design/icons";
 import "./order.css";
@@ -29,21 +29,16 @@ const CounterSaleCart = ({
     if (productDetail) {
       const newQuantity = item.quantity + 1;
       if (newQuantity > productDetail.quantity) {
-        message.warning(
-          `Số lượng tồn kho chỉ có ${productDetail.quantity} sản phẩm`
-        );
+        notification.warning({
+          message: "Số lượng",
+          description: `Số lượng tồn kho chỉ có ${productDetail.quantity} sản phẩm`,
+          duration: 2,
+          placement: "bottomLeft",
+        });
         return;
       }
       onUpdateQuantity(item.id, newQuantity);
     }
-  };
-
-  const handleRemove = (item) => {
-    Modal.confirm({
-      title: "Xác nhận",
-      content: "Bạn có chắc chắn muốn xóa sản phẩm này không?",
-      onOk: () => onRemoveFromCart(item.id),
-    });
   };
 
   const handleQuantityChange = (e, record) => {
@@ -54,21 +49,34 @@ const CounterSaleCart = ({
 
     if (productDetail) {
       if (newQuantity > productDetail.quantity) {
-        message.warning(
-          `Số lượng tồn kho chỉ có ${productDetail.quantity} sản phẩm`
-        );
+        notification.warning({
+          message: "Số lượng",
+          description: `Số lượng tồn kho chỉ có ${productDetail.quantity} sản phẩm`,
+          duration: 2,
+          placement: "bottomLeft",
+        });
         return;
       }
     }
 
     if (newQuantity <= 0) {
-      message.warning("Số lượng không thể nhỏ hơn 1");
+      notification.warning({
+        message: "Số lượng",
+        description: "Số lượng không thể nhỏ hơn 1",
+        duration: 2,
+        placement: "bottomLeft",
+      });
       onUpdateQuantity(record.id, 1);
       return;
     }
 
     if (newQuantity >= 1000) {
-      message.warning("Số lượng không thể lớn hơn 1000");
+      notification.warning({
+        message: "Số lượng",
+        description: "Số lượng không thể lớn hơn 1000",
+        duration: 2,
+        placement: "bottomLeft",
+      });
       onUpdateQuantity(record.id, 1);
       return;
     }
@@ -154,7 +162,7 @@ const CounterSaleCart = ({
       render: (_, record) => (
         <Button
           icon={<DeleteOutlined />}
-          onClick={() => handleRemove(record)}
+          onClick={() => onRemoveFromCart(record.id)}
           danger
         />
       ),

@@ -38,10 +38,12 @@ const CheckoutStep = () => {
         serviceId,
         setTotalShippingFee,
         totalShippingFee,
-        addresses
+        addresses,
+        selectAddress
     } = useCheckout();
     const navigate = useNavigate();
     const [current, setCurrent] = useState(0);
+    const [loading, setLoading] = useState(false);
     const userId = localStorage.getItem('userId');
 
     const next = () => {
@@ -83,6 +85,7 @@ const CheckoutStep = () => {
     };
 
     const confirmOrder = async () => {
+        setLoading(true);
         const cartItemsLocal = cartItems;
         const orderDetailRequests = convertCartToOrderDetails(cartItemsLocal);
         const itemsProduct = convertDataProductToOrder(cartItemsLocal);
@@ -113,7 +116,8 @@ const CheckoutStep = () => {
         }
 
         try {
-            await createOrderForOnline(
+            // Step 1: Create the order in your system
+            const createOrderResponse = await createOrderForOnline(
                 orderDTO.code,
                 orderDTO.orderDate,
                 orderDTO.deliveryFee,
@@ -123,7 +127,15 @@ const CheckoutStep = () => {
                 orderDTO.moneyReceived,
                 orderDTO.orderDetailRequests
             );
-            const res = await getCreateOrderGhn(
+
+
+            // If creating the order fails, throw an error
+            if (!createOrderResponse || createOrderResponse?.error) {
+                throw new Error(createOrderResponse?.message);
+            }
+
+            // Step 2: Create the order in the GHN system (Shipping)
+            const createOrderGhnResponse = await getCreateOrderGhn(
                 createOrderGhn.toDistrictId,
                 createOrderGhn.toWardCode,
                 createOrderGhn.weight,
@@ -133,37 +145,44 @@ const CheckoutStep = () => {
                 createOrderGhn.customerPhone,
                 createOrderGhn.addressDetail,
                 createOrderGhn.customerEmail,
-                createOrderGhn.itemsProduct,
-            )
-            console.log(res);
-            if (res?.error) {
-                throw new Error(res.error || "Đơn hàng giao hàng thất bại");
+                createOrderGhn.itemsProduct
+            );
+
+            // If there is any error in the GHN response, throw an error
+            if (createOrderGhnResponse?.error) {
+                throw new Error(createOrderGhnResponse?.error || "Giao hàng không thành công.");
             }
+
+            // If both orders are successfully created, show success message
             message.success('Đơn hàng đã được tạo thành công!');
             resetCheckoutContext();
             localStorage.removeItem(`cart_${userId}`);
             setCartItems([]);
-            navigate("/")
+            navigate("/");
+            setLoading(false);
         } catch (error) {
-            let errorMessage = error?.response?.data?.message || "Giao hàng nhanh không hỗ trợ xã này";
+            // Catch and handle errors from both the order creation process or GHN
+            let errorMessage = error?.message || "Đã xảy ra lỗi. Vui lòng thử lại sau.";
 
-            // Cắt chuỗi để chỉ lấy phần từ "GHN" trở đi
-            const ghnIndex = errorMessage.indexOf("Giao");
-            if (ghnIndex !== -1) {
-                errorMessage = errorMessage.substring(ghnIndex);
+            // Handle insufficient stock error more clearly if it's the issue
+            if (error?.message?.includes("Insufficient stock")) {
+                errorMessage = "Số lượng sản phẩm không đủ trong kho!";
             }
 
+            // Show the error message to the user
             message.error(errorMessage);
+            return;
         }
     };
 
+
     const handleApiGhn = async () => {
         const values = {
-            fromDistrictId: fromDistrict,
-            toDistrictId: district,
-            toWardCode: ward,
+            fromDistrictId: selectAddress.fromDistrict,
+            toDistrictId: selectAddress.district,
+            toWardCode: selectAddress.ward,
             weight: weight,
-            serviceId: serviceId,
+            serviceId: selectAddress.serviceId,
         };
         try {
             const res = await getShippingFee(
@@ -264,6 +283,7 @@ const CheckoutStep = () => {
                         }}
                         type="primary"
                         onClick={confirmOrder}
+                        loading={loading}
                     >
                         Confirm
                     </Button>
