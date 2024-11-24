@@ -4,7 +4,7 @@ import { UserOutlined, PhoneOutlined, EnvironmentOutlined } from '@ant-design/ic
 import { useTranslation } from 'react-i18next';
 import { getDistrict, getProvinces, getWards, saveAddressByid, updateAddressByid } from '../../service/api.service';
 
-const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, editingAddress, getAddressByid }) => {
+const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, editingAddress, getAddressByid, onAddressUpdated }) => {
     const { t, i18n } = useTranslation();
     const language = localStorage.getItem("language") || "vi";
     const [provinces, setProvinces] = useState([]);
@@ -79,8 +79,8 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
 
     // Handle form submission
     const onFormSubmit = async (values) => {
-        if (editingAddress) {
-            try {
+        try {
+            if (editingAddress) {
                 await updateAddressByid(
                     editingAddress.id,
                     values.province,
@@ -90,14 +90,8 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                     values.phone,
                     values.address,
                 );
-                setIsModalVisible(false);
                 message.success("Update successful");
-                getAddressByid();
-            } catch (error) {
-                message.error("Error: ", error);
-            }
-        } else {
-            try {
+            } else {
                 await saveAddressByid(
                     userId,
                     values.province,
@@ -107,14 +101,18 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                     values.phone,
                     values.address,
                 );
-                setIsModalVisible(false);
                 message.success("Address saved successfully");
-                getAddressByid();
-            } catch (error) {
-                message.error("Error: ", error);
             }
+            setIsModalVisible(false);
+
+            if (onAddressUpdated) {
+                onAddressUpdated(); // Gọi callback để đồng bộ thông tin
+            }
+        } catch (error) {
+            message.error("Error: ", error);
         }
     };
+
 
     return (
         <Modal

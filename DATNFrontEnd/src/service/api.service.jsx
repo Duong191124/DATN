@@ -1,22 +1,24 @@
+import moment from "moment";
 import axios from "./axios.custom";
 
 const registerCustomerAPI = (
   username,
   password,
   confirm_password,
-  phone,
+  phoneNumber,
   email,
   dateOfBirth,
   name
 ) => {
   const URL_BACKEND = "/api/v1/customer/register";
+  const formattedDateOfBirth = dateOfBirth ? moment(dateOfBirth).toISOString() : null;
   const data = {
     username: username,
     password: password,
     confirm_password: confirm_password,
-    phone: phone,
+    phoneNumber: phoneNumber,
     email: email,
-    dateOfBirth: dateOfBirth,
+    dateOfBirth: formattedDateOfBirth,
     name: name
   };
   return axios.post(URL_BACKEND, data);

@@ -30,8 +30,6 @@ public class CustomerDTO {
     private String address;
     private int status;
 
-
-
     private String notes;
 
     private int gender;

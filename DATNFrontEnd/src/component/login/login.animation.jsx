@@ -452,6 +452,7 @@ const LoginAnimation = () => {
 
               }}
               onClick={form.submit}
+              loading={loading}
             >
               Login
             </Button>

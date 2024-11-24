@@ -74,9 +74,6 @@ const RegisterPage = () => {
         const mergedData = {
             ...formData,
             ...values,
-            dateOfBirth: values.dateOfBirth
-                ? moment(values.dateOfBirth).format("YYYY-MM-DDTHH:mm:ss") // Định dạng đúng yêu cầu backend
-                : null,
         };
 
         if (currentStep === 0) {
@@ -100,9 +97,15 @@ const RegisterPage = () => {
                     name: mergedData.name || "",
                 };
 
-                const res = await registerCustomerAPI(apiPayload);
-                console.log("API Response: ", res);
-                console.log("Payload Sent:", apiPayload);
+                await registerCustomerAPI(
+                    apiPayload.username,
+                    apiPayload.password,
+                    apiPayload.confirm_password,
+                    apiPayload.phoneNumber,
+                    apiPayload.email,
+                    apiPayload.dateOfBirth,
+                    apiPayload.name
+                );
 
                 notification.success({
                     message: "Registration Successful",
@@ -264,7 +267,7 @@ const RegisterPage = () => {
                             },
                         ]}
                     >
-                        <DatePicker format="YYYY-MM-DDTHH:mm:ss" style={inputStyle} />
+                        <DatePicker style={inputStyle} />
                     </Form.Item>
                 </>
             ),

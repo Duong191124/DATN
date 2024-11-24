@@ -104,13 +104,7 @@ const SelectAddressModal = ({
           >
             <Row justify="space-between" align="top">
               <Col flex="1">
-                <Radio
-                  checked={address.selected}
-                  style={{
-                    borderColor: address.selected ? '#1890ff' : '', // Blue border when selected
-                    color: address.selected ? '#1890ff' : ''   // Blue text color when selected
-                  }}
-                >
+                <Radio checked={address.selected}>
                   <Space direction="vertical" size={8}>
                     <Space>
                       <Text strong>{address.name}</Text>
@@ -124,7 +118,9 @@ const SelectAddressModal = ({
                     </Space>
                     <Space align="start">
                       <HomeOutlined style={{ marginTop: 4 }} />
-                      <Text>{address.addressDetail}, {address.district}, {address.ward}, {address.city}</Text>
+                      <Text>
+                        {address.addressDetail}, {address.district}, {address.ward}, {address.city}
+                      </Text>
                     </Space>
                   </Space>
                 </Radio>

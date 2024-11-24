@@ -26,13 +26,14 @@ const Shipping = () => {
         setProvinces,
         provinces,
         district,
-        ward
+        ward,
+        selectAddress,
+        setSelectAddress
     } = useCheckout();
 
     const [form] = Form.useForm();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [selectAddress, setSelectAddress] = useState(null);
     const [userId, setUserId] = useState(null); // Initialize userId state
 
     useEffect(() => {
@@ -44,7 +45,6 @@ const Shipping = () => {
             const res = await getUserInfo();
             setUserId(res.data.data.id); // Set the userId from the response
             const addressData = await getAddressByCustomerId(res.data.data.id);
-            console.log(addressData);
             if (addressData?.data?.data && addressData.data.data.length > 0) {
                 const address = addressData.data.data[0];  // Get the first address if available
 
@@ -55,11 +55,14 @@ const Shipping = () => {
                 setServiceId(address.serviceId);
                 setAddresses(addressData.data.data);
             }
-            cartItems.forEach(cart => {
-                if (cart) {
-                    setWeight(cart.weight.weightValue);
+            const totalWeight = cartItems.reduce((total, cart) => {
+                if (cart && cart.weight && cart.quantity) {
+                    return total + cart.weight.weightValue * cart.quantity;
                 }
-            })
+                return total;
+            }, 0);
+
+            setWeight(totalWeight);
         } catch (error) {
             console.error(error);
         }
@@ -71,14 +74,23 @@ const Shipping = () => {
     // };
 
     const handleAddNewAddress = () => {
+        setSelectAddress(null);
         form.setFieldValue(null);
         setIsModalVisible(true);
     };
 
-    const handleSelectAddress = (address) => {
-        setSelectAddress(address);
-        setIsModalOpen(false); // Close the modal after selection
+    const handleSelectAddress = (selectedAddress) => {
+        resetGhnTotalPrice();
+        const updatedAddresses = addresses.map((address) => ({
+            ...address,
+            selected: address.id === selectedAddress.id,
+        }));
+        setAddresses(updatedAddresses);
+        setSelectAddress(selectedAddress);
+        setIsModalOpen(false);
     };
+
+    console.log(selectAddress);
 
     const handleEditAddress = (address) => {
         setIsModalVisible(true);
@@ -260,6 +272,7 @@ const Shipping = () => {
                 isModalVisible={isModalVisible}
                 handleCancel={() => setIsModalVisible(false)}
                 setIsModalVisible={setIsModalVisible}
+                onAddressUpdated={getInformationForCustomer}
                 form={form}
                 editingAddress={selectAddress} // Pass the selected address to the modal for editing
             />
