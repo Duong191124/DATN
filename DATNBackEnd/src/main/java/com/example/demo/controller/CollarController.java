@@ -29,7 +29,7 @@ public class CollarController {
     }
 
     // Thêm một cổ áo mới
-    @PreAuthorize("hasAuthority('CREATE_COLLAR')")
+//    @PreAuthorize("hasAuthority('CREATE_COLLAR')")
     @PostMapping()
     public ResponseEntity<?> addCollar(@Valid @RequestBody CollarDTO collarDTO, BindingResult result) {
         try {
@@ -45,7 +45,7 @@ public class CollarController {
     }
 
     // Cập nhật cổ áo theo id
-    @PreAuthorize("hasAuthority('UPDATE_COLLAR')")
+//    @PreAuthorize("hasAuthority('UPDATE_COLLAR')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCollar(@PathVariable Integer id, @Valid @RequestBody CollarDTO collarDTO,BindingResult result) {
         try {
@@ -73,7 +73,7 @@ public class CollarController {
     }
 
     // Xóa cổ áo theo id
-    @PreAuthorize("hasAuthority('DELETE_COLLAR')")
+//    @PreAuthorize("hasAuthority('DELETE_COLLAR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCollar(@PathVariable Integer id) {
         try {

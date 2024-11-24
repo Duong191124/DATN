@@ -29,7 +29,7 @@ public class WeightController {
                 .status(HttpStatus.OK.value())
                 .build());
     }
-    @PreAuthorize("hasAuthority('CREATE_WEIGHT')")
+//    @PreAuthorize("hasAuthority('CREATE_WEIGHT')")
     @PostMapping
     public ResponseEntity<MessageReponse> createWeight(@Valid @RequestBody WeightDTO weightDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -50,7 +50,7 @@ public class WeightController {
                 .build());
     }
 
-    @PreAuthorize("hasAuthority('UPDATE_WEIGHT')")
+//    @PreAuthorize("hasAuthority('UPDATE_WEIGHT')")
     @PutMapping("/{id}")
     public ResponseEntity<MessageReponse> updateWeight(
             @PathVariable("id") Integer id,

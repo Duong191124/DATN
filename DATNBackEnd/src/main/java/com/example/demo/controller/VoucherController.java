@@ -35,7 +35,7 @@ public class VoucherController {
                 .build()
         );
     }
-    @PreAuthorize("hasAuthority('CREATE_VOUCHER')")
+//    @PreAuthorize("hasAuthority('CREATE_VOUCHER')")
     @PostMapping("")
     public ResponseEntity<?> createVoucher(@Valid @RequestBody VoucherDTO voucherDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -51,7 +51,7 @@ public class VoucherController {
         VoucherResponse createdVoucher = voucherService.add(voucherDTO);
         return new ResponseEntity<>(createdVoucher, HttpStatus.CREATED);
     }
-    @PreAuthorize("hasAuthority('UPDATE_VOUCHER')")
+//    @PreAuthorize("hasAuthority('UPDATE_VOUCHER')")
     @PutMapping("{id}")
     public ResponseEntity<?> updateVoucher(@PathVariable("id") Integer id,
                                            @Valid @RequestBody VoucherDTO voucherDTO,
@@ -78,14 +78,14 @@ public class VoucherController {
             );
         }
     }
-    @PreAuthorize("hasAuthority('UPDATE_CUSTOMER')")
+//    @PreAuthorize("hasAuthority('UPDATE_CUSTOMER')")
     @PutMapping("/{id}/customer")
     public ResponseEntity<?> updateCustomer(@PathVariable Integer id, @RequestBody VoucherDTO voucherDTO) throws Exception {
         // Gửi toàn bộ danh sách customerIds tới service, cho phép null hoặc trống
         VoucherResponse updatedVoucher = voucherService.updateCustomer(id, voucherDTO.getCustomers());
         return ResponseEntity.ok(updatedVoucher);
     }
-    @PreAuthorize("hasAuthority('UPDATE_VOUCHER')")
+//    @PreAuthorize("hasAuthority('UPDATE_VOUCHER')")
     @PutMapping("/{id}/status")
     public ResponseEntity<?> changeStatus(@PathVariable Integer id) {
         try {
