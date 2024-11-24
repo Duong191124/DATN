@@ -11,8 +11,9 @@ import {
   Select,
   Row,
   Col,
+  message,
 } from "antd";
-import { PlusCircleOutlined } from "@ant-design/icons"; // Import PlusCircleOutlined
+import { CloseOutlined, PlusCircleOutlined } from "@ant-design/icons"; // Import PlusCircleOutlined
 import { useDebounce } from "use-debounce";
 import { createCustomer } from "../../../../service/api.service";
 import { Option } from "antd/es/mentions";
@@ -49,11 +50,8 @@ const CounterSaleCustomer = ({
   const handleCustomerSelect = (customer) => {
     setSelectedCustomer(customer);
     onCustomerSelect(customer);
-    notification.success({
-      message: "Khách hàng đã được chọn",
-      description: `Khách hàng ${customer.name} đã được chọn để thanh toán.`,
-    });
-    setSearchText(""); // Clear search field after selection
+    message.success("Đã chọn khác hàng");
+    setSearchText("");
   };
 
   const handleAddCustomer = async (values) => {
@@ -71,15 +69,13 @@ const CounterSaleCustomer = ({
         values.note,
         values.gender
       );
-
       // Cập nhật lại danh sách khách hàng trong component cha
       setCustomerList((prevCustomerList) => [...prevCustomerList, newCustomer]);
-
       notification.success({
         message: "Khách hàng đã được thêm thành công",
         description: `Khách hàng ${values.name} đã được thêm.`,
+        placement: "top",
       });
-
       setIsModalVisible(false);
       setIsCreated(true);
       form.resetFields();
@@ -105,6 +101,10 @@ const CounterSaleCustomer = ({
     );
     setFilteredCustomers(filtered);
   }, [searchText, customerList]);
+  const handleDeselectCustomer = () => {
+    setSelectedCustomer(null);
+    onCustomerSelect(null);
+  };
   useEffect(() => {
     if (isCreated) {
       loadCustomerList();
@@ -268,8 +268,6 @@ const CounterSaleCustomer = ({
           />
         </div>
       )}
-
-      {/* Display selected customer info */}
       {selectedCustomer && (
         <div
           style={{
@@ -278,6 +276,7 @@ const CounterSaleCustomer = ({
             padding: "15px",
             borderRadius: "8px",
             backgroundColor: "#fafafa",
+            position: "relative",
           }}
         >
           <h4>Thông tin khách hàng</h4>
@@ -287,6 +286,17 @@ const CounterSaleCustomer = ({
           <p>
             <strong>SĐT:</strong> {selectedCustomer.phoneNumber}
           </p>
+
+          {/* Nút X để bỏ chọn khách hàng */}
+          <CloseOutlined
+            onClick={handleDeselectCustomer}
+            style={{
+              position: "absolute",
+              top: "10px",
+              right: "10px",
+              cursor: "pointer",
+            }}
+          />
         </div>
       )}
     </div>

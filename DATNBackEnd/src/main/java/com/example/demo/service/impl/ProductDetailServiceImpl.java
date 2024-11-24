@@ -152,10 +152,6 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         return featuredProducts;
     }
 
-
-
-
-
     @Override
     public void deletePD(Integer id) throws Exception {
         ProductDetail productDetail = productDetailRepo.findById(id)

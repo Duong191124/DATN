@@ -128,7 +128,6 @@ const ProductList = () => {
     switch (sortBy) {
       case "newest":
         filtered.sort((a, b) => {
-          console.log("a", a);
           const aDate = moment(a.products.createdAt).isValid()
             ? moment(a.products.createdAt).toDate()
             : new Date(0);

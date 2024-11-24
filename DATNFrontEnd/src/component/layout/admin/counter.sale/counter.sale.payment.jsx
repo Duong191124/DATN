@@ -51,7 +51,6 @@ const CounterSalePayment = ({
   cartItems,
   customerPaid,
   setCustomerPaid,
-  loading,
   totalAmount,
   setTotalAmount,
   totalAmountAfterDiscount,
@@ -145,8 +144,8 @@ const CounterSalePayment = ({
         ...bankAccounts,
         { ...newAccount, logo: bankOption.logo },
       ];
-      setBankAccounts(updatedAccounts);
       localStorage.setItem("bankAccounts", JSON.stringify(updatedAccounts));
+      setBankAccounts(updatedAccounts);
       message.success("Tài khoản ngân hàng đã được thêm thành công.");
     }
     setNewAccount({
@@ -408,7 +407,12 @@ const CounterSalePayment = ({
       }
     }
   }, [selectedBill, vouchers]); // Chỉ phụ thuộc vào vouchers và selectedBill
-
+  useEffect(() => {
+    const storedAccounts = localStorage.getItem("bankAccounts");
+    if (storedAccounts) {
+      setBankAccounts(JSON.parse(storedAccounts));
+    }
+  }, []);
   const handleDeleteAccount = (accountNumber) => {
     const updatedAccounts = bankAccounts.filter(
       (account) => account.accountNumber !== accountNumber
@@ -553,21 +557,22 @@ const CounterSalePayment = ({
     }
   };
   useEffect(() => {
-    setSelectedVoucher(null);
-    setTotalAmountAfterDiscount(totalAmount); // Đặt lại tổng tiền sau giảm giá
-    setPaymentInfo({
-      ...paymentInfo,
-      voucherId: null, // Không có voucher
-    });
-
-    // Tính lại số tiền thừa khi chuyển hóa đơn
-    setChange(customerPaid - totalAmount);
-  }, [selectedBill, customerPaid, totalAmount]);
+    if (selectedBill) {
+      setSelectedVoucher(null);
+      setTotalAmountAfterDiscount(totalAmount); // Đặt lại tổng tiền sau giảm giá
+      setPaymentInfo({
+        ...paymentInfo,
+        voucherId: null, // Không có voucher
+      });
+      setCustomerPaid(0);
+      // Tính lại số tiền thừa khi chuyển hóa đơn
+      setChange(customerPaid - totalAmount);
+    }
+  }, [selectedBill, totalAmount]);
 
   const [moneyOptions, setMoneyOptions] = useState([]);
 
   useEffect(() => {
-    // Tính toán moneyOptions dựa trên việc có voucher hay không
     const newMoneyOptions = vouchers
       ? [
           totalAmountAfterDiscount,
@@ -582,17 +587,20 @@ const CounterSalePayment = ({
           totalAmount + 500000,
         ];
     setMoneyOptions(newMoneyOptions);
-    // Tính toán số tiền thừa
+  }, [vouchers, totalAmountAfterDiscount, totalAmount]);
+
+  useEffect(() => {
     setChange(
       customerPaid - (vouchers ? totalAmountAfterDiscount : totalAmount)
     );
-  }, [vouchers, totalAmountAfterDiscount, totalAmount, customerPaid, change]);
+  }, [vouchers, totalAmountAfterDiscount, totalAmount, customerPaid]);
 
   const handlePayment = async () => {
-    // if (paymentInfo.paymentMethod !== "Bank Transfer") {
-    //   message.error(`Vui lòng chọn phương thức thanh toán`);
-    //   return;
-    // }
+    if (paymentInfo.paymentMethod === "Bank Transfer" && !selectedAccount) {
+      message.error(`Vui lòng chọn ngân hàng để thanh toán`);
+      return;
+    }
+
     if (
       customerPaid < totalAmountAfterDiscount &&
       paymentInfo.paymentMethod === "Cash"
@@ -907,7 +915,7 @@ const CounterSalePayment = ({
             </>
           )}
         </div>
-        <Button type="primary" onClick={handlePayment} loading={loading}>
+        <Button type="primary" onClick={handlePayment}>
           Thanh Toán
         </Button>
       </Form>

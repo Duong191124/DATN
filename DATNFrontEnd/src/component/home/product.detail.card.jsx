@@ -74,7 +74,7 @@ const ProductActions = styled(motion.div)`
   left: 0;
   right: 0;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.5);
   display: flex;
   justify-content: center;
   gap: 8px;
@@ -181,7 +181,7 @@ const ProductDetailCard = ({ product, onAddToWishlist, onQuickView }) => {
     productResponse,
     quantity,
     image,
-    promotions, // Assuming promotions is an array of promotion details
+    promotions,
   } = product;
   console.log("s", size);
   const { addToCart } = useCart();

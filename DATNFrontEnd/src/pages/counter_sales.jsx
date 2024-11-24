@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Button, message, notification } from "antd";
+import { Button, Drawer, Dropdown, Menu, message, notification } from "antd";
 import CounterSalesProductDetail from "../component/layout/admin/counter.sale/counter.sale.product-detail";
 import CounterSaleCart from "../component/layout/admin/counter.sale/counter.sale.cart";
 import CounterSalePayment from "../component/layout/admin/counter.sale/counter.sale.payment";
@@ -19,7 +19,8 @@ import {
   updateStatusOrder,
 } from "../service/api.service";
 import CounterSaleCustomer from "../component/layout/admin/counter.sale/counter.sale.customer";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { MenuOutlined } from "@ant-design/icons";
 const CounterSales = () => {
   const navigate = useNavigate();
   const [dataProductDetail, setDataProductDetail] = useState([]);
@@ -39,11 +40,11 @@ const CounterSales = () => {
   const [customerPaid, setCustomerPaid] = useState(0);
   const [customerList, setCustomerList] = useState([]);
   const [totalCustomer, setTotalCustomer] = useState(0);
-  const [page, setPage] = useState(1); // Trang hiện tại
+  const [page, setPage] = useState(1);
   const [size] = useState(10);
   const [totalProductDetail, setTotalProductDetail] = useState(0);
   const [pageProductDetail, setPageProductDetail] = useState(1);
-  const [pageSizeProductDetail] = useState(10);
+  const [pageSizeProductDetail] = useState(5);
   const [dataColor, setDataColor] = useState([]);
   const [dataSize, setDataSize] = useState([]);
   const [filter, setFilter] = useState({
@@ -51,6 +52,7 @@ const CounterSales = () => {
     productCode: "",
     color: "",
     size: "",
+    weightName: "",
     status: "",
     minPrice: undefined,
     maxPrice: undefined,
@@ -76,6 +78,7 @@ const CounterSales = () => {
           filter.productCode,
           filter.color,
           filter.size,
+          filter.weightName,
           filter.minPrice,
           filter.maxPrice,
           filter.status,
@@ -235,7 +238,7 @@ const CounterSales = () => {
   const addToCart = useCallback(
     async (productDetailId, quantity) => {
       if (!selectedBill) {
-        notification.error({ message: "Vui lòng chọn hóa đơn để mua hàng!" });
+        message.warning("Vui lòng chọn hóa đơn để mua hàng!");
         return false;
       }
       const updatedItems = [...(cartItemsByBill[selectedBill] || [])];
@@ -327,10 +330,7 @@ const CounterSales = () => {
     try {
       setLoading(true);
       if (billWaiting.length >= 5) {
-        notification.error({
-          message: "Đã đạt giới hạn tối đa 5 hóa đơn!",
-          description: "Không thể tạo thêm hóa đơn khi đã có 5 hóa đơn chờ.",
-        });
+        message.error("Đã đạt giới hạn tối đa 5 hóa đơn!");
         return;
       }
       const response = await createOrder(
@@ -345,10 +345,6 @@ const CounterSales = () => {
         orderData.orderDetailRequests
       );
       if (response.status === 201) {
-        notification.success({
-          message: "Hóa đơn đã được tạo thành công",
-          description: `Hóa đơn đã được tạo bởi nhân viên ${staff.name}.`,
-        });
         setBillWaiting((prevBills) => [...prevBills, response.data]);
       }
     } catch (error) {
@@ -380,7 +376,7 @@ const CounterSales = () => {
           setBillWaiting(updatedBillWaiting);
           notification.success({
             message: "Bỏ hóa đơn thành công",
-            description: `Hóa đơn ${orderId} đã được bỏ.`,
+            description: `Hóa đơn ${selectedBill} đã được bỏ.`,
           });
           setSelectedBill(null);
         }
@@ -450,7 +446,6 @@ const CounterSales = () => {
           paymentDTO.orderId
         );
         if (paymentResponse.status === 201) {
-          setLoading(true);
           notification.success({
             message: "Thanh toán thành công",
             description: `Bạn đã thanh toán thành công`,
@@ -483,8 +478,6 @@ const CounterSales = () => {
         message: error.message || "Đã có lỗi xảy ra",
         description: "Có sự cố xảy ra trong quá trình thanh toán.",
       });
-    } finally {
-      setLoading(false);
     }
   }, [cartItemsByBill, selectedBill, totalAmount, customerPaid, paymentInfo]);
 
@@ -495,6 +488,7 @@ const CounterSales = () => {
       color: "",
       size: "",
       status: "",
+      weightName: "",
       minPrice: undefined,
       maxPrice: undefined,
     };
@@ -515,6 +509,15 @@ const CounterSales = () => {
     pageSizeProductDetail,
     staff,
   ]);
+  const menu = (
+    <Menu>
+      <Menu.Item key="1">
+        <NavLink to="/admin" style={{ display: "block", padding: "10px 0" }}>
+          Quay về trang quản lý
+        </NavLink>
+      </Menu.Item>
+    </Menu>
+  );
   return (
     <div
       style={{
@@ -559,6 +562,11 @@ const CounterSales = () => {
             handleCreateBillWaiting={handleCreateBillWaiting}
           />
         </div>
+        <div style={{ textAlign: "end", marginRight: "35px" }}>
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <Button type="primary" icon={<MenuOutlined />} />
+          </Dropdown>
+        </div>
       </div>
       <div
         style={{
@@ -580,7 +588,7 @@ const CounterSales = () => {
             width: "30%",
             backgroundColor: "#ddd",
             padding: "15px",
-            minHeight: "520px",
+            minHeight: "625px",
             overflowY: "auto",
           }}
         >
@@ -608,7 +616,6 @@ const CounterSales = () => {
             setPaymentInfo={setPaymentInfo}
             customerPaid={customerPaid}
             setCustomerPaid={setCustomerPaid}
-            loading={loading}
           />
         </div>
       </div>

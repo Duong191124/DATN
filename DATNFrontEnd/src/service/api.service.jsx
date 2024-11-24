@@ -197,6 +197,7 @@ const fetchPageDataProductDetail = async (
   code,
   colorName,
   sizeName,
+  weightName,
   minPrice,
   maxPrice,
   status,
@@ -209,13 +210,13 @@ const fetchPageDataProductDetail = async (
     code: code || "",
     colorName: colorName || "",
     sizeName: sizeName || "",
+    weightName: weightName || "",
     minPrice: minPrice || "",
     maxPrice: maxPrice || "",
     status: status,
     page: page || 0,
     limit: limit || 10,
   };
-  console.log("paff", params);
   return axios.get(URL_BACKEND, { params });
 };
 const fetchDataOrders = (
@@ -1109,11 +1110,11 @@ const saveAddressByid = (
     ward,
     name,
     phoneNumber,
-    addressDetail
+    addressDetail,
   };
 
   return axios.post(URL_BACKEND, data);
-}
+};
 
 const updateAddressByid = (
   addressId,
@@ -1130,18 +1131,28 @@ const updateAddressByid = (
     ward,
     name,
     phoneNumber,
-    addressDetail
-  }
+    addressDetail,
+  };
   const URL_BACKEND = `/api/v1/address/${addressId}`;
   return axios.put(URL_BACKEND, data);
-}
+};
 
 const deleteAddressByid = (addressId) => {
   const URL_BACKEND = `/api/v1/address/${addressId}`;
   return axios.delete(URL_BACKEND);
+};
+
+
+const getProductByBrandId = (brandId) => {
+  const URL_BACKEND = `/api/v1/products/brand/${brandId}`;
+  return axios.get(URL_BACKEND);
+
 }
 
+
+
 export {
+  getProductByBrandId,
   deleteAddressByid,
   updateAddressByid,
   saveAddressByid,
