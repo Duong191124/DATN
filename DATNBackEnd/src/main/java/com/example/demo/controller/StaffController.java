@@ -19,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("${api.prefix}/staff")
@@ -130,28 +131,26 @@ public class StaffController {
             );
         }
     }
-    @PreAuthorize("hasAuthority('UPDATE_PERMISSION')")
-    @PutMapping("/update-permission/{id}")
-    public ResponseEntity<MessageReponse> updateStaff(
-            @PathVariable("id")int id,
-            @RequestBody UserPermissionDTO permissionDTO
-    ){
-        try{
-        Staff staff = staffService.updatePermissions(id, permissionDTO);
-            return ResponseEntity.ok().body(
-                    MessageReponse.builder()
-                            .data(staff)
-                            .message("update sucessfully")
-                            .build()
-            );
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    MessageReponse.builder()
-                            .status(HttpStatus.BAD_REQUEST.value())
-                            .message(e.getMessage())
-                            .data(null)
-                            .build()
-            );
+//    @PreAuthorize("hasAuthority('UPDATE_PERMISSION')")
+    @PutMapping("/{staffId}/update-permission")
+    public ResponseEntity<?> updatePermissions(
+            @PathVariable Integer staffId,
+            @RequestBody UserPermissionDTO permissionDTO) {
+        try {
+            // Cập nhật quyền
+            staffService.updatePermissions(staffId, permissionDTO);
+
+            // Hủy token của user khi quyền đã được thay đổi
+            staffService.invalidateToken(staffId); // Đây là phương thức hủy token
+
+            // Thông báo thành công và yêu cầu đăng nhập lại
+            return ResponseEntity.ok(Map.of(
+                    "message", "Permissions updated. Please log in again.",
+                    "status", 200
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "An error occurred.", "error", e.getMessage()));
         }
     }
 

@@ -4,9 +4,25 @@ import { Link } from "react-router-dom";
 import { AuthContext } from "../component/context/auth.context";
 
 const PrivateRoute = (props) => {
-    const { user, loginStatus } = useContext(AuthContext);
+    const { user, loginStatus, role } = useContext(AuthContext);
+    if (loginStatus === "200" && role === "customer") {
+        return (
+            <Result
+                status="403"
+                title="Unauthorize!"
+                subTitle="Bạn không có quyền truy cập!."
+                extra={
+                    <Button type="primary">
+                        <Link to="/">
+                            <span>Back to homepage</span>
+                        </Link>
+                    </Button>
+                }
+            />
+        );
+    }
 
-    if ((user && user.id) || loginStatus === "201") {
+    if ((user && user.id) || loginStatus === "201" || role !== "customer") {
         return (
             <>
                 {props.children}

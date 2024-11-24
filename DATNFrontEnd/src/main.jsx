@@ -39,14 +39,15 @@ import TrackingPage from "./pages/tracking.jsx";
 import ChartPage from "./pages/chart.jsx";
 import PaymentCallback from "./component/layout/admin/vnp/payment.callback.jsx";
 import LoginFork from "./pages/login.fork.jsx";
+import PrivateRoute from "./pages/private.route.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/admin",
     element: (
-      // <PrivateRoute>
-      <AppAdmin />
-      // </PrivateRoute>
+      <PrivateRoute>
+        <AppAdmin />
+      </PrivateRoute>
       // <AppAdmin />
     ),
     children: [
