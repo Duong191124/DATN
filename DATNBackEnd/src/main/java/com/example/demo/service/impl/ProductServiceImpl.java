@@ -113,10 +113,7 @@ public class ProductServiceImpl implements ProductService {
         return productPage.map(ProductResponse::convertResponse);
     }
 
-    @Override
-    public ProductResponse findByBrandId(Integer brandId) {
-        return (ProductResponse) productRepo.findByBrandId(brandId);
-    }
+
 
 
     @Override
@@ -128,4 +125,11 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse getByCategoryId(Integer categoryId) {
         return (ProductResponse) productRepo.findByCategoryId(categoryId);
     }
+
+    @Override
+    public List<Product> getProductsByBrand(Integer brandId) {
+        return productRepo.findByBrandId(brandId);
+    }
+
+
 }

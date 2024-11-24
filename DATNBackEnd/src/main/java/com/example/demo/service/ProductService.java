@@ -23,7 +23,9 @@ public interface ProductService {
 
     ProductResponse getByCategoryId(Integer categoryId);
 
-    ProductResponse findByBrandId(Integer brandId);
+//    List<Product> findByBrandId(Integer brandId);
+
+    List<Product>getProductsByBrand(Integer brandId);
 
     ProductResponse findById(Integer id);
 

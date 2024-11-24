@@ -187,6 +187,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
         }
     }
+
     @GetMapping("/productDetail")
     public ResponseEntity<?> getAllProducts(@RequestParam(defaultValue = "0") int page,
                                             @RequestParam(defaultValue = "12") int size,
@@ -252,6 +253,14 @@ public class ProductController {
         }
     }
 
-
-
+    @GetMapping("/brand/{brandId}")
+    public ResponseEntity<?> getProductsByBrand(@PathVariable Integer brandId) {
+        List<Product> products = productService.getProductsByBrand(brandId);
+        if (products.isEmpty()) {
+            return ResponseEntity.noContent().build();  // Nếu không có sản phẩm, trả về mã 204
+        }
+        return ResponseEntity.ok(new MessageReponse("lấy data product by brand thành công",200,products));  // Trả về danh sách sản phẩm
+    }
 }
+
+
