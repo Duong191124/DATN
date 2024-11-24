@@ -1,104 +1,151 @@
-import { useEffect, useState } from "react";
-// import { useTranslation } from "react-i18next";
-import { getDistrict, getProvinces, getWards } from "../../service/api.service";
-import { Button, Checkbox, Modal } from "antd";
+// src/components/SelectAddressModal.jsx
+import React from 'react';
+import { Modal, Row, Col, Space, Radio, Button, Typography, Card, Divider } from 'antd';
+import { EditOutlined, DeleteOutlined, PlusOutlined, HomeOutlined } from '@ant-design/icons';
+import styled from 'styled-components';
 
-const AddressUpdateModal = ({ isModalOpen, handleCancelUpdate, handleSubmit, form, editingAddress }) => {
-    // const { t, i18n } = useTranslation();
-    // const language = localStorage.getItem("language") || "vi";
-    const [provinces, setProvinces] = useState([]);
-    const [districts, setDistricts] = useState([]);
-    const [wards, setWards] = useState([]);
+const { Text } = Typography;
 
-    const [selectedProvince, setSelectedProvince] = useState(null);
-    const [selectedDistrict, setSelectedDistrict] = useState(null);
-    const [selectedWard, setSelectedWard] = useState(null);
+const AddressCard = styled(Card)`
+  border-radius: 2px;
+  margin-bottom: 24px;
+  background: white;
+  border: 1px solid #d9d9d9;
+  
+  .ant-card-body {
+    padding: 24px;
+  }
+`;
 
-    const [isDistrictDropdownOpen, setIsDistrictDropdownOpen] = useState(false);
-    const [isWardDropdownOpen, setIsWardDropdownOpen] = useState(false);
+const ModalAddressCard = styled(Card)`
+  margin-bottom: 16px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid #d9d9d9;
+  
+  &:hover {
+    border-color: #000;
+  }
 
-    const defaultOption = { ProvinceID: '', DistrictID: '', WardCode: '', ProvinceName: ('MES-024'), DistrictName: ('MES-027'), WardName: ('MES-030') };
+  &.selected {
+    border: 2px solid #000;
+    background: #fafafa;
+  }
 
-    // API gọi danh sách tỉnh
-    useEffect(() => {
-        const fetchProvinces = async () => {
-            const res = await getProvinces();
-            setProvinces([defaultOption, ...res.data.data]);
-        };
+  .ant-card-body {
+    padding: 16px;
+  }
+`;
 
-        fetchProvinces();
-    }, []);
+const BlackButton = styled(Button)`
+  &.ant-btn-primary {
+    background: #000;
+    border-color: #000;
+    
+    &:hover, &:focus {
+      background: #333;
+      border-color: #333;
+    }
+  }
+`;
 
-    // useEffect(() => {
-    //     i18n.changeLanguage(language);
-    // }, [i18n, language]);
+const ActionButton = styled(Button)`
+  &.ant-btn-text {
+    color: #000;
+    
+    &:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+    
+    &.delete-btn {
+      color: #ff4d4f;
+      
+      &:hover {
+        background: #fff1f0;
+      }
+    }
+  }
+`;
 
-    useEffect(() => {
-        if (selectedProvince && selectedProvince !== defaultOption.ProvinceID) {
-            const fetchDistricts = async () => {
-                const res = await getDistrict(selectedProvince);
-                setDistricts([defaultOption, ...res.data.data]);
-                setSelectedDistrict(defaultOption.DistrictID);
-                setSelectedWard(defaultOption.WardCode);
-                setIsDistrictDropdownOpen(true);
-            };
-            fetchDistricts();
-        } else {
-            setDistricts([]);
-            setWards([]);
-            setSelectedDistrict(null);
-            setSelectedWard(null);
-        }
-    }, [selectedProvince]);
+const StyledDivider = styled(Divider)`
+  margin: 12px 0;
+  border-color: #d9d9d9;
+`;
 
-    useEffect(() => {
-        if (selectedDistrict && selectedDistrict !== defaultOption.DistrictID) {
-            const fetchWards = async () => {
-                const res = await getWards(selectedDistrict);
-                setWards([defaultOption, ...res.data.data]);
-                setSelectedWard(defaultOption.WardCode);
-                setIsWardDropdownOpen(true);
-            };
-            fetchWards();
-        } else {
-            setWards([]);
-            setSelectedWard(null);
-        }
-    }, [selectedDistrict]);
+const SelectAddressModal = ({
+  isModalOpen,
+  addresses,
+  onAddNewAddress,
+  onSelectAddress,
+  onEditAddress,
+  onDeleteAddress,
+  onCancel
+}) => {
+  return (
+    <Modal
+      title={
+        <Row justify="space-between" align="middle">
+          <Text strong>Select Shipping Address</Text>
+        </Row>
+      }
+      open={isModalOpen}
+      onCancel={onCancel}
+      footer={null}
+      width={800}
+    >
+      <StyledDivider />
+      <Space direction="vertical" style={{ width: '100%' }}>
+        {addresses && addresses.map((address) => (
+          <ModalAddressCard
+            key={address.id}
+            className={address.selected ? 'selected' : ''}
+            onClick={() => onSelectAddress(address)}
+          >
+            <Row justify="space-between" align="top">
+              <Col flex="1">
+                <Radio checked={address.selected}>
+                  <Space direction="vertical" size={8}>
+                    <Space>
+                      <Text strong>{address.name}</Text>
+                      <Text type="secondary">|</Text>
+                      <Text>{address.phoneNumber}</Text>
+                      {address.isDefault && (
+                        <Text type="success" style={{ marginLeft: 8 }}>
+                          Default
+                        </Text>
+                      )}
+                    </Space>
+                    <Space align="start">
+                      <HomeOutlined style={{ marginTop: 4 }} />
+                      <Text>
+                        {address.addressDetail}, {address.district}, {address.ward}, {address.city}
+                      </Text>
+                    </Space>
+                  </Space>
+                </Radio>
+              </Col>
+              <Col>
+                <Space>
+                  <ActionButton
+                    type="text"
+                    icon={<EditOutlined />}
+                    onClick={(e) => { e.stopPropagation(); onEditAddress(address); }} // Prevent modal from closing
+                  />
+                  <ActionButton
+                    type="text"
+                    className="delete-btn"
+                    icon={<DeleteOutlined />}
+                    onClick={(e) => { e.stopPropagation(); onDeleteAddress(address); }} // Prevent modal from closing
+                  />
+                </Space>
+              </Col>
+            </Row>
+          </ModalAddressCard>
+        ))}
+      </Space>
+    </Modal>
+  );
+};
 
-    return (
-        <Modal
-            title="Địa chỉ của tôi"
-            open={isModalOpen}
-            onCancel={handleCancelUpdate}
-            footer={null} // Disable default footer buttons
-        >
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    paddingBottom: '16px',
-                    borderBottom: '1px solid #f0f0f0', // Add bottom border
-                    marginBottom: '16px', // Space between items
-                }}
-            >
-                <Checkbox />
-                <div>
-                    <p style={{ margin: 0 }}>Name | PhoneNumber</p>
-                    <p style={{ margin: 0 }}>Provinces, District, Wards</p>
-                </div>
-                <Button type="primary">Chỉnh sửa</Button>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                <Button onClick={handleCancelUpdate}>Hủy</Button>
-                <Button type="primary">
-                    Áp dụng
-                </Button>
-            </div>
-        </Modal>
-    );
-}
-
-export default AddressUpdateModal;
+export default SelectAddressModal;

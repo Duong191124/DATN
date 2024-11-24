@@ -88,6 +88,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderResponse createOrderOnline(OrderOnlineDTO orderDTO) {
         Integer customerId = orderDTO.getCustomerId() != null ? orderDTO.getCustomerId() : 1;
+
         // Tạo mới đơn hàng
         Orders order = new Orders();
         order.setCode(orderDTO.getCode());
@@ -123,6 +124,12 @@ public class OrderServiceImpl implements OrderService {
                 ProductDetail productDetail = productDetailRepo.findById(onlineRequest.getProductDetailId())
                         .orElseThrow(() -> new RuntimeException("Product detail with ID " + onlineRequest.getProductDetailId() + " not found"));
 
+                // Kiểm tra số lượng sản phẩm trong kho
+                if (productDetail.getQuantity() < onlineRequest.getQuantity()) {
+                    throw new RuntimeException("Insufficient stock for product: " + productDetail.getProduct().getName());
+                }
+
+                // Tạo chi tiết đơn hàng
                 OrderDetail orderDetail = new OrderDetail();
                 orderDetail.setOrders(savedOrder);
                 orderDetail.setProductDetail(productDetail);
@@ -131,6 +138,11 @@ public class OrderServiceImpl implements OrderService {
 
                 // Lưu chi tiết đơn hàng vào DB
                 orderDetailRepo.save(orderDetail);
+
+                // Cập nhật số lượng sản phẩm trong kho
+                productDetail.setQuantity(productDetail.getQuantity() - onlineRequest.getQuantity());
+                productDetailRepo.save(productDetail);  // Lưu lại sản phẩm sau khi trừ số lượng
+
             } catch (Exception e) {
                 // Log lỗi chi tiết sản phẩm không hợp lệ hoặc lỗi khi lưu chi tiết
                 System.err.println("Error processing order detail: " + e.getMessage());
@@ -139,6 +151,7 @@ public class OrderServiceImpl implements OrderService {
         }
         return OrderResponse.convertOrderResponse(savedOrder);
     }
+
 
     @Override
     @Transactional
