@@ -38,10 +38,12 @@ const CheckoutStep = () => {
         serviceId,
         setTotalShippingFee,
         totalShippingFee,
-        addresses
+        addresses,
+        selectAddress
     } = useCheckout();
     const navigate = useNavigate();
     const [current, setCurrent] = useState(0);
+    const [loading, setLoading] = useState(false);
     const userId = localStorage.getItem('userId');
 
     const next = () => {
@@ -83,6 +85,7 @@ const CheckoutStep = () => {
     };
 
     const confirmOrder = async () => {
+        setLoading(true);
         const cartItemsLocal = cartItems;
         const orderDetailRequests = convertCartToOrderDetails(cartItemsLocal);
         const itemsProduct = convertDataProductToOrder(cartItemsLocal);
@@ -156,7 +159,7 @@ const CheckoutStep = () => {
             localStorage.removeItem(`cart_${userId}`);
             setCartItems([]);
             navigate("/");
-
+            setLoading(false);
         } catch (error) {
             // Catch and handle errors from both the order creation process or GHN
             let errorMessage = error?.message || "Đã xảy ra lỗi. Vui lòng thử lại sau.";
@@ -175,13 +178,12 @@ const CheckoutStep = () => {
 
     const handleApiGhn = async () => {
         const values = {
-            fromDistrictId: fromDistrict,
-            toDistrictId: district,
-            toWardCode: ward,
+            fromDistrictId: selectAddress.fromDistrict,
+            toDistrictId: selectAddress.district,
+            toWardCode: selectAddress.ward,
             weight: weight,
-            serviceId: serviceId,
+            serviceId: selectAddress.serviceId,
         };
-        console.log(fromDistrict, district, ward, weight, serviceId);
         try {
             const res = await getShippingFee(
                 values.fromDistrictId,
@@ -281,6 +283,7 @@ const CheckoutStep = () => {
                         }}
                         type="primary"
                         onClick={confirmOrder}
+                        loading={loading}
                     >
                         Confirm
                     </Button>

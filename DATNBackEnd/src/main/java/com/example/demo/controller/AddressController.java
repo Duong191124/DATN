@@ -51,7 +51,7 @@ public class AddressController {
                 .data(newAddress)
                 .build());
     }
-    @PreAuthorize("hasAuthority('UPDATE_ADDRESS')")
+//    @PreAuthorize("hasAuthority('UPDATE_ADDRESS')")
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
