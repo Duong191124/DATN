@@ -145,6 +145,15 @@ const ProDuctDetailForm = (props) => {
                         <Input />
                     </Form.Item>
 
+
+                    <Form.Item
+                        label="Weight"
+                        name="weight"
+                        rules={[{ required: true, message: "Please input weight!" }]}
+                    >
+                        <Input />
+                    </Form.Item>
+
                     <Form.Item
                         label="Color"
                         name="color"
