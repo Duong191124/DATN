@@ -62,7 +62,6 @@ const createProductAPI = (
   code,
   name,
   description,
-  price,
   selectedSleeve,
   selectedCategory,
   selectedBrand,
@@ -72,7 +71,6 @@ const createProductAPI = (
   const data = {
     code: code,
     name: name,
-    price: price,
     description: description,
     sleeve_id: selectedSleeve,
     category_id: selectedCategory,
@@ -86,7 +84,6 @@ const updateProductAPI = (
   code,
   name,
   description,
-  price,
   sleeve_id,
   category_id,
   brand_id,
@@ -98,7 +95,6 @@ const updateProductAPI = (
     id: id,
     code: code,
     name: name,
-    price: price,
     description: description,
     sleeve_id: sleeve_id,
     category_id: category_id,
@@ -185,6 +181,11 @@ const fetchDataBrand = () => {
 const checkDuplicateProductAPI = async (type, value) => {
   return await axios.post(`/api/v1/products/check-duplicate`, { type, value });
 };
+
+const checkDuplicateProductDetailAPI = async (type, value) => {
+  return await axios.post(`/api/v1/productDetail/check-duplicate`, { type, value })
+}
+
 const fetchProductsByProductDetails = (page, size) => {
   const URL_BACKEND = "/api/v1/products/productDetail";
   const params = {
@@ -1224,6 +1225,7 @@ const getProductsWithAttributeAndCustomer = () => {
   return axios.get(URL_BACKEND);
 };
 export {
+  checkDuplicateProductDetailAPI,
   getCreateOrderGhn,
   getShippingFee,
   deleteAddressByid,

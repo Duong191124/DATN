@@ -26,7 +26,6 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
             "(:collarId IS NULL OR :collarId = 0 OR col.id = :collarId) AND " +
             "(:brandId IS NULL OR :brandId = 0 OR b.id = :brandId) AND " +
             "(:productName IS NULL OR p.name LIKE CONCAT('%', :productName, '%')) AND " +
-            "(:price IS NULL OR p.price = :price) AND " +
             "(:description IS NULL OR p.description LIKE CONCAT('%', :description, '%')) AND " +
             "(:status IS NULL OR (p.status * s.status*col.status*b.status) = :status)") // Thêm điều kiện lọc theo status
     Page<Product> pageAllProducts(@Param("categoryId") Integer categoryId,
@@ -34,7 +33,6 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
                                   @Param("sleeveId") Integer sleeveId,
                                   @Param("collarId") Integer collarId,
                                   @Param("brandId") Integer brandId,
-                                  @Param("price") Double price,
                                   @Param("description") String description,
                                   @Param("status") Integer status, // Tham số status
                                   Pageable pageable);

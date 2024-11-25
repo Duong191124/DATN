@@ -40,10 +40,6 @@ const ProductTable = (props) => {
       )
     },
     {
-      title: 'Price',
-      dataIndex: 'price'
-    },
-    {
       title: 'Collar',
       dataIndex: 'collarName'
     },
@@ -79,12 +75,11 @@ const ProductTable = (props) => {
         return (
           <div style={{ display: "flex", gap: "20px" }}>
             <EditOutlined
-              style={{ cursor: isDisabled ? "not-allowed" : "pointer", color: "orange" }}
+              style={{ color: "orange" }}
               onClick={() => {
-                if (!isDisabled) {
-                  setIsModalUpdateOpen(true);
-                  setDataUpdate(record);
-                }
+                setIsModalUpdateOpen(true);
+                setDataUpdate(record);
+
               }}
             />
             <UploadOutlined

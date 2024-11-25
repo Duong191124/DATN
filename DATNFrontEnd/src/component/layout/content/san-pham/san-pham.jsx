@@ -30,7 +30,7 @@ const SanPham = () => {
     const [filteredProduct, setFilteredProduct] = useState([]);
     const [total, setTotal] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 20;
+    const pageSize = 4;
     const navigate = useNavigate();
     useEffect(() => {
         const initCategory = async () => {
