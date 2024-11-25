@@ -109,7 +109,7 @@ const ProductList = () => {
       filtered = filtered.filter(
         (product) =>
           product?.products?.categoryName.toLowerCase() ===
-            selectedCategory.toLowerCase() || selectedCategory === "All"
+          selectedCategory.toLowerCase() || selectedCategory === "All"
       );
     }
     if (selectedBrand !== "All") {

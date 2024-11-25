@@ -21,7 +21,7 @@ const ProductDetailUpdate = (props) => {
                 product: dataUpdate.productResponse?.id,
                 color: dataUpdate.color?.id,
                 size: dataUpdate.size?.id,
-                weight: dataUpdate.weight?.id
+                weight: dataUpdate.weight
             });
         }
     }, [dataUpdate, form]);
@@ -49,7 +49,6 @@ const ProductDetailUpdate = (props) => {
             loadDataProduct();
             loadDataColor();
             loadDataSize();
-            loadDataWeight();
         }
     }, [isModalUpdateOpen]);
 
@@ -76,11 +75,7 @@ const ProductDetailUpdate = (props) => {
         setDataSize(activeSize)
     };
 
-    const loadDataWeight = async () => {
-        const res = await fetchDataWeight();
-        const activeWeight = res.data.data.filter(weight => weight.status != 0)
-        setDataWeight(activeWeight)
-    }
+
 
     const resetCloseModal = () => {
         form.resetFields();
@@ -175,15 +170,7 @@ const ProductDetailUpdate = (props) => {
                 </Form.Item>
 
                 <Form.Item label="Weight" name="weight" rules={[{ required: true, message: 'Please select a Weight!' }]}>
-                    <Select
-                        showSearch
-                        placeholder="Select a weight"
-                        filterOption={(input, option) =>
-                            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-                        }
-                        options={dataWeight}
-                        fieldNames={{ label: "name", value: "id" }}
-                    />
+                    <Input />
                 </Form.Item>
             </Form>
         </Modal>

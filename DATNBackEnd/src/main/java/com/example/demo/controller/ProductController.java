@@ -94,7 +94,7 @@ public class ProductController {
                 .totalElement(totalElement)
                 .build());
     }
-    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
+//    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
     @PostMapping("")
     public ResponseEntity<?> addProduct(@Valid @RequestBody ProductDTO productDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -110,7 +110,7 @@ public class ProductController {
         }
     }
 
-    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
+//    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
     @PostMapping(value = "upload/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadImage(@PathVariable() int id, @ModelAttribute("file") MultipartFile file) {
         try {
@@ -124,7 +124,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
+//    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
     @PostMapping(value = "uploadForProductDetail/{productId}/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadImageForProductDetail(@PathVariable("productId") int productId,
                                                          @PathVariable("id") int productDetailId,
@@ -141,7 +141,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-    @PreAuthorize("hasAuthority('UPDATE_PRODUCT')")
+//    @PreAuthorize("hasAuthority('UPDATE_PRODUCT')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable Integer id, @Valid @RequestBody ProductDTO productDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -155,19 +155,8 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-    @PreAuthorize("hasAuthority('DELETE_PRODUCT')")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable int id) {
-        try {
-            productService.deletedProduct(id);
-            return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
-                    .message("delete product successfully")
-                    .status(HttpStatus.OK.value())
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
+
+
     @GetMapping("productId/{id}")
     public ResponseEntity<?> getById(@PathVariable Integer id){
         try {
@@ -200,6 +189,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
         }
     }
+
     @GetMapping("/productDetail")
     public ResponseEntity<?> getAllProducts(@RequestParam(defaultValue = "0") int page,
                                             @RequestParam(defaultValue = "12") int size,
@@ -265,6 +255,14 @@ public class ProductController {
         }
     }
 
-
-
+    @GetMapping("/brand/{brandId}")
+    public ResponseEntity<?> getProductsByBrand(@PathVariable Integer brandId) {
+        List<Product> products = productService.getProductsByBrand(brandId);
+        if (products.isEmpty()) {
+            return ResponseEntity.noContent().build();  // Nếu không có sản phẩm, trả về mã 204
+        }
+        return ResponseEntity.ok(new MessageReponse("lấy data product by brand thành công",200,products));  // Trả về danh sách sản phẩm
+    }
 }
+
+

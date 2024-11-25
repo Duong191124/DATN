@@ -33,7 +33,7 @@ public class BrandController {
                 .data(brandList)
                 .build());
     }
-    @PreAuthorize("hasAuthority('CREATE_BRAND')")
+//    @PreAuthorize("hasAuthority('CREATE_BRAND')")
     @PostMapping("")
     public ResponseEntity<MessageReponse> add(@Valid @RequestBody BrandDTO brandDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -53,7 +53,7 @@ public class BrandController {
                 .data(newBrand)
                 .build());
     }
-    @PreAuthorize("hasAuthority('UPDATE_BRAND')")
+//    @PreAuthorize("hasAuthority('UPDATE_BRAND')")
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
@@ -76,20 +76,23 @@ public class BrandController {
 //            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot delete, foreign key constraint.");
 //        }
 //    }
-    @PreAuthorize("hasAuthority('DELETE_BRAND')")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteBrand(@PathVariable("id") Integer id) {
-        try {
-            brandService.deleteBrand(id);
-            return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
-                    .message("delete brand successfully")
-                    .status(HttpStatus.OK.value())
-                    .build());
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 
-        }
-    }
+
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<?> deleteBrand(@PathVariable("id") Integer id) {
+//        try {
+//            brandService.deleteBrand(id);
+//            return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
+//                    .message("delete brand successfully")
+//                    .status(HttpStatus.OK.value())
+//                    .build());
+//
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+//
+//        }
+//    }
+
 
 }
