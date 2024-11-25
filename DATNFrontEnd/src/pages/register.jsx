@@ -265,6 +265,16 @@ const RegisterPage = () => {
                                     return Promise.resolve();
                                 },
                             },
+                            {
+                                validator(_, value) {
+                                    const now = new Date();
+                                    const maxAgeDate = new Date(now.getFullYear() - 100, now.getMonth(), now.getDate());
+                                    if (value && value.toDate() < maxAgeDate) {
+                                        return Promise.reject(new Error('Your age must be below 100 years'));
+                                    }
+                                    return Promise.resolve();
+                                },
+                            },
                         ]}
                     >
                         <DatePicker style={inputStyle} />
