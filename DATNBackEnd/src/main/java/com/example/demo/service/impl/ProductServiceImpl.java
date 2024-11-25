@@ -94,24 +94,11 @@ public class ProductServiceImpl implements ProductService {
         return productRepo.save(existingProduct);
     }
 
-    @Override
-    public boolean canDeleteProduct(Integer productId) {
-        List<ProductDetail> relateProductDetail = productDetailRepo.findByProductId(productId);
-        return relateProductDetail.isEmpty();
-    }
+
 
     @Override
     public Page<ProductResponse> productAllWithProductDetailAll(Pageable pageable) {
         return productRepo.findAll(pageable).map(ProductResponse::convertResponse);
-    }
-
-    @Override
-    public void deletedProduct(Integer id) {
-        if (canDeleteProduct(id)){
-            productRepo.deleteById(id);
-        }else {
-            throw new IllegalStateException("cannot delete product, because it has related productDetail");
-        }
     }
 
     @Override
@@ -127,8 +114,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
+
+
     @Override
     public List<ProductDetail> getProductDetailsByProductId(Integer productId) {
         return productDetailRepo.findByProductId(productId);
     }
+
+    @Override
+    public ProductResponse getByCategoryId(Integer categoryId) {
+        return (ProductResponse) productRepo.findByCategoryId(categoryId);
+    }
+
+    @Override
+    public List<Product> getProductsByBrand(Integer brandId) {
+        return productRepo.findByBrandId(brandId);
+    }
+
+
 }

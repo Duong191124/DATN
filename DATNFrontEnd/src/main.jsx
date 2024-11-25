@@ -35,11 +35,14 @@ import SanPham from "./component/layout/content/san-pham/san-pham.jsx";
 import ContactPage from "./pages/contact.jsx";
 import LandingPage from "./pages/landing.jsx";
 import { CheckoutProvider } from "./component/context/checkout.context.jsx";
+
 import TrackingPage from "./pages/tracking.jsx";
 import ChartPage from "./pages/chart.jsx";
 import PaymentCallback from "./component/layout/admin/vnp/payment.callback.jsx";
 import LoginFork from "./pages/login.fork.jsx";
 import PrivateRoute from "./pages/private.route.jsx";
+import ProductBrand from "./component/home/product.brand.jsx";
+
 
 const router = createBrowserRouter([
   {
@@ -157,9 +160,16 @@ const router = createBrowserRouter([
         path: "/about-us",
         element: <LandingPage />,
       },
+
       {
         path: "/tracking",
         element: <TrackingPage />,
+
+      },
+      {
+        path: "/product/brand/:brandId",
+        element: <ProductBrand />,
+
       },
     ],
   },

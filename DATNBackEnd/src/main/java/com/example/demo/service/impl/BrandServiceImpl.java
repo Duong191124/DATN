@@ -48,25 +48,4 @@ public class BrandServiceImpl implements BrandService {
         return brandRepo.findById(id).orElseThrow(() -> new Exception(""));
     }
 
-//    @Override
-//    public void deleteBrand(Integer id) throws Exception {
-//        Brand existingBrand = getBrandById(id);
-//        brandRepo.delete(existingBrand);
-//    }
-
-    @Override
-    public boolean candeleteBrand(Integer brandId) {
-        //Kiểm tra xem có product nào liên quan đến brand không
-        List<Product> relateProduct = productRepo.findByBrandId(brandId);
-        return relateProduct.isEmpty();//trả về true nếu không có liên kết
-    }
-
-    @Override
-    public void deleteBrand(Integer brandId) throws Exception {
-        if (candeleteBrand(brandId)) {
-            brandRepo.deleteById(brandId);
-        } else {
-            throw new IllegalStateException("Cannot delete brand, it has related products.");
-        }
-    }
 }
