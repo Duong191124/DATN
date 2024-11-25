@@ -23,7 +23,6 @@ const UpdateProduct = (props) => {
         id: dataUpdate.id,
         code: dataUpdate.code,
         name: dataUpdate.name,
-        price: dataUpdate.price,
         description: dataUpdate.description,
         collar: dataUpdate.collarName,
         brand: dataUpdate.brandName,
@@ -47,13 +46,14 @@ const UpdateProduct = (props) => {
         values.code,
         values.name,
         values.description,
-        values.price,
         sleeve ? sleeve.id : null,
-        brand ? brand.id : null,
         category ? category.id : null,
-        values.status,
-        collar ? collar.id : null
+        brand ? brand.id : null,
+        collar ? collar.id : null,
+        values.status
+
       );
+
 
       if (res.data) {
         notification.success({
@@ -64,7 +64,7 @@ const UpdateProduct = (props) => {
         loadProduct();
       } else {
         notification.error({
-          message: "Update product",
+          message: "Update product fail",
           description: JSON.stringify(res.message),
         });
       }
@@ -147,18 +147,6 @@ const UpdateProduct = (props) => {
           <Input />
         </Form.Item>
 
-        <Form.Item
-          name="price"
-          label="Price"
-          rules={[
-            {
-              required: true, message: "Please input the price!"
-
-            }
-          ]}
-        >
-          <Input />
-        </Form.Item>
 
         <Form.Item
           name="collar"

@@ -1,8 +1,9 @@
 import { Button, Input, Modal, notification, Select, Form } from "antd";
-import { useEffect, useState } from "react";
-import { createProductDetailAPi, fetchDataColorAPI, fetchDataSize, fetchDataWeight } from "../../service/api.service";
+import { useCallback, useEffect, useState } from "react";
+import { checkDuplicateProductDetailAPI, createProductDetailAPi, fetchDataColorAPI, fetchDataSize, fetchDataWeight } from "../../service/api.service";
 import { Link } from "react-router-dom";
 import { DoubleLeftOutlined, PlusOutlined } from "@ant-design/icons";
+import { debounce } from "lodash";
 
 const ProDuctDetailForm = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -56,6 +57,36 @@ const ProDuctDetailForm = (props) => {
         setIsModalOpen(false);
     };
 
+
+    const debounceCheckDuplicateCode = useCallback(
+        debounce(async (value, callback) => {
+            const res = await checkDuplicateProductDetailAPI("code", value);
+            if (res.data.exists) {
+                callback(new Error("Code already exists"));
+            } else {
+                callback();
+            }
+        }, 1000),
+        []
+    );
+
+    // Sử dụng hàm validator với debounce
+    const checkDuplicateCode = (rule, value) => {
+        return new Promise((resolve, reject) => {
+            if (!value) {
+                resolve(); // Nếu không có giá trị thì không kiểm tra
+            } else {
+                debounceCheckDuplicateCode(value, (error) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve();
+                    }
+                });
+            }
+        });
+    };
+
     return (
         <>
             <div>
@@ -85,7 +116,15 @@ const ProDuctDetailForm = (props) => {
                     <Form.Item
                         label="Code"
                         name="code"
-                        rules={[{ required: true, message: "Please input product code!" }]}
+                        rules={[
+                            {
+                                required: true, message: "Please input product code!"
+                            },
+                            {
+                                validator: checkDuplicateCode
+                            }
+                        ]}
+
                     >
                         <Input />
                     </Form.Item>
