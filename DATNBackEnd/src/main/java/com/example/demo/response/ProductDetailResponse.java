@@ -3,7 +3,6 @@ package com.example.demo.response;
 import com.example.demo.entity.Color;
 import com.example.demo.entity.ProductDetail;
 import com.example.demo.entity.Size;
-import com.example.demo.entity.Weight;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -27,7 +26,7 @@ public class ProductDetailResponse {
     private ProductResponse productResponse;
     private Size size;
     private Color color;
-    private Weight weight;
+    private String weight;
     private Set<PromotionResponse> promotions;
     private LocalDateTime createAt;
 
@@ -35,6 +34,7 @@ public class ProductDetailResponse {
         return ProductDetailResponse.builder()
                 .id(productDetail.getId())
                 .code(productDetail.getCode())
+                .weight(productDetail.getWeight())
                 .status(productDetail.getStatus())
                 .quantity(productDetail.getQuantity())
                 .defaultPrice(productDetail.getDefaultPrice())
@@ -43,7 +43,6 @@ public class ProductDetailResponse {
                 .productResponse(ProductResponse.convertResponse(productDetail.getProduct()))
                 .size(productDetail.getSize())
                 .color(productDetail.getColor())
-                .weight(productDetail.getWeightValue())
                 .promotions(productDetail.getPromotions().stream().map(PromotionResponse::fromPromotionResponse).collect(Collectors.toSet()))
                 .createAt(productDetail.getCreatedAt())
                 .build();

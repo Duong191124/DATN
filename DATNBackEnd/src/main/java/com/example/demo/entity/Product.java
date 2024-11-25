@@ -25,9 +25,7 @@ public class Product extends BaseEntity {
     @Basic
     @Column(name = "image", nullable = true, length = 255)
     private String image;
-    @Basic
-    @Column(name = "price", nullable = true, precision = 0)
-    private Double price;
+
     @ManyToOne
     @JoinColumn(name = "collar_id", referencedColumnName = "id")
     private Collar collar;
