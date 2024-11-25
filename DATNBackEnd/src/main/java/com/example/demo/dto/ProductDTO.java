@@ -29,9 +29,7 @@ public class ProductDTO {
     @NotBlank (message = "check the product name, please!")
     private String name;
     private String image;
-    @Min(value = 0,message = "price not valid!")
-    @NotNull(message = "check the product price,please!")
-    private Double price;
+
     private int status;
     @JsonProperty("collar_id")
     private Integer collarId;
@@ -56,7 +54,6 @@ public class ProductDTO {
                 .code(productDTO.getCode())
                 .name(productDTO.getName())
                 .image(imageUrl)
-                .price(productDTO.getPrice())
                 .status(1)
                 .collar(collar)
                 .sleeve(sleeve)

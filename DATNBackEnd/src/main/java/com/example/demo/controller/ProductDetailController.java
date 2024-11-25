@@ -6,6 +6,7 @@ import com.example.demo.entity.ProductDetail;
 import com.example.demo.response.ProductDetailResponse;
 import com.example.demo.service.ProductDetailService;
 import com.example.demo.response.MessageReponse;
+import com.example.demo.service.impl.ProductDetailServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,16 +16,22 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("${api.prefix}/productDetail")
 public class ProductDetailController {
     @Autowired
     private ProductDetailService productDetailService;
+
+    @Autowired
+    private ProductDetailServiceImpl productDetailServiceImpl;
 
     @GetMapping("")
     public ResponseEntity<?> getAllProductDetails(@RequestParam(required = false) String productName,
@@ -39,7 +46,7 @@ public class ProductDetailController {
                                                   @RequestParam(defaultValue = "10") int limit
                                                   ) {
         Pageable pageable = PageRequest.of(page,limit, Sort.by("createdAt").ascending());
-        Page<ProductDetailResponse> productDetailResponses = productDetailService.pageAndFilterWithProductDetailResponse(productName,code,colorName,weightName,sizeName,minPrice,maxPrice,status,pageable);
+        Page<ProductDetailResponse> productDetailResponses = productDetailService.pageAndFilterWithProductDetailResponse(productName,code,colorName,sizeName,minPrice,maxPrice,status,pageable);
         return ResponseEntity.ok(new MessageReponse("successfully",200,productDetailResponses));
     }
 
@@ -68,7 +75,7 @@ public class ProductDetailController {
         }
     }
 
-    @PreAuthorize("hasAuthority('UPDATE_PRODUCT_DETAIL')")
+//    @PreAuthorize("hasAuthority('UPDATE_PRODUCT_DETAIL')")
     @PutMapping("{id}")
     public ResponseEntity<?> updateProductDetail(@PathVariable("id") Integer id,
                                                  @Valid @RequestBody ProductDetailDTO productDetailDTO,
@@ -121,6 +128,18 @@ public class ProductDetailController {
 
         List<ProductDetailResponse> featuredProducts = productDetailService.getTopFeaturedProducts(pageable);
         return ResponseEntity.ok(new MessageReponse("Successfully retrieved top featured products", 200, featuredProducts));
+    }
+
+    @PostMapping("check-duplicate")
+    public ResponseEntity<Map<String, Boolean>> checkDuplicateCode(@RequestBody Map<String, String> request) {
+
+        String type = request.get("type");
+        String value = request.get("value");
+
+        boolean exists = productDetailServiceImpl.isDuplicate(type, value);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", exists);
+        return ResponseEntity.ok(response);
     }
 
 

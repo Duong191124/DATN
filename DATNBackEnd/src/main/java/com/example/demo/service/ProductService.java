@@ -29,7 +29,7 @@ public interface ProductService {
 
     ProductResponse findById(Integer id);
 
-    Page<ProductResponse> pageAllProducts(Integer categoryId, String productName, Integer sleeveId, Integer collarId, Integer brandId, Double price, String description,Integer status, Pageable pageable);
+    Page<ProductResponse> pageAllProducts(Integer categoryId, String productName, Integer sleeveId, Integer collarId, Integer brandId, String description,Integer status, Pageable pageable);
 
 
 

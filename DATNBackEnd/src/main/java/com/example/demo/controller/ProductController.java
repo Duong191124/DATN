@@ -80,7 +80,7 @@ public class ProductController {
         Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("id").ascending());
 
         Page<ProductResponse> productResponsePage = productService.pageAllProducts(
-                categoryId, productName, sleeveId, collarId, brandId, price, description, status,pageable);
+                categoryId, productName, sleeveId, collarId, brandId, description, status,pageable);
 
         int pageCurrent = productResponsePage.getNumber() + 1; // Cộng thêm 1 để trả về trang bắt đầu từ 1
         int pageSizeCurrent = productResponsePage.getSize();

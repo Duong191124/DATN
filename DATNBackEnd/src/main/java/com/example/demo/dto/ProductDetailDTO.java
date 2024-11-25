@@ -42,8 +42,8 @@ public class ProductDetailDTO {
     @NotNull(message = "Color is required")
     private int colorId;
 
-    @NotNull(message = "Color is required")
-    private int weightId;
+    @NotBlank(message = "weight is required")
+    private String weight;
 
     public static ProductDetailDTO convertProductDetailDTO(ProductDetail productDetail){
         return ProductDetailDTO.builder()
@@ -52,11 +52,12 @@ public class ProductDetailDTO {
                 .discountPrice(productDetail.getDiscountPrice() != null ? productDetail.getDiscountPrice() : 0)
                 .quantity(productDetail.getQuantity())
                 .image(productDetail.getImage())
+                .weight(productDetail.getWeight())
                 .status(productDetail.getStatus())
                 .productId(productDetail.getProduct().getId())
                 .colorId(productDetail.getColor().getId())
                 .sizeId(productDetail.getSize().getId())
-                .weightId(productDetail.getWeightValue().getId())
+
                 .build();
     }
 }

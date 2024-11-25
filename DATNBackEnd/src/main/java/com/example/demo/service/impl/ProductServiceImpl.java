@@ -61,7 +61,6 @@ public class ProductServiceImpl implements ProductService {
         product.setCode(productDTO.getCode());
         product.setName(productDTO.getName());
         product.setImage(productDTO.getImage());
-        product.setPrice(productDTO.getPrice());
         product.setCollar(collar);
         product.setSleeve(sleeve);
         product.setDescription(productDTO.getDescription());
@@ -108,8 +107,8 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public Page<ProductResponse> pageAllProducts(Integer categoryId, String productName, Integer sleeveId, Integer collarId, Integer brandId, Double price, String description,Integer status, Pageable pageable) {
-        Page<Product> productPage = productRepo.pageAllProducts(categoryId, productName, sleeveId, collarId, brandId, price, description, status, pageable);
+    public Page<ProductResponse> pageAllProducts(Integer categoryId, String productName, Integer sleeveId, Integer collarId, Integer brandId, String description,Integer status, Pageable pageable) {
+        Page<Product> productPage = productRepo.pageAllProducts(categoryId, productName, sleeveId, collarId, brandId, description, status, pageable);
         return productPage.map(ProductResponse::convertResponse);
     }
 
