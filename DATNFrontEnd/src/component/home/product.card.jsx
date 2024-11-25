@@ -361,19 +361,9 @@ const ProductCard = ({
                             } ${!availableSizes.includes(size.name)
                               ? "disabled-size"
                               : ""
-<<<<<<< HEAD
-                          }`}
+                            }`}
                           onClick={() => handleSizeChange(size.name)}
                           disabled={!availableSizes.includes(size.name)}
-=======
-                            }`}
-                          onClick={() => setSelectedSize(size.name)}
-                          style={{
-                            display: availableSizes.includes(size.name)
-                              ? "inline-block"
-                              : "none",
-                          }}
->>>>>>> a359f2081a8eab6edcc1fa56b23640ab15b871d6
                         >
                           {size.name}
                         </button>
@@ -397,19 +387,9 @@ const ProductCard = ({
                             } ${!availableColors.includes(color.name)
                               ? "disabled-color"
                               : ""
-<<<<<<< HEAD
-                          }`}
+                            }`}
                           onClick={() => handleColorChange(color.name)}
                           disabled={!availableColors.includes(color.name)}
-=======
-                            }`}
-                          onClick={() => setSelectedColor(color.name)}
-                          style={{
-                            display: availableColors.includes(color.name)
-                              ? "inline-block"
-                              : "none",
-                          }}
->>>>>>> a359f2081a8eab6edcc1fa56b23640ab15b871d6
                         >
                           {color.name}
                         </button>

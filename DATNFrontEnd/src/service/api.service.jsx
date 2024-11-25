@@ -438,7 +438,7 @@ const createProductDetailAPi = (
   productId,
   sizeId,
   colorId,
-  weightId
+  weight
 ) => {
   const URL_BACKEND = "/api/v1/productDetail";
   const data = {
@@ -448,7 +448,7 @@ const createProductDetailAPi = (
     productId: productId,
     sizeId: sizeId,
     colorId: colorId,
-    weightId: weightId,
+    weight: weight,
   };
   return axios.post(URL_BACKEND, data);
 };
@@ -1201,7 +1201,6 @@ const deleteAddressByid = (addressId) => {
   const URL_BACKEND = `/api/v1/address/${addressId}`;
   return axios.delete(URL_BACKEND);
 };
-<<<<<<< HEAD
 // api statistics
 const productsStatistics = () => {
   const URL_BACKEND = "api/v1/statistics/products";
@@ -1227,20 +1226,6 @@ const getProductsWithAttributeAndCustomer = () => {
 export {
   getCreateOrderGhn,
   getShippingFee,
-=======
-
-
-const getProductByBrandId = (brandId) => {
-  const URL_BACKEND = `/api/v1/products/brand/${brandId}`;
-  return axios.get(URL_BACKEND);
-
-}
-
-
-
-export {
-  getProductByBrandId,
->>>>>>> a359f2081a8eab6edcc1fa56b23640ab15b871d6
   deleteAddressByid,
   updateAddressByid,
   saveAddressByid,

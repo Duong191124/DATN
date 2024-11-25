@@ -205,31 +205,7 @@ const SanPham = () => {
                             />
                         </Row>
                     </Col>
-<<<<<<< HEAD
-                    <Col xl={11} md={24}>
-                      <Form.Item name={["range", "to"]}>
-                        <InputNumber
-                          name="to"
-                          max={10000000}
-                          placeholder="đ ĐẾN"
-                          formatter={(value) =>
-                            `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                          }
-                          style={{ width: "100%" }}
-                        />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  <div>
-                    <Button type="primary" htmlType="submit">
-                      Áp dụng
-                    </Button>
-                  </div>
-                </Form.Item>
-              </Form>
-=======
                 </Row>
->>>>>>> a359f2081a8eab6edcc1fa56b23640ab15b871d6
             </div>
         </div>
     );

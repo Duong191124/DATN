@@ -80,9 +80,7 @@ const ProductDetailTable = (props) => {
     {
       title: "Weight",
       dataIndex: "weight",
-      render: (text, record) => {
-        return record.weight?.weightValue || "Chưa có weight";
-      },
+
     },
     {
       title: "Status",

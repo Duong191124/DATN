@@ -44,16 +44,11 @@ const ProDuctDetailForm = (props) => {
         setSizes(activeSize)
     };
 
-    const loadDataWeight = async () => {
-        const res = await fetchDataWeight();
-        const activeWeight = res.data.data.filter(weight => weight.status != 0)
-        setWeight(activeWeight)
-    }
+
 
     useEffect(() => {
         loadDataColor();
         loadDataSize();
-        loadDataWeight();
     }, []);
 
     const resetCloseModal = () => {
@@ -148,15 +143,7 @@ const ProDuctDetailForm = (props) => {
                         name="weight"
                         rules={[{ required: true, message: "Please select a weight!" }]}
                     >
-                        <Select
-                            showSearch
-                            placeholder="Select a weight"
-                            filterOption={(input, option) =>
-                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                            }
-                            options={weight}
-                            fieldNames={{ label: "weightValue", value: "id" }}
-                        />
+                        <Input />
                     </Form.Item>
                 </Form>
             </Modal>
