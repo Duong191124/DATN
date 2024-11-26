@@ -46,7 +46,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.setContentType("application/json");
                 response.getWriter().write(
-                        "{\"message\": \"Cannot extract token\", \"status\": 400, \"data\": null}"
+                        "{\"message\": \"Please don't fake token LOL\", \"status\": 401, \"data\": null}"
                 );
                 return; // Kết thúc luồng xử lý
             }

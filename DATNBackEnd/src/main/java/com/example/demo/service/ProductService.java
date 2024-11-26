@@ -21,12 +21,18 @@ public interface ProductService {
 
     List<ProductDetail> getProductDetailsByProductId(Integer productId);
 
-    void deletedProduct(Integer id);
+    ProductResponse getByCategoryId(Integer categoryId);
+
+//    List<Product> findByBrandId(Integer brandId);
+
+    List<Product>getProductsByBrand(Integer brandId);
 
     ProductResponse findById(Integer id);
 
-    Page<ProductResponse> pageAllProducts(Integer categoryId, String productName, Integer sleeveId, Integer collarId, Integer brandId, Double price, String description,Integer status, Pageable pageable);
+    Page<ProductResponse> pageAllProducts(Integer categoryId, String productName, Integer sleeveId, Integer collarId, Integer brandId, String description,Integer status, Pageable pageable);
 
-    boolean canDeleteProduct(Integer productId);
+
+
     Page<ProductResponse> productAllWithProductDetailAll(Pageable pageable);
+
 }

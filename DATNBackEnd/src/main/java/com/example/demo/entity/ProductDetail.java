@@ -36,6 +36,11 @@ public class ProductDetail extends BaseEntity {
     @Basic
     @Column(name = "status")
     private int status;
+
+    @Basic
+    @Column(name = "weight")
+    private String weight;
+
     @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;
@@ -46,9 +51,7 @@ public class ProductDetail extends BaseEntity {
     @JoinColumn(name = "color_id", referencedColumnName = "id")
     private Color color;
 
-    @ManyToOne
-    @JoinColumn(name = "weight_id", referencedColumnName = "id")
-    private Weight weightValue;
+
     @ManyToMany
     @JoinTable(
             name = "product_promotion",
@@ -60,7 +63,7 @@ public class ProductDetail extends BaseEntity {
 
     @PostLoad
     public void updateStatusBasedOnRelatedEntities() {
-        if (product.getStatus() == 0 || color.getStatus() == 0 || size.getStatus() == 0||weightValue.getStatus()==0) {
+        if (product.getStatus() == 0 || color.getStatus() == 0 || size.getStatus() == 0) {
             this.status = 2;
         }
     }

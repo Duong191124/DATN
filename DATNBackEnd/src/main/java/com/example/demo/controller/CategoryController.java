@@ -34,7 +34,7 @@ public class CategoryController {
                 .data(categoryList)
                 .build());
     }
-    @PreAuthorize("hasAuthority('CREATE_CATEGORY')")
+//    @PreAuthorize("hasAuthority('CREATE_CATEGORY')")
     @PostMapping("")
     public ResponseEntity<MessageReponse> add(@Valid @RequestBody CategoryDTO category, BindingResult result) {
         if (result.hasErrors()) {
@@ -54,7 +54,7 @@ public class CategoryController {
                 .data(newCategory)
                 .build());
     }
-    @PreAuthorize("hasAuthority('UPDATE_CATEGORY')")
+//    @PreAuthorize("hasAuthority('UPDATE_CATEGORY')")
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
@@ -66,7 +66,7 @@ public class CategoryController {
                 .data(categoryDTO)
                 .build());
     }
-    @PreAuthorize("hasAuthority('DELETE_CATEGORY')")
+//    @PreAuthorize("hasAuthority('DELETE_CATEGORY')")
     @DeleteMapping("{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception {
         try {

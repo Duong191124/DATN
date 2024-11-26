@@ -1,8 +1,9 @@
 import { Button, Input, Modal, notification, Select, Form } from "antd";
-import { useEffect, useState } from "react";
-import { createProductDetailAPi, fetchDataColorAPI, fetchDataSize, fetchDataWeight } from "../../service/api.service";
+import { useCallback, useEffect, useState } from "react";
+import { checkDuplicateProductDetailAPI, createProductDetailAPi, fetchDataColorAPI, fetchDataSize, fetchDataWeight } from "../../service/api.service";
 import { Link } from "react-router-dom";
 import { DoubleLeftOutlined, PlusOutlined } from "@ant-design/icons";
+import { debounce } from "lodash";
 
 const ProDuctDetailForm = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,21 +45,46 @@ const ProDuctDetailForm = (props) => {
         setSizes(activeSize)
     };
 
-    const loadDataWeight = async () => {
-        const res = await fetchDataWeight();
-        const activeWeight = res.data.data.filter(weight => weight.status != 0)
-        setWeight(activeWeight)
-    }
+
 
     useEffect(() => {
         loadDataColor();
         loadDataSize();
-        loadDataWeight();
     }, []);
 
     const resetCloseModal = () => {
         form.resetFields();  // Reset lại các trường trong form
         setIsModalOpen(false);
+    };
+
+
+    const debounceCheckDuplicateCode = useCallback(
+        debounce(async (value, callback) => {
+            const res = await checkDuplicateProductDetailAPI("code", value);
+            if (res.data.exists) {
+                callback(new Error("Code already exists"));
+            } else {
+                callback();
+            }
+        }, 1000),
+        []
+    );
+
+    // Sử dụng hàm validator với debounce
+    const checkDuplicateCode = (rule, value) => {
+        return new Promise((resolve, reject) => {
+            if (!value) {
+                resolve(); // Nếu không có giá trị thì không kiểm tra
+            } else {
+                debounceCheckDuplicateCode(value, (error) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve();
+                    }
+                });
+            }
+        });
     };
 
     return (
@@ -90,7 +116,15 @@ const ProDuctDetailForm = (props) => {
                     <Form.Item
                         label="Code"
                         name="code"
-                        rules={[{ required: true, message: "Please input product code!" }]}
+                        rules={[
+                            {
+                                required: true, message: "Please input product code!"
+                            },
+                            {
+                                validator: checkDuplicateCode
+                            }
+                        ]}
+
                     >
                         <Input />
                     </Form.Item>
@@ -107,6 +141,15 @@ const ProDuctDetailForm = (props) => {
                         label="DefaultPrice"
                         name="defaultPrice"
                         rules={[{ required: true, message: "Please input price!" }]}
+                    >
+                        <Input />
+                    </Form.Item>
+
+
+                    <Form.Item
+                        label="Weight"
+                        name="weight"
+                        rules={[{ required: true, message: "Please input weight!" }]}
                     >
                         <Input />
                     </Form.Item>
@@ -143,21 +186,7 @@ const ProDuctDetailForm = (props) => {
                         />
                     </Form.Item>
 
-                    <Form.Item
-                        label="Weight"
-                        name="weight"
-                        rules={[{ required: true, message: "Please select a weight!" }]}
-                    >
-                        <Select
-                            showSearch
-                            placeholder="Select a weight"
-                            filterOption={(input, option) =>
-                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                            }
-                            options={weight}
-                            fieldNames={{ label: "weightValue", value: "id" }}
-                        />
-                    </Form.Item>
+
                 </Form>
             </Modal>
         </>

@@ -33,7 +33,7 @@ public class CartDetailController {
                 .data(cartDetailList)
                 .build());
     }
-    @PreAuthorize("hasAuthority('CREATE_CART_DETAIL')")
+//    @PreAuthorize("hasAuthority('CREATE_CART_DETAIL')")
     @PostMapping("")
     public ResponseEntity<MessageReponse> add(
             @Valid @RequestBody CartDetailDTO cartDetailDTO,
@@ -56,7 +56,7 @@ public class CartDetailController {
                 .build());
 
     }
-    @PreAuthorize("hasAuthority('UPDATE_CART_DETAIL')")
+//    @PreAuthorize("hasAuthority('UPDATE_CART_DETAIL')")
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,

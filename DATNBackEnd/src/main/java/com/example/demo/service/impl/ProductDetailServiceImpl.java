@@ -35,8 +35,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     @Autowired
     private ColorRepo colorRepo;
 
-    @Autowired
-    private WeightRepo weightRepo;
+
     @Autowired
     private OrderDetailRepo orderDetailRepo;
 
@@ -49,6 +48,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     public ProductDetail addProductDetail(ProductDetailDTO productDetailDTO) throws Exception {
         ProductDetail newProductDetail = new ProductDetail();
         newProductDetail.setCode(productDetailDTO.getCode());
+        newProductDetail.setWeight(productDetailDTO.getWeight());
         newProductDetail.setQuantity(productDetailDTO.getQuantity());
         newProductDetail.setDefaultPrice(productDetailDTO.getDefaultPrice());
 //        newProductDetail.setDiscountPrice(productDetailDTO.getDiscountPrice());
@@ -58,7 +58,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         newProductDetail.setProduct(getProductById(productDetailDTO.getProductId()));
         newProductDetail.setSize(getSizeById(productDetailDTO.getSizeId()));
         newProductDetail.setColor(getColorById(productDetailDTO.getColorId()));
-        newProductDetail.setWeightValue(getWeightById(productDetailDTO.getWeightId()));
+
 
         return productDetailRepo.save(newProductDetail);
     }
@@ -70,6 +70,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
         // Cập nhật thông tin từ DTO sang entity
         existingProductDetail.setCode(productDetailDTO.getCode());
+        existingProductDetail.setWeight(productDetailDTO.getWeight());
         existingProductDetail.setQuantity(productDetailDTO.getQuantity());
         existingProductDetail.setDefaultPrice(productDetailDTO.getDefaultPrice());
 //        existingProductDetail.setDiscountPrice(productDetailDTO.getDiscountPrice());
@@ -78,7 +79,6 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         existingProductDetail.setProduct(getProductById(productDetailDTO.getProductId()));
         existingProductDetail.setSize(getSizeById(productDetailDTO.getSizeId()));
         existingProductDetail.setColor(getColorById(productDetailDTO.getColorId()));
-        existingProductDetail.setWeightValue((getWeightById(productDetailDTO.getWeightId())));
         // Lưu lại productDetail đã cập nhật
         return productDetailRepo.save(existingProductDetail);
     }
@@ -109,13 +109,13 @@ public class ProductDetailServiceImpl implements ProductDetailService {
             ProductDetailResponse response = new ProductDetailResponse();
             response.setId(product.getId());
             response.setCode(product.getCode());
+            response.setWeight(product.getWeight());
             response.setDiscountPrice(product.getDiscountPrice());
             response.setQuantity(product.getQuantity()); // Giữ nguyên số lượng ban đầu
             response.setColor(product.getColor());
             response.setSize(product.getSize());
             response.setImage(product.getImage());
             response.setDefaultPrice(product.getDefaultPrice());
-            response.setWeight(product.getWeightValue());
             response.setProductResponse(ProductResponse.convertResponse(product.getProduct()));
             response.setPromotions(product.getPromotions().stream()
                     .map(PromotionResponse::fromPromotionResponse)
@@ -172,8 +172,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     }
 
     @Override
-    public Page<ProductDetailResponse> pageAndFilterWithProductDetailResponse(String productName, String code, String colorName, String weightName, String sizeName, Double minPrice, Double maxPrice, Integer status, Pageable pageable) {
-        Page<ProductDetail> productDetailPage = productDetailRepo.pageAndFilterProductDetail(productName, code, colorName, sizeName, weightName, minPrice, maxPrice, status, pageable);
+    public Page<ProductDetailResponse> pageAndFilterWithProductDetailResponse(String productName, String code, String colorName, String sizeName, Double minPrice, Double maxPrice, Integer status, Pageable pageable) {
+        Page<ProductDetail> productDetailPage = productDetailRepo.pageAndFilterProductDetail(productName, code, colorName, sizeName, minPrice, maxPrice, status, pageable);
         return productDetailPage.map(ProductDetailResponse::fromProductDetailResponse);
     }
 
@@ -192,8 +192,12 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .orElseThrow(() -> new Exception("Color not found with id: " + id));
     }
 
-    public Weight getWeightById(Integer id) throws Exception {
-        return weightRepo.findById(id)
-                .orElseThrow(() -> new Exception("weight not found with id: " + id));
+    public boolean isDuplicate(String type, String value){
+        if ("code".equals(type)){
+            return productDetailRepo.existsByCode(value);
+        }
+        return false;
     }
+
+
 }

@@ -21,7 +21,6 @@ const ProductForm = (props) => {
       values.code,
       values.name,
       values.description,
-      values.price,
       values.selectedSleeve,
       values.selectedCategory,
       values.selectedBrand,
@@ -90,6 +89,18 @@ const ProductForm = (props) => {
     []
   );
 
+  const debounceCheckDuplicateName = useCallback(
+    debounce(async (value, callback) => {
+      const res = await checkDuplicateProductAPI("name", value);
+      if (res.data.exists) {
+        callback(new Error("name already exists"));
+      } else {
+        callback();
+      }
+    }, 1000),
+    []
+  );
+
   // Sử dụng hàm validator với debounce
   const checkDuplicateCode = (rule, value) => {
     return new Promise((resolve, reject) => {
@@ -97,6 +108,22 @@ const ProductForm = (props) => {
         resolve(); // Nếu không có giá trị thì không kiểm tra
       } else {
         debounceCheckDuplicateCode(value, (error) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve();
+          }
+        });
+      }
+    });
+  };
+
+  const checkDuplicateName = (rule, value) => {
+    return new Promise((resolve, reject) => {
+      if (!value) {
+        resolve(); // Nếu không có giá trị thì không kiểm tra
+      } else {
+        debounceCheckDuplicateName(value, (error) => {
           if (error) {
             reject(error);
           } else {
@@ -173,31 +200,15 @@ const ProductForm = (props) => {
                   return Promise.resolve();
                 },
               },
+              {
+                validator: checkDuplicateName,
+              },
             ]}
           >
             <Input />
           </Form.Item>
 
-          <Form.Item
-            label="Price"
-            name="price"
-            rules={[
-              {
-                required: true,
-                message: "Please input the price!",
-              },
-              {
-                validator: (rule, value) => {
-                  if (value && value < 1) {
-                    return Promise.reject(new Error("price must be >0"));
-                  }
-                  return Promise.resolve();
-                },
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
+
 
           <Form.Item
             label="Collar"
