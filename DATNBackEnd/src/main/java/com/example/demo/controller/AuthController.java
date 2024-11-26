@@ -102,10 +102,10 @@ public class AuthController {
             }
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     LoginResponse.builder()
                             .token(null)
-                            .status(HttpStatus.UNAUTHORIZED.value())
+                            .status(HttpStatus.BAD_REQUEST.value())
                             .message(messageSource.getMessage("auth.login.invalid", null, LocaleContextHolder.getLocale()))
                             .build()
             );

@@ -18,11 +18,17 @@ public class PermissionServiceIplm implements PermissionService {
     PermissionRepo permissionRepo;
 
     @Override
-    public Page<Permission> getAll(Pageable pageable) {
+    public Page<Permission> getAll(String search, Pageable pageable) {
         try {
-            return permissionRepo.findAll(pageable);
-        }catch (Exception e){
-            throw new RuntimeException();
+            if (search == null || search.isEmpty()) {
+                // Nếu không có search, trả về tất cả permission
+                return permissionRepo.findAll(pageable);
+            } else {
+                // Tìm kiếm các permission có tên chứa chuỗi tìm kiếm
+                return permissionRepo.findByNameContainingIgnoreCase(search, pageable);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error while fetching permissions", e);
         }
     }
 

@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface PermissionService {
-    Page<Permission> getAll(Pageable pageable);
+    Page<Permission> getAll(String search, Pageable pageable);
 
     List<Permission> all();
 

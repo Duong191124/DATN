@@ -64,19 +64,9 @@ const LoginAnimation = () => {
       }
       setLoading(false);
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        form.setFields([
-          {
-            name: "username",
-            errors: ["Username or password is not valid"],
-          },
-          {
-            name: "password",
-            errors: ["Username or password is not valid"],
-          },
-        ]);
+      if (error.response && error.response.status === 400) {
+        form.setFieldValue("");
       } else {
-        message.error("Đăng nhập thất bại, vui lòng thử lại.");
         console.error(error);
       }
       setLoading(false);

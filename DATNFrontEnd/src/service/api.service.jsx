@@ -689,8 +689,8 @@ const getAllPermission = () => {
   const URL_BACKEND = "/api/v1/permission/all";
   return axios.get(URL_BACKEND);
 };
-const getAllPermissionPagination = (page, size) => {
-  const URL_BACKEND = `/api/v1/permission/getAll?page=${page}&size=${size}`;
+const getAllPermissionPagination = (page, size, search = "") => {
+  const URL_BACKEND = `/api/v1/permission/getAll?page=${page}&size=${size}&search=${search}`;
   return axios.get(URL_BACKEND);
 };
 const createNewPermission = (name) => {

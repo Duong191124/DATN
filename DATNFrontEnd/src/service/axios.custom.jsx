@@ -1,3 +1,5 @@
+import { Form, message, notification } from "antd";
+import { useForm } from "antd/es/form/Form";
 import axios from "axios";
 
 // Set config defaults when creating the instance
@@ -18,7 +20,7 @@ instance.interceptors.request.use(
   function (config) {
     // Show spinner before making request
     setSpinLoadingVisibility(true);
-    
+
     if (
       typeof window !== "undefined" &&
       window.localStorage.getItem("access_token")
@@ -40,7 +42,7 @@ instance.interceptors.response.use(
   function (response) {
     // Hide spinner when receiving a response
     setSpinLoadingVisibility(false);
-    
+
     // Check if response has data
     if (response.data && response.data.data) {
       return response;
@@ -53,18 +55,36 @@ instance.interceptors.response.use(
 
     if (error.response) {
       const { status } = error.response;
-      // If 401/403, remove token and redirect to login
-      if (status === 401 || status === 403) {
-        if (typeof window !== "undefined") {
-          // Clear local storage
-          localStorage.removeItem("access_token");
+      // If 401, remove token and redirect to login
+      if (status >= 400 && status < 500) {
+        if (status === 401) {
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("access_token");
 
-          // Redirect to login page
-          window.location.href = "/login"; // Ensure this matches your app's route
+            window.location.href = "/login"; // Ensure this matches your app's route
+          }
+          notification.error({
+            message: "Hết phiên đăng nhập",
+            description: 'Vui lòng đăng nhập lại',
+            duration: 2
+          })
+        } else {
+          notification.warning({
+            message: 'Warring',
+            description: error.response.data.message,
+            duration: 2
+          });
+        }
+        if (status === 403) {
+          notification.error({
+            message: "Không có quyền truy cập",
+            description: 'Bạn không có quyền',
+            duration: 2
+          });
+          return;
         }
       }
     }
-    return Promise.reject(error);
   }
 );
 
