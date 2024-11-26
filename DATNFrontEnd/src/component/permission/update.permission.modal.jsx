@@ -49,6 +49,11 @@ const UpdatePermissionForUserModal = (props) => {
         setCurrent(1); // Reset trang khi tìm kiếm
     };
 
+    const onCloseModal = () => {
+        setSearch(""); // Xóa giá trị tìm kiếm
+        onClose(); // Gọi callback để đóng modal
+    };
+
     // Load staff permissions and update checkbox state
     const loadStaffPermissions = async (id) => {
         try {
@@ -139,7 +144,7 @@ const UpdatePermissionForUserModal = (props) => {
             title="Manage Permissions"
             open={open}
             maskClosable={false}
-            onCancel={onClose}
+            onCancel={onCloseModal}
             onOk={handleOk}
         >
             <Input
