@@ -25,4 +25,5 @@ public interface OrderService {
     List<OrderResponse> getPendingOrdersByStaff(Integer staffId);
     boolean hasCustomerExitVoucher(int customerId, int voucherId);
     boolean hasCustomerUsedVoucher(int customerId, int voucherId);
+    OrderResponse updateCustomerId(Integer orderId,Integer customerId);
 }

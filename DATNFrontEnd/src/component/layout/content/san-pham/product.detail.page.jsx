@@ -75,16 +75,19 @@ const ProductDetailPage = () => {
     <div className="product-detail-page">
       <div className="product-detail">
         <div className="product-info">
-          <img src={product.image} alt={product.productResponse?.name} />
+          <img
+            src={product?.image || "https://via.placeholder.com/150"}
+            alt={product?.productResponse?.name}
+          />
           <div className="product-details">
-            <h1>{product.productResponse?.name}</h1>
+            <h1>{product?.productResponse?.name}</h1>
             <p className="price">
-              <span className="current-price">{product.defaultPrice}</span>
-              {product.discountPrice && (
-                <span className="discount-price">{product.discountPrice}</span>
+              <span className="current-price">{product?.defaultPrice}</span>
+              {product?.discountPrice && (
+                <span className="discount-price">{product?.discountPrice}</span>
               )}
             </p>
-            <p>{product.productResponse?.description}</p>
+            <p>{product?.productResponse?.description}</p>
 
             <div className="select-size">
               <label>Size:</label>
@@ -94,11 +97,13 @@ const ProductDetailPage = () => {
                   .map((size) => (
                     <button
                       key={size.id}
-                      className={`size-button ${selectedSize === size.code ? "selected" : ""
-                        } ${!availableSizes.includes(size.code)
+                      className={`size-button ${
+                        selectedSize === size.code ? "selected" : ""
+                      } ${
+                        !availableSizes.includes(size.code)
                           ? "disabled-size"
                           : ""
-                        }`}
+                      }`}
                       onClick={() => setSelectedSize(size.code)}
                       disabled={!availableSizes.includes(size.code)} // Disable nếu kích thước không có trong product_detail
                     >
@@ -116,11 +121,13 @@ const ProductDetailPage = () => {
                   .map((color) => (
                     <button
                       key={color.id}
-                      className={`color-button ${selectedColor === color.name ? "selected" : ""
-                        } ${!availableColors.includes(color.name)
+                      className={`color-button ${
+                        selectedColor === color.name ? "selected" : ""
+                      } ${
+                        !availableColors.includes(color.name)
                           ? "disabled-color"
                           : ""
-                        }`}
+                      }`}
                       onClick={() => setSelectedColor(color.name)}
                       disabled={!availableColors.includes(color.name)} // Disable nếu màu không có trong product_detail
                     >

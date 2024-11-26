@@ -5,7 +5,7 @@ import { AuthContext } from "../component/context/auth.context";
 
 const PrivateRoute = (props) => {
   const { user, loginStatus, role } = useContext(AuthContext);
-  if (loginStatus === "200" && role === "customer") {
+  if (loginStatus === "200") {
     return (
       <Result
         status="403"
@@ -22,7 +22,7 @@ const PrivateRoute = (props) => {
     );
   }
 
-  if ((user && user.id) || loginStatus === "201" || role !== "customer") {
+  if ((user && user.id) || loginStatus === "201") {
     return <>{props.children}</>;
   }
 

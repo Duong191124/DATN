@@ -225,7 +225,7 @@ const ProductDetailCard = ({ product, onAddToWishlist, onQuickView }) => {
       </ProductActions>
 
       <ProductInfo>
-        <ProductTitle>{name}</ProductTitle>
+        <ProductTitle>{productResponse.name}</ProductTitle>
         <Space direction="vertical" size={4} style={{ width: "100%" }}>
           <ProductPrice>
             {discountPrice && discountPrice < defaultPrice ? (
@@ -250,7 +250,28 @@ const ProductDetailCard = ({ product, onAddToWishlist, onQuickView }) => {
               })
             )}
           </ProductPrice>
-          <Text type="secondary">{productResponse.categoryName}</Text>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <Text
+              type="secondary"
+              style={{
+                marginRight: "20px",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <div style={{ marginRight: "5px" }}>Color:</div>
+              <div
+                style={{
+                  width: "15px",
+                  height: "15px",
+                  backgroundColor: color.name,
+                  borderRadius: "50%",
+                  boxShadow: "rgba(0, 0, 0, 0.88) 0px 0px 3px",
+                }}
+              ></div>
+            </Text>
+            <Text type="secondary">Size: {size.name}</Text>
+          </div>
         </Space>
       </ProductInfo>
     </ProductCardWrapper>

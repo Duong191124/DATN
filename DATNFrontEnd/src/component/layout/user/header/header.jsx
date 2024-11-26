@@ -11,21 +11,157 @@ import { useEffect, useState } from "react";
 import { useCart } from "../../../context/cart.context";
 import { useTranslation } from "react-i18next";
 import { useCheckout } from "../../../context/checkout.context";
+import {
+  fetchDataCategoryAPI,
+  fetchDataProduct,
+} from "../../../../service/api.service";
+
+const categoryStyle = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-start",
+  justifyContent: "space-between",
+  height: "100%",
+  flex: "1",
+};
+
+const categoryTitleStyle = {
+  fontWeight: "bold",
+  fontSize: "20px",
+  marginBottom: "10px",
+};
+
+const productItemStyle = {
+  display: "flex",
+  alignItems: "center",
+  marginBottom: "5px",
+  padding: "5px 0",
+  cursor: "pointer",
+};
+const productImageDiv = {
+  width: "55px",
+  height: "55px",
+  marginRight: "15px",
+};
+const productImageStyle = {
+  width: "100%",
+  height: "100%",
+  borderRadius: "50%",
+  border: "1px solid #ddd",
+  objectFit: "cover",
+};
+
+const productLinkStyle = {
+  textDecoration: "none",
+  color: "#000",
+  fontSize: "18px",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  width: "128px",
+};
 
 const Header = () => {
   const { t, i18n } = useTranslation();
   const [openCart, setOpenCart] = useState(false);
   const { resetCheckoutContext } = useCheckout();
-  const [language, setLanguage] = useState('');
+  const [language, setLanguage] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [category, setCategory] = useState([]);
+  const [product, setProduct] = useState([]);
   const navigate = useNavigate();
   const { setCartItems } = useCart();
 
-  const items = [
-    { key: "1", label: <NavLink to={"/"}>{t("MES-003")}</NavLink> },
-    { key: "2", label: <NavLink to={"/"}>{t("MES-004")}</NavLink> },
-    { key: "3", label: <NavLink to={"/"}>{t("MES-005")}</NavLink> },
-  ];
+  const items = category.map((cat) => {
+    const categoryProducts = product.filter(
+      (prod) => prod.category.id === cat.id
+    );
+    const productsToShow = categoryProducts.slice(0, 3);
+    return {
+      key: cat.id,
+      label: (
+        <div style={categoryStyle}>
+          <div style={categoryTitleStyle}>{cat.name}</div>
+          <div>
+            {productsToShow.map((prod) => (
+              <NavLink to={`/product/${prod.id}`} key={prod.id}>
+                <div
+                  style={productItemStyle}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#ddd";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "";
+                  }}
+                >
+                  <div style={productImageDiv}>
+                    <img
+                      src={prod.image || "https://via.placeholder.com/150"}
+                      alt={prod.name}
+                      style={productImageStyle}
+                    />
+                  </div>
+                  <div style={productLinkStyle}>{prod.name}</div>
+                </div>
+              </NavLink>
+            ))}
+          </div>
+          {categoryProducts.length > 3 && (
+            <Button
+              style={{
+                width: "100%",
+                color: "#000",
+                borderTop: "1px solid #ddd",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#ddd";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "";
+              }}
+              type="link"
+              onClick={() => navigate(`/product?category=${cat.name}`)}
+            >
+              Xem thêm
+            </Button>
+          )}
+        </div>
+      ),
+    };
+  });
+
+  const menu = (
+    <Menu
+      items={items}
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(5, 1fr)",
+        gap: "10px",
+        marginTop: "20px",
+        alignItems: "start",
+        width: "1200px",
+      }}
+    />
+  );
+
+  const getAllCategory = async () => {
+    const response = await fetchDataCategoryAPI();
+    if (response?.data?.data) {
+      setCategory(response.data.data);
+    }
+  };
+
+  const getAllProduct = async () => {
+    const response = await fetchDataProduct();
+    if (response?.data?.data) {
+      setProduct(response.data.data);
+    }
+  };
+
+  useEffect(() => {
+    getAllCategory();
+    getAllProduct();
+  }, []);
 
   useEffect(() => {
     const loggedIn = !!localStorage.getItem("access_token");
@@ -101,7 +237,12 @@ const Header = () => {
                   <NavLink to={"/"}>{t("MES-001")}</NavLink>
                 </li>
                 <li>
-                  <Dropdown menu={{ items }} placement="bottom">
+                  <Dropdown
+                    overlay={menu}
+                    overlayStyle={{
+                      left: "128px",
+                    }}
+                  >
                     <a>{t("MES-002")}</a>
                   </Dropdown>
                 </li>

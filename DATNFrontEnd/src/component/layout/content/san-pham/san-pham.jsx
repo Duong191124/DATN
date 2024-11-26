@@ -12,17 +12,34 @@ import {
 } from "antd"; // Thêm Empty từ Ant Design
 import { useEffect, useState } from "react";
 import "./san-pham.css";
-import { Link, useNavigate } from "react-router-dom";
 import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
+import {
+  fetchDataBrand,
   fetchDataCategory,
   fetchDataColor,
   fetchDataSize,
   fetchProductsByProductDetails,
 } from "../../../../service/api.service";
 import ProductCard from "../../../home/product.card";
-
+import { range, values } from "lodash";
+import { motion, AnimatePresence } from "framer-motion";
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
 const SanPham = () => {
   const [form] = Form.useForm();
+  const location = useLocation();
   const [listCategory, setListCategory] = useState([]);
   const [listProduct, setListProduct] = useState([]);
   const [size, setSize] = useState([]);
@@ -31,6 +48,13 @@ const SanPham = () => {
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 20;
+  const [selectedCategory, setSelectedCategory] = useState([]);
+  const [selectedBrand, setSelectedBrand] = useState([]);
+  const [selectedColor, setSelectedColor] = useState("All");
+  const [selectedSize, setSelectedSize] = useState("All");
+  const [brands, setBrands] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [priceRange, setPriceRange] = useState([0, 10000000]);
   const navigate = useNavigate();
   useEffect(() => {
     const initCategory = async () => {
@@ -56,9 +80,23 @@ const SanPham = () => {
     const res = await fetchDataColor();
     setColor(res.data.data);
   };
+  const getBrand = async () => {
+    const res = await fetchDataBrand();
+    if (res?.data?.data) {
+      setBrands(res.data.data);
+    }
+  };
+  const getCategory = async () => {
+    const res = await fetchDataCategory();
+    if (res?.data?.data) {
+      setCategories(res.data.data);
+    }
+  };
   useEffect(() => {
     initSize();
     initColor();
+    getBrand();
+    getCategory();
   }, []);
   useEffect(() => {
     const initProduct = async () => {
@@ -74,31 +112,101 @@ const SanPham = () => {
     initProduct();
   }, [currentPage]);
   const onFinish = (values) => {
-    const { category, range } = values; // Get category and range from the form
-    const fromPrice = range?.from || 0;
-    const toPrice = range?.to || Infinity; // Set to Infinity if "to" is not defined
-
-    // Filter products based on category and price range
-    const filtered = listProduct.filter((product) => {
-      const isInCategory = category
-        ? category.includes(product.categoryId)
-        : true; // Check if category matches
-      const isInPriceRange =
-        product.price >= fromPrice && product.price <= toPrice; // Check if price is within range
-      return isInCategory && isInPriceRange;
-    });
-
-    setFilteredProduct(filtered); // Set the filtered products
+    const range = values.range || {};
+    let from = range.from || 0;
+    let to = range.to || 10000000;
+    if (from < 0) from = 0;
+    if (to < 0) to = 0;
+    if (to < from) {
+      to = from;
+    }
+    setPriceRange([from, to]);
+    filterProducts();
   };
+
   const filterProducts = () => {
     let filtered = [...listProduct];
+    if (!selectedBrand.includes("All")) {
+      filtered = filtered.filter((product) =>
+        selectedBrand.some(
+          (brand) =>
+            product?.products?.brandName?.toLowerCase() === brand.toLowerCase()
+        )
+      );
+    }
+
+    if (!selectedColor.includes("All")) {
+      filtered = filtered.filter((product) =>
+        selectedColor.some((color) => {
+          const colorName = product?.details?.some((productDetail) => {
+            const colorName = productDetail?.color?.name?.toLowerCase();
+            const selectedColorName = color?.toLowerCase();
+            return (
+              colorName === selectedColorName && productDetail?.quantity > 0
+            );
+          });
+          return colorName;
+        })
+      );
+    }
+    if (!selectedSize.includes("All")) {
+      filtered = filtered.filter((product) =>
+        selectedSize.some((size) => {
+          const sizeName = product?.details?.some((productDetail) => {
+            const sizeName = productDetail?.size?.name?.toLowerCase();
+            const selectedSizeName = size?.toLowerCase();
+            return sizeName === selectedSizeName && productDetail?.quantity > 0;
+          });
+          return sizeName;
+        })
+      );
+    }
+    if (!selectedCategory.includes("All")) {
+      filtered = filtered.filter((product) =>
+        selectedCategory.some(
+          (category) =>
+            product?.products?.categoryName?.toLowerCase() ===
+            category.toLowerCase()
+        )
+      );
+    }
+    filtered = filtered.filter(
+      (product) =>
+        product.minPrice >= priceRange[0] && product.minPrice <= priceRange[1]
+    );
+
     return filtered;
   };
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const brandFromQuery = queryParams.get("brand");
+    const categoryFromQuery = queryParams.get("category");
+    if (brandFromQuery) {
+      setSelectedBrand([brandFromQuery]);
+      setSelectedCategory([categoryFromQuery]);
+    } else {
+      setSelectedBrand(["All"]);
+      setSelectedCategory(["All"]);
+    }
+  }, [location.search]);
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const categoryFromQuery = queryParams.get("category");
+    if (categoryFromQuery) {
+      setSelectedCategory([categoryFromQuery]);
+    } else {
+      setSelectedCategory(["All"]);
+    }
+  }, [location.search]);
   const handleReset = () => {
-    form.resetFields(); // Reset form fields
-    setFilteredProduct(listProduct); // Reset to the original product list
+    form.resetFields();
+    setSelectedCategory(["All"]);
+    setSelectedBrand(["All"]);
+    setSelectedColor(["All"]);
+    setSelectedSize(["All"]);
+    setPriceRange([0, 10000000]);
+    setFilteredProduct(listProduct);
   };
-
   return (
     <div
       style={{ background: "#efefef", padding: "20px 0", marginTop: "70px" }}
@@ -122,23 +230,154 @@ const SanPham = () => {
               <Divider />
               <Form onFinish={onFinish} form={form}>
                 <Form.Item
-                  name="category"
-                  label="Danh mục sản phẩm"
+                  name="brand"
+                  label={
+                    <span style={{ fontWeight: "bold" }}>Thương hiệu</span>
+                  }
                   labelCol={{ span: 24 }}
                 >
-                  <Checkbox.Group>
-                    <Row>
-                      {listCategory?.map((item, index) => {
-                        return (
-                          <Col
-                            span={24}
-                            key={`index-${index}`}
-                            style={{ padding: "7px 0" }}
-                          >
-                            <Checkbox value={item.value}>{item.label}</Checkbox>
-                          </Col>
+                  <Checkbox.Group
+                    value={selectedBrand.length === 0 ? ["All"] : selectedBrand}
+                    onChange={(selectedValues) => {
+                      if (selectedValues.length === 0) {
+                        setSelectedBrand(["All"]);
+                      } else {
+                        const filteredValues = selectedValues.filter(
+                          (value) => value !== "All"
                         );
-                      })}
+                        setSelectedBrand(filteredValues);
+                      }
+                    }}
+                  >
+                    <Row>
+                      {brands?.map((item, index) => (
+                        <Col
+                          span={24}
+                          key={`index-${index}`}
+                          style={{ padding: "7px 0" }}
+                        >
+                          <Checkbox key={item.id} value={item.name}>
+                            {item.name}
+                          </Checkbox>
+                        </Col>
+                      ))}
+                    </Row>
+                  </Checkbox.Group>
+                </Form.Item>
+                <Divider />
+                <Form.Item
+                  name="category"
+                  label={
+                    <span style={{ fontWeight: "bold" }}>
+                      Danh mục sản phẩm
+                    </span>
+                  }
+                  labelCol={{ span: 24 }}
+                >
+                  <Checkbox.Group
+                    value={
+                      selectedCategory.length === 0 ? ["All"] : selectedCategory
+                    }
+                    onChange={(selectedValues) => {
+                      if (selectedValues.length === 0) {
+                        setSelectedCategory(["All"]);
+                      } else {
+                        const filteredValues = selectedValues.filter(
+                          (value) => value !== "All"
+                        );
+                        setSelectedCategory(filteredValues);
+                      }
+                    }}
+                  >
+                    <Row>
+                      {categories?.map((item, index) => (
+                        <Col
+                          span={24}
+                          key={`index-${index}`}
+                          style={{ padding: "7px 0" }}
+                        >
+                          <Checkbox
+                            value={item.name}
+                            checked={selectedCategory.includes(item.name)}
+                          >
+                            {item.name}
+                          </Checkbox>
+                        </Col>
+                      ))}
+                    </Row>
+                  </Checkbox.Group>
+                </Form.Item>
+                <Divider />
+                <Form.Item
+                  name="color"
+                  label={<span style={{ fontWeight: "bold" }}>Màu</span>}
+                  labelCol={{ span: 24 }}
+                >
+                  <Checkbox.Group
+                    value={selectedColor.length === 0 ? ["All"] : selectedColor}
+                    onChange={(selectedValues) => {
+                      if (selectedValues.length === 0) {
+                        setSelectedColor(["All"]);
+                      } else {
+                        const filteredValues = selectedValues.filter(
+                          (value) => value !== "All"
+                        );
+                        setSelectedColor(filteredValues);
+                      }
+                    }}
+                  >
+                    <Row>
+                      {color?.map((item, index) => (
+                        <Col
+                          span={24}
+                          key={`index-${index}`}
+                          style={{ padding: "7px 0" }}
+                        >
+                          <Checkbox
+                            value={item.name}
+                            checked={selectedColor.includes(item.name)}
+                          >
+                            {item.name}
+                          </Checkbox>
+                        </Col>
+                      ))}
+                    </Row>
+                  </Checkbox.Group>
+                </Form.Item>
+                <Divider />
+                <Form.Item
+                  name="size"
+                  label={<span style={{ fontWeight: "bold" }}>Kích thước</span>}
+                  labelCol={{ span: 24 }}
+                >
+                  <Checkbox.Group
+                    value={selectedSize.length === 0 ? ["All"] : selectedSize}
+                    onChange={(selectedValues) => {
+                      if (selectedValues.length === 0) {
+                        setSelectedSize(["All"]);
+                      } else {
+                        const filteredValues = selectedValues.filter(
+                          (value) => value !== "All"
+                        );
+                        setSelectedSize(filteredValues);
+                      }
+                    }}
+                  >
+                    <Row>
+                      {size?.map((item, index) => (
+                        <Col
+                          span={24}
+                          key={`index-${index}`}
+                          style={{ padding: "7px 0" }}
+                        >
+                          <Checkbox
+                            value={item.name}
+                            checked={selectedSize.includes(item.name)}
+                          >
+                            {item.name}
+                          </Checkbox>
+                        </Col>
+                      ))}
                     </Row>
                   </Checkbox.Group>
                 </Form.Item>
@@ -152,9 +391,24 @@ const SanPham = () => {
                           min={0}
                           placeholder="đ TỪ"
                           formatter={(value) =>
-                            `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                            value
+                              ? `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                              : ""
                           }
+                          parser={(value) => value?.replace(/\$\s?|(,*)/g, "")}
+                          onChange={values}
                           style={{ width: "100%" }}
+                          onKeyDown={(e) => {
+                            if (
+                              !/[0-9]/.test(e.key) && // Cho phép chỉ nhập số
+                              e.key !== "Backspace" && // Cho phép phím Backspace để xóa
+                              e.key !== "ArrowLeft" && // Cho phép phím mũi tên trái
+                              e.key !== "ArrowRight" && // Cho phép phím mũi tên phải
+                              e.key !== "Tab" // Cho phép phím Tab
+                            ) {
+                              e.preventDefault();
+                            }
+                          }}
                         />
                       </Form.Item>
                     </Col>
@@ -167,10 +421,23 @@ const SanPham = () => {
                           name="to"
                           max={10000000}
                           placeholder="đ ĐẾN"
+                          style={{ width: "100%" }}
                           formatter={(value) =>
                             `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                           }
-                          style={{ width: "100%" }}
+                          parser={(value) => value?.replace(/\$\s?|(,*)/g, "")}
+                          onChange={values}
+                          onKeyDown={(e) => {
+                            if (
+                              !/[0-9]/.test(e.key) && // Cho phép chỉ nhập số
+                              e.key !== "Backspace" && // Cho phép phím Backspace để xóa
+                              e.key !== "ArrowLeft" && // Cho phép phím mũi tên trái
+                              e.key !== "ArrowRight" && // Cho phép phím mũi tên phải
+                              e.key !== "Tab" // Cho phép phím Tab
+                            ) {
+                              e.preventDefault();
+                            }
+                          }}
                         />
                       </Form.Item>
                     </Col>
@@ -185,17 +452,27 @@ const SanPham = () => {
             </div>
           </Col>
           <Col md={20} sm={24} xs={24}>
-            <Row justify="center">
-              {filterProducts().map((product) => (
-                <Col xs={24} sm={12} md={8} lg={6} key={product.id}>
-                  <ProductCard
-                    product={product}
-                    size={size}
-                    color={color}
-                    onQuickView={handleQuickView}
-                  />
-                </Col>
-              ))}
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <Row gutter={[24, 24]}>
+                <AnimatePresence>
+                  {filterProducts().map((product) => (
+                    <Col xs={24} sm={12} md={8} lg={6} key={product.id}>
+                      <ProductCard
+                        product={product}
+                        size={size}
+                        color={color}
+                        onQuickView={handleQuickView}
+                      />
+                    </Col>
+                  ))}
+                </AnimatePresence>
+              </Row>
+            </motion.div>
+            <Row justify="center" style={{ marginTop: 48 }}>
               <Pagination
                 current={currentPage}
                 total={total}

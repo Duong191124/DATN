@@ -187,4 +187,22 @@ public class  OrderController {
     public boolean hasCustomerUsedVoucher(@PathVariable int customerId, @PathVariable int voucherId) {
         return orderService.hasCustomerUsedVoucher(customerId, voucherId);
     }
+    @PutMapping("/update-customer/{orderId}")
+    public ResponseEntity<?> UpdateCustomerById(
+            @PathVariable Integer orderId,
+            @RequestBody Map<String, Integer> requestBody
+    ) {
+        try {
+            Integer customerId = requestBody.get("customerId");
+            OrderResponse updatedOrder = orderService.updateCustomerId(orderId, customerId);
+            return ResponseEntity.ok(new MessageReponse("Customer updated successfully", 200, updatedOrder));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new MessageReponse(e.getMessage(), 400, null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageReponse("Unexpected error occurred", 500, null));
+        }
+    }
+
+
 }
