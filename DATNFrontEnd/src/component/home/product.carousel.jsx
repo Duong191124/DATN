@@ -76,6 +76,9 @@ const ProductCarousel = () => {
   const handleQuickView = (product) => {
     navigate(`/product/${product.productResponse.id}`);
   };
+  const availableProducts = dataTopFeatureProductDetail.filter(
+    (product) => product.quantity > 0 && product.status === 1
+  );
   const getTopFeatureProductDetail = async () => {
     const response = await fetchTopFeaturedProducts();
     if (response?.data?.data) {
@@ -89,7 +92,6 @@ const ProductCarousel = () => {
   return (
     <div style={styles.container}>
       <div style={styles.title}>Sản phẩm Sale</div>
-
       <div
         style={styles.carouselWrapper}
         onMouseEnter={(e) => {
@@ -121,7 +123,7 @@ const ProductCarousel = () => {
           renderButtonGroupOutside={true} // Để sử dụng custom arrow
           arrows={false} // Ẩn arrow mặc định
         >
-          {dataTopFeatureProductDetail.map((product, index) => (
+          {availableProducts.map((product, index) => (
             <div key={index}>
               <ProductDetailCard
                 product={product}

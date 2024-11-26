@@ -15,8 +15,12 @@ import {
 } from "antd";
 import { CloseOutlined, PlusCircleOutlined } from "@ant-design/icons"; // Import PlusCircleOutlined
 import { useDebounce } from "use-debounce";
-import { createCustomer } from "../../../../service/api.service";
+import {
+  createCustomer,
+  updateCustomerByOrder,
+} from "../../../../service/api.service";
 import { Option } from "antd/es/mentions";
+import { data } from "framer-motion/client";
 
 const generateRandomPassword = () => {
   const chars = "0123456789";
@@ -32,6 +36,9 @@ const CounterSaleCustomer = ({
   setCustomerList,
   onCustomerSelect,
   loadCustomerList,
+  selectedBill,
+  billWaiting,
+  setBillWaiting,
 }) => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [searchText, setSearchText] = useState("");
@@ -45,14 +52,69 @@ const CounterSaleCustomer = ({
   const handleSearch = (e) => {
     setSearchText(e.target.value);
   };
-
   // Handle customer selection
-  const handleCustomerSelect = (customer) => {
-    setSelectedCustomer(customer);
-    onCustomerSelect(customer);
-    message.success("Đã chọn khác hàng");
-    setSearchText("");
+  const handleCustomerSelect = async (customer) => {
+    try {
+      setSelectedCustomer(customer);
+      onCustomerSelect(customer);
+      if (!selectedBill) {
+        message.error("Chưa chọn hóa đơn để chọn khác hàng");
+        return;
+      }
+
+      // Tìm hóa đơn đang chờ
+      const bill = billWaiting.find((bill) => bill.code === selectedBill);
+      console.log("bill", bill);
+      if (!bill) {
+        message.error("Không tìm thấy hóa đơn tương ứng");
+        return;
+      }
+      await updateCustomerByOrder(bill.id, customer.id);
+      const updatedBills = billWaiting.map((bill) => {
+        if (bill.code === selectedBill) {
+          return {
+            ...bill,
+            customerResponse: { ...customer },
+          };
+        }
+        return bill;
+      });
+      setBillWaiting(updatedBills);
+      notification.success({
+        message: "Khách hàng",
+        description: "Khách hàng đã được chọn",
+        duration: 2,
+        placement: "bottomLeft",
+      });
+      setSearchText("");
+      onCustomerSelect(null);
+      setSelectedCustomer(null);
+      return;
+    } catch (error) {
+      // Thông báo lỗi
+      notification.error({
+        message: "Khách hàng",
+        description: "Lỗi không thể chọn khách hàng",
+        duration: 2,
+        placement: "bottomLeft",
+      });
+    }
   };
+
+  useEffect(() => {
+    if (selectedCustomer && selectedBill) {
+      const bill = billWaiting.find((bill) => bill.code === selectedBill);
+      if (bill) {
+        setBillWaiting((prevBills) =>
+          prevBills.map((billItem) =>
+            billItem.code === selectedBill
+              ? { ...billItem, customerResponse: { ...selectedCustomer } }
+              : billItem
+          )
+        );
+      }
+    }
+  }, [selectedCustomer, selectedBill]);
 
   const handleAddCustomer = async (values) => {
     try {
@@ -101,10 +163,6 @@ const CounterSaleCustomer = ({
     );
     setFilteredCustomers(filtered);
   }, [searchText, customerList]);
-  const handleDeselectCustomer = () => {
-    setSelectedCustomer(null);
-    onCustomerSelect(null);
-  };
   useEffect(() => {
     if (isCreated) {
       loadCustomerList();
@@ -265,37 +323,6 @@ const CounterSaleCustomer = ({
                 />
               </List.Item>
             )}
-          />
-        </div>
-      )}
-      {selectedCustomer && (
-        <div
-          style={{
-            marginTop: 20,
-            border: "1px solid #ddd",
-            padding: "15px",
-            borderRadius: "8px",
-            backgroundColor: "#fafafa",
-            position: "relative",
-          }}
-        >
-          <h4>Thông tin khách hàng</h4>
-          <p>
-            <strong>Tên:</strong> {selectedCustomer.name}
-          </p>
-          <p>
-            <strong>SĐT:</strong> {selectedCustomer.phoneNumber}
-          </p>
-
-          {/* Nút X để bỏ chọn khách hàng */}
-          <CloseOutlined
-            onClick={handleDeselectCustomer}
-            style={{
-              position: "absolute",
-              top: "10px",
-              right: "10px",
-              cursor: "pointer",
-            }}
           />
         </div>
       )}
