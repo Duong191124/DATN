@@ -20,6 +20,7 @@ const CategoryPage = () => {
   }, []);
   return (
     <div style={{ margin: "20px" }}>
+      <h1 style={{ textAlign: "center" }}>CATEGORY MANAGEMENT</h1>
       <CategoryForm loadCategory={loadCategory} />
       <CategoryTable loadCategory={loadCategory} dataCategory={dataCategory} />
     </div>

@@ -76,7 +76,7 @@ public class ProductDetailController {
     }
 
 //    @PreAuthorize("hasAuthority('UPDATE_PRODUCT_DETAIL')")
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<?> updateProductDetail(@PathVariable("id") Integer id,
                                                  @Valid @RequestBody ProductDetailDTO productDetailDTO,
                                                  BindingResult result) {
