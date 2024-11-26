@@ -10,6 +10,7 @@ import com.example.demo.service.VoucherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,7 +22,22 @@ public class VoucherServiceImpl implements VoucherService {
     private final VoucherRepo voucherRepository;
     private final CustomerRepo customerRepository;
 
-    @Override
+    public List<Voucher> getAllVouchers() {
+        LocalDateTime currentDate = LocalDateTime.now();
+        List<Voucher> vouchers = voucherRepository.findAll();
+
+        // Cập nhật trạng thái tự động
+        for (Voucher voucher : vouchers) {
+            if (voucher.getExpirationDate().isBefore(currentDate) && voucher.getStatus() != 0) {
+                voucher.setStatus(0); // Đặt trạng thái hết hạn
+                voucherRepository.save(voucher); // Lưu lại thay đổi
+            }
+        }
+
+        return vouchers;
+    }
+
+    // Lấy tất cả voucher không cần cập nhật trạng thái
     public List<Voucher> getAll() {
         return voucherRepository.findAll();
     }
@@ -115,12 +131,22 @@ public class VoucherServiceImpl implements VoucherService {
     @Override
     public VoucherResponse changeStatus(Integer id) throws Exception {
         Voucher existingVoucher = getById(id); // Kiểm tra nếu voucher tồn tại
-        int newStatus = existingVoucher.getStatus() == 1 ? 0 : 1; // Đổi trạng thái từ 1 sang 0 và ngược lại
+
+        // Đổi trạng thái từ 1 sang 0 và ngược lại
+        int newStatus = existingVoucher.getStatus() == 1 ? 0 : 1;
         existingVoucher.setStatus(newStatus);
 
+        // Nếu trạng thái là "hết hạn" (giả sử 0 là "hết hạn")
+        if (newStatus == 0) {
+            // Hủy áp dụng voucher: gỡ danh sách khách hàng liên kết
+            existingVoucher.setCustomers(new HashSet<>()); // Đặt danh sách khách hàng thành rỗng
+        }
+
+        // Lưu lại voucher đã cập nhật
         Voucher updatedVoucher = voucherRepository.save(existingVoucher);
         return VoucherResponse.fromVoucher(updatedVoucher);
     }
+
 
 
     @Override
@@ -135,4 +161,5 @@ public class VoucherServiceImpl implements VoucherService {
                 .orElseThrow(() -> new Exception("Voucher not found with id: " + id));
         voucherRepository.delete(voucher);
     }
+
 }

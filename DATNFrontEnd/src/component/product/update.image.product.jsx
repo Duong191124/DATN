@@ -60,7 +60,7 @@ const UploadImage = (props) => {
 
   return (
     <Modal
-      title="Upload Image"
+      title="Upload Image Product"
       open={isModalOpen}
       onCancel={() => setIsModalOpen(false)}
       footer={[

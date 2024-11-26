@@ -63,7 +63,7 @@ public class AddressController {
                 .data(updateAddress)
                 .build());
     }
-    @PreAuthorize("hasAuthority('DELETE_ADDRESS')")
+//    @PreAuthorize("hasAuthority('DELETE_ADDRESS')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBrand(@PathVariable("id") Integer id) {
         try {

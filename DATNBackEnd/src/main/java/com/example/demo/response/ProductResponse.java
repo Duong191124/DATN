@@ -15,7 +15,6 @@ public class ProductResponse {
     private String code;
     private String name;
     private String image;
-    private Double price;
     private int status;
     private String collarName;
     private String sleeveName;
@@ -29,7 +28,6 @@ public class ProductResponse {
                 .code(product.getCode())
                 .name(product.getName())
                 .image(product.getImage())
-                .price(product.getPrice())
                 .status(product.getStatus())
                 .collarName(product.getCollar().getName())
                 .sleeveName(product.getSleeve().getName())

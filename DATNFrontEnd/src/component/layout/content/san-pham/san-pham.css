@@ -12,19 +12,19 @@
                 cursor: pointer;
                 box-shadow: 0 0.0625rem 0.125rem 0 rgba(0, 0, 0, .1);
                 border-radius: 0.125rem;
-                padding: .3rem;
+                /* padding: .3rem; */
                 position: relative;
                 transition: all 0.3s ease;
-                /* Thêm hiệu ứng chuyển động mượt mà */
+                /* Giữ nguyên kích thước thẻ sản phẩm, không thay đổi khi hover */
 
-                /* Hiệu ứng hover */
                 &:hover {
-                    transform: scale(1.05);
-                    /* Phóng to sản phẩm một chút */
-                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-                    /* Tạo bóng đổ khi hover */
-                    background-color: #f7f7f7;
-                    /* Thay đổi màu nền khi hover */
+                    transform: translateY(-4px);
+                    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+
+                    /* Màu nền thay đổi khi hover */
+                    img ::after {
+                        opacity: 0.3;
+                    }
                 }
             }
 
@@ -34,11 +34,12 @@
                 margin: 0 auto;
                 position: relative;
 
-                img {
-                    max-width: 100%;
-                    max-height: 100%;
-                    background-color: white;
-                    object-fit: contain;
+
+
+                /* Hiệu ứng hover chỉ cho ảnh */
+                .wrapper:hover .thumbnail img {
+                    transform: scale(1.1);
+                    /* Phóng to ảnh khi hover */
                 }
             }
 
@@ -85,6 +86,4 @@
         margin: 0 auto;
         /* Căn giữa phần tử */
     }
-
-
 }

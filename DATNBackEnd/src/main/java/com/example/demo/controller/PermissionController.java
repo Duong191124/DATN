@@ -4,6 +4,7 @@ import com.example.demo.entity.Permission;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.service.PermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -24,19 +25,21 @@ public class PermissionController {
     PermissionService permissionService;
     @GetMapping("/getAll")
     public ResponseEntity<MessageReponse> getAllPermition(
-            @RequestParam(name = "page", defaultValue = "1")int page,
-            @RequestParam(name = "size", defaultValue = "10")int size
-    ){
-        Pageable pageable = PageRequest.of(page-1, size);
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "search", required = false) String search) {
+        Pageable pageable = PageRequest.of(page - 1, size);
         try {
+            // Truyền tham số search vào phương thức service
+            Page<Permission> permissions = permissionService.getAll(search, pageable);
             return ResponseEntity.ok().body(
                     MessageReponse.builder()
-                            .message("get all permission sucessfully")
+                            .message("Get all permissions successfully")
                             .status(HttpStatus.OK.value())
-                            .data(permissionService.getAll(pageable))
+                            .data(permissions)
                             .build()
             );
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
                     MessageReponse.builder()
                             .message(e.getMessage())
@@ -46,6 +49,7 @@ public class PermissionController {
             );
         }
     }
+
     @GetMapping("/all")
     public ResponseEntity<?> getAllPermitions() {
         List<Permission> permissionList = permissionService.all();

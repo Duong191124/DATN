@@ -1,63 +1,80 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Table, Checkbox, notification } from 'antd';
+import { Modal, Table, Checkbox, notification, Input } from 'antd';
 import { getAllPermissionPagination, getStaffPermissions, updateStaffPermissions } from '../../service/api.service';
 import { useNavigate } from 'react-router-dom';
 
 const UpdatePermissionForUserModal = (props) => {
     const [permissions, setPermissions] = useState([]);
     const [staffPermissions, setStaffPermission] = useState([]);
-    const [initialized, setInitialized] = useState(false);
     const allPermissionsRef = useRef([]); // Lưu tất cả quyền để không cần gọi lại API
     const [current, setCurrent] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [total, setTotal] = useState(0);
+    const [search, setSearch] = useState("");
     const navigate = useNavigate();
     const { id, open, onClose } = props
 
     useEffect(() => {
-        if (open && !initialized) {
+        if (open) {
+            // Chỉ gọi loadStaffPermissions sau khi loadAllPermissions hoàn tất
             loadAllPermissions();
         }
+    }, [open, current, pageSize]);
 
-        if (id && open) {
-            loadStaffPermissions(id);
-        }
-    }, [id, open, current, pageSize]);
-
+    // Load all permissions with pagination
     const loadAllPermissions = async () => {
         try {
-            const allPermissionsRes = await getAllPermissionPagination(current, pageSize);
+            const allPermissionsRes = await getAllPermissionPagination(current, pageSize, search); // Truyền search vào API
             const allPermissions = allPermissionsRes.data.data.content.map(item => ({
                 id: item.id,
                 action: item.name,
                 staff: false,
             }));
-            setPermissions(allPermissions);
-            allPermissionsRef.current = allPermissions;
-            setTotal(allPermissionsRes.data.data.totalElements)
-            setInitialized(true);
+
+            allPermissionsRef.current = allPermissions; // Lưu tất cả permissions vào ref
+            setPermissions(allPermissions); // Set state permissions
+            setTotal(allPermissionsRes.data.data.totalElements); // Set tổng số permissions
+
+            // Sau khi loadAllPermissions, gọi loadStaffPermissions
+            if (id) {
+                loadStaffPermissions(id); // Lấy permissions của staff sau khi load tất cả permissions
+            }
         } catch (error) {
             console.error("Failed to load all permissions:", error);
         }
     };
 
+    const onSearchChange = (e) => {
+        setSearch(e.target.value); // Cập nhật giá trị tìm kiếm
+        setCurrent(1); // Reset trang khi tìm kiếm
+    };
+
+    const onCloseModal = () => {
+        setSearch(""); // Xóa giá trị tìm kiếm
+        onClose(); // Gọi callback để đóng modal
+    };
+
+    // Load staff permissions and update checkbox state
     const loadStaffPermissions = async (id) => {
         try {
             const staffPermissionRes = await getStaffPermissions(id);
-            const staffPermission = staffPermissionRes.data.data.map(item => item.name);
+            const staffPermissionIds = staffPermissionRes.data.data.map(item => item.id);
 
-            // Update trạng thái checked cho các quyền dựa trên staffPermission
-            const updatedPermissions = allPermissionsRef.current.map(permission => ({
-                ...permission,
-                staff: staffPermission.includes(permission.action),
-            }));
+            // Kiểm tra xem allPermissionsRef đã có dữ liệu chưa
+            if (allPermissionsRef.current.length > 0) {
+                const updatedPermissions = allPermissionsRef.current.map(permission => ({
+                    ...permission,
+                    staff: staffPermissionIds.includes(permission.id),
+                }));
 
-            setPermissions(updatedPermissions);
-            setStaffPermission(staffPermission);
+                setPermissions(updatedPermissions); // Update permissions state
+                setStaffPermission(staffPermissionIds); // Set staff permissions state
+            }
         } catch (error) {
-            console.error("Failed to load user permissions:", error);
+            console.error("Failed to load staff permissions:", error);
         }
     };
+
 
     const handleCheckboxChange = (action, checked) => {
         setPermissions(prevState =>
@@ -107,6 +124,7 @@ const UpdatePermissionForUserModal = (props) => {
                         message: "Update Permission Success",
                         description: "Update Permission for staff successfully!",
                     });
+                    await loadStaffPermissions(id);
                     onClose();
                 }
             } catch (error) {
@@ -116,38 +134,37 @@ const UpdatePermissionForUserModal = (props) => {
             onClose();
         }
     };
-    // Grouping dữ liệu để hiển thị lên table
-    const groupData = [
-        {
-            key: 'permitionGroup',
-            action: 'Permissions',
-            staff: null,
-        },
-        ...permissions.filter(item => item.action.includes('PERMITION')),
-        {
-            key: 'userGroup',
-            action: 'Users',
-            staff: null,
-        },
-        ...permissions.filter(item => item.action.includes('USER')),
-    ];
+
+    const filteredPermissions = permissions.filter(permission =>
+        permission.action.toLowerCase().includes(search.toLowerCase())
+    );
+
     return (
         <Modal
             title="Manage Permissions"
             open={open}
             maskClosable={false}
-            onCancel={onClose}
+            onCancel={onCloseModal}
             onOk={handleOk}
         >
+            <Input
+                placeholder="Search permissions"
+                value={search}
+                onChange={onSearchChange} // Gọi hàm onSearchChange khi người dùng nhập
+                style={{ marginBottom: '16px' }}
+            />
             <Table
-                dataSource={permissions}
+                dataSource={filteredPermissions}
                 pagination={{
                     current: current,
                     pageSize: pageSize,
-                    showSizeChanger: true,
                     total: total,
+                    showSizeChanger: true,
+                    onChange: (page, size) => {
+                        setCurrent(page);
+                        setPageSize(size);
+                    },
                 }}
-                onChange={onChange}
                 rowKey="action"
             >
                 <Table.Column
@@ -157,15 +174,14 @@ const UpdatePermissionForUserModal = (props) => {
                 <Table.Column
                     title="Status"
                     render={(text, record) => (
-                        record.key ? null : (
-                            <Checkbox
-                                checked={record.staff}
-                                onChange={e => handleCheckboxChange(record.action, e.target.checked)}
-                            />
-                        )
+                        <Checkbox
+                            checked={record.staff}
+                            onChange={e => handleCheckboxChange(record.action, e.target.checked)}
+                        />
                     )}
                 />
             </Table>
+
         </Modal>
     );
 }

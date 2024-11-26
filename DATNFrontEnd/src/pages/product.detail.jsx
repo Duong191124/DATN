@@ -23,16 +23,19 @@ const ProductDetail = () => {
   }, [productId]);
 
   return (
-    <div style={{ margin: "20px" }}>
-      <ProDuctDetailForm
-        loadProductDetail={loadProductDetail}
-        productId={productId}
-      />
-      <ProductDetailTable
-        loadProductDetail={loadProductDetail}
-        dataProductDetail={dataProductDetail}
-      />
-    </div>
+    <>
+      <h1 style={{ textAlign: "center" }}>PRODUCT DETAIL MANAGEMENT</h1>
+      <div style={{ margin: "20px" }}>
+        <ProDuctDetailForm
+          loadProductDetail={loadProductDetail}
+          productId={productId}
+        />
+        <ProductDetailTable
+          loadProductDetail={loadProductDetail}
+          dataProductDetail={dataProductDetail}
+        />
+      </div>
+    </>
   );
 };
 

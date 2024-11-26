@@ -64,7 +64,6 @@ const createProductAPI = (
   code,
   name,
   description,
-  price,
   selectedSleeve,
   selectedCategory,
   selectedBrand,
@@ -74,7 +73,6 @@ const createProductAPI = (
   const data = {
     code: code,
     name: name,
-    price: price,
     description: description,
     sleeve_id: selectedSleeve,
     category_id: selectedCategory,
@@ -88,7 +86,6 @@ const updateProductAPI = (
   code,
   name,
   description,
-  price,
   sleeve_id,
   category_id,
   brand_id,
@@ -100,7 +97,6 @@ const updateProductAPI = (
     id: id,
     code: code,
     name: name,
-    price: price,
     description: description,
     sleeve_id: sleeve_id,
     category_id: category_id,
@@ -187,6 +183,11 @@ const fetchDataBrand = () => {
 const checkDuplicateProductAPI = async (type, value) => {
   return await axios.post(`/api/v1/products/check-duplicate`, { type, value });
 };
+
+const checkDuplicateProductDetailAPI = async (type, value) => {
+  return await axios.post(`/api/v1/productDetail/check-duplicate`, { type, value })
+}
+
 const fetchProductsByProductDetails = (page, size) => {
   const URL_BACKEND = "/api/v1/products/productDetail";
   const params = {
@@ -447,7 +448,7 @@ const createProductDetailAPi = (
   productId,
   sizeId,
   colorId,
-  weightId
+  weight
 ) => {
   const URL_BACKEND = "/api/v1/productDetail";
   const data = {
@@ -457,7 +458,7 @@ const createProductDetailAPi = (
     productId: productId,
     sizeId: sizeId,
     colorId: colorId,
-    weightId: weightId,
+    weight: weight,
   };
   return axios.post(URL_BACKEND, data);
 };
@@ -697,8 +698,8 @@ const getAllPermission = () => {
   const URL_BACKEND = "/api/v1/permission/all";
   return axios.get(URL_BACKEND);
 };
-const getAllPermissionPagination = (page, size) => {
-  const URL_BACKEND = `/api/v1/permission/getAll?page=${page}&size=${size}`;
+const getAllPermissionPagination = (page, size, search = "") => {
+  const URL_BACKEND = `/api/v1/permission/getAll?page=${page}&size=${size}&search=${search}`;
   return axios.get(URL_BACKEND);
 };
 const createNewPermission = (name) => {
@@ -1233,6 +1234,7 @@ const getProductsWithAttributeAndCustomer = () => {
   return axios.get(URL_BACKEND);
 };
 export {
+  checkDuplicateProductDetailAPI,
   getCreateOrderGhn,
   getShippingFee,
   deleteAddressByid,

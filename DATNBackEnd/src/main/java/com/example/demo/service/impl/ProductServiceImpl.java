@@ -61,7 +61,6 @@ public class ProductServiceImpl implements ProductService {
         product.setCode(productDTO.getCode());
         product.setName(productDTO.getName());
         product.setImage(productDTO.getImage());
-        product.setPrice(productDTO.getPrice());
         product.setCollar(collar);
         product.setSleeve(sleeve);
         product.setDescription(productDTO.getDescription());
@@ -94,24 +93,11 @@ public class ProductServiceImpl implements ProductService {
         return productRepo.save(existingProduct);
     }
 
-    @Override
-    public boolean canDeleteProduct(Integer productId) {
-        List<ProductDetail> relateProductDetail = productDetailRepo.findByProductId(productId);
-        return relateProductDetail.isEmpty();
-    }
+
 
     @Override
     public Page<ProductResponse> productAllWithProductDetailAll(Pageable pageable) {
         return productRepo.findAll(pageable).map(ProductResponse::convertResponse);
-    }
-
-    @Override
-    public void deletedProduct(Integer id) {
-        if (canDeleteProduct(id)){
-            productRepo.deleteById(id);
-        }else {
-            throw new IllegalStateException("cannot delete product, because it has related productDetail");
-        }
     }
 
     @Override
@@ -121,14 +107,28 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public Page<ProductResponse> pageAllProducts(Integer categoryId, String productName, Integer sleeveId, Integer collarId, Integer brandId, Double price, String description,Integer status, Pageable pageable) {
-        Page<Product> productPage = productRepo.pageAllProducts(categoryId, productName, sleeveId, collarId, brandId, price, description, status, pageable);
+    public Page<ProductResponse> pageAllProducts(Integer categoryId, String productName, Integer sleeveId, Integer collarId, Integer brandId, String description,Integer status, Pageable pageable) {
+        Page<Product> productPage = productRepo.pageAllProducts(categoryId, productName, sleeveId, collarId, brandId, description, status, pageable);
         return productPage.map(ProductResponse::convertResponse);
     }
+
+
 
 
     @Override
     public List<ProductDetail> getProductDetailsByProductId(Integer productId) {
         return productDetailRepo.findByProductId(productId);
     }
+
+    @Override
+    public ProductResponse getByCategoryId(Integer categoryId) {
+        return (ProductResponse) productRepo.findByCategoryId(categoryId);
+    }
+
+    @Override
+    public List<Product> getProductsByBrand(Integer brandId) {
+        return productRepo.findByBrandId(brandId);
+    }
+
+
 }
