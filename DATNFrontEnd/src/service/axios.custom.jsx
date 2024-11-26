@@ -5,9 +5,20 @@ const instance = axios.create({
   baseURL: import.meta.env.VITE_BACK_END_URL,
 });
 
+// Helper function to show and hide the spinner
+const setSpinLoadingVisibility = (isVisible) => {
+  const spinLoading = document.querySelector('.spin-loading'); // Giả sử class spin-loading có sẵn trong HTML
+  if (spinLoading) {
+    spinLoading.style.display = isVisible ? 'flex' : 'none';
+  }
+};
+
 // Add a request interceptor
 instance.interceptors.request.use(
   function (config) {
+    // Show spinner before making request
+    setSpinLoadingVisibility(true);
+    
     if (
       typeof window !== "undefined" &&
       window.localStorage.getItem("access_token")
@@ -18,7 +29,8 @@ instance.interceptors.request.use(
     return config;
   },
   function (error) {
-    // Do something with request error
+    // Hide spinner if request fails
+    setSpinLoadingVisibility(false);
     return Promise.reject(error);
   }
 );
@@ -26,6 +38,9 @@ instance.interceptors.request.use(
 // Add a response interceptor
 instance.interceptors.response.use(
   function (response) {
+    // Hide spinner when receiving a response
+    setSpinLoadingVisibility(false);
+    
     // Check if response has data
     if (response.data && response.data.data) {
       return response;
@@ -33,7 +48,9 @@ instance.interceptors.response.use(
     return response;
   },
   function (error) {
-    // Handle errors
+    // Hide spinner and handle errors
+    setSpinLoadingVisibility(false);
+
     if (error.response) {
       const { status } = error.response;
       // If 401/403, remove token and redirect to login
