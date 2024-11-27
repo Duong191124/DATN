@@ -116,6 +116,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
             response.setSize(product.getSize());
             response.setImage(product.getImage());
             response.setDefaultPrice(product.getDefaultPrice());
+            response.setStatus(product.getStatus());
+
             response.setProductResponse(ProductResponse.convertResponse(product.getProduct()));
             response.setPromotions(product.getPromotions().stream()
                     .map(PromotionResponse::fromPromotionResponse)

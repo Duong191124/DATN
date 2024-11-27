@@ -340,6 +340,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public OrderResponse updateCustomerId(Integer orderId, Integer customerId) {
+        Customer customer = customerRepo.findById(customerId).orElseThrow(()->new RuntimeException("Not found customer with id:"+customerId));
+        Orders orders = orderRepo.findById(orderId).orElseThrow(()->new RuntimeException("Not found orders with id:"+orderId));
+        orders.setCustomer(customer);
+        return OrderResponse.convertOrderResponse(orderRepo.save(orders));
+    }
+
+    @Override
     @Transactional
     public OrderResponse updatedOrderWithProductDetail(Integer id, OrderWithVoucherAndOrderDetailRequest orderUpdateRequest) {
         // Tìm đơn hàng theo ID

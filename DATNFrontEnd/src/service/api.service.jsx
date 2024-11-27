@@ -11,7 +11,9 @@ const registerCustomerAPI = (
   name
 ) => {
   const URL_BACKEND = "/api/v1/customer/register";
-  const formattedDateOfBirth = dateOfBirth ? moment(dateOfBirth).toISOString() : null;
+  const formattedDateOfBirth = dateOfBirth
+    ? moment(dateOfBirth).toISOString()
+    : null;
   const data = {
     username: username,
     password: password,
@@ -19,7 +21,7 @@ const registerCustomerAPI = (
     phoneNumber: phoneNumber,
     email: email,
     dateOfBirth: formattedDateOfBirth,
-    name: name
+    name: name,
   };
   return axios.post(URL_BACKEND, data);
 };
@@ -404,6 +406,13 @@ const paymentCallBack = () => {
   const URL_BACKEND = `api/v1/payments/payment-callback`;
   return axios.get(URL_BACKEND, { params });
 };
+const updateCustomerByOrder = (orderId, customerId) => {
+  const URL_BACKEND = `api/v1/orders/update-customer/${orderId}`;
+  return axios.put(URL_BACKEND, {
+    customerId: customerId,
+  });
+};
+
 /*
   API Product detail
 */
@@ -1349,4 +1358,5 @@ export {
   topSellingProducts,
   accountStatistics,
   getProductsWithAttributeAndCustomer,
+  updateCustomerByOrder,
 };

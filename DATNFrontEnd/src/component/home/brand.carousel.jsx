@@ -6,6 +6,7 @@ import { LeftOutlined, RightOutlined, StarOutlined } from "@ant-design/icons";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import { fetchDataBrand } from "../../service/api.service";
+import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
 
@@ -190,6 +191,7 @@ const ButtonGroup = styled.div`
 const BrandCarousel = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [brand, setBrand] = useState([]);
+  const navigate = useNavigate();
   const getBrands = async () => {
     const response = await fetchDataBrand();
     if (response?.data?.data) {
@@ -329,7 +331,7 @@ const BrandCarousel = () => {
               variants={cardVariants}
               whileHover="hover"
               onClick={() => {
-                alert("navigation to branh page here");
+                navigate(`/product?brand=${brand.name}`);
               }}
             >
               <BrandBadge>

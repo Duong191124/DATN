@@ -394,6 +394,8 @@ const CounterSales = () => {
         duration: 2,
         placement: "bottomLeft",
       });
+    } finally {
+      setLoading(false);
     }
   }, [selectedCustomer, staff, customerPaid, totalAmount, billWaiting]);
   const canceledOrder = useCallback(
@@ -758,6 +760,9 @@ const CounterSales = () => {
             total={totalCustomer}
             size={size}
             setPage={setPage}
+            selectedBill={selectedBill}
+            billWaiting={billWaiting}
+            setBillWaiting={setBillWaiting}
           />
           <CounterSalePayment
             totalAmount={totalAmount}

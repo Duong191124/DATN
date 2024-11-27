@@ -198,6 +198,7 @@ const ProductCard = ({
   const [colorError, setColorError] = useState(false);
   const [sizeError, setSizeError] = useState(false);
   const { addToCart } = useCart();
+  const [availableQuantity, setAvailableQuantity] = useState(0);
 
   const min = (minPrice || 0).toLocaleString("vi-VN", {
     style: "currency",
@@ -216,6 +217,13 @@ const ProductCard = ({
         (item) => item.color.name === newColor
       );
       setProductNew(selectedProduct || {});
+      if (selectedSize) {
+        const quantityForSelectedSize =
+          selectedProduct?.size?.name === selectedSize
+            ? selectedProduct?.quantity
+            : 0;
+        setAvailableQuantity(quantityForSelectedSize);
+      }
       if (
         !sizesForColor.includes(selectedSize) ||
         selectedColor === undefined
@@ -244,6 +252,13 @@ const ProductCard = ({
       // Nếu màu đã chọn không có trong danh sách màu cho size này, reset màu đã chọn
       if (!colorsForSize.includes(selectedColor)) {
         setSelectedColor(""); // Reset màu
+      }
+      if (selectedColor) {
+        const selectedProduct = details.find(
+          (item) =>
+            item.color.name === selectedColor && item.size.name === sizeName
+        );
+        setAvailableQuantity(selectedProduct?.quantity || 0);
       }
     } else {
       // Khi bỏ chọn size, hiển thị tất cả các màu có sẵn
@@ -400,6 +415,11 @@ const ProductCard = ({
                   <p style={{ color: "red", marginTop: "8px" }}>
                     Vui lòng chọn màu!
                   </p>
+                )}
+                {selectedColor && selectedSize && availableQuantity >= 0 && (
+                  <div style={{ margin: "10px 0" }}>
+                    <p>Số lượng có sẵn: {availableQuantity}</p>
+                  </div>
                 )}
                 <div className="quantity">
                   <button
