@@ -70,7 +70,7 @@ const Header = () => {
       ) : (
         <>
           <Menu.Item key="login">
-            <NavLink to="/login-fork">{t("MES-009")}</NavLink>
+            <NavLink to="/login">{t("MES-009")}</NavLink>
           </Menu.Item>
           <Menu.Item key="register">
             <NavLink to="/register">{t("MES-010")}</NavLink>

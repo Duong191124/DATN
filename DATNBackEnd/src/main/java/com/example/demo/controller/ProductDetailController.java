@@ -61,7 +61,7 @@ public class ProductDetailController {
         );
     }
 
-//    @PreAuthorize("hasAuthority('CREATE_PRODUCT_DETAIL')")
+    @PreAuthorize("hasAuthority('CREATE_PRODUCT_DETAIL')")
     @PostMapping("")
     public ResponseEntity<?> addProductDetail(@Valid @RequestBody ProductDetailDTO productDetailDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -75,7 +75,7 @@ public class ProductDetailController {
         }
     }
 
-//    @PreAuthorize("hasAuthority('UPDATE_PRODUCT_DETAIL')")
+    @PreAuthorize("hasAuthority('UPDATE_PRODUCT_DETAIL')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProductDetail(@PathVariable("id") Integer id,
                                                  @Valid @RequestBody ProductDetailDTO productDetailDTO,

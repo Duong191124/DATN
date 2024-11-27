@@ -42,6 +42,32 @@ import LoginFork from "./pages/login.fork.jsx";
 import PrivateRoute from "./pages/private.route.jsx";
 import ProductBrand from "./component/home/product.brand.jsx";
 
+const spinStyle = {
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  width: '100%',
+  height: '100%',
+  display: 'none',
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: 'rgba(0, 0, 0, 0.03)',
+  zIndex: 9999,
+  backdropFilter: 'blur(4px)',
+};
+
+const swLogoStyle = {
+  fontSize: '48px',
+  fontWeight: 900,
+  color: '#000',
+  position: 'relative',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  animation: 'pulse 1.5s infinite',
+  transformOrigin: 'center',
+  willChange: 'transform, opacity',
+};
 
 const router = createBrowserRouter([
   {
@@ -169,10 +195,10 @@ const router = createBrowserRouter([
       },
     ],
   },
-  {
-    path: "/login",
-    element: <LoginPage />,
-  },
+  // {
+  //   path: "/login",
+  //   element: <LoginPage />,
+  // },
   {
     path: "/register",
     element: <RegisterPage />,
@@ -186,7 +212,7 @@ const router = createBrowserRouter([
     element: <ResetPassword />,
   },
   {
-    path: "/login-fork",
+    path: "/login",
     element: <LoginFork />,
   },
   {
@@ -203,6 +229,17 @@ createRoot(document.getElementById("root")).render(
   <AuthWrapper>
     <CartProvider>
       <CheckoutProvider>
+        <style>{`
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.1); opacity: 0.7; }
+        }
+      `}</style>
+        <div className='spin-loading' style={spinStyle}>
+          <div style={swLogoStyle}>
+            SW
+          </div>
+        </div>
         <RouterProvider router={router} />
       </CheckoutProvider>
     </CartProvider>

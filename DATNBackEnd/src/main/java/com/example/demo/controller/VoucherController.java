@@ -24,18 +24,20 @@ public class VoucherController {
     private VoucherServiceImpl voucherService;
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAllVouchers() {
-        List<VoucherResponse> voucherList = voucherService.getAll()
+        // Lấy danh sách voucher và tự động cập nhật trạng thái
+        List<VoucherResponse> voucherList = voucherService.getAllVouchers()
                 .stream()
-                .map(VoucherResponse::fromVoucher)
+                .map(VoucherResponse::fromVoucher) // Chuyển đổi sang DTO
                 .toList();
+
+        // Trả về phản hồi
         return ResponseEntity.ok().body(MessageReponse.builder()
                 .message("Lấy thông tin thành công")
                 .status(HttpStatus.OK.value())
                 .data(voucherList)
-                .build()
-        );
+                .build());
     }
-//    @PreAuthorize("hasAuthority('CREATE_VOUCHER')")
+    @PreAuthorize("hasAuthority('CREATE_VOUCHER')")
     @PostMapping("")
     public ResponseEntity<?> createVoucher(@Valid @RequestBody VoucherDTO voucherDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -51,7 +53,7 @@ public class VoucherController {
         VoucherResponse createdVoucher = voucherService.add(voucherDTO);
         return new ResponseEntity<>(createdVoucher, HttpStatus.CREATED);
     }
-//    @PreAuthorize("hasAuthority('UPDATE_VOUCHER')")
+    @PreAuthorize("hasAuthority('UPDATE_VOUCHER')")
     @PutMapping("{id}")
     public ResponseEntity<?> updateVoucher(@PathVariable("id") Integer id,
                                            @Valid @RequestBody VoucherDTO voucherDTO,
@@ -78,14 +80,14 @@ public class VoucherController {
             );
         }
     }
-//    @PreAuthorize("hasAuthority('UPDATE_CUSTOMER')")
+    @PreAuthorize("hasAuthority('UPDATE_CUSTOMER')")
     @PutMapping("/{id}/customer")
     public ResponseEntity<?> updateCustomer(@PathVariable Integer id, @RequestBody VoucherDTO voucherDTO) throws Exception {
         // Gửi toàn bộ danh sách customerIds tới service, cho phép null hoặc trống
         VoucherResponse updatedVoucher = voucherService.updateCustomer(id, voucherDTO.getCustomers());
         return ResponseEntity.ok(updatedVoucher);
     }
-//    @PreAuthorize("hasAuthority('UPDATE_VOUCHER')")
+    @PreAuthorize("hasAuthority('UPDATE_VOUCHER')")
     @PutMapping("/{id}/status")
     public ResponseEntity<?> changeStatus(@PathVariable Integer id) {
         try {

@@ -33,7 +33,7 @@ public class BrandController {
                 .data(brandList)
                 .build());
     }
-//    @PreAuthorize("hasAuthority('CREATE_BRAND')")
+    @PreAuthorize("hasAuthority('CREATE_BRAND')")
     @PostMapping("")
     public ResponseEntity<MessageReponse> add(@Valid @RequestBody BrandDTO brandDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -53,7 +53,7 @@ public class BrandController {
                 .data(newBrand)
                 .build());
     }
-//    @PreAuthorize("hasAuthority('UPDATE_BRAND')")
+    @PreAuthorize("hasAuthority('UPDATE_BRAND')")
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,

@@ -41,23 +41,22 @@ const VoucherTable = ({ refreshData }) => {
         try {
             const response = await fetchDataVoucher();
             if (response.data.data) {
-                const currentDate = new Date(); // Lấy ngày hiện tại
+                const currentDate = new Date(); // Ngày hiện tại
                 const updatedVouchers = response.data.data.map(voucher => {
                     const expirationDate = new Date(voucher.expirationDate);
-                    if (expirationDate < currentDate) {
-                        return { ...voucher, status: 0 }; // Thay đổi status thành 0 (Hết hạn)
-                    }
-                    return voucher;
+                    return {
+                        ...voucher,
+                        status: expirationDate < currentDate ? 0 : voucher.status, // Nếu quá hạn, đặt status = 0
+                    };
                 });
-
-                // Nếu có bộ lọc ngày, lọc lại danh sách voucher
+    
                 const filteredVouchers = updatedVouchers.filter((voucher) => {
                     if (dateRange.length === 0) return true;
                     const expirationDate = moment(voucher.expirationDate);
                     const [startDate, endDate] = dateRange;
                     return expirationDate.isBetween(startDate, endDate, null, "[]");
                 });
-
+    
                 setDataVoucher(filteredVouchers);
             }
         } catch (error) {
@@ -67,7 +66,7 @@ const VoucherTable = ({ refreshData }) => {
             });
         }
     };
-
+    
     useEffect(() => {
         loadData();
     }, [refreshData]);
@@ -155,16 +154,15 @@ const VoucherTable = ({ refreshData }) => {
     const handleChangeStatus = async (voucher) => {
         const expirationDate = new Date(voucher.expirationDate);
         const currentDate = new Date();
-
-        // Kiểm tra nếu voucher đã hết hạn
+    
         if (expirationDate < currentDate) {
             notification.warning({
                 message: "Không thể kích hoạt lại voucher",
                 description: "Voucher đã hết hạn. Vui lòng cập nhật ngày hết hạn để kích hoạt lại.",
             });
-            return; // Dừng lại nếu voucher đã hết hạn
+            return;
         }
-
+    
         try {
             const res = await chandleStatus(voucher.id);
             if (res.status === 200 || res.status === 204) {
@@ -186,8 +184,7 @@ const VoucherTable = ({ refreshData }) => {
             });
         }
     };
-
-
+    
     const columns = [
         {
             title: 'STT',

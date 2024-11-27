@@ -123,7 +123,7 @@ const HeaderAdmin = ({ collapsed, setCollapsed }) => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("loginStatus");
     message.success("Logged out successfully");
-    navigate("/login-fork");
+    navigate("/login");
   };
   const handleCounterSaleClick = () => {
     navigate("/counter-sales");
