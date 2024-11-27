@@ -910,7 +910,6 @@ const OrderTable = (props) => {
                     (option) => option.value === selectedStatus
                   )
               }
-              onClick={() => handleUpdateStatus(status.value)}
             />
           ))}
         </Steps>

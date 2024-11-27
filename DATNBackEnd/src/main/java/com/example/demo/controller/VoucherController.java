@@ -24,16 +24,18 @@ public class VoucherController {
     private VoucherServiceImpl voucherService;
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAllVouchers() {
-        List<VoucherResponse> voucherList = voucherService.getAll()
+        // Lấy danh sách voucher và tự động cập nhật trạng thái
+        List<VoucherResponse> voucherList = voucherService.getAllVouchers()
                 .stream()
-                .map(VoucherResponse::fromVoucher)
+                .map(VoucherResponse::fromVoucher) // Chuyển đổi sang DTO
                 .toList();
+
+        // Trả về phản hồi
         return ResponseEntity.ok().body(MessageReponse.builder()
                 .message("Lấy thông tin thành công")
                 .status(HttpStatus.OK.value())
                 .data(voucherList)
-                .build()
-        );
+                .build());
     }
 //    @PreAuthorize("hasAuthority('CREATE_VOUCHER')")
     @PostMapping("")

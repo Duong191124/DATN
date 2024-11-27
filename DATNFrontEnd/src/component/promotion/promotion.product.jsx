@@ -53,7 +53,6 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             fetchProductDetailsAndPromotion();
             setSelectedDetails(selectedProductDetails || []);
         }
-        console.log("Dữ liệu hiển thị trên bảng:", productDetails);
         const validIds = filteredData.map(item => item.id);
         setSelectedDetails(prev => prev.filter(id => validIds.includes(id)));
     }, [isVisible, id, selectedProductDetails]);
@@ -226,9 +225,6 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             title: 'Chọn',
             key: 'select',
             render: (_, record) => {
-                console.log('Rendering checkbox for product ID:', record.id, 'with active promotion ID:', record.activePromotionId);
-                console.log('Current promotion ID:', id);
-            
                 return (
                     <Checkbox
                         checked={selectedDetails.includes(record.id)}

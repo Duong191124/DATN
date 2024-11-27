@@ -44,30 +44,30 @@ import PrivateRoute from "./pages/private.route.jsx";
 import ProductBrand from "./component/home/product.brand.jsx";
 
 const spinStyle = {
-  position: 'fixed',
+  position: "fixed",
   top: 0,
   left: 0,
-  width: '100%',
-  height: '100%',
-  display: 'none',
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: 'rgba(0, 0, 0, 0.03)',
+  width: "100%",
+  height: "100%",
+  display: "none",
+  justifyContent: "center",
+  alignItems: "center",
+  backgroundColor: "rgba(0, 0, 0, 0.03)",
   zIndex: 9999,
-  backdropFilter: 'blur(4px)',
+  backdropFilter: "blur(4px)",
 };
 
 const swLogoStyle = {
-  fontSize: '48px',
+  fontSize: "48px",
   fontWeight: 900,
-  color: '#000',
-  position: 'relative',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  animation: 'pulse 1.5s infinite',
-  transformOrigin: 'center',
-  willChange: 'transform, opacity',
+  color: "#000",
+  position: "relative",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  animation: "pulse 1.5s infinite",
+  transformOrigin: "center",
+  willChange: "transform, opacity",
 };
 
 const router = createBrowserRouter([
@@ -190,12 +190,10 @@ const router = createBrowserRouter([
       {
         path: "/tracking",
         element: <TrackingPage />,
-
       },
       {
         path: "/product/brand/:brandId",
         element: <ProductBrand />,
-
       },
     ],
   },
@@ -239,10 +237,8 @@ createRoot(document.getElementById("root")).render(
           50% { transform: scale(1.1); opacity: 0.7; }
         }
       `}</style>
-        <div className='spin-loading' style={spinStyle}>
-          <div style={swLogoStyle}>
-            SW
-          </div>
+        <div className="spin-loading" style={spinStyle}>
+          <div style={swLogoStyle}>SW</div>
         </div>
         <RouterProvider router={router} />
       </CheckoutProvider>

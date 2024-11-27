@@ -1,6 +1,16 @@
 // ProductList.jsx
 import React, { useState, useEffect } from "react";
-import { Input, Select, Row, Col, Typography, Slider, Pagination } from "antd";
+import {
+  Input,
+  Select,
+  Row,
+  Col,
+  Typography,
+  Slider,
+  Pagination,
+  Button,
+  InputNumber,
+} from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
@@ -12,7 +22,6 @@ import {
   fetchDataCategory,
   fetchDataColor,
   fetchDataSize,
-  fetchPageDataProductDetail,
   fetchProductsByProductDetails,
 } from "../../service/api.service";
 import { useNavigate } from "react-router-dom";
@@ -34,6 +43,24 @@ const FilterContainer = styled.div`
   margin-bottom: 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 `;
+const ButtonNextPage = styled.div`
+  padding: 10px 20px;
+  border: 1px solid #ddd;
+  background-color: #000;
+  color: #fff;
+  cursor: pointer;
+  display: block;
+  border-radius: 20px 0 20px 0;
+  box-shadow: 10px 10px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in;
+
+  &:hover {
+    background-color: #fff;
+    color: #000;
+    box-shadow: none;
+  }
+`;
+
 const ProductList = () => {
   const [productDetails, setProductDetails] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -44,7 +71,7 @@ const ProductList = () => {
   const [priceRange, setPriceRange] = useState([0, 10000000]);
   const [sortBy, setSortBy] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 12;
+  const pageSize = 8;
   const [total, setTotal] = useState(0);
   const [size, setSize] = useState([]);
   const [color, setColor] = useState([]);
@@ -60,20 +87,27 @@ const ProductList = () => {
   };
   const initSize = async () => {
     const res = await fetchDataSize();
-    setSize(res.data.data);
+    if (res?.data?.data) {
+      setSize(res.data.data);
+    }
   };
-
   const initColor = async () => {
     const res = await fetchDataColor();
-    setColor(res.data.data);
+    if (res?.data?.data) {
+      setColor(res.data.data);
+    }
   };
   const getBrand = async () => {
     const res = await fetchDataBrand();
-    setBrands(res.data.data);
+    if (res?.data?.data) {
+      setBrands(res.data.data);
+    }
   };
   const getCategory = async () => {
     const res = await fetchDataCategory();
-    setCategories(res.data.data);
+    if (res?.data?.data) {
+      setCategories(res.data.data);
+    }
   };
   useEffect(() => {
     initSize();
@@ -104,12 +138,11 @@ const ProductList = () => {
         return nameMatch || descriptionMatch;
       });
     }
-
     if (selectedCategory !== "All") {
       filtered = filtered.filter(
         (product) =>
           product?.products?.categoryName.toLowerCase() ===
-          selectedCategory.toLowerCase() || selectedCategory === "All"
+          selectedCategory.toLowerCase()
       );
     }
     if (selectedBrand !== "All") {
@@ -162,7 +195,9 @@ const ProductList = () => {
   useEffect(() => {
     fetchAllProductDetail();
   }, [currentPage]);
-
+  const showPageProduct = () => {
+    navigate("/product");
+  };
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -172,7 +207,22 @@ const ProductList = () => {
       },
     },
   };
+  const handleMinPriceChange = (value) => {
+    const newRange = [value || 0, priceRange[1]];
+    if (value <= priceRange[1]) {
+      setPriceRange(newRange);
+    }
+  };
 
+  const handleMaxPriceChange = (value) => {
+    const newRange = [priceRange[0], value || 10000000];
+    if (value >= priceRange[0]) {
+      setPriceRange(newRange);
+    }
+  };
+  const formatCurrency = (value) => {
+    return `${value.toLocaleString("vi-VN")} đ`;
+  };
   return (
     <Container>
       <Title level={2} style={{ marginBottom: 32, color: "#000" }}>
@@ -194,8 +244,8 @@ const ProductList = () => {
             <Select
               size="large"
               style={{ width: "100%" }}
-              placeholder="Category"
-              value={selectedCategory}
+              placeholder="Chọn danh mục"
+              value={selectedCategory === "All" ? undefined : selectedCategory}
               onChange={(value) => setSelectedCategory(value || "All")}
               allowClear
             >
@@ -210,8 +260,8 @@ const ProductList = () => {
             <Select
               size="large"
               style={{ width: "100%" }}
-              placeholder="Brand"
-              value={selectedBrand}
+              placeholder="Chọn thương hiệu"
+              value={selectedBrand === "All" ? undefined : selectedBrand}
               onChange={(value) => setSelectedBrand(value || "All")}
               allowClear
             >
@@ -223,9 +273,9 @@ const ProductList = () => {
             </Select>
           </Col>
           <Col xs={24} md={6}>
-            <Text>
-              Price Range:{" "}
-              {`${priceRange[0].toLocaleString()} đ - ${priceRange[1].toLocaleString()} đ`}
+            <Text style={{ display: "flex", justifyContent: "space-between" }}>
+              <span>{priceRange[0].toLocaleString()} đ</span>
+              {priceRange[1].toLocaleString()} đ
             </Text>
             <Slider
               range
@@ -233,7 +283,60 @@ const ProductList = () => {
               max={10000000}
               value={priceRange}
               onChange={setPriceRange}
+              tooltip={{ formatter: formatCurrency }}
             />
+
+            <Row
+              gutter={8}
+              style={{
+                marginTop: "10px",
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <Col span={8}>
+                <InputNumber
+                  min={0}
+                  max={priceRange[1]}
+                  value={priceRange[0].toLocaleString()}
+                  onChange={handleMinPriceChange}
+                  style={{ width: "100%" }}
+                  placeholder="Min Price"
+                  onKeyDown={(e) => {
+                    if (
+                      !/[0-9]/.test(e.key) &&
+                      e.key !== "Backspace" &&
+                      e.key !== "ArrowLeft" &&
+                      e.key !== "ArrowRight" &&
+                      e.key !== "Tab"
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </Col>
+              <Col span={8}>
+                <InputNumber
+                  min={priceRange[0]}
+                  max={10000000}
+                  value={priceRange[1].toLocaleString()}
+                  onChange={handleMaxPriceChange}
+                  style={{ width: "100%" }}
+                  placeholder="Max Price"
+                  onKeyDown={(e) => {
+                    if (
+                      !/[0-9]/.test(e.key) &&
+                      e.key !== "Backspace" &&
+                      e.key !== "ArrowLeft" &&
+                      e.key !== "ArrowRight" &&
+                      e.key !== "Tab"
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </Col>
+            </Row>
           </Col>
           <Col xs={12} md={4}>
             <Select
@@ -275,13 +378,7 @@ const ProductList = () => {
       </motion.div>
 
       <Row justify="center" style={{ marginTop: 48 }}>
-        <Pagination
-          current={currentPage}
-          total={total}
-          pageSize={pageSize}
-          onChange={setCurrentPage}
-          showSizeChanger={false}
-        />
+        <ButtonNextPage onClick={showPageProduct}>Xem thêm</ButtonNextPage>
       </Row>
     </Container>
   );

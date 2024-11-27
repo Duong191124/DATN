@@ -5,7 +5,7 @@ import { fetchCustomerList, updateVoucherCustomer } from '../../service/api.serv
 
 const { Option } = Select;
 
-const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefresh }) => {
+const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefresh, voucherStatus, expirationDate }) => {
     const [customers, setCustomers] = useState([]);
     const [selectedCustomers, setSelectedCustomers] = useState([]);
     const [genderFilter, setGenderFilter] = useState(null);
@@ -13,6 +13,19 @@ const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefr
     const [searchText, setSearchText] = useState('');
 
     useEffect(() => {
+        // Kiểm tra nếu voucher đã hết hạn
+        const isExpired = voucherStatus === 0 || new Date(expirationDate) < new Date();
+        if (isExpired) {
+            notification.warning({
+                message: 'Voucher đã hết hạn',
+                description: 'Voucher không còn hiệu lực và các khách hàng áp dụng sẽ bị hủy.',
+            });
+
+            // Xóa tất cả các khách hàng đã áp dụng nếu voucher hết hạn
+            setSelectedCustomers([]);
+            return; // Không tải danh sách khách hàng
+        }
+
         const fetchCustomers = async () => {
             try {
                 const res = await fetchCustomerList();
@@ -41,7 +54,7 @@ const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefr
         };
 
         fetchCustomers();
-    }, [appliedCustomers]);
+    }, [appliedCustomers, voucherStatus, expirationDate]);
 
     const filteredCustomers = customers
         .filter(customer => customer.id !== 1) // Ẩn khách hàng có id = 1
@@ -183,48 +196,55 @@ const VoucherCustomer = ({ appliedCustomers, onApply, onClose, voucherId, onRefr
                 <Button key="cancel" onClick={onClose}>
                     Hủy
                 </Button>,
-                <Button key="apply" type="primary" onClick={handleApply}>
+                <Button key="apply" type="primary" onClick={handleApply} disabled={voucherStatus === 0}>
                     Áp dụng
                 </Button>,
             ]}
             width={800}
         >
-            <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Space>
-                    <Input
-                        placeholder="Tìm kiếm theo tên hoặc số điện thoại"
-                        value={searchText}
-                        onChange={handleSearch}
-                        prefix={<SearchOutlined />}
-                        suffix={searchText && <ClearOutlined onClick={handleClearSearch} style={{ cursor: 'pointer' }} />}
-                        allowClear
-                        style={{ width: 300 }}
+            {voucherStatus === 0 ? (
+                <p style={{ color: 'red', textAlign: 'center' }}>
+                    Voucher đã hết hạn, không thể áp dụng cho khách hàng.
+                </p>
+            ) : (
+                <>
+                    <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Space>
+                            <Input
+                                placeholder="Tìm kiếm theo tên hoặc số điện thoại"
+                                value={searchText}
+                                onChange={handleSearch}
+                                prefix={<SearchOutlined />}
+                                suffix={searchText && <ClearOutlined onClick={handleClearSearch} style={{ cursor: 'pointer' }} />}
+                                allowClear
+                                style={{ width: 300 }}
+                            />
+                            <Select
+                                placeholder="Lọc theo giới tính"
+                                onChange={handleGenderFilterChange}
+                                allowClear
+                                style={{ width: 150 }}
+                            >
+                                <Option value="male">Nam</Option>
+                                <Option value="female">Nữ</Option>
+                                <Option value="other">Khác</Option>
+                            </Select>
+                        </Space>
+                        <Checkbox
+                            checked={selectAll}
+                            onChange={handleSelectAll}
+                        >
+                            {selectAll ? "Bỏ chọn tất cả" : genderFilter ? `Chọn ${genderFilter === 'male' ? 'nam' : 'nữ'}` : "Chọn tất cả"}
+                        </Checkbox>
+                    </div>
+                    <Table
+                        rowKey="id"
+                        columns={columns}
+                        dataSource={filteredCustomers}
+                        pagination={{ pageSize: 5 }}
                     />
-                    <Select
-                        placeholder="Lọc theo giới tính"
-                        onChange={handleGenderFilterChange}
-                        allowClear
-                        style={{ width: 150 }}
-                    >
-                        <Option value="male">Nam</Option>
-                        <Option value="female">Nữ</Option>
-                        <Option value="other">Khác</Option>
-                    </Select>
-                </Space>
-                <Checkbox
-                    checked={selectAll}
-                    onChange={handleSelectAll}
-                >
-                    {selectAll ? "Bỏ chọn tất cả" : genderFilter ? `Chọn ${genderFilter === 'male' ? 'nam' : 'nữ'}` : "Chọn tất cả"}
-                </Checkbox>
-
-            </div>
-            <Table
-                rowKey="id"
-                columns={columns}
-                dataSource={filteredCustomers}
-                pagination={{ pageSize: 5 }}
-            />
+                </>
+            )}
         </Modal>
     );
 };

@@ -20,38 +20,6 @@ import {
 import { Option } from "antd/es/mentions";
 import "./counter.sale.payment.voucher.css";
 import { calc } from "antd/es/theme/internal";
-const bankOptions = [
-  {
-    value: "BIDV",
-    label: "Ngân hàng Đầu tư và Phát triển Việt Nam (BIDV)",
-    logo: "/image/logoBIDV.png",
-  },
-  {
-    value: "Techcombank",
-    label: "Ngân hàng Kỹ thương Việt Nam (Techcombank)",
-    logo: "/image/logoTechComBank.svg",
-  },
-  {
-    value: "Vietcombank",
-    label: "Ngân hàng Ngoại thương Việt Nam (Vietcombank)",
-    logo: "/image/logoVietComBank.svg",
-  },
-  {
-    value: "ACB",
-    label: "Ngân hàng Á Châu (ACB)",
-    logo: "/image/logoACB.svg",
-  },
-  {
-    value: "Sacombank",
-    label: "Ngân hàng Sài Gòn Thương Tín (Sacombank)",
-    logo: "/image/logo-sacombank.svg",
-  },
-  {
-    value: "MBBank",
-    label: "Ngân hàng TMCP Quân Đội (MB Bank)",
-    logo: "/image/logoMB.png",
-  },
-];
 const CounterSalePayment = ({
   onPayment,
   paymentInfo,
@@ -79,15 +47,7 @@ const CounterSalePayment = ({
   const [info, setInfo] = useState({});
   const openModal = () => setIsModalVisible(true);
   const closeModal = () => setIsModalVisible(false);
-  const [newAccount, setNewAccount] = useState({
-    bankName: "",
-    accountNumber: "",
-    accountHolder: "",
-    note: "",
-  });
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState(null);
-  const [qrCodeImg, setQrCodeImg] = useState("");
   useEffect(() => {
     if (selectedBill) {
       // Tính tổng tiền trước khi áp dụng voucher
@@ -134,130 +94,12 @@ const CounterSalePayment = ({
 
   // Tính lại khi thay đổi hóa đơn, giỏ hàng hoặc voucher
   const openDrawer = () => {
+    const billCode = billWaiting.find((bill) => bill.code === selectedBill);
+    setInfo(billCode);
     setIsDrawerVisible(true);
-  };
-  const handleAddAccount = () => {
-    if (!newAccount.bankName || !newAccount.accountNumber) {
-      notification.warning({
-        message: "Tài khoản",
-        description: `Vui lòng điền đầy đủ thông tin tài khoản ngân hàng.`,
-        placement: "bottomLeft",
-        duration: 2,
-      });
-      return;
-    }
-    // Kiểm tra xem tài khoản đã tồn tại chưa
-    const accountExists = bankAccounts.some(
-      (account) => account.bankName === newAccount.bankName
-    );
-
-    if (accountExists) {
-      notification.warning({
-        message: "Tài khoản",
-        description: `Mỗi ngân hàng chỉ được liên kết một lần.`,
-        placement: "bottomLeft",
-        duration: 2,
-      });
-      return;
-    }
-    const bankOption = bankOptions.find(
-      (option) => option.value === newAccount.bankName
-    );
-    if (bankOption) {
-      const updatedAccounts = [
-        ...bankAccounts,
-        { ...newAccount, logo: bankOption.logo },
-      ];
-      localStorage.setItem("bankAccounts", JSON.stringify(updatedAccounts));
-      setBankAccounts(updatedAccounts);
-      notification.success({
-        message: "Tài khoản",
-        description: `Tài khoản ngân hàng đã được thêm thành công.`,
-        placement: "bottomLeft",
-        duration: 2,
-      });
-    }
-    setNewAccount({
-      bankName: "",
-      accountNumber: "",
-      accountHolder: "",
-      note: "",
-    });
-    setIsAccountModalVisible(false);
-  };
-  const generateQrCodeWithLogo = async (qrCodeData, logoUrl) => {
-    try {
-      const qrCodeDataUrl = await QRCode.toDataURL(qrCodeData);
-
-      const qrCodeImg = new Image();
-      qrCodeImg.src = qrCodeDataUrl;
-
-      return new Promise((resolve) => {
-        qrCodeImg.onload = () => {
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
-
-          const qrSize = 200; // Kích thước mã QR
-          const logoSize = 50; // Kích thước logo
-
-          canvas.width = qrSize;
-          canvas.height = qrSize;
-
-          ctx.drawImage(qrCodeImg, 0, 0, qrSize, qrSize);
-
-          const logoImg = new Image();
-          logoImg.src = logoUrl;
-          logoImg.crossOrigin = "Anonymous"; // Thêm dòng này
-
-          logoImg.onload = () => {
-            const logoX = (qrSize - logoSize) / 2;
-            const logoY = (qrSize - logoSize) / 2;
-            ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
-
-            resolve(canvas.toDataURL("image/png"));
-          };
-        };
-      });
-    } catch (error) {
-      console.error("Error generating QR code with logo:", error);
-      throw error;
-    }
   };
   const handleShowInvoice = async () => {
     const billCode = billWaiting.find((bill) => bill.code === selectedBill);
-    let selectedAccountInfo;
-    if (paymentInfo.paymentMethod === "Cash") {
-      setQrCodeImg("");
-    } else if (paymentInfo.paymentMethod === "Bank Transfer") {
-      selectedAccountInfo = bankAccounts.find(
-        (account) => account.accountNumber === selectedAccount
-      );
-      if (!selectedAccountInfo) {
-        notification.warning({
-          message: "Tài khoản",
-          description: `Tài khoản ngân hàng không hợp lệ.`,
-          placement: "bottomLeft",
-          duration: 2,
-        });
-        return;
-      }
-      const qrCodeData = JSON.stringify({
-        accountNumber: selectedAccountInfo.accountNumber,
-        bankName: selectedAccountInfo.bankName,
-        amount: totalAmountAfterDiscount,
-      });
-      try {
-        const qrCodeWithLogoUrl = await generateQrCodeWithLogo(
-          qrCodeData,
-          selectedAccountInfo.logo
-        );
-        setQrCodeImg(qrCodeWithLogoUrl);
-      } catch (err) {
-        console.error(err);
-        message.error("Không thể tạo mã QR.");
-        return;
-      }
-    }
     const invoice = `
       <div id="invoice" style="font-family: Arial, sans-serif;">
        <div style="text-align:center;">
@@ -336,25 +178,11 @@ const CounterSalePayment = ({
           </h4>
         <h4>Tổng thanh toán: ${totalAmountAfterDiscount.toLocaleString()} VNĐ</h4>
         <p>(${totalAmountAfterDiscount.toLocaleString()} đồng chẵn)</p>
-        ${
-          paymentInfo.paymentMethod === "Cash"
-            ? `
+
           <p style="text-align: center;">Thanh toán bằng tiền mặt</p>
           <p style="text-align: center;">Cảm ơn và hẹn gặp lại quý khách!</p>
-        `
-            : `
-             <p><strong>Thông tin ngân hàng:</strong> ${selectedAccountInfo.bankName}</p>
-          <h4>Quét mã thanh toán:</h4>
-        <div style="display: flex; flex-direction: column; align-items: center;">
-  <img src="${qrCodeImg}" alt="QR Code" style="margin-bottom: 5px;" />
-  <img src="${selectedAccountInfo.logo}" alt="${selectedAccountInfo.bankName} Logo" style="width: 100px; margin: 5px 0;" />
-    </div>
-          <p style="text-align: center;">Cảm ơn và hẹn gặp lại quý khách!</p>
-        `
-        }
       </div>
     `;
-
     setInvoiceContent(invoice);
     setIsInvoiceModalVisible(true);
   };
@@ -416,7 +244,7 @@ const CounterSalePayment = ({
     } else {
       setVoucher([]); // Nếu không có hóa đơn chọn, reset voucher
     }
-  }, [selectedBill]); // Chỉ phụ thuộc vào selectedBill và billWaiting
+  }, [selectedBill, info]); // Chỉ phụ thuộc vào selectedBill và billWaiting
 
   // Hàm checkVoucherUsage có thể được gọi trong useEffect hoặc ngoài đó
   const checkVoucherUsage = async (customerId, voucherId) => {
@@ -442,52 +270,6 @@ const CounterSalePayment = ({
       }
     }
   }, [selectedBill, vouchers]); // Chỉ phụ thuộc vào vouchers và selectedBill
-  useEffect(() => {
-    const storedAccounts = localStorage.getItem("bankAccounts");
-    if (storedAccounts) {
-      setBankAccounts(JSON.parse(storedAccounts));
-    }
-  }, []);
-  const handleDeleteAccount = (accountNumber) => {
-    const updatedAccounts = bankAccounts.filter(
-      (account) => account.accountNumber !== accountNumber
-    );
-    if (selectedAccount === accountNumber) {
-      setSelectedAccount(null);
-    }
-    setBankAccounts(updatedAccounts);
-    localStorage.setItem("bankAccounts", JSON.stringify(updatedAccounts)); // Cập nhật localStorage
-    notification.success({
-      message: "Tài khoản",
-      description: `Tài khoản ngân hàng đã được xóa.`,
-      placement: "bottomRight",
-      duration: 2,
-    });
-  };
-
-  const handleAccountChange = async (value) => {
-    setSelectedAccount(value);
-    if (value) {
-      const selectedAccountInfo = bankAccounts.find(
-        (account) => account.accountNumber === value
-      );
-      const totalPayment = selectedVoucher
-        ? totalAmountAfterDiscount
-        : totalAmount;
-      const qrCodeData = JSON.stringify({
-        accountNumber: selectedAccountInfo.accountNumber,
-        bankName: selectedAccountInfo.bankName,
-        amount: totalPayment,
-      });
-
-      try {
-        const qrCodeDataUrl = await QRCode.toDataURL(qrCodeData);
-        setQrCodeImg(qrCodeDataUrl);
-      } catch (err) {
-        message.error("Không thể tạo mã QR.");
-      }
-    }
-  };
   const handleVoucherChange = async (value) => {
     const billCode = billWaiting.find((bill) => bill.code === selectedBill);
     if (value === null || value === "") {
@@ -650,15 +432,6 @@ const CounterSalePayment = ({
   }, [vouchers, totalAmountAfterDiscount, totalAmount, customerPaid]);
 
   const handlePayment = async () => {
-    if (paymentInfo.paymentMethod === "Bank Transfer" && !selectedAccount) {
-      notification.warning({
-        message: "Thanh toán",
-        description: `Vui lòng chọn ngân hàng để thanh toán`,
-        duration: 2,
-        placement: "bottomLeft",
-      });
-      return;
-    }
     if (
       customerPaid < totalAmountAfterDiscount &&
       paymentInfo.paymentMethod === "Cash"
@@ -811,7 +584,6 @@ const CounterSalePayment = ({
               style={{ marginBottom: "15px" }}
             >
               <Radio value="Cash">Tiền mặt</Radio>
-              <Radio value="Bank Transfer">Chuyển khoản</Radio>
               <Radio value="VNP">VN Pay</Radio>
             </Radio.Group>
             <div>
@@ -921,62 +693,6 @@ const CounterSalePayment = ({
                 )}
               </>
             )}
-            {/* Phần thanh toán bằng chuyển khoản ngân hàng */}
-            <div>
-              {paymentInfo.paymentMethod === "Bank Transfer" && (
-                <>
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <Select
-                      value={selectedAccount}
-                      onChange={handleAccountChange}
-                      placeholder="Chọn tài khoản ngân hàng"
-                      style={{ flex: 1, marginRight: "10px" }}
-                    >
-                      {bankAccounts.map((account, index) => (
-                        <Select.Option
-                          key={index}
-                          value={account.accountNumber}
-                        >
-                          <img
-                            src={account.logo}
-                            alt={account.bankName}
-                            style={{ width: "20px", marginRight: "10px" }}
-                          />
-                          {account.bankName} - {account.accountNumber}
-                          <Button
-                            onClick={(e) => {
-                              e.stopPropagation(); // Ngăn chặn việc mở dropdown khi nhấn nút xóa
-                              handleDeleteAccount(account.accountNumber);
-                            }}
-                            style={{ marginLeft: "8px" }}
-                            type="link"
-                            danger
-                          >
-                            Xóa
-                          </Button>
-                        </Select.Option>
-                      ))}
-                    </Select>
-                    <Button
-                      onClick={() => setIsAccountModalVisible(true)}
-                      type="primary"
-                      shape="circle"
-                      icon={<PlusOutlined />}
-                    />
-                  </div>
-                  {selectedAccount && (
-                    <div style={{ marginTop: "20px" }}>
-                      <h4>QR Code thanh toán:</h4>
-                      {qrCodeImg ? (
-                        <img src={qrCodeImg} alt="QR Code" />
-                      ) : (
-                        <p>Đang tạo mã QR...</p>
-                      )}
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
           </Form>
 
           <div style={{ marginTop: "auto" }}>
@@ -1012,56 +728,6 @@ const CounterSalePayment = ({
           width={800}
         >
           <div dangerouslySetInnerHTML={{ __html: invoiceContent }} />
-        </Modal>
-        {/* Modal thêm tài khoản ngân hàng */}
-        <Modal
-          title="Thêm tài khoản ngân hàng"
-          visible={isAccountModalVisible}
-          onOk={handleAddAccount}
-          onCancel={() => setIsAccountModalVisible(false)}
-        >
-          <Form layout="vertical">
-            <Form.Item label="Tên ngân hàng" required>
-              <Select
-                value={newAccount.bankName}
-                onChange={(value) =>
-                  setNewAccount({ ...newAccount, bankName: value })
-                }
-                options={bankOptions}
-                placeholder="Chọn ngân hàng"
-              />
-            </Form.Item>
-            <Form.Item label="Số tài khoản" required>
-              <Input
-                value={newAccount.accountNumber}
-                onChange={(e) =>
-                  setNewAccount({
-                    ...newAccount,
-                    accountNumber: e.target.value,
-                  })
-                }
-              />
-            </Form.Item>
-            <Form.Item label="Chủ tài khoản">
-              <Input
-                value={newAccount.accountHolder}
-                onChange={(e) =>
-                  setNewAccount({
-                    ...newAccount,
-                    accountHolder: e.target.value,
-                  })
-                }
-              />
-            </Form.Item>
-            <Form.Item label="Ghi chú">
-              <Input
-                value={newAccount.note}
-                onChange={(e) =>
-                  setNewAccount({ ...newAccount, note: e.target.value })
-                }
-              />
-            </Form.Item>
-          </Form>
         </Modal>
       </Drawer>
     </div>
