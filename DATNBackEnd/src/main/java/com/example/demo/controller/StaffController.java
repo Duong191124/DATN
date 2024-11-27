@@ -93,7 +93,7 @@ public class StaffController {
 
 
     }
-//    @PreAuthorize("hasAuthority('UPDATE_STAFF')")
+    @PreAuthorize("hasAuthority('UPDATE_STAFF')")
     @PutMapping("/update-status/{id}")
     public ResponseEntity<?> updateStaff(@PathVariable("id") Integer id){
         String updateStatus = staffService.updateStatus(id);
@@ -131,7 +131,7 @@ public class StaffController {
             );
         }
     }
-//    @PreAuthorize("hasAuthority('UPDATE_PERMISSION')")
+    @PreAuthorize("hasAuthority('UPDATE_PERMISSION')")
     @PutMapping("/{staffId}/update-permission")
     public ResponseEntity<?> updatePermissions(
             @PathVariable Integer staffId,

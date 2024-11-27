@@ -16,13 +16,13 @@ const CategoryForm = (props) => {
                 message: "create category",
                 description: "create category successfully"
             })
-            await loadCategory()
-            resetModal()
+            await loadCategory(),
+                resetModal()
         }
     }
     const resetModal = () => {
         setIsModalOpen(false)
-        form.resetFields
+        form.resetFields();
     }
     return (
         <>
