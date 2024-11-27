@@ -85,6 +85,7 @@ instance.interceptors.response.use(
         }
       }
     }
+    console.log(error)
   }
 );
 

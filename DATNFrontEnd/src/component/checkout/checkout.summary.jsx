@@ -1,5 +1,5 @@
 import CartItem from "../cart/cart.item";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button, message, Select } from "antd";
 import { useCart } from "../context/cart.context";
 import { getVouchersByCustomerId } from "../../service/api.service";
@@ -15,7 +15,8 @@ const Summary = () => {
         couponDiscount,
         setCouponDiscount,
         totalPrice,
-        setTotalPrice
+        setTotalPrice,
+        formatCurrency
     } = useCheckout();
     const [vouchers, setVouchers] = useState([]);
 
@@ -115,7 +116,14 @@ const Summary = () => {
         fetchDataVoucher();
     }, []);
 
-    console.log(cartItems);
+
+    const renderedCartItems = useMemo(() => {
+        console.log("Recalculating cart items...");
+        return cartItems.map((product) => (
+            <CartItem key={product.id} product={product} />
+        ));
+    }, [cartItems]);
+
 
     return (
         <>
@@ -137,13 +145,7 @@ const Summary = () => {
                 }}
             >
                 <div>
-                    {cartItems.length === 0 ? (
-                        <p>Your cart is empty</p>
-                    ) : (
-                        cartItems.map((product) => (
-                            <CartItem key={product.id} product={product} />
-                        ))
-                    )}
+                    <div>{cartItems?.length > 0 ? renderedCartItems : <p>Your cart is empty</p>}</div>
                 </div>
             </div>
             <div
@@ -170,10 +172,10 @@ const Summary = () => {
                             const discountInfo = [];
 
                             if (discountPercent > 0) {
-                                discountInfo.push(`${discountPercent}%`);
+                                discountInfo.push(`${formatCurrency(discountPercent)}%`);
                             }
                             if (discountAmount > 0) {
-                                discountInfo.push(`$${discountAmount}`);
+                                discountInfo.push(`${formatCurrency(discountAmount)}`);
                             }
 
                             // Kiểm tra điều kiện sử dụng voucher
@@ -218,20 +220,20 @@ const Summary = () => {
                 <div style={{ textAlign: "right", fontSize: "16px", lineHeight: "1.5", marginTop: "10px" }}>
                     <div style={{ marginBottom: "8px", color: "#333" }}>
                         <span style={{ fontWeight: "bold" }}>Subtotal:</span>
-                        <span style={{ marginLeft: "8px" }}>${subtotal.toFixed(2)}</span>
+                        <span style={{ marginLeft: "8px" }}>{formatCurrency(subtotal)}</span>
                     </div>
 
                     {couponDiscount > 0 && (
                         <div style={{ marginBottom: "8px", color: "#f5222d" }}>
                             <span style={{ fontWeight: "bold" }}>Coupon Discount:</span>
-                            <span style={{ marginLeft: "8px" }}>- ${couponDiscount.toFixed(2)}</span>
+                            <span style={{ marginLeft: "8px" }}>- {formatCurrency(couponDiscount)}</span>
                         </div>
                     )}
 
                     {totalPrice !== null && (
                         <div style={{ marginTop: "12px", fontSize: "18px", color: "#1890ff", fontWeight: "bold" }}>
                             <span>Total:</span>
-                            <span style={{ marginLeft: "8px" }}>${totalPrice.toFixed(2)}</span>
+                            <span style={{ marginLeft: "8px" }}>{formatCurrency(totalPrice)}</span>
                         </div>
                     )}
                 </div>

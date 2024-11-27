@@ -21,6 +21,7 @@ const SizePage = () => {
   }, []);
   return (
     <div style={{ margin: "20px" }}>
+      <h1 style={{ textAlign: "center" }}>SIZE MANAGEMENT</h1>
       <SizeForm
         loadSize={loadSize}
         listSizeCode={listSizeCode}

@@ -7,7 +7,7 @@ const ProductDetailUpdate = (props) => {
     const [dataProduct, setDataProduct] = useState([]);
     const [dataSize, setDataSize] = useState([]);
     const [dataColor, setDataColor] = useState([]);
-    const [dataWeight, setDataWeight] = useState([])
+
 
     const { loadProductDetail, isModalUpdateOpen, setIsModalUpdateOpen, dataUpdate, setDataUpdate } = props;
 

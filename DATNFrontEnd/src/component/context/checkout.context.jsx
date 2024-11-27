@@ -30,10 +30,18 @@ export const CheckoutProvider = ({ children }) => {
         setTotalShippingFee(0);
     }
 
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+        }).format(amount);
+    };
+
 
     return (
         <CheckoutContext.Provider
             value={{
+                formatCurrency,
                 provinces,
                 setProvinces,
                 addresses,

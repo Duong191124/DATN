@@ -471,7 +471,6 @@ const updateProductDetailAPi = (
   productId,
   sizeId,
   colorId,
-  status,
   weight
 ) => {
   const URL_BACKEND = `/api/v1/productDetail/${id}`;
@@ -482,7 +481,6 @@ const updateProductDetailAPi = (
     productId: productId,
     sizeId: sizeId,
     colorId: colorId,
-    status: status,
     weight: weight,
   };
   return axios.put(URL_BACKEND, data);

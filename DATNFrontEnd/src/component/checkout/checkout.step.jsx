@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, message, Steps, theme } from 'antd';
+import { Button, message, notification, Steps, theme } from 'antd';
 import './checkout.style.css';
 import Summary from './checkout.summary';
 import Payment from './checkout.payment';
@@ -88,8 +88,7 @@ const CheckoutStep = () => {
         setLoading(true);
         const cartItemsLocal = cartItems;
         const orderDetailRequests = convertCartToOrderDetails(cartItemsLocal);
-        const itemsProduct = convertDataProductToOrder(cartItemsLocal);
-        console.log(itemsProduct);
+        // const itemsProduct = convertDataProductToOrder(cartItemsLocal);
 
         const orderDTO = {
             code: generateInvoiceCode(), // Mã đơn hàng
@@ -102,18 +101,18 @@ const CheckoutStep = () => {
             orderDetailRequests, // Dữ liệu sản phẩm trong đơn hàng
         };
 
-        const createOrderGhn = {
-            toDistrictId: district,
-            toWardCode: ward,
-            weight: weight,
-            paymentType: 2,
-            shipCOD: totalShippingFee,
-            customerName: addresses.name,
-            customerPhone: addresses.phoneNumber,
-            addressDetail: addresses.addressDetail,
-            customerEmail: addresses?.customer?.email,
-            itemsProduct
-        }
+        // const createOrderGhn = {
+        //     toDistrictId: district,
+        //     toWardCode: ward,
+        //     weight: weight,
+        //     paymentType: 2,
+        //     shipCOD: totalShippingFee,
+        //     customerName: addresses.name,
+        //     customerPhone: addresses.phoneNumber,
+        //     addressDetail: addresses.addressDetail,
+        //     customerEmail: addresses?.customer?.email,
+        //     itemsProduct
+        // }
 
         try {
             // Step 1: Create the order in your system
@@ -135,23 +134,23 @@ const CheckoutStep = () => {
             }
 
             // Step 2: Create the order in the GHN system (Shipping)
-            const createOrderGhnResponse = await getCreateOrderGhn(
-                createOrderGhn.toDistrictId,
-                createOrderGhn.toWardCode,
-                createOrderGhn.weight,
-                createOrderGhn.paymentType,
-                createOrderGhn.shipCOD,
-                createOrderGhn.customerName,
-                createOrderGhn.customerPhone,
-                createOrderGhn.addressDetail,
-                createOrderGhn.customerEmail,
-                createOrderGhn.itemsProduct
-            );
+            // const createOrderGhnResponse = await getCreateOrderGhn(
+            //     createOrderGhn.toDistrictId,
+            //     createOrderGhn.toWardCode,
+            //     createOrderGhn.weight,
+            //     createOrderGhn.paymentType,
+            //     createOrderGhn.shipCOD,
+            //     createOrderGhn.customerName,
+            //     createOrderGhn.customerPhone,
+            //     createOrderGhn.addressDetail,
+            //     createOrderGhn.customerEmail,
+            //     createOrderGhn.itemsProduct
+            // );
 
             // If there is any error in the GHN response, throw an error
-            if (createOrderGhnResponse?.error) {
-                throw new Error(createOrderGhnResponse?.error || "Giao hàng không thành công.");
-            }
+            // if (createOrderGhnResponse?.error) {
+            //     throw new Error(createOrderGhnResponse?.error || "Giao hàng không thành công.");
+            // }
 
             // If both orders are successfully created, show success message
             message.success('Đơn hàng đã được tạo thành công!');
@@ -248,6 +247,14 @@ const CheckoutStep = () => {
                     <Button
                         type="primary"
                         onClick={async () => {
+                            if (cartItems.length === 0) {
+                                notification.warning({
+                                    message: 'Không có sản phẩm trong giỏ hàng',
+                                    duration: 2
+                                })
+                                setCurrent(0);
+                                return;
+                            }
                             if (current === 1) {
                                 await handleApiGhn();
                             }
