@@ -20,6 +20,7 @@ const ColorPage = () => {
   }, []);
   return (
     <div style={{ margin: "20px" }}>
+      <h1 style={{ textAlign: "center" }}>COLOR MANAGEMENT</h1>
       <ColorForm
         loadColor={loadColor}
         listName={listName} // Truyền danh sách tên đã tồn tại vào ColorForm

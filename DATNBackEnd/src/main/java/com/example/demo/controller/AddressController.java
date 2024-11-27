@@ -31,7 +31,7 @@ public class AddressController {
                 .data(addressList)
                 .build());
     }
-//    @PreAuthorize("hasAuthority('CREATE_ADDRESS')")
+    @PreAuthorize("hasAuthority('CREATE_ADDRESS')")
     @PostMapping("")
     public ResponseEntity<MessageReponse> add(@Valid @RequestBody AddressDTO addressDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -51,7 +51,7 @@ public class AddressController {
                 .data(newAddress)
                 .build());
     }
-//    @PreAuthorize("hasAuthority('UPDATE_ADDRESS')")
+    @PreAuthorize("hasAuthority('UPDATE_ADDRESS')")
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
@@ -63,7 +63,7 @@ public class AddressController {
                 .data(updateAddress)
                 .build());
     }
-//    @PreAuthorize("hasAuthority('DELETE_ADDRESS')")
+    @PreAuthorize("hasAuthority('DELETE_ADDRESS')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBrand(@PathVariable("id") Integer id) {
         try {
