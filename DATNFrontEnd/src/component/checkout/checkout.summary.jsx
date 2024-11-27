@@ -115,7 +115,7 @@ const Summary = () => {
         fetchDataVoucher();
     }, []);
 
-    console.log(vouchers);
+    console.log(cartItems);
 
     return (
         <>
