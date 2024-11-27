@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useCheckout } from '../context/checkout.context';
 
 const Payment = () => {
-    const { totalPrice, totalShippingFee, totalPriceAll, setTotalPriceAll } = useCheckout();
+    const { totalPrice, totalShippingFee, totalPriceAll, setTotalPriceAll, formatCurrency } = useCheckout();
     const [selectedOption, setSelectedOption] = useState('Cash');
 
     const handleMinusTotalPrice = () => {
@@ -118,11 +118,11 @@ const Payment = () => {
                         {totalShippingFee > 0 && (
                             <div style={{ marginBottom: "8px", color: "#f5222d" }}>
                                 <span style={{ fontWeight: "bold" }}>Total Shipping:</span>
-                                <span style={{ marginLeft: "8px" }}> {totalShippingFee} đ</span>
+                                <span style={{ marginLeft: "8px" }}>+ {formatCurrency(totalShippingFee)}</span>
                             </div>
                         )}
                         <strong>Total:</strong>
-                        <span style={{ fontSize: 24, marginLeft: 10 }}>{totalPriceAll} đ</span>
+                        <span style={{ fontSize: 24, marginLeft: 10 }}>{formatCurrency(totalPriceAll)}</span>
                     </div>
                 </div>
             </div>
