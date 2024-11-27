@@ -132,16 +132,8 @@ public class StaffServiceImpl implements StaffService {
         }
 
         staff.setPermission(currentPermission);
+        staff.setIdentifierToken("please get new token");
         return staffRepo.save(staff);
-    }
-
-    public void invalidateToken(Integer staffId) {
-        Optional<Staff> staffOpt = staffRepo.findById(staffId);
-        if (staffOpt.isPresent()) {
-            Staff staff = staffOpt.get();
-            staff.setIdentifierToken("please get new token"); // Thay đổi hoặc xóa token hiện tại
-            staffRepo.save(staff);  // Cập nhật lại cơ sở dữ liệu
-        }
     }
 
     @Override

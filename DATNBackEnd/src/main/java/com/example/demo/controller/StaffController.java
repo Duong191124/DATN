@@ -136,21 +136,22 @@ public class StaffController {
     public ResponseEntity<?> updatePermissions(
             @PathVariable Integer staffId,
             @RequestBody UserPermissionDTO permissionDTO) {
-        try {
-            // Cập nhật quyền
-            staffService.updatePermissions(staffId, permissionDTO);
-
-            // Hủy token của user khi quyền đã được thay đổi
-            staffService.invalidateToken(staffId); // Đây là phương thức hủy token
-
-            // Thông báo thành công và yêu cầu đăng nhập lại
-            return ResponseEntity.ok(Map.of(
-                    "message", "Permissions updated. Please log in again.",
-                    "status", 200
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "An error occurred.", "error", e.getMessage()));
+        try{
+            Staff staff = staffService.updatePermissions(staffId, permissionDTO);
+            return ResponseEntity.ok().body(
+                    MessageReponse.builder()
+                            .data(staff)
+                            .message("update sucessfully")
+                            .build()
+            );
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    MessageReponse.builder()
+                            .status(HttpStatus.BAD_REQUEST.value())
+                            .message(e.getMessage())
+                            .data(null)
+                            .build()
+            );
         }
     }
 

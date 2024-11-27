@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, message, Steps, theme } from 'antd';
+import { Button, message, notification, Steps, theme } from 'antd';
 import './checkout.style.css';
 import Summary from './checkout.summary';
 import Payment from './checkout.payment';
@@ -247,6 +247,14 @@ const CheckoutStep = () => {
                     <Button
                         type="primary"
                         onClick={async () => {
+                            if (cartItems.length === 0) {
+                                notification.warning({
+                                    message: 'Không có sản phẩm trong giỏ hàng',
+                                    duration: 2
+                                })
+                                setCurrent(0);
+                                return;
+                            }
                             if (current === 1) {
                                 await handleApiGhn();
                             }

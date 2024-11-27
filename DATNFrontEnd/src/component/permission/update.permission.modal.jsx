@@ -70,6 +70,7 @@ const UpdatePermissionForUserModal = (props) => {
                 setPermissions(updatedPermissions); // Update permissions state
                 setStaffPermission(staffPermissionIds); // Set staff permissions state
             }
+            console.log(staffPermissionIds);
         } catch (error) {
             console.error("Failed to load staff permissions:", error);
         }
@@ -99,14 +100,11 @@ const UpdatePermissionForUserModal = (props) => {
             .map(permission => permission.id);
 
         const permissionsToRemove = staffPermissions
-            .filter(staffPermission =>
-                !permissions.find(p => p.action === staffPermission && p.staff)
-            )
-            .map(staffPermission => {
-                const foundPermission = permissions.find(p => p.action === staffPermission);
-                return foundPermission ? foundPermission.id : null;
-            })
-            .filter(id => id !== null && id !== undefined);
+            .filter(staffPermissionId =>
+                !permissions.some(p => p.id === staffPermissionId && p.staff)
+            );
+
+        console.log("Permissions to remove:", permissionsToRemove);
 
         const payload = {};
         if (permissionsToAdd.length > 0) {
