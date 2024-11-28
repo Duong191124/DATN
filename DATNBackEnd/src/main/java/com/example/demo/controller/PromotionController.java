@@ -33,7 +33,7 @@ public class PromotionController {
                 .data(promotionList)
                 .build());
     }
-    @PreAuthorize("hasAuthority('CREATE_PROMOTION')")
+    //@PreAuthorize("hasAuthority('CREATE_PROMOTION')")
     @PostMapping("")
     public ResponseEntity<MessageReponse> add(@Valid @RequestBody PromotionDTO promotionDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -54,7 +54,7 @@ public class PromotionController {
                 .data(newPromotion)
                 .build());
     }
-    @PreAuthorize("hasAuthority('UPDATE_PROMOTION')")
+    //@PreAuthorize("hasAuthority('UPDATE_PROMOTION')")
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
@@ -77,7 +77,7 @@ public class PromotionController {
                 .data(updatePromotion)
                 .build());
     }
-    @PreAuthorize("hasAuthority('UPDATE_PROMOTION')")
+    //@PreAuthorize("hasAuthority('UPDATE_PROMOTION')")
     @PutMapping("/{id}/product-details")
     public ResponseEntity<?> updatePromotionProductDetails(
             @PathVariable("id") Integer id,
@@ -110,7 +110,7 @@ public class PromotionController {
                 .build());
     }
 
-    @PreAuthorize("hasAuthority('UPDATE_PROMOTION')")
+   // @PreAuthorize("hasAuthority('UPDATE_PROMOTION')")
     @PutMapping("/{id}/status")
     public ResponseEntity<?> changeStatus(@PathVariable Integer id) {
         try {
@@ -141,7 +141,7 @@ public class PromotionController {
                     .build());
         }
     }
-    @PreAuthorize("hasAuthority('DELETE_PROMOTION')")
+   // @PreAuthorize("hasAuthority('DELETE_PROMOTION')")
     @DeleteMapping("{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception{
         promotionService.deletePromotion(id);
