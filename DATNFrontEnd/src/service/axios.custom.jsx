@@ -68,14 +68,8 @@ instance.interceptors.response.use(
             description: 'Vui lòng đăng nhập lại',
             duration: 2
           })
-        } else {
-          notification.warning({
-            message: 'Warring',
-            description: error.response.data.message,
-            duration: 2
-          });
         }
-        if (status === 403) {
+        else if (status === 403) {
           notification.error({
             message: "Không có quyền truy cập",
             description: 'Bạn không có quyền',
@@ -83,6 +77,14 @@ instance.interceptors.response.use(
           });
           return;
         }
+        else {
+          notification.warning({
+            message: 'Warring',
+            description: error.response.data.message,
+            duration: 2
+          });
+        }
+
       }
     }
     console.log(error)
