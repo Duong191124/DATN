@@ -24,7 +24,15 @@ export const CartProvider = ({ children }) => {
     );
   };
 
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    }).format(amount);
+  };
+
   useEffect(() => {
+    console.log("Loading cart items from localStorage...");
     const savedCartItems = JSON.parse(localStorage.getItem(getCartKey())) || [];
     setCartItems(savedCartItems);
     setTotalAmount(calculateTotal(savedCartItems));
@@ -48,11 +56,14 @@ export const CartProvider = ({ children }) => {
       updatedCartItems = [...cartItems, cartItem];
     }
 
-    setCartItems(updatedCartItems);
-    updateLocalStorage(updatedCartItems);
-    setTotalAmount(calculateTotal(updatedCartItems));
-    message.success("Thêm vào giỏ hàng thành công");
+    if (JSON.stringify(updatedCartItems) !== JSON.stringify(cartItems)) {
+      setCartItems(updatedCartItems);
+      updateLocalStorage(updatedCartItems);
+      setTotalAmount(calculateTotal(updatedCartItems));
+      message.success("Thêm vào giỏ hàng thành công");
+    }
   };
+
 
   const removeFromCart = (productId) => {
     const updatedCartItems = cartItems.filter((item) => item.id !== productId);
@@ -80,6 +91,7 @@ export const CartProvider = ({ children }) => {
         setTotalAmount,
         updateQuantity,
         setCartItems,
+        formatCurrency,  // Providing formatCurrency function here
       }}
     >
       {children}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAddressByCustomerId, getUserInfo, deleteAddressByid } from '../../service/api.service';
+import { getAddressByCustomerId, getUserInfo, deleteAddressByid, getProvinces, getDistrict } from '../../service/api.service';
 import { useCart } from '../context/cart.context';
 import { useCheckout } from '../context/checkout.context';
 import { Button, Space, Typography, Form, Input, Select, Row, Col, message } from 'antd';
@@ -37,7 +37,7 @@ const Shipping = () => {
     const [userId, setUserId] = useState(null); // Initialize userId state
 
     useEffect(() => {
-        getInformationForCustomer();
+        getInformationForCustomer()
     }, []);
 
     const getInformationForCustomer = async () => {
@@ -57,16 +57,42 @@ const Shipping = () => {
             }
             const totalWeight = cartItems.reduce((total, cart) => {
                 if (cart && cart.weight && cart.quantity) {
-                    return total + cart.weight.weightValue * cart.quantity;
+                    return total + (cart.weight) * cart.quantity;
                 }
                 return total;
             }, 0);
+            console.log(cartItems);
 
             setWeight(totalWeight);
         } catch (error) {
             console.error(error);
         }
     };
+
+    useEffect(() => {
+        const getProvices = async () => {
+            try {
+                const res = await getProvinces()
+                console.log(res.data.data);
+                setProvinces(res.data.data);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        getProvices()
+    }, [setProvinces])
+
+    useEffect(() => {
+        const getDistrictAPI = async () => {
+            try {
+                const res = await getDistrict(provinces)
+                setDistrict(res.data.data);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        getDistrictAPI()
+    }, [setDistrict])
 
     // const showModal = (address) => {
     //     setSelectAddress(address);
@@ -90,7 +116,6 @@ const Shipping = () => {
         setIsModalOpen(false);
     };
 
-    console.log(selectAddress);
 
     const handleEditAddress = (address) => {
         setIsModalVisible(true);
@@ -204,6 +229,7 @@ const Shipping = () => {
                                 rules={[{ required: true, message: 'Please select city' }]}>
                                 <Select
                                     placeholder="Select a city"
+                                    value={provinces}
                                     onChange={(value) => {
                                         setProvinces(value);
                                         setDistrict([]);
@@ -225,6 +251,7 @@ const Shipping = () => {
                                 rules={[{ required: true, message: 'Please select district' }]}>
                                 <Select
                                     placeholder="Select a district"
+                                    value={district}
                                     onChange={(value) => setDistrict(value)}
                                     allowClear>
                                     {Array.isArray(district) && district.map((d) => (
@@ -242,6 +269,7 @@ const Shipping = () => {
                                 rules={[{ required: true, message: 'Please select ward' }]}>
                                 <Select
                                     placeholder="Select a ward"
+                                    value={ward}
                                     onChange={(value) => setWard(value)}
                                     allowClear>
                                     {Array.isArray(ward) && ward.map((w) => (

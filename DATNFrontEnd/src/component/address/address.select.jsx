@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Form, Input, Row, Col, Button, Select, message } from 'antd';
-import { UserOutlined, PhoneOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { UserOutlined, PhoneOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { getDistrict, getProvinces, getWards, saveAddressByid, updateAddressByid } from '../../service/api.service';
 
@@ -18,7 +18,6 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
 
     const defaultOption = { ProvinceID: '', DistrictID: '', WardCode: '', ProvinceName: t('MES-024'), DistrictName: t('MES-027'), WardName: t('MES-030') };
 
-    // Fetch provinces on component mount
     useEffect(() => {
         const fetchProvinces = async () => {
             const res = await getProvinces();
@@ -32,7 +31,6 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
         i18n.changeLanguage(language);
     }, [i18n, language]);
 
-    // Pre-fill form if editingAddress is provided
     useEffect(() => {
         if (editingAddress) {
             const { name, phoneNumber, city, district, ward, addressDetail } = editingAddress;
@@ -50,7 +48,6 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
         }
     }, [editingAddress, form]);
 
-    // Fetch districts when province is selected
     useEffect(() => {
         if (selectedProvince && selectedProvince !== defaultOption.ProvinceID) {
             const fetchDistricts = async () => {
@@ -64,7 +61,6 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
         }
     }, [selectedProvince]);
 
-    // Fetch wards when district is selected
     useEffect(() => {
         if (selectedDistrict && selectedDistrict !== defaultOption.DistrictID) {
             const fetchWards = async () => {
@@ -77,7 +73,6 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
         }
     }, [selectedDistrict]);
 
-    // Handle form submission
     const onFormSubmit = async (values) => {
         try {
             if (editingAddress) {
@@ -90,7 +85,8 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                     values.phone,
                     values.address,
                 );
-                message.success("Update successful");
+                message.success(t('MES-046'));
+                getAddressByid();
             } else {
                 await saveAddressByid(
                     userId,
@@ -101,18 +97,18 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                     values.phone,
                     values.address,
                 );
-                message.success("Address saved successfully");
+                message.success(t('MES-047'));
+                getAddressByid();
             }
             setIsModalVisible(false);
 
             if (onAddressUpdated) {
-                onAddressUpdated(); // Gọi callback để đồng bộ thông tin
+                onAddressUpdated();
             }
         } catch (error) {
-            message.error("Error: ", error);
+            message.error(`${t('MES-048')}: ${error}`);
         }
     };
-
 
     return (
         <Modal
@@ -148,7 +144,12 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                 >
                     <Select
                         value={selectedProvince}
-                        onChange={setSelectedProvince}
+                        onChange={(value) => {
+                            setSelectedProvince(value);
+                            setSelectedDistrict(null);
+                            setSelectedWard(null);
+                            form.setFieldsValue({ district: null, ward: null });
+                        }}
                         placeholder={t('MES-024')}
                     >
                         {provinces.map(province => (
@@ -159,41 +160,49 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                     </Select>
                 </Form.Item>
 
-                <Form.Item
-                    name="district"
-                    label={t('MES-028')}
-                    rules={[{ required: true, message: t('MES-029') }]}
-                >
-                    <Select
-                        value={selectedDistrict}
-                        onChange={setSelectedDistrict}
-                        placeholder={t('MES-027')}
+                {districts.length > 0 && (
+                    <Form.Item
+                        name="district"
+                        label={t('MES-028')}
+                        rules={[{ required: true, message: t('MES-029') }]}
                     >
-                        {districts.map(district => (
-                            <Select.Option key={district.DistrictID} value={district.DistrictID}>
-                                {district.DistrictName}
-                            </Select.Option>
-                        ))}
-                    </Select>
-                </Form.Item>
+                        <Select
+                            value={selectedDistrict}
+                            onChange={(value) => {
+                                setSelectedDistrict(value);
+                                setSelectedWard(null);
+                                form.setFieldsValue({ ward: null });
+                            }}
+                            placeholder={t('MES-027')}
+                        >
+                            {districts.map(district => (
+                                <Select.Option key={district.DistrictID} value={district.DistrictID}>
+                                    {district.DistrictName}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                )}
 
-                <Form.Item
-                    name="ward"
-                    label={t('MES-031')}
-                    rules={[{ required: true, message: t('MES-032') }]}
-                >
-                    <Select
-                        value={selectedWard}
-                        onChange={setSelectedWard}
-                        placeholder={t('MES-030')}
+                {wards.length > 0 && (
+                    <Form.Item
+                        name="ward"
+                        label={t('MES-031')}
+                        rules={[{ required: true, message: t('MES-032') }]}
                     >
-                        {wards.map(ward => (
-                            <Select.Option key={ward.WardCode} value={ward.WardCode}>
-                                {ward.WardName}
-                            </Select.Option>
-                        ))}
-                    </Select>
-                </Form.Item>
+                        <Select
+                            value={selectedWard}
+                            onChange={setSelectedWard}
+                            placeholder={t('MES-030')}
+                        >
+                            {wards.map(ward => (
+                                <Select.Option key={ward.WardCode} value={ward.WardCode}>
+                                    {ward.WardName}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                )}
 
                 <Form.Item
                     name="address"

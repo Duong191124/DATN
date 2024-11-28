@@ -27,7 +27,6 @@ import Header from "./component/layout/user/header/header.jsx";
 import ProductDetailPage from "./component/layout/content/san-pham/product.detail.page.jsx";
 import RequestForgotPassword from "./pages/request.forgot.password.jsx";
 import ResetPassword from "./pages/reset.password.jsx";
-import WeightPage from "./pages/weight.jsx";
 import "./i18n.jsx";
 import InfoPage from "./pages/info.jsx";
 import { CartProvider } from "./component/context/cart.context.jsx";
@@ -144,10 +143,7 @@ const router = createBrowserRouter([
         path: "customer",
         element: <CustomerPage />,
       },
-      {
-        path: "weight",
-        element: <WeightPage />,
-      },
+
     ],
   },
   {

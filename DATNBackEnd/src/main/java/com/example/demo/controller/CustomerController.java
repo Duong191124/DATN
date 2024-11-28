@@ -70,7 +70,7 @@ public class CustomerController {
 
 
     }
-    @PreAuthorize("hasAuthority('UPDATE_CUSTOMER')")
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
