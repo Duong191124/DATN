@@ -3,9 +3,9 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.ProductDetailDTO;
 import com.example.demo.entity.ProductDetail;
+import com.example.demo.response.MessageReponse;
 import com.example.demo.response.ProductDetailResponse;
 import com.example.demo.service.ProductDetailService;
-import com.example.demo.response.MessageReponse;
 import com.example.demo.service.impl.ProductDetailServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
