@@ -87,6 +87,7 @@ public class VoucherServiceImpl implements VoucherService {
         existingVoucher.setTermsAndConditions(voucherDTO.getTermsAndConditions());
         existingVoucher.setStatus(voucherDTO.getStatus());
 
+
         // Cập nhật danh sách khách hàng
         if (voucherDTO.getCustomers() != null) {
             for (Integer customerId : voucherDTO.getCustomers()) {

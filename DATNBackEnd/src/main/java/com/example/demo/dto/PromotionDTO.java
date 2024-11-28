@@ -32,4 +32,6 @@ public class PromotionDTO {
 
     private Boolean applyPromotion;
 
+
+
 }
