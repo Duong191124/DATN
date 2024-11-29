@@ -1,6 +1,6 @@
 // ProductCard.jsx
 import React, { useEffect, useState } from "react";
-import { Button, Col, Modal, Row, Space, Typography } from "antd";
+import { Button, Col, message, Modal, Row, Space, Typography } from "antd";
 import {
   ShoppingCartOutlined,
   HeartOutlined,
@@ -14,7 +14,7 @@ import { findByProductId } from "../../service/api.service";
 const { Text } = Typography;
 import "../layout/content/san-pham/product.detail.page.css";
 import { data } from "framer-motion/client";
-
+import "./product.card.css";
 const ProductCardWrapper = styled(motion.div)`
   position: relative;
   background: white;
@@ -372,11 +372,13 @@ const ProductCard = ({
                       .map((size) => (
                         <button
                           key={size.id}
-                          className={`size-button ${selectedSize === size.name ? "selected" : ""
-                            } ${!availableSizes.includes(size.name)
+                          className={`size-button ${
+                            selectedSize === size.name ? "selected" : ""
+                          } ${
+                            !availableSizes.includes(size.name)
                               ? "disabled-size"
                               : ""
-                            }`}
+                          }`}
                           onClick={() => handleSizeChange(size.name)}
                           disabled={!availableSizes.includes(size.name)}
                         >
@@ -398,11 +400,13 @@ const ProductCard = ({
                       .map((color) => (
                         <button
                           key={color.id}
-                          className={`color-button ${selectedColor === color.name ? "selected" : ""
-                            } ${!availableColors.includes(color.name)
+                          className={`color-button ${
+                            selectedColor === color.name ? "selected" : ""
+                          } ${
+                            !availableColors.includes(color.name)
                               ? "disabled-color"
                               : ""
-                            }`}
+                          }`}
                           onClick={() => handleColorChange(color.name)}
                           disabled={!availableColors.includes(color.name)}
                         >
@@ -428,10 +432,39 @@ const ProductCard = ({
                   >
                     -
                   </button>
-                  <input type="text" value={quantity} readOnly />
+                  <input
+                    type="number"
+                    className="quantity-input"
+                    value={quantity}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^0-9]/g, "");
+                      console.log("availableQuantity", availableQuantity);
+                      if (availableQuantity === 0) {
+                        message.info("vui lòng chọn size và kích thước");
+                      } else {
+                        if (value > availableQuantity) {
+                          message.info("Số lượng tồn không đủ!");
+                        } else if (value < 1) {
+                          message.info("Số lượng phải lớn hơn hoặc bằng 1!");
+                        } else {
+                          setQuantity(value);
+                        }
+                      }
+                    }}
+                  />
                   <button
                     className="quantity-btn"
-                    onClick={() => setQuantity(quantity + 1)}
+                    onClick={() => {
+                      if (availableQuantity === 0) {
+                        message.info("vui lòng chọn size và kích thước");
+                      } else {
+                        if (quantity < availableQuantity) {
+                          setQuantity(quantity + 1);
+                        } else {
+                          message.info("Số lượng trong kho không đủ!");
+                        }
+                      }
+                    }}
                   >
                     +
                   </button>
@@ -481,9 +514,9 @@ ProductCard.propTypes = {
 };
 
 ProductCard.defaultProps = {
-  onAddToCart: () => { },
-  onAddToWishlist: () => { },
-  onQuickView: () => { },
+  onAddToCart: () => {},
+  onAddToWishlist: () => {},
+  onQuickView: () => {},
 };
 
 export default ProductCard;
