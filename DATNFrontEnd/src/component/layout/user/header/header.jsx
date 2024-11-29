@@ -14,7 +14,9 @@ import { useCheckout } from "../../../context/checkout.context";
 import {
   fetchDataCategoryAPI,
   fetchDataProduct,
+  fetchProductsByProductDetails,
 } from "../../../../service/api.service";
+import ProductSearch from "./search.filter";
 
 const categoryStyle = {
   display: "flex",
@@ -69,6 +71,7 @@ const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [category, setCategory] = useState([]);
   const [product, setProduct] = useState([]);
+  const [dataProduct, setDataProduct] = useState([]);
   const navigate = useNavigate();
   const { setCartItems } = useCart();
 
@@ -157,10 +160,17 @@ const Header = () => {
       setProduct(response.data.data);
     }
   };
-
+  const filterProduct = async () => {
+    const response = await fetchProductsByProductDetails(0, 1000);
+    console.log("response", response);
+    if (response?.data?.data) {
+      setDataProduct(response?.data?.data.products);
+    }
+  };
   useEffect(() => {
     getAllCategory();
     getAllProduct();
+    filterProduct();
   }, []);
 
   useEffect(() => {
@@ -191,12 +201,10 @@ const Header = () => {
       console.error(error);
     }
   };
-
   const handleLanguageChange = (value) => {
     setLanguage(value);
     i18n.changeLanguage(value); // Thay đổi ngôn ngữ cho toàn bộ ứng dụng
   };
-
   const userMenu = (
     <Menu>
       {isLoggedIn ? (
@@ -214,13 +222,17 @@ const Header = () => {
         </>
       )}
       {isLoggedIn && (
-        <Menu.Item key="info">
-          <NavLink to="/info">{t("MES-012")}</NavLink>
-        </Menu.Item>
+        <>
+          <Menu.Item key="info">
+            <NavLink to="/info">{t("MES-012")}</NavLink>
+          </Menu.Item>
+          <Menu.Item key="info-order">
+            <NavLink to="/info-order">{t("MES-008")}</NavLink>
+          </Menu.Item>
+        </>
       )}
     </Menu>
   );
-
   return (
     <>
       <div className="header">
@@ -262,7 +274,7 @@ const Header = () => {
             </div>
           </div>
           <div className="input-search">
-            <Input.Search placeholder="Tìm kiếm sản phẩm" />
+            <ProductSearch data={dataProduct} />
             <div className="icon-right">
               <Badge onClick={() => setOpenCart(true)} count={99}>
                 <Button

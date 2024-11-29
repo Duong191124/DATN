@@ -193,9 +193,16 @@ const ProductDetailCard = ({ product, onAddToWishlist, onQuickView }) => {
     };
     addToCart(cartItem);
   };
+
   return (
     <ProductCardWrapper variants={itemVariants}>
-      {promotions && promotions.length > 0 && <SaleIcon>Sale</SaleIcon>}
+      {promotions && promotions.length > 0 && (
+        <SaleIcon>
+          {promotions[0].discountPercent != null
+            ? `Sale ${promotions[0].discountPercent}%`
+            : `Giảm ${promotions[0].discountAmount.toLocaleString()}đ`}
+        </SaleIcon>
+      )}
 
       <StockBadge inStock={quantity > 0}>
         {quantity > 0 ? `${quantity} in stock` : "Out of stock"}

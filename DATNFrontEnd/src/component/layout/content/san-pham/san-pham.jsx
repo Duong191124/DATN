@@ -174,19 +174,25 @@ const SanPham = () => {
       (product) =>
         product.minPrice >= priceRange[0] && product.minPrice <= priceRange[1]
     );
-
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchTerm = urlParams.get("search-results");
+    if (searchTerm) {
+      filtered = filtered.filter((product) =>
+        product?.products?.name
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase())
+      );
+    }
     return filtered;
   };
+
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const brandFromQuery = queryParams.get("brand");
-    const categoryFromQuery = queryParams.get("category");
     if (brandFromQuery) {
       setSelectedBrand([brandFromQuery]);
-      setSelectedCategory([categoryFromQuery]);
     } else {
       setSelectedBrand(["All"]);
-      setSelectedCategory(["All"]);
     }
   }, [location.search]);
   useEffect(() => {
