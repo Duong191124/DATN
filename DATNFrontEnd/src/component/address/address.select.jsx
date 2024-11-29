@@ -16,6 +16,13 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
     const [selectedDistrict, setSelectedDistrict] = useState(null);
     const [selectedWard, setSelectedWard] = useState(null);
 
+    const [addressDetails, setAddressDetails] = useState({
+        province: '',
+        district: '',
+        ward: '',
+        stressAddress: '',
+    });
+
     const defaultOption = { ProvinceID: '', DistrictID: '', WardCode: '', ProvinceName: t('MES-024'), DistrictName: t('MES-027'), WardName: t('MES-030') };
 
     useEffect(() => {
@@ -45,6 +52,12 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
             setSelectedProvince(city);
             setSelectedDistrict(district);
             setSelectedWard(ward);
+            setAddressDetails({
+                province: city,
+                district,
+                ward,
+                stressAddress: '',
+            });
         }
     }, [editingAddress, form]);
 
@@ -72,6 +85,17 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
             setWards([]);
         }
     }, [selectedDistrict]);
+
+    useEffect(() => {
+        const { province, district, ward, stressAddress } = addressDetails;
+
+        if (province && district && ward && stressAddress) {
+            const fullAddress = `${stressAddress}, ${ward}, ${district}, ${province}`;
+            form.setFieldsValue({ address: fullAddress });
+        } else {
+            form.setFieldsValue({ address: '' });
+        }
+    }, [addressDetails, form]);
 
     const onFormSubmit = async (values) => {
         try {
@@ -145,10 +169,12 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                     <Select
                         value={selectedProvince}
                         onChange={(value) => {
+                            const provinceName = provinces.find(p => p.ProvinceID === value)?.ProvinceName || '';
                             setSelectedProvince(value);
                             setSelectedDistrict(null);
                             setSelectedWard(null);
                             form.setFieldsValue({ district: null, ward: null });
+                            setAddressDetails(prev => ({ ...prev, province: provinceName, district: '', ward: '' }));
                         }}
                         placeholder={t('MES-024')}
                     >
@@ -169,9 +195,11 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                         <Select
                             value={selectedDistrict}
                             onChange={(value) => {
+                                const districtName = districts.find(d => d.DistrictID === value)?.DistrictName || '';
                                 setSelectedDistrict(value);
                                 setSelectedWard(null);
                                 form.setFieldsValue({ ward: null });
+                                setAddressDetails(prev => ({ ...prev, district: districtName, ward: '' }));
                             }}
                             placeholder={t('MES-027')}
                         >
@@ -192,7 +220,11 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                     >
                         <Select
                             value={selectedWard}
-                            onChange={setSelectedWard}
+                            onChange={(value) => {
+                                const wardName = wards.find(w => w.WardCode === value)?.WardName || '';
+                                setSelectedWard(value);
+                                setAddressDetails(prev => ({ ...prev, ward: wardName }));
+                            }}
                             placeholder={t('MES-030')}
                         >
                             {wards.map(ward => (
@@ -205,11 +237,23 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                 )}
 
                 <Form.Item
+                    name="stressAddress"
+                    label={t('Street Address')}
+                    rules={[{ required: true, message: t('Stress address is required') }]}
+                >
+                    <Input
+                        rows={3}
+                        placeholder={t('Enter your stress address')}
+                        onChange={(e) => setAddressDetails(prev => ({ ...prev, stressAddress: e.target.value }))}
+                    />
+                </Form.Item>
+
+                <Form.Item
                     name="address"
                     label={t('MES-041')}
                     rules={[{ required: true, message: t('MES-042') }]}
                 >
-                    <Input.TextArea rows={3} placeholder={t('MES-043')} />
+                    <Input.TextArea rows={3} placeholder={t('MES-043')} disabled />
                 </Form.Item>
 
                 <Form.Item>
@@ -218,7 +262,10 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                             <Button onClick={handleCancel}>{t('MES-044')}</Button>
                         </Col>
                         <Col>
-                            <Button type="primary" htmlType="submit">
+                            <Button style={{
+                                backgroundColor: 'black',
+                                width: 130,
+                            }} type="primary" htmlType="submit">
                                 {t('MES-045')}
                             </Button>
                         </Col>
