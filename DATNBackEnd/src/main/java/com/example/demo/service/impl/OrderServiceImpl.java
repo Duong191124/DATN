@@ -9,13 +9,19 @@ import com.example.demo.request.OrderDetailRequest;
 import com.example.demo.request.OrderWithVoucherAndOrderDetailRequest;
 import com.example.demo.response.OrderResponse;
 import com.example.demo.service.OrderService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,6 +33,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
+    private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
     private final OrderDetailRepo orderDetailRepo;
     private final OrderRepo orderRepo;
     private final  StaffRepo staffRepo;
@@ -41,6 +48,16 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("order null");
         }
         return orderResponses ;
+    }
+
+    @Override
+    public Page<OrderResponse> getOrderByCustomerId(Integer customerId, Pageable pageable, OrderStatus orderStatus) {
+        Customer customer = customerRepo.findById(customerId).orElse(null);
+        if(customer == null){
+            return null;
+        }
+        Page<Orders> orderResponses = orderRepo.pageAllByStatus(orderStatus, customerId, pageable);
+        return orderResponses.map(OrderResponse::convertOrderResponse);
     }
 
     @Override
@@ -86,7 +103,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional
-    public OrderResponse createOrderOnline(OrderOnlineDTO orderDTO) {
+    public OrderResponse createOrderOnline(OrderOnlineDTO orderDTO) throws JsonProcessingException {
         Integer customerId = orderDTO.getCustomerId() != null ? orderDTO.getCustomerId() : 1;
 
         // Tạo mới đơn hàng
@@ -94,6 +111,13 @@ public class OrderServiceImpl implements OrderService {
         order.setCode(orderDTO.getCode());
         order.setDeliveryFee(orderDTO.getDeliveryFee());
         order.setOrderDate(orderDTO.getOrderDate());
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String addressJson = objectMapper.writeValueAsString(orderDTO.getAddress());
+            order.setAddress(addressJson);
+        } catch (Exception e) {
+            throw new RuntimeException("Error serializing address: " + e.getMessage(), e);
+        }
         order.setTotalAmount(orderDTO.getTotalAmount());
         order.setMoneyReceived(orderDTO.getMoneyReceived());  // Có thể cập nhật sau nếu cần
         if (orderDTO.getVoucherId() != null) {

@@ -21,6 +21,7 @@ public class OrderOnlineDTO {
     private Integer voucherId;
     private Integer customerId;
     private double moneyReceived;
+    private AddressOrderDTO address;
     private List<OrderDetailOnlineRequest> orderDetailRequests;
     public static OrderResponse convertOrderResponse(Orders orders){
         return OrderResponse.builder()

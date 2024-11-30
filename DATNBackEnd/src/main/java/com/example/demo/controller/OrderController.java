@@ -74,6 +74,22 @@ public class  OrderController {
                 .build());
     }
 
+    @GetMapping("/getDataByCustomer/{customerId}")
+    public ResponseEntity<?> getOrderByCustomerId (
+            @PathVariable Integer customerId,
+            @RequestParam(required = false) OrderStatus orderStatus,
+            @RequestParam(defaultValue = "0", required = false) int page,
+            @RequestParam(defaultValue = "10", required = false) int limit
+    ) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("createdAt").descending());
+        Page<OrderResponse> orders = orderService.getOrderByCustomerId(customerId, pageable, orderStatus);
+
+        return ResponseEntity.ok().body(MessageReponse.builder()
+                        .data(orders)
+                        .message("successful")
+                        .status(HttpStatus.OK.value())
+                        .build());
+    }
 
     @PostMapping("/add")
         public ResponseEntity<?> addOrder(@Valid @RequestBody OrderDTO orderDTO, BindingResult result){

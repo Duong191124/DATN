@@ -116,12 +116,14 @@ const Summary = () => {
         fetchDataVoucher();
     }, []);
 
+
     const renderedCartItems = useMemo(() => {
         console.log("Recalculating cart items...");
         return cartItems.map((product) => (
             <CartItem key={product.id} product={product} />
         ));
     }, [cartItems]);
+
 
     return (
         <>

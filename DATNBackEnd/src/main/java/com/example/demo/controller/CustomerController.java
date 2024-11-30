@@ -48,27 +48,29 @@ public class CustomerController {
             @RequestBody CustomerDTO customer,
             BindingResult result
     ){
-        if(result.hasErrors()){
-            List<String> errorMessage = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest().body(MessageReponse.builder()
-                    .message(errorMessage.toString())
-                    .status(HttpStatus.BAD_REQUEST.value())
+        try{
+            if(result.hasErrors()){
+                List<String> errorMessage = result.getFieldErrors()
+                        .stream()
+                        .map(FieldError::getDefaultMessage)
+                        .toList();
+                return ResponseEntity.badRequest().body(MessageReponse.builder()
+                        .message(errorMessage.toString())
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .build()
+                );
+            }
+            CustomerResponse newCustomer =customerService.add(customer);
+            noticeService.create(new Notice(null,"New customer hihi", "new customer just register account", "/admin/customer", 0));
+            return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
+                    .message("them thanh cong")
+                    .status(HttpStatus.OK.value())
+                    .data(newCustomer)
                     .build()
             );
+        }catch(Exception e){
+            return ResponseEntity.internalServerError().build();
         }
-        CustomerResponse newCustomer =customerService.add(customer);
-        noticeService.create(new Notice(null,"New customer hihi", "new customer just register account", "/admin/customer", 0));
-        return ResponseEntity.status(HttpStatus.CREATED).body(MessageReponse.builder()
-                .message("them thanh cong")
-                .status(HttpStatus.OK.value())
-                .data(newCustomer)
-                .build()
-        );
-
-
     }
     @PreAuthorize("isAuthenticated()")
     @PutMapping("{id}")

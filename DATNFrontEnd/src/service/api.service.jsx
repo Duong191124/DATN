@@ -367,7 +367,8 @@ const createOrderForOnline = async (
   voucherId,
   customerId,
   moneyReceived,
-  orderDetailRequests
+  orderDetailRequests,
+  address
 ) => {
   const URL_BACKEND = "/api/v1/orders/add-online";
   const data = {
@@ -379,6 +380,7 @@ const createOrderForOnline = async (
     moneyReceived: moneyReceived,
     customerId: customerId,
     orderDetailRequests: orderDetailRequests,
+    address: address
   };
   return axios.post(URL_BACKEND, data);
 };
