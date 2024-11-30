@@ -123,7 +123,32 @@ const PromotionUpdate = (props) => {
             onCancel={handleCancel}
             okText="Cập Nhật"
         >
-            <Form form={form} layout="vertical">
+            <Form
+                form={form}
+                layout="vertical"
+                onValuesChange={(changedValues, allValues) => {
+                    if (changedValues.endDate) {
+                        const endDate = changedValues.endDate; // Ngày kết thúc mới
+                        const now = moment(); // Thời gian hiện tại
+
+                        // Nếu ngày kết thúc trước thời điểm hiện tại
+                        if (endDate && moment(endDate).isBefore(now)) {
+                            // Chỉ hiển thị thông báo nếu trạng thái chưa là "Ngừng hoạt động"
+                            if (allValues.status !== 0) {
+                                form.setFieldsValue({ status: 0 });
+
+                                notification.warning({
+                                    message: "Cảnh báo",
+                                    description:
+                                        "Ngày kết thúc đã trước thời điểm hiện tại, trạng thái tự động chuyển về 'Ngừng hoạt động'.",
+                                });
+                            }
+                        }
+                    }
+                }}
+
+            >
+
                 <Form.Item
                     label="Tên"
                     name="name"
@@ -234,7 +259,7 @@ const PromotionUpdate = (props) => {
                             current && current < moment(form.getFieldValue("startDate")).startOf("day")
                         }
                         disabledTime={(current) => {
-                            const startDate = form.getFieldValue("startDate");
+                            const startDate = form.getFieldValue("startDate"); // Sử dụng form.getFieldValue thay vì getFieldValue
                             if (startDate && moment(startDate).isSame(current, "day")) {
                                 const startMoment = moment(startDate);
                                 return {
@@ -258,6 +283,7 @@ const PromotionUpdate = (props) => {
                             }
                             return {};
                         }}
+
                     />
                 </Form.Item>
                 <Form.Item
@@ -268,19 +294,6 @@ const PromotionUpdate = (props) => {
                             required: true,
                             message: 'Vui lòng chọn trạng thái!',
                         },
-                        {
-                            validator: (_, value) => {
-                                const endDate = form.getFieldValue('endDate'); // Lấy giá trị ngày kết thúc từ form
-                                const now = moment(); // Lấy thời gian hiện tại
-
-                                // Nếu trạng thái là 'Hoạt động' và ngày kết thúc trước thời gian hiện tại
-                                if (value === 1 && endDate && moment(endDate).isBefore(now)) {
-                                    return Promise.reject(new Error('Ngày kết thúc không được trước thời gian hiện tại khi trạng thái là Hoạt động!'));
-                                }
-
-                                return Promise.resolve();
-                            },
-                        },
                     ]}
                 >
                     <Select>
@@ -288,7 +301,6 @@ const PromotionUpdate = (props) => {
                         <Select.Option value={0}>Ngừng hoạt động</Select.Option>
                     </Select>
                 </Form.Item>
-
             </Form>
         </Modal>
     );
