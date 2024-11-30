@@ -72,6 +72,28 @@ const Header = () => {
   const navigate = useNavigate();
   const { setCartItems } = useCart();
 
+  const userId = localStorage.getItem("userId");
+  const cartKey = `cart_${userId}`;
+
+  // Initialize the count state with the number of items in the cart from localStorage
+  const [count, setCount] = useState(() => {
+    const savedCart = localStorage.getItem(cartKey);
+    return savedCart ? JSON.parse(savedCart).length : 0;
+  });
+
+  useEffect(() => {
+    // Update count whenever localStorage changes
+    const handleStorageChange = () => {
+      const updatedCart = localStorage.getItem(cartKey);
+      setCount(updatedCart ? JSON.parse(updatedCart).length : 0);
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [cartKey]);
+
   const items = category.map((cat) => {
     const categoryProducts = product.filter(
       (prod) => prod.category.id === cat.id
@@ -218,6 +240,11 @@ const Header = () => {
           <NavLink to="/info">{t("MES-012")}</NavLink>
         </Menu.Item>
       )}
+      {isLoggedIn && (
+        <Menu.Item key="orderBuyer">
+          <NavLink to="/orderBuyer">{"Đơn mua"}</NavLink>
+        </Menu.Item>
+      )}
     </Menu>
   );
 
@@ -264,7 +291,7 @@ const Header = () => {
           <div className="input-search">
             <Input.Search placeholder="Tìm kiếm sản phẩm" />
             <div className="icon-right">
-              <Badge onClick={() => setOpenCart(true)} count={99}>
+              <Badge onClick={() => setOpenCart(true)} count={count} showZero>
                 <Button
                   type="text"
                   className="icon-right-btn"

@@ -52,7 +52,9 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
         if (selectedProvince && selectedProvince !== defaultOption.ProvinceID) {
             const fetchDistricts = async () => {
                 const res = await getDistrict(selectedProvince);
-                setDistricts([defaultOption, ...res.data.data]);
+                if (res && res.data && res.data.data) {
+                    setDistricts([defaultOption, ...res.data.data]);
+                }
             };
             fetchDistricts();
         } else {
@@ -65,7 +67,9 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
         if (selectedDistrict && selectedDistrict !== defaultOption.DistrictID) {
             const fetchWards = async () => {
                 const res = await getWards(selectedDistrict);
-                setWards([defaultOption, ...res.data.data]);
+                if (res && res.data && res.data.data) {
+                    setWards([defaultOption, ...res.data.data]);
+                }
             };
             fetchWards();
         } else {

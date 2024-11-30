@@ -42,6 +42,9 @@ public class Orders extends BaseEntity {
     @Basic
     @Column(name = "money_received", nullable = true, precision = 0)
     private Double moneyReceived;
+    @Lob
+    @Column(name = "address", columnDefinition = "TEXT")
+    private String address;
     @ManyToOne
     @JoinColumn(name = "voucher_id", referencedColumnName = "id",nullable = true)
     private Voucher voucher;

@@ -214,6 +214,10 @@ const router = createBrowserRouter([
     element: <LoginFork />,
   },
   {
+    path: "/orderBuyer",
+    element: <orderBuyer />
+  },
+  {
     path: "/checkout",
     element: (
       <>
