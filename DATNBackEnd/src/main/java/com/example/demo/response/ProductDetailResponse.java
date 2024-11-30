@@ -38,7 +38,7 @@ public class ProductDetailResponse {
                 .status(productDetail.getStatus())
                 .quantity(productDetail.getQuantity())
                 .defaultPrice(productDetail.getDefaultPrice())
-                .discountPrice(productDetail.getDiscountPrice()!=null?productDetail.getDiscountPrice():0)
+                .discountPrice(productDetail.getDiscountPrice()!=null && productDetail.getDiscountPrice() > 0.0?productDetail.getDiscountPrice():0.0)
                 .image(productDetail.getImage())
                 .productResponse(ProductResponse.convertResponse(productDetail.getProduct()))
                 .size(productDetail.getSize())

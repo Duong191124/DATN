@@ -110,25 +110,25 @@ const HomeSlider = () => {
 
   const slideData = [
     {
-      imageUrl: "https://picsum.photos/seed/slide1/1600/900",
-      title: "Discover Nature",
+      imageUrl: "/image/bannernew.png",
+      title: "Khám phá Sport Shirt",
       description:
-        "Explore breathtaking landscapes and natural wonders that will leave you in awe.",
-      link: "/nature",
+        "Khám phá những sản phẩm mới, phóng cách hiện đại, mang theo xu hướng đổi mới, phát triển để phù hợp với khác hàng!",
+      link: "/product",
     },
     {
-      imageUrl: "https://picsum.photos/seed/slide2/1600/900",
-      title: "Urban Adventures",
+      imageUrl:
+        "https://bizweb.dktcdn.net/100/340/361/themes/913887/assets/slider_2.jpg?1732774238254",
+      title: "Khám phá các thương hiệu",
       description:
-        "Experience the vibrant energy of city life through stunning architectural marvels.",
-      link: "/urban",
+        "Sự liên kết với các thương hiệu lớn, mang lại sản phẩm chất lượng cao, uy tín để mang đến cho khách hàng!",
+      link: "/product",
     },
     {
-      imageUrl: "https://picsum.photos/seed/slide3/1600/900",
-      title: "Artistic Expression",
-      description:
-        "Immerse yourself in a world of creativity and artistic inspiration.",
-      link: "/art",
+      imageUrl: "/image/bannersale.png",
+      title: "Chương trình ưu đãi",
+      description: "Giảm giá các sản phẩm, với nhiều ưu đãi khác nhau!",
+      link: "/product",
     },
   ];
 
@@ -179,7 +179,7 @@ const HomeSlider = () => {
                 {slide.description}
               </Description>
               <LearnMoreButton href={slide.link} variants={contentVariants}>
-                Learn More
+                MUA NGAY
                 <ArrowRightOutlined className="icon" />
               </LearnMoreButton>
             </SlideContent>
