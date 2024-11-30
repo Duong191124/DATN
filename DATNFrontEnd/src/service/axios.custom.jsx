@@ -56,38 +56,35 @@ instance.interceptors.response.use(
     if (error.response) {
       const { status } = error.response;
       // If 401, remove token and redirect to login
-      if (status >= 400 && status < 500) {
-        if (status === 401) {
-          if (typeof window !== "undefined") {
-            localStorage.removeItem("access_token");
+      if (status === 401) {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("access_token");
 
-            window.location.href = "/login"; // Ensure this matches your app's route
-          }
-          notification.error({
-            message: "Hết phiên đăng nhập",
-            description: 'Vui lòng đăng nhập lại',
-            duration: 2
-          })
+          window.location.href = "/login"; // Ensure this matches your app's route
         }
-        else if (status === 403) {
-          notification.error({
-            message: "Không có quyền truy cập",
-            description: 'Bạn không có quyền',
-            duration: 2
-          });
-          return;
-        }
-        else {
-          notification.warning({
-            message: 'Warring',
-            description: error.response.data.message,
-            duration: 2
-          });
-        }
-
+        notification.error({
+          message: "Hết phiên đăng nhập",
+          description: 'Vui lòng đăng nhập lại',
+          duration: 2
+        })
       }
+      else if (status === 403) {
+        notification.error({
+          message: "Không có quyền truy cập",
+          description: 'Bạn không có quyền',
+          duration: 2
+        });
+        return;
+      }
+      else {
+        notification.warning({
+          message: 'Warring',
+          description: error.response.data.message,
+          duration: 2
+        });
+      }
+
     }
-    console.log(error)
   }
 );
 

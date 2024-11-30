@@ -231,6 +231,11 @@ const Header = () => {
           </Menu.Item>
         </>
       )}
+      {isLoggedIn && (
+        <Menu.Item key="orderBuyer">
+          <NavLink to="/orderBuyer">{"Đơn mua"}</NavLink>
+        </Menu.Item>
+      )}
     </Menu>
   );
   return (

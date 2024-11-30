@@ -6,6 +6,7 @@ import com.example.demo.dto.OrderDTO;
 import com.example.demo.entity.OrderStatus;
 import com.example.demo.request.OrderWithVoucherAndOrderDetailRequest;
 import com.example.demo.response.OrderResponse;
+import org.hibernate.criterion.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -14,6 +15,7 @@ import java.util.List;
 
 public interface OrderService {
     List<OrderResponse> getAll();
+    Page<OrderResponse> getOrderByCustomerId(Integer customerId, Pageable pageable, OrderStatus orderStatus);
     OrderResponse createdOrder(OrderDTO orderDTO);
     OrderResponse updatedOrder(int id,OrderDTO orderDTO);
     OrderResponse updateStatusOrder(Integer id, String status);

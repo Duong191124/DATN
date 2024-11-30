@@ -82,6 +82,7 @@ const RegisterPage = () => {
                 setFormData(mergedData);
                 setCurrentStep(1);
             } catch (error) {
+                console.log(error);
                 return;
             }
         } else {
@@ -97,7 +98,7 @@ const RegisterPage = () => {
                     name: mergedData.name || "",
                 };
 
-                await registerCustomerAPI(
+                const res = await registerCustomerAPI(
                     apiPayload.username,
                     apiPayload.password,
                     apiPayload.confirm_password,
@@ -106,16 +107,17 @@ const RegisterPage = () => {
                     apiPayload.dateOfBirth,
                     apiPayload.name
                 );
-
-                notification.success({
-                    message: "Registration Successful",
-                    description: "Your account has been successfully created.",
-                    style: { borderRadius: '4px' },
-                });
-
-                navigate('/login'); // Redirect to login page upon success
+                if (res.data) {
+                    notification.success({
+                        message: "Registration Successful",
+                        description: "Your account has been successfully created.",
+                        style: { borderRadius: '4px' },
+                    });
+                    navigate('/login'); // Redirect to login page upon success
+                }
             } catch (error) {
-                if (error.response && error.response.status === 406 && error.response.data.message.includes("Username has been taken")) {
+                console.error(error);
+                if (error.response && error.response.status === 500 && error.response.data.message.includes("Username has been taken")) {
                     setUsernameError("Username has been taken");
                     setCurrentStep(0); // Go back to first step if username is taken
                 } else {
@@ -138,6 +140,7 @@ const RegisterPage = () => {
                         label={<span style={labelStyle}>Username</span>}
                         name="username"
                         validateStatus={usernameError ? "error" : ""}
+                        help={usernameError}
                         initialValue={formData.username} // Set initial value from formData
                         rules={[
                             {
