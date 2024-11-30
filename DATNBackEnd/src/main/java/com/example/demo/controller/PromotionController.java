@@ -1,10 +1,8 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.PromotionDTO;
-import com.example.demo.entity.Promotion;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.PromotionResponse;
-import com.example.demo.response.VoucherResponse;
 import com.example.demo.service.impl.PromotionServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +31,7 @@ public class PromotionController {
                 .data(promotionList)
                 .build());
     }
-    @PreAuthorize("hasAuthority('CREATE_PROMOTION')")
+//    @PreAuthorize("hasAuthority('CREATE_PROMOTION')")
     @PostMapping("")
     public ResponseEntity<MessageReponse> add(@Valid @RequestBody PromotionDTO promotionDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -54,7 +52,7 @@ public class PromotionController {
                 .data(newPromotion)
                 .build());
     }
-    @PreAuthorize("hasAuthority('UPDATE_PROMOTION')")
+//    @PreAuthorize("hasAuthority('UPDATE_PROMOTION')")
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
@@ -77,7 +75,7 @@ public class PromotionController {
                 .data(updatePromotion)
                 .build());
     }
-    @PreAuthorize("hasAuthority('UPDATE_PROMOTION')")
+//    @PreAuthorize("hasAuthority('UPDATE_PROMOTION')")
     @PutMapping("/{id}/product-details")
     public ResponseEntity<?> updatePromotionProductDetails(
             @PathVariable("id") Integer id,
@@ -110,7 +108,7 @@ public class PromotionController {
                 .build());
     }
 
-    @PreAuthorize("hasAuthority('UPDATE_PROMOTION')")
+//    @PreAuthorize("hasAuthority('UPDATE_PROMOTION')")
     @PutMapping("/{id}/status")
     public ResponseEntity<?> changeStatus(@PathVariable Integer id) {
         try {
