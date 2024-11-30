@@ -53,7 +53,7 @@ public class AddressController {
     }
     @PreAuthorize("isAuthenticated()")
     @PutMapping("{id}")
-            @RequestBody AddressUpdateDTO addressUpdateDTO) throws Exception {
+    public ResponseEntity<?> update (@PathVariable Integer id, @RequestBody AddressUpdateDTO addressUpdateDTO) throws Exception {
         Address updateAddress = addressService.update(id, addressUpdateDTO);
         return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                 .message("update brand success")
