@@ -1,10 +1,14 @@
 package com.example.demo.response;
 
+import com.example.demo.dto.AddressOrderDTO;
 import com.example.demo.entity.OrderStatus;
 import com.example.demo.entity.Orders;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -18,6 +22,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class OrderResponse {
+    private static final Logger logger = LoggerFactory.getLogger(OrderResponse.class);
     private Integer id;
     private String code;
     @Enumerated(EnumType.STRING)
@@ -30,6 +35,7 @@ public class OrderResponse {
     private VoucherResponse voucherId;
     private StaffResponse staffResponse;
     private CustomerResponse customerResponse;
+    private AddressOrderDTO address;
     private List<ProductDetailResponse> productDetailResponses = new ArrayList<>();
     private List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
     private List<PaymentResponse> paymentResponses = new ArrayList<>();
@@ -38,6 +44,15 @@ public class OrderResponse {
 
 
     public static OrderResponse convertOrderResponse(Orders orders){
+        AddressOrderDTO addressDTO = null;
+        if (orders.getAddress() != null) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                addressDTO = objectMapper.readValue(orders.getAddress(), AddressOrderDTO.class);
+            } catch (Exception e) {
+                logger.error("error: {}", e);// Log lỗi nếu JSON không đúng định dạng
+            }
+        }
         return OrderResponse.builder()
                 .id(orders.getId())
                 .code(orders.getCode())
@@ -51,6 +66,7 @@ public class OrderResponse {
                 .voucherId(orders.getVoucher() == null ? null : VoucherResponse.fromVoucher(orders.getVoucher()))
                 .orderDetailResponses(orders.getOrderDetails().stream().map(OrderDetailResponse::convertOrderDetailsResponse).toList())
                 .paymentResponses(orders.getPayments().stream().map(PaymentResponse::convertPaymentResponse).toList())
+                .address(addressDTO)
                 .createdAt(orders.getCreatedAt())
                 .updatedAt(orders.getUpdatedAt())
                 .build();

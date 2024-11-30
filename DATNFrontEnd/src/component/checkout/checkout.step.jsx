@@ -39,7 +39,7 @@ const CheckoutStep = () => {
         setTotalShippingFee,
         totalShippingFee,
         addresses,
-        selectAddress
+        selectAddress,
     } = useCheckout();
     const navigate = useNavigate();
     const [current, setCurrent] = useState(0);
@@ -62,8 +62,24 @@ const CheckoutStep = () => {
         }));
     };
 
+    const convertSelectAddressToOrder = (selectAddress) => {
+        if (selectAddress && typeof selectAddress === 'object') {
+            // Return only the selected fields
+            return {
+                name: selectAddress.name,
+                phoneNumber: selectAddress.phoneNumber,
+                city: selectAddress.city,
+                district: selectAddress.district,
+                ward: selectAddress.ward,
+                addressDetail: selectAddress.addressDetail
+            };
+        } else {
+            console.error("selectAddress is either null or not an object");
+            return null;
+        }
+    }
+
     const convertDataProductToOrder = (cartItemsLocal) => {
-        console.log(cartItemsLocal);
         return cartItemsLocal.map(item => ({
             product: {
                 name: item.productResponse.name,
@@ -88,6 +104,7 @@ const CheckoutStep = () => {
         setLoading(true);
         const cartItemsLocal = cartItems;
         const orderDetailRequests = convertCartToOrderDetails(cartItemsLocal);
+        const addressToOrder = convertSelectAddressToOrder(selectAddress);
         // const itemsProduct = convertDataProductToOrder(cartItemsLocal);
 
         const orderDTO = {
@@ -99,6 +116,7 @@ const CheckoutStep = () => {
             voucherId: selectedCoupon || null,  // Mã giảm giá nếu có
             customerId: userId, // Lấy customerId từ localStorage hoặc session
             orderDetailRequests, // Dữ liệu sản phẩm trong đơn hàng
+            addressToOrder
         };
 
         // const createOrderGhn = {
@@ -124,7 +142,8 @@ const CheckoutStep = () => {
                 orderDTO.voucherId,
                 orderDTO.customerId,
                 orderDTO.moneyReceived,
-                orderDTO.orderDetailRequests
+                orderDTO.orderDetailRequests,
+                orderDTO.addressToOrder
             );
 
 
@@ -170,6 +189,7 @@ const CheckoutStep = () => {
 
             // Show the error message to the user
             message.error(errorMessage);
+            setLoading(false);
             return;
         }
     };
@@ -191,7 +211,6 @@ const CheckoutStep = () => {
                 values.weight,
                 values.serviceId
             )
-            console.log(res);
             setTotalShippingFee(res.data.data.total);
         } catch (error) {
             let errorMessage = error?.response?.data?.message || "Giao hàng nhanh không hỗ trợ xã này";
