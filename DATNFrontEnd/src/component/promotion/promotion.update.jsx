@@ -5,7 +5,7 @@ import moment from 'moment';
 
 const PromotionUpdate = (props) => {
     const { isModalUpdateOpen, setIsModalUpdateOpen, dataUpdate, loadData } = props;
-    const [form] = Form.useForm();
+    const [form] = Form.useForm(); // Tạo instance của form
     const [productDetails, setProductDetails] = useState([]);
     const [editingDiscountType, setEditingDiscountType] = useState(null); // Theo dõi loại giảm giá nào đang được sửa
 
@@ -230,20 +230,36 @@ const PromotionUpdate = (props) => {
                     <DatePicker
                         showTime
                         format="YYYY-MM-DD HH:mm:ss"
-                        disabledDate={(current) => current && current < moment().startOf("day")}
+                        disabledDate={(current) =>
+                            current && current < moment(form.getFieldValue("startDate")).startOf("day")
+                        }
                         disabledTime={(current) => {
-                            if (moment().isSame(current, "day")) {
+                            const startDate = form.getFieldValue("startDate");
+                            if (startDate && moment(startDate).isSame(current, "day")) {
+                                const startMoment = moment(startDate);
                                 return {
-                                    disabledHours: () => [...Array(moment().hour()).keys()],
-                                    disabledMinutes: () => [...Array(moment().minute() + 1).keys()],
-                                    disabledSeconds: () => [...Array(moment().second() + 1).keys()],
+                                    disabledHours: () => [...Array(startMoment.hour()).keys()],
+                                    disabledMinutes: () => {
+                                        if (current.hour() === startMoment.hour()) {
+                                            return [...Array(startMoment.minute() + 1).keys()];
+                                        }
+                                        return [];
+                                    },
+                                    disabledSeconds: () => {
+                                        if (
+                                            current.hour() === startMoment.hour() &&
+                                            current.minute() === startMoment.minute()
+                                        ) {
+                                            return [...Array(startMoment.second() + 1).keys()];
+                                        }
+                                        return [];
+                                    },
                                 };
                             }
                             return {};
                         }}
                     />
                 </Form.Item>
-
                 <Form.Item
                     label="Trạng Thái"
                     name="status"
