@@ -47,6 +47,8 @@ const OrderTable = (props) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [currentOrderId, setCurrentOrderId] = useState(null);
+  const [isModalVisibleCancel, setIsModalVisibleCancel] = useState(false); // Trạng thái modal
+  const [cancelNote, setCancelNote] = useState("");
   useEffect(() => {
     const fetchData = async (orderDetailResponses) => {
       if (orderDetailResponses) {
@@ -121,6 +123,15 @@ const OrderTable = (props) => {
     setSelectedStatus(currentStatus);
     setIsModalVisible(true);
   };
+  const showCancelModal = () => {
+    setIsModalVisibleCancel(true);
+  };
+
+  // Hàm đóng modal
+  const handleCancel = () => {
+    setIsModalVisibleCancel(false);
+    setCancelNote("");
+  };
   const handleUpdateStatus = async () => {
     try {
       const currentStatusIndex = statusOptions.findIndex(
@@ -159,9 +170,9 @@ const OrderTable = (props) => {
     }
   };
 
-  const canceledOrder = async (orderId, status) => {
+  const canceledOrder = async (orderId, status, cancelNote) => {
     try {
-      await updateStatusOrder(orderId, status);
+      await updateStatusOrder(orderId, status, cancelNote);
       setDataOrder((prevDataOrder) =>
         prevDataOrder.map((order) =>
           order.id === orderId ? { ...order, status: "cancelled" } : order
@@ -172,6 +183,7 @@ const OrderTable = (props) => {
         description: "Đơn hàng đã bị hủy.",
       });
     } catch (error) {
+      // Hiển thị thông báo lỗi
       notification.error({
         message: "Lỗi khi hủy đơn hàng",
         description: JSON.stringify(error.message),
@@ -180,6 +192,26 @@ const OrderTable = (props) => {
     }
   };
 
+  const handleOk = async () => {
+    if (!cancelNote) {
+      notification.warning({
+        message: "Cảnh báo",
+        description: "Vui lòng nhập lý do hủy.",
+      });
+      return;
+    }
+    try {
+      // Gọi hàm hủy đơn với lý do
+      await canceledOrder(orderDetails.id, "cancelled", cancelNote);
+      setIsModalVisibleCancel(false);
+      setCancelNote(""); // Reset note sau khi hủy
+    } catch (error) {
+      notification.error({
+        message: "Lỗi khi hủy đơn hàng",
+        description: "Đã xảy ra lỗi khi hủy đơn hàng.",
+      });
+    }
+  };
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
       setSelectedKeys,
@@ -420,7 +452,6 @@ const OrderTable = (props) => {
       title: "Người tạo",
       key: "staffName",
       render: (text, record) => {
-        console.log("reccc", record);
         return (
           record.orderDataPaymentResponse?.staffResponse?.name ||
           "Chưa có thông tin"
@@ -612,6 +643,9 @@ const OrderTable = (props) => {
   };
   const expandedRowRender = (record) => {
     const totalQuantity = getTotalQuantity(record.orderDetailResponses || []);
+    // Kiểm tra nếu không có nhân viên
+    const hasStaff = orderDetails.staffResponse != null;
+
     return (
       <Tabs defaultActiveKey="1">
         <TabPane tab="Chi Tiết Đơn Hàng" key="1">
@@ -657,6 +691,9 @@ const OrderTable = (props) => {
                         return currentStatus ? currentStatus.label : "";
                       })()}
                     </p>
+
+                    {/* Thêm thông tin khách hàng nếu không có nhân viên */}
+
                     <p>
                       Phí giao hàng:
                       {orderDetails.deliveryFee
@@ -668,8 +705,14 @@ const OrderTable = (props) => {
                       {orderDetails.staffResponse?.name || "Chưa có thông tin"}
                     </p>
                   </div>
+                  {!hasStaff && (
+                    <div className="col-4">
+                      <p>Khách nhận: {orderDetails.address?.name}</p>
+                      <p>Số điện thoại: {orderDetails.address?.phoneNumber}</p>
+                      <p>Địa chỉ: {orderDetails.address?.addressDetail}</p>
+                    </div>
+                  )}
                 </div>
-
                 <Table
                   style={{ margin: "28px 0", border: "1px solid #d9d9d9" }}
                   pagination={false}
@@ -707,79 +750,7 @@ const OrderTable = (props) => {
                           e.currentTarget.style.height = "50px";
                         }}
                       >
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
-                          <span
-                            style={{ fontSize: "16px", fontWeight: "bold" }}
-                          >
-                            {orderDetails.voucherId ? (
-                              orderDetails.voucherId.discountPercent > 0 ? (
-                                <span style={{ color: "#fff" }}>
-                                  Giảm giá{" "}
-                                  {orderDetails.voucherId.discountPercent}%
-                                </span>
-                              ) : orderDetails.voucherId.discountAmount > 0 ? (
-                                <span style={{ color: "#fff" }}>
-                                  Giảm giá{" "}
-                                  {new Intl.NumberFormat("vi-VN").format(
-                                    orderDetails.voucherId.discountAmount
-                                  )}{" "}
-                                  VNĐ
-                                </span>
-                              ) : (
-                                "Không áp dụng voucher"
-                              )
-                            ) : (
-                              "Không có voucher"
-                            )}
-                          </span>
-                        </div>
-
-                        {orderDetails.voucherId &&
-                          orderDetails.voucherId.discountPercent && (
-                            <div
-                              style={{
-                                fontSize: "11px",
-                                color: "#fff",
-                                borderTop: "1px solid rgba(255, 255, 255, 0.3)", // Phân cách giữa các phần
-                                paddingTop: "5px",
-                                marginTop: "5px",
-                              }}
-                            >
-                              Tối đa{" "}
-                              {new Intl.NumberFormat("vi-VN").format(
-                                orderDetails.voucherId.maxDiscountAmount
-                              )}{" "}
-                              đ cho đơn từ{" "}
-                              {new Intl.NumberFormat("vi-VN").format(
-                                orderDetails.voucherId.minPurchaseAmount
-                              )}{" "}
-                              đ
-                            </div>
-                          )}
-                        {orderDetails.voucherId &&
-                          orderDetails.voucherId.discountAmount && (
-                            <div
-                              style={{
-                                fontSize: "11px",
-                                color: "#fff",
-                                borderTop: "1px solid rgba(255, 255, 255, 0.3)", // Phân cách giữa các phần
-                                paddingTop: "5px",
-                                marginTop: "5px",
-                              }}
-                            >
-                              Đơn hàng tối thiểu{" "}
-                              {new Intl.NumberFormat("vi-VN").format(
-                                orderDetails.voucherId.minPurchaseAmount
-                              )}{" "}
-                              đ
-                            </div>
-                          )}
+                        {/* Voucher thông tin */}
                       </div>
                     </div>
                     <div className="result_order_detail">
@@ -815,23 +786,25 @@ const OrderTable = (props) => {
                       orderDetails.status !== "pending" &&
                       orderDetails.status !== "process"
                     }
-                    onClick={() => {
-                      if (
-                        orderDetails.status === "pending" ||
-                        orderDetails.status === "process"
-                      ) {
-                        canceledOrder(orderDetails.id, "cancelled");
-                      } else {
-                        notification.error({
-                          message: "Không thể hủy",
-                          description:
-                            "Đơn hàng không thể hủy vì đang ở quá trình giao hàng hoặc đã giao.",
-                        });
-                      }
-                    }}
+                    onClick={showCancelModal}
                   >
                     Hủy hóa đơn
                   </Button>
+                  <Modal
+                    title="Nhập lý do hủy đơn hàng"
+                    visible={isModalVisibleCancel}
+                    onOk={handleOk}
+                    onCancel={handleCancel}
+                    okText="Xác nhận"
+                    cancelText="Hủy"
+                  >
+                    <Input.TextArea
+                      rows={4}
+                      placeholder="Vui lòng nhập lý do hủy đơn hàng..."
+                      value={cancelNote}
+                      onChange={(e) => setCancelNote(e.target.value)}
+                    />
+                  </Modal>
                 </div>
               </div>
             )}
@@ -847,6 +820,47 @@ const OrderTable = (props) => {
             style={{ margin: "28px 0", border: "1px solid #d9d9d9" }}
             pagination={false}
           />
+          {record.status === "cancelled" && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginTop: "16px",
+              }}
+            >
+              <div
+                style={{
+                  width: "100%",
+                  backgroundColor: "#f7f7f7",
+                  padding: "16px",
+                  borderRadius: "8px",
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "16px",
+                    fontWeight: "600",
+                    marginBottom: "8px",
+                    color: "#333",
+                  }}
+                >
+                  Lý do hủy:
+                </p>
+                <Input
+                  value={record.note}
+                  disabled
+                  style={{
+                    padding: "10px",
+                    fontSize: "14px",
+                    borderRadius: "4px",
+                    border: "1px solid #ccc",
+                    backgroundColor: "#fff",
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </TabPane>
       </Tabs>
     );

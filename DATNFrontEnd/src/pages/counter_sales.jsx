@@ -399,10 +399,10 @@ const CounterSales = () => {
     }
   }, [selectedCustomer, staff, customerPaid, totalAmount, billWaiting]);
   const canceledOrder = useCallback(
-    async (orderId) => {
-      const status = "cancelled"; // Set the status to cancelled
+    async (orderId, note) => {
+      const status = "cancelled";
       if (!selectedBill) {
-        notification.error({
+        notification.info({
           message: "Chọn hóa đơn",
           description: "Vui lòng chọn hóa đơn để hủy!",
           duration: 2,
@@ -412,14 +412,14 @@ const CounterSales = () => {
       }
       try {
         setLoading(true);
-        const response = await updateStatusOrder(orderId, status);
+        const response = await updateStatusOrder(orderId, status, note);
         if (response.status === 200) {
           // Handle success - update the bill waiting state and show success notification
           const updatedBillWaiting = billWaiting.filter(
             (bill) => bill.id !== orderId
           );
           setBillWaiting(updatedBillWaiting);
-          notification.success({
+          notification.info({
             message: "Bỏ hóa đơn thành công",
             description: `Hóa đơn ${selectedBill} đã được bỏ.`,
             placement: "bottomLeft",
@@ -428,7 +428,7 @@ const CounterSales = () => {
         }
       } catch (error) {
         // Handle error if the API call fails
-        notification.error({
+        notification.warning({
           message: "Hủy hóa đơn thất bại",
           description:
             error.response?.data.message ||

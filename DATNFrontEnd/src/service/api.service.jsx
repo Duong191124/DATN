@@ -283,10 +283,11 @@ const deleteOrder = (orderId) => {
   const URL_BACKEND = `api/v1/orders/delete?id=${orderId}`;
   return axios.delete(URL_BACKEND);
 };
-const updateStatusOrder = (orderId, status) => {
+const updateStatusOrder = (orderId, status, note) => {
   const URL_BACKEND = `api/v1/orders/update-status/${orderId}`;
   const data = {
     status: status,
+    note: note,
   };
   return axios.put(URL_BACKEND, data);
 };
@@ -380,7 +381,7 @@ const createOrderForOnline = async (
     moneyReceived: moneyReceived,
     customerId: customerId,
     orderDetailRequests: orderDetailRequests,
-    address: address
+    address: address,
   };
   return axios.post(URL_BACKEND, data);
 };
