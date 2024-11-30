@@ -11,19 +11,22 @@
 .product-detail-page .product-info {
   display: flex;
   width: 100%;
-  height: 700px;
+  height: 550px;
   background-color: #fff;
   padding: 2rem;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.product-detail-page .product-info img {
+.product-detail-page .product-info .product-info-image {
   width: 35%;
-  height: 530px;
-  object-fit: cover;
+  height: 500px;
   margin-right: 4rem;
 }
-
+.product-info-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .product-detail-page .product-details {
   display: flex;
   flex-direction: column;
@@ -37,8 +40,7 @@
 
 .product-detail-page .price {
   display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
+  flex-direction: column;
 }
 
 .product-detail-page .current-price {
@@ -149,7 +151,6 @@
   opacity: 0.5;
   pointer-events: none;
   cursor: not-allowed;
-  /* Thay đổi con trỏ thành 'not-allowed' khi di chuột vào */
 }
 
 .disabled-size {

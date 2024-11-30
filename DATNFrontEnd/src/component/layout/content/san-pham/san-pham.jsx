@@ -177,11 +177,15 @@ const SanPham = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const searchTerm = urlParams.get("search-results");
     if (searchTerm) {
-      filtered = filtered.filter((product) =>
-        product?.products?.name
-          ?.toLowerCase()
-          .includes(searchTerm.toLowerCase())
-      );
+      const lowerSearchTerm = searchTerm.toLowerCase();
+      filtered = filtered.filter((product) => {
+        return [
+          product?.products?.name,
+          product?.products?.code,
+          product?.products?.brandName,
+          product?.products?.categoryName,
+        ].some((field) => field?.toLowerCase().includes(lowerSearchTerm));
+      });
     }
     return filtered;
   };
