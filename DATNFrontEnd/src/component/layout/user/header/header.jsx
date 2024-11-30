@@ -73,7 +73,7 @@ const Header = () => {
   const [product, setProduct] = useState([]);
   const [dataProduct, setDataProduct] = useState([]);
   const navigate = useNavigate();
-  const { setCartItems } = useCart();
+  const { cartItems, setCartItems } = useCart();
 
   const items = category.map((cat) => {
     const categoryProducts = product.filter(
@@ -276,7 +276,7 @@ const Header = () => {
           <div className="input-search">
             <ProductSearch data={dataProduct} />
             <div className="icon-right">
-              <Badge onClick={() => setOpenCart(true)} count={99}>
+              <Badge onClick={() => setOpenCart(true)} count={cartItems.length} showZero>
                 <Button
                   type="text"
                   className="icon-right-btn"

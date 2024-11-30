@@ -119,7 +119,7 @@ const SelectAddressModal = ({
                     <Space align="start">
                       <HomeOutlined style={{ marginTop: 4 }} />
                       <Text>
-                        {address.addressDetail}, {address.district}, {address.ward}, {address.city}
+                        {address.addressDetail}
                       </Text>
                     </Space>
                   </Space>
