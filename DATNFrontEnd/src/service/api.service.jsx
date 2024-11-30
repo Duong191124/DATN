@@ -267,6 +267,10 @@ const fetchDataOrders = (
     throw error;
   }
 };
+const fetchDataOrderStatusByCustomerId = (customerId, page, limit) => {
+  const URL_BACKEND = `/api/v1/orders/${customerId}/getDataByCustomer?${page}&${limit}`;
+  return axios.get(URL_BACKEND);
+}
 const productFindById = (productId) => {
   const URL_BACKEND = `api/v1/products/productId/${productId}`;
   return axios.get(URL_BACKEND);
@@ -1242,6 +1246,7 @@ const getProductsWithAttributeAndCustomer = () => {
   return axios.get(URL_BACKEND);
 };
 export {
+  fetchDataOrderStatusByCustomerId,
   checkDuplicateProductDetailAPI,
   getCreateOrderGhn,
   getShippingFee,

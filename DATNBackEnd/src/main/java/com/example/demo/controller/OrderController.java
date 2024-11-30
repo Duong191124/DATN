@@ -74,7 +74,7 @@ public class  OrderController {
                 .build());
     }
 
-    @GetMapping("/getDataByCustomer/{customerId}")
+    @GetMapping("/{customerId}/getDataByCustomer")
     public ResponseEntity<?> getOrderByCustomerId (
             @PathVariable Integer customerId,
             @RequestParam(required = false) OrderStatus orderStatus,

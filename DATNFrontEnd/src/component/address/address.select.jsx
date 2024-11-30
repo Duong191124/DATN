@@ -113,8 +113,7 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                     values.phone,
                     values.address,
                 );
-                message.success(t('MES-046'));
-                getAddressByid();
+                message.success(t('MES-049'));
             } else {
                 await saveAddressByid(
                     userId,
@@ -125,8 +124,7 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                     values.phone,
                     values.address,
                 );
-                message.success(t('MES-047'));
-                getAddressByid();
+                message.success(t('MES-048'));
             }
             setIsModalVisible(false);
 
