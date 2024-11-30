@@ -10,9 +10,12 @@ import com.example.demo.request.OrderWithVoucherAndOrderDetailRequest;
 import com.example.demo.response.OrderResponse;
 import com.example.demo.service.OrderService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,6 +33,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
+    private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
     private final OrderDetailRepo orderDetailRepo;
     private final OrderRepo orderRepo;
     private final  StaffRepo staffRepo;
