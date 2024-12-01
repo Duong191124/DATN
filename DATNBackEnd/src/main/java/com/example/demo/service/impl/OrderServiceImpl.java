@@ -10,7 +10,6 @@ import com.example.demo.request.OrderWithVoucherAndOrderDetailRequest;
 import com.example.demo.response.OrderResponse;
 import com.example.demo.service.OrderService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -303,7 +301,7 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public OrderResponse updateStatusOrder(Integer id, String status) {
+    public OrderResponse updateStatusOrder(Integer id, String status,String note) {
         // Lấy đơn hàng từ cơ sở dữ liệu
         Orders orders = orderRepo.findById(id).orElseThrow(() ->
                 new RuntimeException("Not found order with id: " + id)
@@ -314,6 +312,12 @@ public class OrderServiceImpl implements OrderService {
 
         // Kiểm tra nếu trạng thái là "hủy"
         if (orderStatus == OrderStatus.cancelled) {
+            if (note == null || note.trim().isEmpty()) {
+                throw new IllegalArgumentException("Note is required when cancelling the order.");
+            }
+
+            // Cập nhật ghi chú cho đơn hàng
+            orders.setNote(note);
             // Duyệt qua các chi tiết đơn hàng để cập nhật số lượng sản phẩm
             Iterator<OrderDetail> iterator = orders.getOrderDetails().iterator();
             while (iterator.hasNext()) {

@@ -231,11 +231,6 @@ const Header = () => {
           </Menu.Item>
         </>
       )}
-      {isLoggedIn && (
-        <Menu.Item key="orderBuyer">
-          <NavLink to="/orderBuyer">{"Đơn mua"}</NavLink>
-        </Menu.Item>
-      )}
     </Menu>
   );
   return (
@@ -310,6 +305,16 @@ const Header = () => {
           </div>
         </div>
       </div>
+      {location.pathname === "/" && (
+        <div className="marquee-container">
+          <div className="marquee">
+            <p>
+              Chào mừng đến với cửa hàng của chúng tôi! Ưu đãi lớn hôm nay: Giảm
+              giá 20% cho các sản phẩm!
+            </p>
+          </div>
+        </div>
+      )}
       <CartDrawer openCart={openCart} setOpenCart={setOpenCart} />
     </>
   );

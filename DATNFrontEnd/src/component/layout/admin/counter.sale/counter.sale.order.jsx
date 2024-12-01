@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { Tabs, Button, Modal, Dropdown, Menu, Spin } from "antd";
+import {
+  Tabs,
+  Button,
+  Modal,
+  Dropdown,
+  Menu,
+  Spin,
+  notification,
+  Input,
+} from "antd";
 import { PlusOutlined, EllipsisOutlined } from "@ant-design/icons";
 import "./order.css";
 const CounterSaleBillWaiting = ({
@@ -11,6 +20,8 @@ const CounterSaleBillWaiting = ({
   setActiveTab,
 }) => {
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false); // Modal chi tiết hóa đơn
+  const [isCancelModalVisible, setIsCancelModalVisible] = useState(false); // Modal nhập lý do hủy hóa đơn
+  const [cancelReason, setCancelReason] = useState("");
   const [selectedBillDetail, setSelectedBillDetail] = useState(null); // Hóa đơn đang được xem chi tiết
   const handleTabChange = (key) => {
     if (key === "create") {
@@ -28,7 +39,7 @@ const CounterSaleBillWaiting = ({
   const handleTabClose = (targetKey) => {
     const billToCancel = billItems.find((bill) => bill.code === targetKey);
     if (billToCancel) {
-      canceledOrder(billToCancel.id); // Hủy hóa đơn
+      showCancelModal(billToCancel); // Hiển thị modal nhập lý do hủy
     }
   };
 
@@ -42,6 +53,37 @@ const CounterSaleBillWaiting = ({
     setSelectedBillDetail(null);
   };
 
+  const showCancelModal = (bill) => {
+    setSelectedBillDetail(bill); // Lưu lại bill cần hủy
+    setIsCancelModalVisible(true); // Hiển thị modal nhập lý do
+  };
+
+  const closeCancelModal = () => {
+    setIsCancelModalVisible(false); // Đóng modal nhập lý do
+    setCancelReason(""); // Reset lý do hủy
+  };
+  const handleCancelOrder = async () => {
+    const orderId = selectedBillDetail?.id;
+    const reason = cancelReason.trim();
+    if (!reason) {
+      notification.error({
+        message: "Lý do hủy không hợp lệ",
+        description: "Vui lòng nhập lý do hủy đơn hàng.",
+      });
+      return;
+    }
+    try {
+      await canceledOrder(orderId, reason); // Gọi API hủy đơn với lý do
+      setIsCancelModalVisible(false); // Đóng modal sau khi hủy
+    } catch (error) {
+      notification.warning({
+        message: "Hủy hóa đơn thất bại",
+        description: error?.message || "Đã có lỗi xảy ra khi hủy hóa đơn.",
+        duration: 2,
+        placement: "bottomLeft",
+      });
+    }
+  };
   const moreOptionsMenu = (bill) => (
     <Menu>
       <Menu.Item key="details" onClick={() => showDetailModal(bill)}>
@@ -148,6 +190,25 @@ const CounterSaleBillWaiting = ({
             </p>
           </div>
         )}
+      </Modal>
+      <Modal
+        title="Nhập lý do hủy hóa đơn"
+        visible={isCancelModalVisible}
+        onCancel={closeCancelModal}
+        footer={[
+          <Button key="cancel" onClick={closeCancelModal}>
+            Hủy
+          </Button>,
+          <Button key="submit" type="primary" onClick={handleCancelOrder}>
+            Hủy hóa đơn
+          </Button>,
+        ]}
+      >
+        <Input
+          placeholder="Nhập lý do hủy đơn hàng..."
+          value={cancelReason}
+          onChange={(e) => setCancelReason(e.target.value)}
+        />
       </Modal>
     </>
   );

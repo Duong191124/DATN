@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Tabs, Input, Button, Card, Row, Col, Typography, Tag } from "antd";
 import { NavLink } from "react-router-dom";
+import { fetchDataOrderStatusByCustomerId } from "../../../../service/api.service";
+import { useCheckout } from "../../../context/checkout.context";
 
 const { TabPane } = Tabs;
 const { Text } = Typography;
@@ -9,6 +11,12 @@ const CustomerInfoOrder = () => {
   const [activeTab, setActiveTab] = useState("1"); // Quản lý tab hiện tại
   const [primaryHover, setPrimaryHover] = useState(false);
   const [secondaryHover, setSecondaryHover] = useState(false);
+  const userId = localStorage.getItem("userId");
+  const [data, setData] = useState([]);
+  const [limit, setLimit] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
+  const { formatCurrency } = useCheckout()
   const cardStyle = {
     marginBottom: 16,
     borderRadius: 8,
@@ -137,95 +145,156 @@ const CustomerInfoOrder = () => {
     ],
   };
 
-  const renderOrderCard = (order) => (
-    <Card key={order.id} style={cardStyle}>
-      <Row style={{ justifyContent: "end" }}>
-        <Text style={{ fontWeight: 500, color: "#ff4d4f", fontSize: "16px" }}>
-          {order.status}
-        </Text>
-      </Row>
-      <NavLink
-        to={activeTab === "6" ? "/info-order-cancelled" : "/info-order-detail"}
-      >
-        <Row
-          style={{
-            borderTop: "1px solid #ddd",
-            borderBottom: "1px solid #ddd",
-            margin: "10px 0",
-            padding: "20px 0",
-          }}
-        >
-          <Col span={2}>
-            <div style={{ width: "100px" }}>
-              <img
-                src={order.image}
-                alt={order.productName}
-                style={{ width: "100%" }}
-              />
-            </div>
-          </Col>
-          <Col span={22}>
-            <Row justify="space-between">
-              <Col>
-                <Tag color="red" style={{ marginRight: 8 }}>
-                  Yêu thích+
-                </Tag>
-                <Text strong>{order.storeName}</Text>
-              </Col>
-            </Row>
-            <Row>
-              <Text>{order.productName}</Text>
-            </Row>
-            <Row>
-              <Text type="secondary">Phân loại hàng: {order.options}</Text>
-            </Row>
-            <Row justify="space-between" style={{ marginTop: 16 }}>
-              <Text>x{order.quantity}</Text>
-              <div>
-                <Text delete style={{ marginRight: 8 }}>
-                  {order.originalPrice && `₫${order.originalPrice}`}
-                </Text>
-                <Text
-                  style={{
-                    fontWeight: 500,
-                    color: "#ff4d4f",
-                    fontSize: "18px",
-                  }}
-                >
-                  ₫{order.price}
-                </Text>
-              </div>
-            </Row>
-          </Col>
-        </Row>
-      </NavLink>
-      <Row justify="end" align="middle" style={{ marginTop: 16 }}>
-        <Text style={{ fontSize: 14, fontWeight: 600, marginRight: "10px" }}>
-          Thành tiền:
-        </Text>
-        <Text style={priceStyle}>₫{order.price}</Text>
-      </Row>
-      <Row justify="end" style={{ marginTop: 16 }}>
-        {/* Nút "Mua Lại" */}
-        <Button
-          style={primaryButtonStyle}
-          onMouseEnter={() => setPrimaryHover(true)}
-          onMouseLeave={() => setPrimaryHover(false)}
-        >
-          Mua Lại
-        </Button>
+  const fetchDataByStatus = async () => {
+    try {
+      const res = await fetchDataOrderStatusByCustomerId(userId, limit, pageSize);
+      console.log(res);
+      if (res.data) {
+        setData(res.data.data.content);
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
-        {/* Nút "Liên Hệ Người Bán" */}
-        <Button
-          style={secondaryButtonStyle}
-          onMouseEnter={() => setSecondaryHover(true)}
-          onMouseLeave={() => setSecondaryHover(false)}
-        >
-          Liên Hệ Người Bán
-        </Button>
-      </Row>
-    </Card>
-  );
+  useEffect(() => {
+    fetchDataByStatus()
+  }, [])
+
+  const statusOptions = [
+    { value: "pending", label: "Chờ xử lý" },
+    { value: "process", label: "Đang xử lý" },
+    { value: "delivery", label: "Đang giao" },
+    { value: "shipped", label: "Đã giao" },
+    { value: "cancelled", label: "Đã hủy" },
+  ];
+
+  // Hàm để lấy label theo orderStatus
+  const getOrderStatusLabel = (orderStatus) => {
+    const status = statusOptions.find(option => option.value === orderStatus);
+    return status ? status.label : "Unknown Status";
+  };
+
+  const renderOrderCard = () => {
+    return data.map((order) => {
+      const orderId = order.id; // Lấy id của đơn hàng
+      const orderStatus = order.status; // Lấy status của đơn hàng
+
+      // Lặp qua orderDetailResponses để lấy chi tiết sản phẩm
+      const productDetails = order.orderDetailResponses?.map((detail) => {
+        const productDetail = detail.productDetailId || {}; // Bảo vệ khi productDetailId là null hoặc undefined
+        return {
+          code: productDetail.code || "Mã sản phẩm",
+          image: productDetail.image || "default-image-url.jpg", // Giá trị mặc định khi không có ảnh
+          defaultPrice: productDetail.defaultPrice || 0,
+          color: productDetail.colorId || "N/A",
+          size: productDetail.sizeId || "N/A",
+          price: detail.price || 0, // Giá mặc định nếu không có giá
+          quantity: detail.quantity || 1 // Số lượng mặc định nếu không có
+        };
+      }) || []; // Nếu không có orderDetailResponses, trả về mảng rỗng
+
+      return (
+        <Card key={orderId} style={cardStyle}>
+          {/* Trạng thái đơn hàng */}
+          <Row style={{ justifyContent: "end" }}>
+            <Text style={{ fontWeight: 500, color: "#ff4d4f", fontSize: "16px" }}>
+              {getOrderStatusLabel(orderStatus) || "Unknown Status"} {/* Hiển thị trạng thái mặc định */}
+            </Text>
+          </Row>
+
+          <NavLink to={activeTab === "6" ? "/info-order-cancelled" : "/info-order-detail"}>
+            <Row
+              style={{
+                borderTop: "1px solid #ddd",
+                borderBottom: "1px solid #ddd",
+                margin: "10px 0",
+                padding: "20px 0",
+              }}
+            >
+              {/* Hình ảnh và chi tiết sản phẩm */}
+              {productDetails.length > 0 &&
+                productDetails.map((product, index) => (
+                  <Col key={index} span={24} style={{ display: "flex", gap: "10px" }}>
+                    {/* Hình ảnh sản phẩm */}
+                    <div style={{ width: "100px" }}>
+                      <img
+                        src={product.image}
+                        alt={product.code}
+                        style={{ width: "100%" }}
+                      />
+                    </div>
+
+                    {/* Chi tiết sản phẩm */}
+                    <div>
+                      <Text strong>{product.code}</Text>
+                      <div>
+                        <Text type="secondary">
+                          Phân loại hàng:{" "}
+                          {`Màu: ${product.color}, Size: ${product.size}`}
+                        </Text>
+                      </div>
+                      <div style={{ marginTop: "10px" }}>
+                        <Text delete style={{ marginRight: 8 }}>
+                          {formatCurrency(product.defaultPrice) ? `${formatCurrency(product.defaultPrice)}` : ""}
+                        </Text>
+                        <Text
+                          style={{
+                            fontWeight: 500,
+                            color: "#ff4d4f",
+                            fontSize: "18px",
+                          }}
+                        >
+                          {formatCurrency(product.price)}
+                        </Text>
+                      </div>
+                      <Text>x{product.quantity}</Text> {/* Số lượng */}
+                    </div>
+                  </Col>
+                ))}
+            </Row>
+          </NavLink>
+
+          {/* Phí ship */}
+          <Row justify="end" align="middle" style={{ marginTop: 16 }}>
+            <Text style={{ fontSize: 14, fontWeight: 600, marginRight: "10px" }}>
+              Phí ship:
+            </Text>
+            <Text style={priceStyle}>{formatCurrency(order.deliveryFee) || 0}</Text>
+          </Row>
+
+          {/* Thành tiền */}
+          <Row justify="end" align="middle" style={{ marginTop: 16 }}>
+            <Text style={{ fontSize: 14, fontWeight: 600, marginRight: "10px" }}>
+              Thành tiền:
+            </Text>
+            <Text style={priceStyle}>{formatCurrency(order.totalAmount) || 0}</Text> {/* Thành tiền mặc định nếu không có */}
+          </Row>
+
+          {/* Các nút hành động */}
+          <Row justify="end" style={{ marginTop: 16 }}>
+            <Button
+              style={primaryButtonStyle}
+              onMouseEnter={() => setPrimaryHover(true)}
+              onMouseLeave={() => setPrimaryHover(false)}
+            >
+              Mua Lại
+            </Button>
+            <Button
+              style={secondaryButtonStyle}
+              onMouseEnter={() => setSecondaryHover(true)}
+              onMouseLeave={() => setSecondaryHover(false)}
+            >
+              Liên Hệ Người Bán
+            </Button>
+          </Row>
+        </Card>
+      );
+    });
+  };
+
+
+
 
   return (
     <div style={{ padding: 16, marginTop: "85px" }}>

@@ -16,10 +16,9 @@ public interface OrderDetailRepo extends JpaRepository<OrderDetail, Integer> {
     @Query("SELECT pd, COALESCE(SUM(od.quantity), 0) " +
             "FROM ProductDetail pd " +
             "LEFT JOIN OrderDetail od ON od.productDetail.id = pd.id " +
-            "JOIN od.orders o " +
-            "WHERE o.status = 'shipped' " +
+            "WHERE pd.discountPrice IS NOT NULL " +
             "GROUP BY pd.id " +
-            "ORDER BY SUM(od.quantity) DESC, pd.createdAt DESC, pd.discountPrice ASC")
+            "ORDER BY pd.createdAt DESC, SUM(od.quantity) DESC, pd.discountPrice ASC")
     List<Object[]> getTopFeaturedProducts(Pageable pageable);
 
 

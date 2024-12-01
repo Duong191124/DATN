@@ -122,6 +122,7 @@ const Shipping = () => {
     const handleEditAddress = (address) => {
         setIsModalVisible(true);
         setSelectAddress(address); // Pass the address to be edited
+        setIsModalOpen(false);
     };
 
     const handleDeleteAddress = async (address) => {

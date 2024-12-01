@@ -74,7 +74,7 @@ public class  OrderController {
                 .build());
     }
 
-    @GetMapping("/getDataByCustomer/{customerId}")
+    @GetMapping("/{customerId}/getDataByCustomer")
     public ResponseEntity<?> getOrderByCustomerId (
             @PathVariable Integer customerId,
             @RequestParam(required = false) OrderStatus orderStatus,
@@ -166,15 +166,19 @@ public class  OrderController {
 
 
     @PutMapping("update-status/{id}")
-    public ResponseEntity<?> updateOrder(@PathVariable int id, @RequestBody Map<String, String> payload){
+    public ResponseEntity<?> updateOrder(@PathVariable int id, @RequestBody Map<String, String> payload) {
         String status = payload.get("status");
+        String note = payload.get("note");
         try {
-            OrderResponse OrderResponse = orderService.updateStatusOrder(id,status);
-            return ResponseEntity.ok(new MessageReponse("updated to ordered successfully",200,OrderResponse));
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+            OrderResponse orderResponse = orderService.updateStatusOrder(id, status, note);
+            return ResponseEntity.ok(new MessageReponse("updated to " + status + " successfully", 200, orderResponse));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReponse(e.getMessage(), 400, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageReponse("Error: " + e.getMessage(), 400, null));
         }
     }
+
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteOrder(@RequestParam int id){
         OrderResponse orderDTO = orderService.findById(id);
