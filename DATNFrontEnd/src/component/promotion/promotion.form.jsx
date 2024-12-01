@@ -49,13 +49,23 @@ const PromotionForm = (props) => {
             const startDate = values.startDate.format("YYYY-MM-DDTHH:mm:ss");
             const endDate = values.endDate.format("YYYY-MM-DDTHH:mm:ss");
 
+            // Lấy giá trị của loại giảm giá và các giá trị liên quan
+            let discountPercent = "0";
+            let discountAmount = "0";
+
+            if (discountType === "percent") {
+                discountPercent = values.discountPercent;
+            } else if (discountType === "amount") {
+                discountAmount = values.discountAmount;
+            }
+
             const res = await createPromotion({
                 name: values.name,
                 description: values.description,
                 startDate: startDate,
                 endDate: endDate,
-                discountPercent: "0",
-                discountAmount: "0",
+                discountPercent: discountPercent,
+                discountAmount: discountAmount,
                 status: values.status,
             });
 
@@ -79,6 +89,7 @@ const PromotionForm = (props) => {
             });
         }
     };
+
 
     return (
         <div style={{ margin: "20px" }}>
