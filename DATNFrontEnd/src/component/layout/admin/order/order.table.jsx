@@ -154,6 +154,37 @@ const OrderTable = (props) => {
               : order
           )
         );
+        // if (nextStatus === "delivery") {
+        //   // eslint-disable-next-line react/prop-types
+        //   return dataOrder.map((order) => {
+        //     console.log(order);
+        //     const district = order.address.district;
+        //     const ward = order.address.ward;
+        //     const name = order.address.name;
+        //     const phoneNumber = order.address.phoneNumber;
+        //     const addressDetail = order.address.addressDetail;
+        //     const totalShippingFee = order.deliveryFee;
+        //     const customerEmail = order.customerResponse.email;
+        //     const productDetail = order.orderDetailResponses?.map((detail) => {
+        //       const productDetail = detail.productDetailId || {};
+        //       console.log(productDetail);
+        //       const weight = productDetail.weight;
+        //       const quantity = productDetail.quantity
+        //     })
+        //   })
+        //   // const createOrderGhn = {
+        //   //   toDistrictId: district,
+        //   //   toWardCode: ward,
+        //   //   //   weight: weight,
+        //   //   //   paymentType: 2,
+        //   //   //   shipCOD: totalShippingFee,
+        //   //   customerName: addresses.name,
+        //   //   customerPhone: addresses.phoneNumber,
+        //   //   addressDetail: addresses.addressDetail,
+        //   //   //   customerEmail: addresses?.customer?.email,
+        //   //   // itemsProduct
+        //   //   // }
+        // }
       } else {
         notification.error({
           message: "Lỗi",

@@ -35,7 +35,6 @@ const PromotionForm = (props) => {
         });
       }
     };
-
     fetchProductDetails();
   }, []);
 
