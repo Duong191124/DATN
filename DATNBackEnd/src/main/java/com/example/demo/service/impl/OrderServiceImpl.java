@@ -1,6 +1,8 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.dto.OrderBuyerResponseDTO;
 import com.example.demo.dto.OrderDTO;
+import com.example.demo.dto.OrderDetailBuyerResponse;
 import com.example.demo.dto.OrderOnlineDTO;
 import com.example.demo.entity.*;
 import com.example.demo.repository.*;
@@ -51,13 +53,24 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<OrderResponse> getOrderByCustomerId(Integer customerId, Pageable pageable, OrderStatus orderStatus) {
+    public Page<OrderBuyerResponseDTO> getOrderByCustomerId(Integer customerId, Pageable pageable, OrderStatus orderStatus) {
         Customer customer = customerRepo.findById(customerId).orElse(null);
         if(customer == null){
             return null;
         }
         Page<Orders> orderResponses = orderRepo.pageAllByStatus(orderStatus, customerId, pageable);
-        return orderResponses.map(OrderResponse::convertOrderResponse);
+        return orderResponses.map(OrderBuyerResponseDTO::convertOrderResponse);
+    }
+
+    @Override
+    public List<OrderBuyerResponseDTO> getAllOrderByOrderId(Integer customerId, OrderStatus status, Integer orderId){
+        Customer customer = customerRepo.findById(customerId).orElse(null);
+        Orders order = orderRepo.findById(orderId).orElse(null);
+        if(customer == null || order == null){
+            return null;
+        }
+        List<Orders> ordersList = orderRepo.pageAllByOrderIdAndCustomerId(status, orderId, customerId);
+        return ordersList.stream().map(OrderBuyerResponseDTO::convertOrderResponse).collect(Collectors.toList());
     }
 
     @Override
@@ -129,7 +142,6 @@ public class OrderServiceImpl implements OrderService {
         }
         order.setCustomer(customerRepo.findById(customerId).orElse(null));
         order.setStatus(OrderStatus.pending);  // Mặc định trạng thái là 'process'
-
         // Lưu đơn hàng vào DB
         Orders savedOrder = orderRepo.save(order);
 

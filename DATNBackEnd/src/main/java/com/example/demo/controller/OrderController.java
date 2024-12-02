@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.OrderBuyerResponseDTO;
 import com.example.demo.dto.OrderDTO;
 import com.example.demo.dto.OrderOnlineDTO;
 import com.example.demo.entity.Notice;
@@ -82,10 +83,24 @@ public class  OrderController {
             @RequestParam(defaultValue = "10", required = false) int limit
     ) {
         Pageable pageable = PageRequest.of(page, limit, Sort.by("createdAt").descending());
-        Page<OrderResponse> orders = orderService.getOrderByCustomerId(customerId, pageable, orderStatus);
+        Page<OrderBuyerResponseDTO> orders = orderService.getOrderByCustomerId(customerId, pageable, orderStatus);
 
         return ResponseEntity.ok().body(MessageReponse.builder()
                         .data(orders)
+                        .message("successful")
+                        .status(HttpStatus.OK.value())
+                        .build());
+    }
+
+    @GetMapping("/{customerId}/getDataOrderByOrderId/{orderId}")
+    public ResponseEntity<?> getOrderByOrderId (
+            @PathVariable("customerId") Integer customerId,
+            @PathVariable("orderId") Integer orderId,
+            @RequestParam(required = false) OrderStatus status
+    ){
+        List<OrderBuyerResponseDTO> orderList = orderService.getAllOrderByOrderId(customerId, status, orderId);
+        return ResponseEntity.ok().body(MessageReponse.builder()
+                        .data(orderList)
                         .message("successful")
                         .status(HttpStatus.OK.value())
                         .build());

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Steps,
   Row,
@@ -9,11 +9,18 @@ import {
   Divider,
   Table,
 } from "antd";
+import { fetchDataOrderForCustomerIdByOrderId, fetchDataOrderStatusByCustomerId } from "../../../../service/api.service";
 
 const { Step } = Steps;
 const { Title, Text } = Typography;
 
 const CustomerInfoOrderDetail = () => {
+  const [data, setData] = useState([]);
+  const [dataDetail, setDataDetail] = useState([])
+  const userId = localStorage.getItem("userId");
+  const [limit, setLimit] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [activeTab, setActiveTab] = useState("1");
   const cardStyle = {
     borderRadius: 8,
     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
@@ -47,6 +54,52 @@ const CustomerInfoOrderDetail = () => {
     borderRadius: 8,
     backgroundColor: "#f9f9f9",
   };
+
+  const getStatusByTab = (tabKey) => {
+    const statusMap = {
+      1: null, // Tất cả
+      2: "pending", // Chờ thanh toán
+      3: "delivery", // Vận chuyển
+      4: "process", // Chờ giao hàng
+      5: "shipped", // Hoàn thành
+      6: "cancelled", // Đã hủy
+    };
+    return statusMap[tabKey] || null;
+  };
+
+
+  const fetchDataByStatus = async () => {
+    try {
+      const status = getStatusByTab(activeTab);
+      const res = await fetchDataOrderStatusByCustomerId(userId, limit, pageSize, status);
+      if (res.data) {
+        setData(res.data.data.content);
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+
+  const fetchDataOrder = () => {
+    return data.map((order) => {
+      const orderId = order.id;
+      try {
+        const res = fetchDataOrderForCustomerIdByOrderId(userId, orderId);
+        console.log(res);
+        if (res.data) {
+          setDataDetail(res.data.data)
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    })
+  }
+
+  useEffect(() => {
+    fetchDataByStatus()
+    fetchDataOrder()
+  }, [activeTab])
 
   const productColumns = [
     {
@@ -121,8 +174,8 @@ const CustomerInfoOrderDetail = () => {
       <Row justify="end" style={{ marginBottom: 16 }}>
         <Button
           style={buttonStyle}
-          onMouseEnter={() => {}}
-          onMouseLeave={() => {}}
+          onMouseEnter={() => { }}
+          onMouseLeave={() => { }}
         >
           Mua Lại
         </Button>

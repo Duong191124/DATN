@@ -260,8 +260,15 @@ const fetchDataOrders = (
     throw error;
   }
 };
-const fetchDataOrderStatusByCustomerId = (customerId, page, limit) => {
-  const URL_BACKEND = `/api/v1/orders/${customerId}/getDataByCustomer?${page}&${limit}`;
+const fetchDataOrderStatusByCustomerId = (customerId, page, limit, orderStatus = null) => {
+  let URL_BACKEND = `/api/v1/orders/${customerId}/getDataByCustomer?${page}&${limit}`;
+  if (orderStatus) {
+    URL_BACKEND += `&orderStatus=${orderStatus}`;
+  }
+  return axios.get(URL_BACKEND);
+}
+const fetchDataOrderForCustomerIdByOrderId = async (customerId, orderId) => {
+  const URL_BACKEND = `/api/v1/orders/${customerId}/getDataOrderByOrderId/${orderId}`;
   return axios.get(URL_BACKEND);
 }
 const productFindById = (productId) => {
@@ -1238,6 +1245,7 @@ const getProductsWithAttributeAndCustomer = () => {
   return axios.get(URL_BACKEND);
 };
 export {
+  fetchDataOrderForCustomerIdByOrderId,
   fetchDataOrderStatusByCustomerId,
   checkDuplicateProductDetailAPI,
   getCreateOrderGhn,
