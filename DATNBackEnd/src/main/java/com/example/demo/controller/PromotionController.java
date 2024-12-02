@@ -1,10 +1,8 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.PromotionDTO;
-import com.example.demo.entity.Promotion;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.PromotionResponse;
-import com.example.demo.response.VoucherResponse;
 import com.example.demo.service.impl.PromotionServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

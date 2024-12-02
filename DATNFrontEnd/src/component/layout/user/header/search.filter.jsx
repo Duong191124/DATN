@@ -68,6 +68,9 @@ const ProductSearch = ({ data }) => {
     const filteredProducts = data.filter((product) =>
       [
         product.products.name,
+        product.products.code,
+        product.products.categoryName,
+        product.products.brandName,
         product.minPrice.toString(),
         product.maxPrice.toString(),
         product.details.map((detail) => detail.name).join(" "),
@@ -118,7 +121,7 @@ const ProductSearch = ({ data }) => {
           style={{
             position: "absolute",
             top: "48px",
-            width: "100%",
+            width: "500px",
             maxHeight: "300px",
             overflowY: "auto",
             background: "#fff",
@@ -136,12 +139,25 @@ const ProductSearch = ({ data }) => {
                   padding: "12px",
                   borderBottom: "1px solid #f0f0f0",
                   cursor: "pointer",
+                  transition: "background 0.3s ease, transform 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "#f5f5f5";
+                  e.currentTarget.style.transform = "scale(1.02)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "#fff";
+                  e.currentTarget.style.transform = "scale(1)";
                 }}
                 onClick={() => selectedProduct(item)}
               >
                 <List.Item.Meta
                   avatar={<Avatar src={item.products.image} size={48} />}
-                  title={<Text strong>{item.products.name}</Text>}
+                  title={
+                    <Text strong>
+                      {item.products.name} - {item.products.code}
+                    </Text>
+                  }
                   description={
                     <Text type="secondary">
                       Giá: ₫{item.minPrice} - ₫{item.maxPrice}

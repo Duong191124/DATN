@@ -36,6 +36,7 @@ public class OrderResponse {
     private StaffResponse staffResponse;
     private CustomerResponse customerResponse;
     private AddressOrderDTO address;
+    private String note;
     private List<ProductDetailResponse> productDetailResponses = new ArrayList<>();
     private List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
     private List<PaymentResponse> paymentResponses = new ArrayList<>();
@@ -67,6 +68,7 @@ public class OrderResponse {
                 .orderDetailResponses(orders.getOrderDetails().stream().map(OrderDetailResponse::convertOrderDetailsResponse).toList())
                 .paymentResponses(orders.getPayments().stream().map(PaymentResponse::convertPaymentResponse).toList())
                 .address(addressDTO)
+                .note(orders.getNote())
                 .createdAt(orders.getCreatedAt())
                 .updatedAt(orders.getUpdatedAt())
                 .build();

@@ -46,7 +46,9 @@ h6 {
   overflow-y: auto;
 }
 
-:where(.css-dev-only-do-not-override-tpassh).ant-steps .ant-steps-item-process .ant-steps-item-icon {
+:where(.css-dev-only-do-not-override-tpassh).ant-steps
+  .ant-steps-item-process
+  .ant-steps-item-icon {
   background-color: black;
   border-color: black;
 }

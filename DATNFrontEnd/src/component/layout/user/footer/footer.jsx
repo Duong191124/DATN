@@ -12,6 +12,7 @@ import {
 } from "@ant-design/icons";
 import styled from "styled-components";
 import ChatBox from "../../content/chat/chat";
+import BackToTop from "../backtotop/backtotop";
 
 const { Title, Text } = Typography;
 
@@ -143,6 +144,7 @@ const CertificationImage = styled.img`
 const Footer = () => {
   return (
     <FooterWrapper>
+      <BackToTop />
       <ChatBox />
       <FooterContainer>
         <Row gutter={[48, 32]}>
