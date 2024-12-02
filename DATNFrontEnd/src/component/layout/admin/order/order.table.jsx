@@ -775,6 +775,79 @@ const OrderTable = (props) => {
                         }}
                       >
                         {/* Voucher thông tin */}
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <span
+                            style={{ fontSize: "16px", fontWeight: "bold" }}
+                          >
+                            {orderDetails.voucherId ? (
+                              orderDetails.voucherId.discountPercent > 0 ? (
+                                <span style={{ color: "#fff" }}>
+                                  Giảm giá{" "}
+                                  {orderDetails.voucherId.discountPercent}%
+                                </span>
+                              ) : orderDetails.voucherId.discountAmount > 0 ? (
+                                <span style={{ color: "#fff" }}>
+                                  Giảm giá{" "}
+                                  {new Intl.NumberFormat("vi-VN").format(
+                                    orderDetails.voucherId.discountAmount
+                                  )}{" "}
+                                  VNĐ
+                                </span>
+                              ) : (
+                                "Không áp dụng voucher"
+                              )
+                            ) : (
+                              "Không có voucher"
+                            )}
+                          </span>
+                        </div>
+
+                        {orderDetails.voucherId &&
+                          orderDetails.voucherId.discountPercent && (
+                            <div
+                              style={{
+                                fontSize: "11px",
+                                color: "#fff",
+                                borderTop: "1px solid rgba(255, 255, 255, 0.3)", // Phân cách giữa các phần
+                                paddingTop: "5px",
+                                marginTop: "5px",
+                              }}
+                            >
+                              Tối đa{" "}
+                              {new Intl.NumberFormat("vi-VN").format(
+                                orderDetails.voucherId.maxDiscountAmount
+                              )}{" "}
+                              đ cho đơn từ{" "}
+                              {new Intl.NumberFormat("vi-VN").format(
+                                orderDetails.voucherId.minPurchaseAmount
+                              )}{" "}
+                              đ
+                            </div>
+                          )}
+                        {orderDetails.voucherId &&
+                          orderDetails.voucherId.discountAmount && (
+                            <div
+                              style={{
+                                fontSize: "11px",
+                                color: "#fff",
+                                borderTop: "1px solid rgba(255, 255, 255, 0.3)", // Phân cách giữa các phần
+                                paddingTop: "5px",
+                                marginTop: "5px",
+                              }}
+                            >
+                              Đơn hàng tối thiểu{" "}
+                              {new Intl.NumberFormat("vi-VN").format(
+                                orderDetails.voucherId.minPurchaseAmount
+                              )}{" "}
+                              đ
+                            </div>
+                          )}
                       </div>
                     </div>
                     <div className="result_order_detail">
