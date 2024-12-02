@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAddressByCustomerId, getUserInfo, deleteAddressByid, getProvinces, getDistrict } from '../../service/api.service';
+import { getAddressByCustomerId, getUserInfo, deleteAddressByid, getProvinces, getDistrict, getWards } from '../../service/api.service';
 import { useCart } from '../context/cart.context';
 import { useCheckout } from '../context/checkout.context';
 import { Button, Space, Typography, Form, Input, Select, Row, Col, message } from 'antd';
@@ -10,6 +10,8 @@ import AddressModal from '../address/address.select';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
+
+const defaultOption = { ProvinceID: '', ProvinceName: 'Select', DistrictID: '', DistrictName: 'Select', WardCode: '', WardName: 'Select' };
 
 const Shipping = () => {
     const { t, i18n } = useTranslation();
@@ -34,23 +36,23 @@ const Shipping = () => {
     const [form] = Form.useForm();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [userId, setUserId] = useState(null); // Initialize userId state
-    const [selectedProvinceName, setSelectedProvinceName] = useState("");
-    const [selectedDistrictName, setSelectedDistrictName] = useState("");
-    const [selectedWardName, setSelectedWardName] = useState("");
+    const [userId, setUserId] = useState(null);
+    const [districts, setDistricts] = useState([]);
+    const [wards, setWards] = useState([]);
+    const [selectedProvince, setSelectedProvince] = useState(null);
+    const [selectedDistrict, setSelectedDistrict] = useState(null);
 
     useEffect(() => {
-        getInformationForCustomer()
+        getInformationForCustomer();
     }, []);
 
     const getInformationForCustomer = async () => {
         try {
             const res = await getUserInfo();
-            setUserId(res.data.data.id); // Set the userId from the response
+            setUserId(res.data.data.id);
             const addressData = await getAddressByCustomerId(res.data.data.id);
             if (addressData?.data?.data && addressData.data.data.length > 0) {
-                const address = addressData.data.data[0];  // Get the first address if available
-
+                const address = addressData.data.data[0];
                 setDistrict(address.district);
                 setProvinces(address.city);
                 setWard(address.ward);
@@ -60,50 +62,62 @@ const Shipping = () => {
             }
             const totalWeight = cartItems.reduce((total, cart) => {
                 if (cart && cart.weight && cart.quantity) {
-                    return total + (cart.weight) * cart.quantity;
+                    return total + cart.weight * cart.quantity;
                 }
                 return total;
             }, 0);
-
             setWeight(totalWeight);
         } catch (error) {
             console.error(error);
         }
     };
 
-    // useEffect(() => {
-    //     const getProvices = async () => {
-    //         try {
-    //             const res = await getProvinces()
-    //             console.log(res.data.data);
-    //             setProvinces(res.data.data);
-    //         } catch (error) {
-    //             console.error(error);
-    //         }
-    //     }
-    //     getProvices()
-    // }, [setProvinces])
+    const onFinish = async (values) => {
 
-    // useEffect(() => {
-    //     const getDistrictAPI = async () => {
-    //         try {
-    //             const res = await getDistrict(provinces)
-    //             setDistrict(res.data.data);
-    //         } catch (error) {
-    //             console.error(error);
-    //         }
-    //     }
-    //     getDistrictAPI()
-    // }, [setDistrict])
+    }
 
-    // const showModal = (address) => {
-    //     setSelectAddress(address);
-    //     setIsModalVisible(true);
-    // };
+    useEffect(() => {
+        const fetchProvinces = async () => {
+            const res = await getProvinces();
+            setProvinces([defaultOption, ...res.data.data]);
+        };
+        fetchProvinces();
+    }, []);
+
+    useEffect(() => {
+        if (selectedProvince && selectedProvince !== defaultOption.ProvinceID) {
+            const fetchDistricts = async () => {
+                const res = await getDistrict(selectedProvince);
+                if (res && res.data && res.data.data) {
+                    setDistricts([defaultOption, ...res.data.data]);
+                }
+            };
+            fetchDistricts();
+            setSelectedDistrict(null); // Reset district and ward on province change
+            setWards([]);
+        } else {
+            setDistricts([]);
+            setWards([]);
+        }
+    }, [selectedProvince]);
+
+    useEffect(() => {
+        if (selectedDistrict && selectedDistrict !== defaultOption.DistrictID) {
+            const fetchWards = async () => {
+                const res = await getWards(selectedDistrict);
+                if (res && res.data && res.data.data) {
+                    setWards([defaultOption, ...res.data.data]);
+                }
+            };
+            fetchWards();
+        } else {
+            setWards([]);
+        }
+    }, [selectedDistrict]);
 
     const handleAddNewAddress = () => {
         setSelectAddress(null);
-        form.setFieldValue(null);
+        form.setFieldsValue(null);
         setIsModalVisible(true);
     };
 
@@ -118,10 +132,9 @@ const Shipping = () => {
         setIsModalOpen(false);
     };
 
-
     const handleEditAddress = (address) => {
         setIsModalVisible(true);
-        setSelectAddress(address); // Pass the address to be edited
+        setSelectAddress(address);
         setIsModalOpen(false);
     };
 
@@ -129,7 +142,7 @@ const Shipping = () => {
         try {
             await deleteAddressByid(address.id);
             message.success("Address deleted successfully");
-            setAddresses(prevAddresses => prevAddresses.filter(a => a.id !== address.id));
+            setAddresses((prevAddresses) => prevAddresses.filter((a) => a.id !== address.id));
         } catch (error) {
             message.error("Error deleting address");
         }
@@ -186,43 +199,26 @@ const Shipping = () => {
                 </div>
             )}
 
-            {/* Conditionally render the form for userId === 1 */}
             {userId === 1 && (
-                <Form
-                    form={form}
-                    layout="vertical"
-                    style={{ maxWidth: '100%' }}
-                >
+                <Form form={form} layout="vertical" onFinish={onFinish} style={{ maxWidth: '100%' }}>
                     <Row gutter={16}>
                         <Col span={12}>
-                            <Form.Item
-                                name="name"
-                                label="Recipient Name"
-                                rules={[{ required: true, message: 'Please enter recipient name' }]}>
+                            <Form.Item name="name" label="Recipient Name" rules={[{ required: true, message: 'Please enter recipient name' }]}>
                                 <Input />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item
-                                name="phone"
-                                label="Phone Number"
-                                rules={[{ required: true, message: 'Please enter phone number' }]}>
+                            <Form.Item name="phone" label="Phone Number" rules={[{ required: true, message: 'Please enter phone number' }]}>
                                 <Input />
                             </Form.Item>
                         </Col>
                     </Row>
 
-                    <Form.Item
-                        name="email"
-                        label="Email"
-                        rules={[{ required: true, message: 'Please enter email' }, { type: 'email', message: 'Please enter a valid email' }]}>
+                    <Form.Item name="email" label="Email" rules={[{ required: true, message: 'Please enter email' }, { type: 'email', message: 'Please enter a valid email' }]}>
                         <Input />
                     </Form.Item>
 
-                    <Form.Item
-                        name="address"
-                        label="Detailed Address"
-                        rules={[{ required: true, message: 'Please enter detailed address' }]}>
+                    <Form.Item name="address" label="Detailed Address" rules={[{ required: true, message: 'Please enter detailed address' }]}>
                         <Input.TextArea rows={3} />
                     </Form.Item>
 
@@ -236,19 +232,24 @@ const Shipping = () => {
                                 <Select
                                     placeholder="Select a city"
                                     onChange={(value) => {
-                                        const selectedProvince = provinces.find((province) => province.ProvinceID === value);
-                                        setProvinces(value); // Lưu ID nếu cần dùng lại
-                                        setSelectedProvinceName(selectedProvince ? selectedProvince.ProvinceName : ""); // Lưu tên để hiển thị
+                                        setSelectedProvince(value);
+                                        form.setFieldsValue({
+                                            district: null,
+                                            ward: null,
+                                        }); // Reset values of district and ward
+                                        setSelectedDistrict(null); // Clear district selection
+                                        setDistricts([]); // Clear districts options
+                                        setWards([]); // Clear wards options
                                     }}
                                     allowClear
                                 >
-                                    {Array.isArray(provinces) && provinces.map((province) => (
-                                        <Option key={province.ProvinceID} value={province.ProvinceID}>
-                                            {province.ProvinceName}
-                                        </Option>
-                                    ))}
+                                    {Array.isArray(provinces) &&
+                                        provinces.map((province) => (
+                                            <Option key={province.ProvinceID} value={province.ProvinceID}>
+                                                {province.ProvinceName}
+                                            </Option>
+                                        ))}
                                 </Select>
-
                             </Form.Item>
                         </Col>
                         <Col span={8}>
@@ -260,21 +261,23 @@ const Shipping = () => {
                                 <Select
                                     placeholder="Select a district"
                                     onChange={(value) => {
-                                        const selectedDistrict = district.find((d) => d.DistrictID === value);
-                                        setDistrict(value); // Lưu ID nếu cần dùng lại
-                                        setSelectedDistrictName(selectedDistrict ? selectedDistrict.DistrictName : ""); // Lưu tên để hiển thị
+                                        setSelectedDistrict(value);
+                                        form.setFieldsValue({
+                                            ward: null,
+                                        }); // Reset ward value
+                                        setWards([]); // Clear wards options
                                     }}
+                                    disabled={!selectedProvince} // Disable if province is not selected
                                     allowClear
                                 >
-                                    {Array.isArray(district) && district.map((d) => (
-                                        <Option key={d.DistrictID} value={d.DistrictID}>
-                                            {d.DistrictName}
-                                        </Option>
-                                    ))}
+                                    {Array.isArray(districts) &&
+                                        districts.map((district) => (
+                                            <Option key={district.DistrictID} value={district.DistrictID}>
+                                                {district.DistrictName}
+                                            </Option>
+                                        ))}
                                 </Select>
-
                             </Form.Item>
-
                         </Col>
                         <Col span={8}>
                             <Form.Item
@@ -284,27 +287,23 @@ const Shipping = () => {
                             >
                                 <Select
                                     placeholder="Select a ward"
-                                    onChange={(value) => {
-                                        const selectedWard = ward.find((w) => w.WardCode === value);
-                                        setWard(value); // Lưu ID nếu cần dùng lại
-                                        setSelectedWardName(selectedWard ? selectedWard.WardName : ""); // Lưu tên để hiển thị
-                                    }}
+                                    onChange={(value) => setWard(value)}
+                                    disabled={!selectedDistrict} // Disable if district is not selected
                                     allowClear
                                 >
-                                    {Array.isArray(ward) && ward.map((w) => (
-                                        <Option key={w.WardCode} value={w.WardCode}>
-                                            {w.WardName}
-                                        </Option>
-                                    ))}
+                                    {Array.isArray(wards) &&
+                                        wards.map((ward) => (
+                                            <Option key={ward.WardCode} value={ward.WardCode}>
+                                                {ward.WardName}
+                                            </Option>
+                                        ))}
                                 </Select>
-
                             </Form.Item>
                         </Col>
                     </Row>
                 </Form>
             )}
 
-            {/* The SelectAddressModal */}
             <SelectAddressModal
                 isModalOpen={isModalOpen}
                 addresses={addresses}
@@ -315,14 +314,13 @@ const Shipping = () => {
                 onCancel={handleCancel}
             />
 
-            {/* Address Modal */}
             <AddressModal
                 isModalVisible={isModalVisible}
                 handleCancel={() => setIsModalVisible(false)}
                 setIsModalVisible={setIsModalVisible}
                 onAddressUpdated={getInformationForCustomer}
                 form={form}
-                editingAddress={selectAddress} // Pass the selected address to the modal for editing
+                editingAddress={selectAddress}
             />
         </>
     );
