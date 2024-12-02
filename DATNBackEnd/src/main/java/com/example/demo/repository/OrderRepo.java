@@ -71,7 +71,7 @@ public interface OrderRepo extends JpaRepository<Orders, Integer> {
             "SUM(CASE WHEN o.staff_id IS NOT NULL THEN od.price * od.quantity ELSE 0 END) AS offline_revenue " +  // Doanh thu offline
             "FROM orders o " +
             "JOIN order_detail od ON o.id = od.order_id " +
-            "WHERE o.status = 'completed' " +  // Trạng thái là 'shipped'
+            "WHERE o.status = 'completed' " +
             "GROUP BY day, month, year " +  // Nhóm theo ngày, tháng, năm
             "ORDER BY day, month, year", nativeQuery = true)
     List<Object[]> getMonthProductsStatistics();
