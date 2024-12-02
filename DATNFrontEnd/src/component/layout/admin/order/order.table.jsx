@@ -332,6 +332,22 @@ const OrderTable = (props) => {
       key: "code",
     },
     {
+      title: "Thời gian tạo",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (text) => {
+        return text ? moment(text).format("YYYY-MM-DD HH:mm:ss A") : "N/A";
+      },
+    },
+    {
+      title: "Tên Nhân Viên",
+      dataIndex: "staffResponse",
+      key: "staffResponse",
+      render: (text, record) => {
+        return record.staffResponse?.name || "Chưa có thông tin";
+      },
+    },
+    {
       title: "Trạng Thái",
       dataIndex: "status",
       key: "status",
@@ -658,7 +674,6 @@ const OrderTable = (props) => {
     );
   };
 
-  console.log(orderDetails);
   const expandedRowRender = (record) => {
     const totalQuantity = getTotalQuantity(record.orderDetailResponses || []);
     // Kiểm tra nếu không có nhân viên

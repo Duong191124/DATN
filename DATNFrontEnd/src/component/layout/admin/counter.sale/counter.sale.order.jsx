@@ -19,11 +19,11 @@ const CounterSaleBillWaiting = ({
   activeTab,
   setActiveTab,
 }) => {
-  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false); // Modal chi tiết hóa đơn
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false); // Modal nhập lý do hủy hóa đơn
   const [cancelReason, setCancelReason] = useState("");
   const [selectedBillDetail, setSelectedBillDetail] = useState(null); // Hóa đơn đang được xem chi tiết
   const handleTabChange = (key) => {
+    console.log("kê", key);
     if (key === "create") {
       const newBill = handleCreateBillWaiting();
       if (newBill && newBill.code) {
@@ -31,8 +31,14 @@ const CounterSaleBillWaiting = ({
         setActiveTab(newBill.code);
       }
     } else {
-      setActiveTab(key); // Cập nhật tab đang chọn
-      setSelectedBill(key); // Đặt hóa đơn được chọn là tab hiện tại
+      console.log("activeTab === key", activeTab === key);
+      if (activeTab === key) {
+        setActiveTab(null);
+        setSelectedBill(null);
+      } else {
+        setActiveTab(key);
+        setSelectedBill(key);
+      }
     }
   };
 
@@ -41,16 +47,6 @@ const CounterSaleBillWaiting = ({
     if (billToCancel) {
       showCancelModal(billToCancel); // Hiển thị modal nhập lý do hủy
     }
-  };
-
-  const showDetailModal = (bill) => {
-    setSelectedBillDetail(bill);
-    setIsDetailModalVisible(true);
-  };
-
-  const closeDetailModal = () => {
-    setIsDetailModalVisible(false);
-    setSelectedBillDetail(null);
   };
 
   const showCancelModal = (bill) => {
@@ -84,13 +80,6 @@ const CounterSaleBillWaiting = ({
       });
     }
   };
-  const moreOptionsMenu = (bill) => (
-    <Menu>
-      <Menu.Item key="details" onClick={() => showDetailModal(bill)}>
-        Xem chi tiết
-      </Menu.Item>
-    </Menu>
-  );
 
   // Chỉ hiển thị danh sách hóa đơn, không có dấu cộng trong các hóa đơn
   const tabsItems = Array.isArray(billItems)
@@ -113,15 +102,6 @@ const CounterSaleBillWaiting = ({
               >
                 Hóa đơn {bill.code}
               </span>
-              <Dropdown
-                overlay={moreOptionsMenu(bill)}
-                trigger={["click"]}
-                placement="bottomRight"
-              >
-                <EllipsisOutlined
-                  style={{ marginLeft: "10px", cursor: "pointer" }}
-                />
-              </Dropdown>
             </div>
           </>
         ),
@@ -136,14 +116,15 @@ const CounterSaleBillWaiting = ({
         className="custom-tabs"
         hideAdd
         type="editable-card"
-        activeKey={activeTab}
+        activeKey={activeTab || undefined} // Chỉnh sửa để activeKey được cập nhật đúng
         onChange={handleTabChange}
+        onTabClick={handleTabChange}
         onEdit={(targetKey, action) => {
           if (action === "remove") handleTabClose(targetKey);
         }}
         style={{ backgroundColor: "#1890ff", padding: "10px 10px 0 10px" }}
         items={[
-          ...tabsItems,
+          ...tabsItems, // Các hóa đơn hiện tại
           {
             label: (
               <div
@@ -157,40 +138,12 @@ const CounterSaleBillWaiting = ({
                 <PlusOutlined style={{ color: "#1890ff" }} />
               </div>
             ),
-            key: "create",
+            key: "create", // Tab tạo hóa đơn mới
             closable: false,
           },
         ]}
       />
 
-      {/* Modal chi tiết hóa đơn */}
-      <Modal
-        title={`Chi tiết Hóa Đơn ${selectedBillDetail?.code || ""}`}
-        visible={isDetailModalVisible}
-        onCancel={closeDetailModal}
-        footer={[
-          <Button key="close" onClick={closeDetailModal}>
-            Đóng
-          </Button>,
-        ]}
-      >
-        {selectedBillDetail && (
-          <div>
-            <p>
-              Khách hàng:{" "}
-              {selectedBillDetail.customerResponse?.name ||
-                "Chưa có khách hàng"}
-            </p>
-            <p>
-              Nhân viên:{" "}
-              {selectedBillDetail.staffResponse?.name || "Chưa có nhân viên"}
-            </p>
-            <p>
-              Thời gian: {selectedBillDetail.orderDate || "Chưa có thời gian"}
-            </p>
-          </div>
-        )}
-      </Modal>
       <Modal
         title="Nhập lý do hủy hóa đơn"
         visible={isCancelModalVisible}

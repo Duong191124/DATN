@@ -9,23 +9,23 @@ const ChartPage = () => {
   const items = [
     {
       key: "1",
-      label: "Product Chart",
-      children: <ProductChart />,
-    },
-    {
-      key: "2",
-      label: "Channel Chart",
+      label: "Doanh thu",
       children: <ChartChannel />,
     },
     {
-      key: "5",
-      label: "Top 10 best saler",
+      key: "2",
+      label: "Thống kê sản phẩm",
+      children: <ProductChart />,
+    },
+    {
+      key: "3",
+      label: "Top 10 sản phẩm bán chạy",
       children: <BestSeller />,
     },
 
     {
       key: "4",
-      label: "Account Chart",
+      label: "Thống kê tài khoản",
       children: <AccountStats />,
     },
   ];
