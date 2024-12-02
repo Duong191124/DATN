@@ -185,8 +185,11 @@ const checkDuplicateProductAPI = async (type, value) => {
 };
 
 const checkDuplicateProductDetailAPI = async (type, value) => {
-  return await axios.post(`/api/v1/productDetail/check-duplicate`, { type, value })
-}
+  return await axios.post(`/api/v1/productDetail/check-duplicate`, {
+    type,
+    value,
+  });
+};
 
 const fetchProductsByProductDetails = (page, size) => {
   const URL_BACKEND = "/api/v1/products/productDetail";
@@ -195,6 +198,10 @@ const fetchProductsByProductDetails = (page, size) => {
     size: size || 12,
   };
   return axios.get(URL_BACKEND, { params });
+};
+const getDataProductDetailByProductId = (id) => {
+  const URL_BACKEND = `/api/v1/products/${id}`;
+  return axios.get(URL_BACKEND);
 };
 /* API Order*/
 // const fetchDataOrders = () => {
@@ -260,6 +267,17 @@ const fetchDataOrders = (
     throw error;
   }
 };
+const fetchDataOrderStatusByCustomerId = (customerId, page, limit, orderStatus = null) => {
+  let URL_BACKEND = `/api/v1/orders/${customerId}/getDataByCustomer?${page}&${limit}`;
+  if (orderStatus) {
+    URL_BACKEND += `&orderStatus=${orderStatus}`;
+  }
+  return axios.get(URL_BACKEND);
+}
+const fetchDataOrderForCustomerIdByOrderId = async (customerId, orderId) => {
+  const URL_BACKEND = `/api/v1/orders/${customerId}/getDataOrderByOrderId/${orderId}`;
+  return axios.get(URL_BACKEND);
+}
 const productFindById = (productId) => {
   const URL_BACKEND = `api/v1/products/productId/${productId}`;
   return axios.get(URL_BACKEND);
@@ -276,10 +294,11 @@ const deleteOrder = (orderId) => {
   const URL_BACKEND = `api/v1/orders/delete?id=${orderId}`;
   return axios.delete(URL_BACKEND);
 };
-const updateStatusOrder = (orderId, status) => {
+const updateStatusOrder = (orderId, status, note) => {
   const URL_BACKEND = `api/v1/orders/update-status/${orderId}`;
   const data = {
     status: status,
+    note: note,
   };
   return axios.put(URL_BACKEND, data);
 };
@@ -360,7 +379,8 @@ const createOrderForOnline = async (
   voucherId,
   customerId,
   moneyReceived,
-  orderDetailRequests
+  orderDetailRequests,
+  address
 ) => {
   const URL_BACKEND = "/api/v1/orders/add-online";
   const data = {
@@ -372,6 +392,7 @@ const createOrderForOnline = async (
     moneyReceived: moneyReceived,
     customerId: customerId,
     orderDetailRequests: orderDetailRequests,
+    address: address,
   };
   return axios.post(URL_BACKEND, data);
 };
@@ -1232,6 +1253,8 @@ const getProductsWithAttributeAndCustomer = () => {
   return axios.get(URL_BACKEND);
 };
 export {
+  fetchDataOrderForCustomerIdByOrderId,
+  fetchDataOrderStatusByCustomerId,
   checkDuplicateProductDetailAPI,
   getCreateOrderGhn,
   getShippingFee,
@@ -1359,4 +1382,5 @@ export {
   accountStatistics,
   getProductsWithAttributeAndCustomer,
   updateCustomerByOrder,
+  getDataProductDetailByProductId,
 };

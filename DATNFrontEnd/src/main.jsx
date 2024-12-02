@@ -41,6 +41,9 @@ import PaymentCallback from "./component/layout/admin/vnp/payment.callback.jsx";
 import LoginFork from "./pages/login.fork.jsx";
 import PrivateRoute from "./pages/private.route.jsx";
 import ProductBrand from "./component/home/product.brand.jsx";
+import CustomerInfoOrder from "./component/layout/content/customer/customer.info.order.jsx";
+import CustomerInfoOrderDetail from "./component/layout/content/customer/customer.info.orderDetail.jsx";
+import CustomerInfoOrderCanceled from "./component/layout/content/customer/customer.info.order.cancelled.jsx";
 
 const spinStyle = {
   position: "fixed",
@@ -73,9 +76,9 @@ const router = createBrowserRouter([
   {
     path: "/admin",
     element: (
-      <PrivateRoute>
+      //<PrivateRoute>
         <AppAdmin />
-      </PrivateRoute>
+      //</PrivateRoute>
       // <AppAdmin />
     ),
     children: [
@@ -143,7 +146,6 @@ const router = createBrowserRouter([
         path: "customer",
         element: <CustomerPage />,
       },
-
     ],
   },
   {
@@ -190,6 +192,22 @@ const router = createBrowserRouter([
       {
         path: "/product/brand/:brandId",
         element: <ProductBrand />,
+      },
+      {
+        path: "/info-order",
+        element: <CustomerInfoOrder />,
+      },
+      {
+        path: "/info-order-detail",
+        element: <CustomerInfoOrderDetail />,
+      },
+      {
+        path: "/info-order-detail",
+        element: <CustomerInfoOrderDetail />,
+      },
+      {
+        path: "/info-order-cancelled",
+        element: <CustomerInfoOrderCanceled />,
       },
     ],
   },

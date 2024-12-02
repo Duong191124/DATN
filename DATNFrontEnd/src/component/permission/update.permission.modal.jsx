@@ -1,130 +1,155 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Table, Checkbox, notification, Input } from 'antd';
+import { Modal, Tree, Checkbox, notification } from 'antd';
 import { getAllPermissionPagination, getStaffPermissions, updateStaffPermissions } from '../../service/api.service';
-import { useNavigate } from 'react-router-dom';
 
 const UpdatePermissionForUserModal = (props) => {
     const [permissions, setPermissions] = useState([]);
     const [staffPermissions, setStaffPermission] = useState([]);
-    const allPermissionsRef = useRef([]); // Lưu tất cả quyền để không cần gọi lại API
-    const [current, setCurrent] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
-    const [total, setTotal] = useState(0);
-    const [search, setSearch] = useState("");
-    const navigate = useNavigate();
-    const { id, open, onClose } = props
+    const [expandedKeys, setExpandedKeys] = useState([]); // Quản lý các node mở rộng
+    const allPermissionsRef = useRef([]);
+    const { id, open, onClose } = props;
 
     useEffect(() => {
         if (open) {
-            // Chỉ gọi loadStaffPermissions sau khi loadAllPermissions hoàn tất
             loadAllPermissions();
         }
-    }, [open, current, pageSize]);
+    }, [open]);
 
-    // Load all permissions with pagination
     const loadAllPermissions = async () => {
         try {
-            const allPermissionsRes = await getAllPermissionPagination(current, pageSize, search); // Truyền search vào API
-            const allPermissions = allPermissionsRes.data.data.content.map(item => ({
-                id: item.id,
-                action: item.name,
-                staff: false,
-            }));
+            const allPermissionsRes = await getAllPermissionPagination(1, 100, "");
+            const rawData = allPermissionsRes.data.data.content;
 
-            allPermissionsRef.current = allPermissions; // Lưu tất cả permissions vào ref
-            setPermissions(allPermissions); // Set state permissions
-            setTotal(allPermissionsRes.data.data.totalElements); // Set tổng số permissions
+            console.log("Raw permissions data:", rawData);
 
-            // Sau khi loadAllPermissions, gọi loadStaffPermissions
+            const allPermissions = rawData.reduce((acc, item) => {
+                const [action, entity] = item.name.split('_');
+                const permission = { key: item.id, title: item.name, action };
+
+                if (!acc[entity]) {
+                    acc[entity] = { title: entity.toUpperCase(), children: [] };
+                }
+
+                acc[entity].children.push(permission);
+
+                return acc;
+            }, {});
+
+            const permissionTree = Object.values(allPermissions);
+            console.log("Permission tree data:", permissionTree);
+
+            allPermissionsRef.current = permissionTree;
+            setPermissions(permissionTree);
+
             if (id) {
-                loadStaffPermissions(id); // Lấy permissions của staff sau khi load tất cả permissions
+                loadStaffPermissions(id);
             }
         } catch (error) {
             console.error("Failed to load all permissions:", error);
         }
     };
 
-    const onSearchChange = (e) => {
-        setSearch(e.target.value); // Cập nhật giá trị tìm kiếm
-        setCurrent(1); // Reset trang khi tìm kiếm
-    };
-
-    const onCloseModal = () => {
-        setSearch(""); // Xóa giá trị tìm kiếm
-        onClose(); // Gọi callback để đóng modal
-    };
-
-    // Load staff permissions and update checkbox state
     const loadStaffPermissions = async (id) => {
         try {
             const staffPermissionRes = await getStaffPermissions(id);
             const staffPermissionIds = staffPermissionRes.data.data.map(item => item.id);
+            console.log("Staff permissions:", staffPermissionIds);
 
-            // Kiểm tra xem allPermissionsRef đã có dữ liệu chưa
-            if (allPermissionsRef.current.length > 0) {
-                const updatedPermissions = allPermissionsRef.current.map(permission => ({
+            const updatedPermissions = allPermissionsRef.current.map(group => ({
+                ...group,
+                children: group.children.map(permission => ({
                     ...permission,
-                    staff: staffPermissionIds.includes(permission.id),
-                }));
+                    staff: staffPermissionIds.includes(permission.key),
+                })),
+            }));
 
-                setPermissions(updatedPermissions); // Update permissions state
-                setStaffPermission(staffPermissionIds); // Set staff permissions state
-            }
+            setPermissions(updatedPermissions);
+            setStaffPermission(staffPermissionIds);
         } catch (error) {
             console.error("Failed to load staff permissions:", error);
         }
     };
 
-
-    const handleCheckboxChange = (action, checked) => {
-        setPermissions(prevState =>
-            prevState.map(item =>
-                item.action === action ? { ...item, staff: checked } : item
-            )
-        );
+    const handleCheckAll = (checked) => {
+        const updatedPermissions = permissions.map(group => ({
+            ...group,
+            children: group.children.map(permission => ({ ...permission, staff: checked })),
+        }));
+        setPermissions(updatedPermissions);
     };
 
-    const onChange = (pagination) => {
-        if (pagination && pagination.current) {
-            setCurrent(pagination.current);
-        }
-        if (pagination && pagination.pageSize) {
-            setPageSize(pagination.pageSize);
+    const handleGroupCheckAll = (groupKey, checked) => {
+        const updatedPermissions = permissions.map(group =>
+            group.title === groupKey
+                ? {
+                      ...group,
+                      children: group.children.map(permission => ({
+                          ...permission,
+                          staff: checked,
+                      })),
+                  }
+                : group
+        );
+        setPermissions(updatedPermissions);
+    };
+
+    const handleActionCheckAll = (action, checked) => {
+        const updatedPermissions = permissions.map(group => ({
+            ...group,
+            children: group.children.map(permission =>
+                permission.action === action ? { ...permission, staff: checked } : permission
+            ),
+        }));
+        setPermissions(updatedPermissions);
+    };
+
+    const handleCheckboxChange = (key, checked) => {
+        const updatedPermissions = permissions.map(group => ({
+            ...group,
+            children: group.children.map(permission =>
+                permission.key === key ? { ...permission, staff: checked } : permission
+            ),
+        }));
+        setPermissions(updatedPermissions);
+    };
+
+    const handleExpandAll = (checked) => {
+        if (checked) {
+            const allKeys = permissions.map(group => group.title);
+            setExpandedKeys(allKeys);
+        } else {
+            setExpandedKeys([]);
         }
     };
 
     const handleOk = async () => {
-        const permissionsToAdd = permissions
-            .filter(permission => permission.staff && !staffPermissions.includes(permission.action))
-            .map(permission => permission.id);
+        const permissionsToAdd = [];
+        const permissionsToRemove = [];
 
-        const permissionsToRemove = staffPermissions
-            .filter(staffPermission =>
-                !permissions.find(p => p.action === staffPermission && p.staff)
-            )
-            .map(staffPermission => {
-                const foundPermission = permissions.find(p => p.action === staffPermission);
-                return foundPermission ? foundPermission.id : null;
-            })
-            .filter(id => id !== null && id !== undefined);
+        permissions.forEach(group => {
+            group.children.forEach(permission => {
+                if (permission.staff && !staffPermissions.includes(permission.key)) {
+                    permissionsToAdd.push(permission.key);
+                }
+                if (!permission.staff && staffPermissions.includes(permission.key)) {
+                    permissionsToRemove.push(permission.key);
+                }
+            });
+        });
 
         const payload = {};
-        if (permissionsToAdd.length > 0) {
-            payload.permissionToAdd = permissionsToAdd;
-        }
-        if (permissionsToRemove.length > 0) {
-            payload.permissionToRemove = permissionsToRemove;
-        }
+        if (permissionsToAdd.length > 0) payload.permissionToAdd = permissionsToAdd;
+        if (permissionsToRemove.length > 0) payload.permissionToRemove = permissionsToRemove;
 
         if (Object.keys(payload).length > 0) {
             try {
                 const res = await updateStaffPermissions(id, payload);
-                if (res.status == 200) {
+                if (res.status === 200) {
                     notification.success({
                         message: "Update Permission Success",
-                        description: "Update Permission for staff successfully!",
+                        description: "Permissions updated successfully!",
                     });
-                    await loadStaffPermissions(id);
+                    loadStaffPermissions(id);
                     onClose();
                 }
             } catch (error) {
@@ -135,9 +160,40 @@ const UpdatePermissionForUserModal = (props) => {
         }
     };
 
-    const filteredPermissions = permissions.filter(permission =>
-        permission.action.toLowerCase().includes(search.toLowerCase())
-    );
+    const renderTree = () => {
+        return permissions.map(group => ({
+            title: (
+                <div>
+                    <Checkbox
+                        checked={group.children.every(permission => permission.staff)}
+                        indeterminate={
+                            group.children.some(permission => permission.staff) &&
+                            !group.children.every(permission => permission.staff)
+                        }
+                        onChange={e => handleGroupCheckAll(group.title, e.target.checked)}
+                    >
+                        {group.title}
+                    </Checkbox>
+                </div>
+            ),
+            key: group.title,
+            children: group.children.map(permission => ({
+                title: (
+                    <Checkbox
+                        checked={permission.staff}
+                        onChange={e => handleCheckboxChange(permission.key, e.target.checked)}
+                    >
+                        {permission.title}
+                    </Checkbox>
+                ),
+                key: permission.key,
+            })),
+        }));
+    };
+
+    const onCloseModal = () => {
+        onClose();
+    };
 
     return (
         <Modal
@@ -146,44 +202,61 @@ const UpdatePermissionForUserModal = (props) => {
             maskClosable={false}
             onCancel={onCloseModal}
             onOk={handleOk}
+            width={800}
         >
-            <Input
-                placeholder="Search permissions"
-                value={search}
-                onChange={onSearchChange} // Gọi hàm onSearchChange khi người dùng nhập
-                style={{ marginBottom: '16px' }}
-            />
-            <Table
-                dataSource={filteredPermissions}
-                pagination={{
-                    current: current,
-                    pageSize: pageSize,
-                    total: total,
-                    showSizeChanger: true,
-                    onChange: (page, size) => {
-                        setCurrent(page);
-                        setPageSize(size);
-                    },
-                }}
-                rowKey="action"
-            >
-                <Table.Column
-                    title="Action"
-                    dataIndex="action"
-                />
-                <Table.Column
-                    title="Status"
-                    render={(text, record) => (
-                        <Checkbox
-                            checked={record.staff}
-                            onChange={e => handleCheckboxChange(record.action, e.target.checked)}
-                        />
+            <div style={{ marginBottom: '16px' }}>
+                <Checkbox
+                    checked={permissions.every(group =>
+                        group.children.every(permission => permission.staff)
                     )}
-                />
-            </Table>
-
+                    indeterminate={
+                        permissions.some(group =>
+                            group.children.some(permission => permission.staff)
+                        ) &&
+                        !permissions.every(group =>
+                            group.children.every(permission => permission.staff)
+                        )
+                    }
+                    onChange={e => handleCheckAll(e.target.checked)}
+                >
+                    Select All
+                </Checkbox>
+                <Checkbox
+                    onChange={e => handleExpandAll(e.target.checked)}
+                >
+                    Expand/Collapse All
+                </Checkbox>
+            </div>
+            <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between' }}>
+                <Checkbox
+                    onChange={e => handleActionCheckAll('CREATE', e.target.checked)}
+                >
+                    Select All CREATE
+                </Checkbox>
+                <Checkbox
+                    onChange={e => handleActionCheckAll('UPDATE', e.target.checked)}
+                >
+                    Select All UPDATE
+                </Checkbox>
+                <Checkbox
+                    onChange={e => handleActionCheckAll('DELETE', e.target.checked)}
+                >
+                    Select All DELETE
+                </Checkbox>
+                <Checkbox
+                    onChange={e => handleActionCheckAll('READ', e.target.checked)}
+                >
+                    Select All READ
+                </Checkbox>
+            </div>
+            <Tree
+                expandedKeys={expandedKeys}
+                onExpand={keys => setExpandedKeys(keys)}
+                checkable={false} // Không dùng checkable của Tree vì xử lý riêng bằng checkbox
+                treeData={renderTree()}
+            />
         </Modal>
     );
-}
+};
 
 export default UpdatePermissionForUserModal;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState, useRef } from "react";
 import { Table, Space, Modal, notification, DatePicker, Button, Input } from 'antd';
 import { SearchOutlined, EditOutlined, DeleteOutlined, PlusCircleOutlined, RetweetOutlined } from '@ant-design/icons';
 import { chandleStatusPromotion, deletePromotionAPI, fetchDataProductDetail } from '../../service/api.service';
@@ -18,22 +18,28 @@ const PromotionTable = (props) => {
         pageSize: 5,
     });
     const [promotionId, setPromotionId] = useState(null);
+    const promotionsRef = useRef([]);
 
+    useEffect(() => {
+        promotionsRef.current = dataPromotion;
+    }, [dataPromotion]);
     const checkAndUpdateExpiredPromotions = async () => {
-        if (!Array.isArray(dataPromotion) || dataPromotion.length === 0) {
+        const promotions = promotionsRef.current;
+
+        if (!Array.isArray(promotions) || promotions.length === 0) {
             console.warn("dataPromotion không tồn tại hoặc không có dữ liệu.");
             return;
         }
-    
+
         const currentDate = new Date();
-    
-        for (const promotion of dataPromotion) {
+
+        for (const promotion of promotions) {
             const promotionEndDate = new Date(promotion.endDate);
-    
+
             if (promotion.status === 1 && promotionEndDate < currentDate) {
                 try {
                     const response = await chandleStatusPromotion(promotion.id);
-    
+
                     if (response.status === 200 || response.status === 204) {
                         notification.info({
                             message: "Cập nhật trạng thái",
@@ -51,13 +57,22 @@ const PromotionTable = (props) => {
                 }
             }
         }
-    
-        await loadData(); // Tải lại dữ liệu
+
+        // Sau khi kiểm tra, tải lại dữ liệu
+        await loadData();
     };
+
     useEffect(() => {
-        // Chạy kiểm tra chỉ khi component được mount lần đầu
-        checkAndUpdateExpiredPromotions();
-    }, []); // Dependency là mảng rỗng để chỉ chạy một lần
+        // Thiết lập interval để kiểm tra trạng thái mỗi phút
+        const intervalId = setInterval(() => {
+            checkAndUpdateExpiredPromotions();
+        }, 60000); // 60000ms = 1 phút
+
+        // Dọn dẹp interval khi component bị unmount
+        return () => {
+            clearInterval(intervalId);
+        };
+    }, []); // Chạy một lần khi component mount
 
 
     const showDeleteConfirm = (id, productDetailsIds) => {
@@ -432,7 +447,7 @@ const PromotionTable = (props) => {
                     },
                     pageSizeOptions: ['5', '10', '20'],
                 }}
-                rowKey="id"
+                rowKey={(record) => record.id}  
             />
             <PromotionUpdate
                 isModalUpdateOpen={isModalUpdateOpen}

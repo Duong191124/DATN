@@ -31,7 +31,7 @@ public class AddressController {
                 .data(addressList)
                 .build());
     }
-    @PreAuthorize("hasAuthority('CREATE_ADDRESS')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("")
     public ResponseEntity<MessageReponse> add(@Valid @RequestBody AddressDTO addressDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -51,11 +51,9 @@ public class AddressController {
                 .data(newAddress)
                 .build());
     }
-    @PreAuthorize("hasAuthority('UPDATE_ADDRESS')")
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("{id}")
-    public ResponseEntity<?> update(
-            @PathVariable("id") Integer id,
-            @RequestBody AddressUpdateDTO addressUpdateDTO) throws Exception {
+    public ResponseEntity<?> update (@PathVariable Integer id, @RequestBody AddressUpdateDTO addressUpdateDTO) throws Exception {
         Address updateAddress = addressService.update(id, addressUpdateDTO);
         return ResponseEntity.status(HttpStatus.OK).body(MessageReponse.builder()
                 .message("update brand success")
@@ -63,7 +61,7 @@ public class AddressController {
                 .data(updateAddress)
                 .build());
     }
-    @PreAuthorize("hasAuthority('DELETE_ADDRESS')")
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBrand(@PathVariable("id") Integer id) {
         try {

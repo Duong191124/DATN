@@ -65,7 +65,7 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
         try {
             // Kiểm tra toàn bộ form, nếu không hợp lệ sẽ hiển thị lỗi.
             await form.validateFields();
-    
+
             const values = form.getFieldsValue();
             const formattedValues = {
                 ...values,
@@ -78,9 +78,9 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                     : null,
                 status: 1, // Luôn là 'active'
             };
-    
+
             setLoading(true);
-    
+
             const res = await updateVoucher(voucherId, formattedValues);
             if (res && res.data) {
                 notification.success({
@@ -105,7 +105,7 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
             setLoading(false);
         }
     };
-    
+
 
     return (
         <Modal
@@ -153,17 +153,24 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                             {
                                 validator: (_, value) => {
                                     const minPurchaseAmount = form.getFieldValue("minPurchaseAmount");
-                                    if (value > minPurchaseAmount) {
-                                        return Promise.reject(
-                                            new Error("Số tiền giảm giá không được vượt quá số tiền mua tối thiểu!")
-                                        );
+                                    if (discountType === "percent") {
+                                        if (value < 0 || value > 10000000) {
+                                            return Promise.reject(
+                                                new Error("Số tiền tối đa giảm giá phải nằm trong khoảng từ 0 đến 10,000,000!")
+                                            );
+                                        }
+                                        if (value > minPurchaseAmount) {
+                                            return Promise.reject(
+                                                new Error("Số tiền tối đa giảm giá không được lớn hơn số tiền tối thiểu để mua!")
+                                            );
+                                        }
                                     }
                                     return Promise.resolve();
                                 },
                             },
                         ]}
                     >
-                        <InputNumber min={0} />
+                        <InputNumber min={0} max={10000000} />
                     </Form.Item>
                 )}
 
@@ -175,15 +182,15 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                             { required: true, message: "Vui lòng nhập phần trăm giảm giá!" },
                             {
                                 validator: (_, value) => {
-                                    if (value > 100) {
-                                        return Promise.reject(new Error("Phần trăm giảm giá không được vượt quá 100!"));
+                                    if (value < 0 || value > 50) {
+                                        return Promise.reject(new Error("Phần trăm giảm giá không được vượt quá 0 và thấp hơn 50!"));
                                     }
                                     return Promise.resolve();
                                 },
                             },
                         ]}
                     >
-                        <InputNumber min={0} />
+                        <InputNumber min={10} max={50}/>
                     </Form.Item>
                 )}
                 <Row gutter={16}>
@@ -193,9 +200,19 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                             label="Số tiền tối thiểu để mua"
                             rules={[
                                 { required: true, message: "Vui lòng nhập số tiền tối thiểu!" },
+                                {
+                                    validator: (_, value) => {
+                                        if (value < 0 || value > 10000000) {
+                                            return Promise.reject(
+                                                new Error("Số tiền tối thiểu phải nằm trong khoảng từ 0 đến 10,000,000!")
+                                            );
+                                        }
+                                        return Promise.resolve();
+                                    },
+                                },
                             ]}
                         >
-                            <InputNumber min={0} />
+                            <InputNumber min={0} max={10000000} />
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -209,8 +226,13 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                                 },
                                 {
                                     validator: (_, value) => {
+                                        const minPurchaseAmount = form.getFieldValue("minPurchaseAmount");
                                         if (discountType === "percent") {
-                                            const minPurchaseAmount = form.getFieldValue("minPurchaseAmount");
+                                            if (value < 0 || value > 10000000) {
+                                                return Promise.reject(
+                                                    new Error("Số tiền tối đa giảm giá phải nằm trong khoảng từ 0 đến 10,000,000!")
+                                                );
+                                            }
                                             if (value > minPurchaseAmount) {
                                                 return Promise.reject(
                                                     new Error("Số tiền tối đa giảm giá không được lớn hơn số tiền tối thiểu để mua!")
@@ -222,12 +244,29 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                                 },
                             ]}
                         >
-                            <InputNumber min={0} disabled={discountType === "amount"} />
+                            <InputNumber min={0} max={10000000} disabled={discountType === "amount"} />
                         </Form.Item>
                     </Col>
                 </Row>
-                <Form.Item name="expirationDate" label="Ngày hết hạn" rules={[{ required: true, message: 'Vui lòng chọn ngày hết hạn!' }]}>
-                    <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" />
+                <Form.Item
+                    name="expirationDate"
+                    label="Ngày hết hạn"
+                    rules={[{ required: true, message: 'Vui lòng chọn ngày hết hạn!' }]}>
+                    <DatePicker
+                        showTime
+                        format="YYYY-MM-DD HH:mm:ss"
+                        disabledDate={(current) => current && current < moment().startOf("day")}
+                        disabledTime={(current) => {
+                            if (moment().isSame(current, "day")) {
+                                return {
+                                    disabledHours: () => [...Array(moment().hour()).keys()],
+                                    disabledMinutes: () => [...Array(moment().minute() + 1).keys()],
+                                    disabledSeconds: () => [...Array(moment().second() + 1).keys()],
+                                };
+                            }
+                            return {};
+                        }}
+                    />
                 </Form.Item>
                 <Form.Item name="termsAndConditions" label="Điều khoản và điều kiện">
                     <TextArea rows={4} />

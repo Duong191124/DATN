@@ -1,6 +1,8 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.dto.OrderBuyerResponseDTO;
 import com.example.demo.dto.OrderDTO;
+import com.example.demo.dto.OrderDetailBuyerResponse;
 import com.example.demo.dto.OrderOnlineDTO;
 import com.example.demo.entity.*;
 import com.example.demo.repository.*;
@@ -9,8 +11,12 @@ import com.example.demo.request.OrderDetailRequest;
 import com.example.demo.request.OrderWithVoucherAndOrderDetailRequest;
 import com.example.demo.response.OrderResponse;
 import com.example.demo.service.OrderService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,6 +33,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
+    private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
     private final OrderDetailRepo orderDetailRepo;
     private final OrderRepo orderRepo;
     private final  StaffRepo staffRepo;
@@ -41,6 +48,27 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("order null");
         }
         return orderResponses ;
+    }
+
+    @Override
+    public Page<OrderBuyerResponseDTO> getOrderByCustomerId(Integer customerId, Pageable pageable, OrderStatus orderStatus) {
+        Customer customer = customerRepo.findById(customerId).orElse(null);
+        if(customer == null){
+            return null;
+        }
+        Page<Orders> orderResponses = orderRepo.pageAllByStatus(orderStatus, customerId, pageable);
+        return orderResponses.map(OrderBuyerResponseDTO::convertOrderResponse);
+    }
+
+    @Override
+    public List<OrderBuyerResponseDTO> getAllOrderByOrderId(Integer customerId, OrderStatus status, Integer orderId){
+        Customer customer = customerRepo.findById(customerId).orElse(null);
+        Orders order = orderRepo.findById(orderId).orElse(null);
+        if(customer == null || order == null){
+            return null;
+        }
+        List<Orders> ordersList = orderRepo.pageAllByOrderIdAndCustomerId(status, orderId, customerId);
+        return ordersList.stream().map(OrderBuyerResponseDTO::convertOrderResponse).collect(Collectors.toList());
     }
 
     @Override
@@ -86,7 +114,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional
-    public OrderResponse createOrderOnline(OrderOnlineDTO orderDTO) {
+    public OrderResponse createOrderOnline(OrderOnlineDTO orderDTO) throws JsonProcessingException {
         Integer customerId = orderDTO.getCustomerId() != null ? orderDTO.getCustomerId() : 1;
 
         // Tạo mới đơn hàng
@@ -94,6 +122,13 @@ public class OrderServiceImpl implements OrderService {
         order.setCode(orderDTO.getCode());
         order.setDeliveryFee(orderDTO.getDeliveryFee());
         order.setOrderDate(orderDTO.getOrderDate());
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String addressJson = objectMapper.writeValueAsString(orderDTO.getAddress());
+            order.setAddress(addressJson);
+        } catch (Exception e) {
+            throw new RuntimeException("Error serializing address: " + e.getMessage(), e);
+        }
         order.setTotalAmount(orderDTO.getTotalAmount());
         order.setMoneyReceived(orderDTO.getMoneyReceived());  // Có thể cập nhật sau nếu cần
         if (orderDTO.getVoucherId() != null) {
@@ -105,7 +140,6 @@ public class OrderServiceImpl implements OrderService {
         }
         order.setCustomer(customerRepo.findById(customerId).orElse(null));
         order.setStatus(OrderStatus.pending);  // Mặc định trạng thái là 'process'
-
         // Lưu đơn hàng vào DB
         Orders savedOrder = orderRepo.save(order);
 
@@ -279,7 +313,7 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public OrderResponse updateStatusOrder(Integer id, String status) {
+    public OrderResponse updateStatusOrder(Integer id, String status,String note) {
         // Lấy đơn hàng từ cơ sở dữ liệu
         Orders orders = orderRepo.findById(id).orElseThrow(() ->
                 new RuntimeException("Not found order with id: " + id)
@@ -290,6 +324,12 @@ public class OrderServiceImpl implements OrderService {
 
         // Kiểm tra nếu trạng thái là "hủy"
         if (orderStatus == OrderStatus.cancelled) {
+            if (note == null || note.trim().isEmpty()) {
+                throw new IllegalArgumentException("Note is required when cancelling the order.");
+            }
+
+            // Cập nhật ghi chú cho đơn hàng
+            orders.setNote(note);
             // Duyệt qua các chi tiết đơn hàng để cập nhật số lượng sản phẩm
             Iterator<OrderDetail> iterator = orders.getOrderDetails().iterator();
             while (iterator.hasNext()) {

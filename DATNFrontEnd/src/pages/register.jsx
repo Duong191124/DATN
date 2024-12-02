@@ -82,6 +82,7 @@ const RegisterPage = () => {
                 setFormData(mergedData);
                 setCurrentStep(1);
             } catch (error) {
+                console.log(error);
                 return;
             }
         } else {
@@ -97,7 +98,7 @@ const RegisterPage = () => {
                     name: mergedData.name || "",
                 };
 
-                await registerCustomerAPI(
+                const res = await registerCustomerAPI(
                     apiPayload.username,
                     apiPayload.password,
                     apiPayload.confirm_password,
@@ -106,20 +107,26 @@ const RegisterPage = () => {
                     apiPayload.dateOfBirth,
                     apiPayload.name
                 );
-
-                notification.success({
-                    message: "Registration Successful",
-                    description: "Your account has been successfully created.",
-                    style: { borderRadius: '4px' },
-                });
-
-                navigate('/login-fork'); // Redirect to login page upon success
+                if (res.data) {
+                    notification.success({
+                        message: "Registration Successful",
+                        description: "Your account has been successfully created.",
+                        style: { borderRadius: '4px' },
+                    });
+                    navigate('/login'); // Redirect to login page upon success
+                }
             } catch (error) {
-                notification.error({
-                    message: "Registration Error",
-                    description: error.message,
-                    style: { borderRadius: '4px' },
-                });
+                console.error(error);
+                if (error.response && error.response.status === 500 && error.response.data.message.includes("Username has been taken")) {
+                    setUsernameError("Username has been taken");
+                    setCurrentStep(0); // Go back to first step if username is taken
+                } else {
+                    notification.error({
+                        message: "Registration Error",
+                        description: error.message,
+                        style: { borderRadius: '4px' }
+                    });
+                }
             }
         }
     };
@@ -133,6 +140,7 @@ const RegisterPage = () => {
                         label={<span style={labelStyle}>Username</span>}
                         name="username"
                         validateStatus={usernameError ? "error" : ""}
+                        help={usernameError}
                         initialValue={formData.username} // Set initial value from formData
                         rules={[
                             {
@@ -323,6 +331,14 @@ const RegisterPage = () => {
                         >
                             {currentStep === steps.length - 1 ? 'Register' : 'Next'}
                         </Button>
+                    </div>
+                    <Divider style={{ margin: '24px 0', borderColor: '#d9d9d9' }} />
+
+                    <div style={{ textAlign: 'center', fontSize: '14px' }}>
+                        Already have an account?{' '}
+                        <Link to="/login" style={linkStyle}>
+                            Sign in here
+                        </Link>
                     </div>
                 </Form>
             </div>

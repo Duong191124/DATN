@@ -197,43 +197,41 @@ const BrandCarousel = () => {
     if (response?.data?.data) {
       const updatedBrands = response.data.data.map((brand) => {
         let logo, description;
-
-        // Thêm logo và mô tả cho các thương hiệu
-        switch (brand.code) {
-          case "BR001":
+        switch (brand.name) {
+          case "Nike":
             logo =
               "https://logos-world.net/wp-content/uploads/2020/04/Nike-Logo-700x394.png"; // Nike logo
             description =
               "Nike - Global sportswear brand known for innovation.";
             break;
-          case "BR002":
+          case "Adidas":
             logo =
               "https://logos-world.net/wp-content/uploads/2020/04/Adidas-Logo-700x394.png"; // Adidas logo
             description = "Adidas - Leading German sportswear brand.";
             break;
-          case "BR003":
+          case "Puma":
             logo =
               "https://logos-world.net/wp-content/uploads/2020/04/Puma-Logo-700x394.png"; // Puma logo
             description =
               "Puma - German sportswear brand known for performance.";
             break;
-          case "BR004":
+          case "Reebok":
             logo =
               "https://logos-world.net/wp-content/uploads/2020/04/Reebok-Logo-700x394.png"; // Reebok logo
             description = "Reebok - International fitness brand under Adidas.";
             break;
-          case "BR005":
+          case "Under Armour":
             logo =
               "https://logos-world.net/wp-content/uploads/2020/04/Under-Armour-Logo-700x394.png"; // Under Armour logo
             description =
               "Under Armour - Known for innovative sportswear technology.";
             break;
-          case "BR006":
+          case "New Balance":
             logo =
               "https://logos-world.net/wp-content/uploads/2020/09/New-Balance-Logo-700x394.png"; // New Balance logo
             description = "New Balance - American footwear and apparel brand.";
             break;
-          case "BR007":
+          case "Converse":
             logo =
               "https://logos-world.net/wp-content/uploads/2020/06/Converse-Logo-700x394.png"; // Converse logo
             description = "Converse - Famous for iconic Chuck Taylor sneakers.";

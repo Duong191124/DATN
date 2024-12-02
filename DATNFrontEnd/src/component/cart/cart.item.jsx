@@ -1,26 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Button } from "antd";
 import { MinusOutlined, PlusOutlined, CloseOutlined } from "@ant-design/icons";
 import { useCart } from "../context/cart.context";
 
 const CartItem = () => {
-  const { cartItems, removeFromCart, setTotalAmount, updateQuantity } =
-    useCart();
+  const {
+    cartItems,
+    removeFromCart,
+    setTotalAmount,
+    updateQuantity,
+    formatCurrency,
+  } = useCart();
 
-  const calculateTotal = () => {
+  // Memoize the total calculation to optimize performance
+  const totalAmount = useMemo(() => {
     return cartItems.reduce((total, product) => {
-      return (
-        total +
-        (product.discountPrice || product.defaultPrice) *
-          (product.quantity || 1)
-      );
+      const price = product.discountPrice || product.defaultPrice;
+      return total + price * (product.quantity || 1);
     }, 0);
-  };
+  }, [cartItems]);
 
+  // Update the total amount whenever the cartItems change
   useEffect(() => {
-    const total = calculateTotal();
-    setTotalAmount(total);
-  }, [cartItems, setTotalAmount]);
+    setTotalAmount(totalAmount);
+  }, [totalAmount, setTotalAmount]);
 
   return (
     <div>
@@ -35,6 +38,7 @@ const CartItem = () => {
             product={product}
             removeFromCart={removeFromCart}
             updateQuantity={updateQuantity}
+            formatCurrency={formatCurrency}
           />
         ))
       )}
@@ -42,57 +46,39 @@ const CartItem = () => {
   );
 };
 
-const CartItemDetail = ({ product, removeFromCart, updateQuantity }) => {
-  const increaseQuantity = () => {
-    updateQuantity(product.id, product.quantity + 1); // Update quantity in the context
-  };
-
-  // Function to decrease the quantity, but not allowing it to go below 1
+const CartItemDetail = ({ product, removeFromCart, updateQuantity, formatCurrency }) => {
+  const increaseQuantity = () => updateQuantity(product.id, product.quantity + 1);
   const decreaseQuantity = () => {
     if (product.quantity > 1) {
-      updateQuantity(product.id, product.quantity - 1); // Update quantity in the context
+      updateQuantity(product.id, product.quantity - 1);
     }
   };
-
-  const handleRemove = () => {
-    removeFromCart(product.id); // Xóa sản phẩm khỏi giỏ hàng
-  };
+  const handleRemove = () => removeFromCart(product.id);
 
   return (
     <div
       style={{
         display: "flex",
         alignItems: "center",
-        flex: 1,
-        minWidth: 0,
         justifyContent: "space-between",
         border: "1px solid #ddd",
         padding: "16px",
         marginBottom: "16px",
       }}
     >
-      {/* Hình ảnh sản phẩm */}
-      <div style={{ display: "flex", alignItems: "center", width: "150px" }}>
+      {/* Product Image */}
+      <div style={{ width: "150px", display: "flex", alignItems: "center" }}>
         <img
-          src={product.image} // Thay bằng URL của hình ảnh thực tế
+          src={product.image}
           alt={product.name}
           style={{ width: "80px", height: "auto" }}
         />
       </div>
 
-      {/* Thông tin sản phẩm */}
+      {/* Product Details */}
       <div style={{ flexGrow: 1, paddingLeft: "16px", paddingRight: "10px" }}>
-        <div style={{ fontWeight: "bold", fontSize: "16px" }}>
-          {product.name}
-        </div>
-        <div
-          style={{
-            display: "flex",
-            gap: "24px",
-            color: "gray",
-            marginTop: "8px",
-          }}
-        >
+        <div style={{ fontWeight: "bold", fontSize: "16px" }}>{product.name}</div>
+        <div style={{ display: "flex", gap: "24px", color: "gray", marginTop: "8px" }}>
           <div>
             <div>Quantity</div>
             <div style={{ display: "flex", alignItems: "center" }}>
@@ -123,17 +109,15 @@ const CartItemDetail = ({ product, removeFromCart, updateQuantity }) => {
                 height: "20px",
                 backgroundColor: product.color,
                 borderRadius: "50%",
-                boxShadow: "rgba(0, 0, 0, 0.88) 0px 0px 3px",
+                boxShadow: "0 0 3px rgba(0, 0, 0, 0.88)",
               }}
             ></div>
           </div>
         </div>
       </div>
 
-      {/* Giá tiền */}
-      <div
-        style={{ fontWeight: "bold", fontSize: "17px", marginRight: "auto" }}
-      >
+      {/* Product Price */}
+      <div style={{ fontWeight: "bold", fontSize: "17px", marginRight: "auto" }}>
         {product.discountPrice ? (
           <>
             <span
@@ -143,17 +127,17 @@ const CartItemDetail = ({ product, removeFromCart, updateQuantity }) => {
                 marginRight: "8px",
               }}
             >
-              ${product.defaultPrice}
+              {formatCurrency(product.defaultPrice)}
             </span>
-            <span style={{ color: "red" }}>${product.discountPrice}</span>
+            <span style={{ color: "red" }}>{formatCurrency(product.discountPrice)}</span>
           </>
         ) : (
-          <span>${product.defaultPrice}</span>
+          <span>{formatCurrency(product.defaultPrice)}</span>
         )}
       </div>
 
-      {/* Nút Xóa */}
-      <div style={{}}>
+      {/* Remove Button */}
+      <div>
         <Button
           type="text"
           icon={<CloseOutlined />}
@@ -161,7 +145,7 @@ const CartItemDetail = ({ product, removeFromCart, updateQuantity }) => {
             border: "1px solid black",
             borderRadius: "4px",
             padding: "4px 12px",
-            marginLeft: 10,
+            marginLeft: "10px",
           }}
           onClick={handleRemove}
         />

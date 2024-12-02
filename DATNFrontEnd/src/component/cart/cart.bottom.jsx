@@ -5,7 +5,7 @@ import { useCart } from '../context/cart.context';
 
 const CartBottom = () => {
     const navigate = useNavigate();
-    const { cartItems, totalAmount } = useCart();
+    const { cartItems, totalAmount, formatCurrency } = useCart();
 
     return (
         <div style={{
@@ -16,7 +16,7 @@ const CartBottom = () => {
         }}>
             <div>
                 <p style={{ margin: 0, color: '#555' }}>Subtotal Amount:</p>
-                <p style={{ margin: 0, fontSize: '24px', fontWeight: 'bold' }}>${totalAmount.toFixed(2)}</p>
+                <p style={{ margin: 0, fontSize: '24px', fontWeight: 'bold' }}>{formatCurrency(totalAmount)}</p>
             </div>
             <Button
                 type="primary"

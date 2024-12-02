@@ -2,7 +2,9 @@ package com.example.demo.service;
 
 
 
+import com.example.demo.dto.OrderBuyerResponseDTO;
 import com.example.demo.dto.OrderDTO;
+import com.example.demo.dto.OrderDetailBuyerResponse;
 import com.example.demo.entity.OrderStatus;
 import com.example.demo.request.OrderWithVoucherAndOrderDetailRequest;
 import com.example.demo.response.OrderResponse;
@@ -14,9 +16,11 @@ import java.util.List;
 
 public interface OrderService {
     List<OrderResponse> getAll();
+    List<OrderBuyerResponseDTO> getAllOrderByOrderId(Integer customerId, OrderStatus status, Integer orderId);
+    Page<OrderBuyerResponseDTO> getOrderByCustomerId(Integer customerId, Pageable pageable, OrderStatus orderStatus);
     OrderResponse createdOrder(OrderDTO orderDTO);
     OrderResponse updatedOrder(int id,OrderDTO orderDTO);
-    OrderResponse updateStatusOrder(Integer id, String status);
+    OrderResponse updateStatusOrder(Integer id, String status,String note);
     void deletedOrder(Integer id);
     OrderResponse findById(Integer id);
     OrderResponse findByCode(String code);

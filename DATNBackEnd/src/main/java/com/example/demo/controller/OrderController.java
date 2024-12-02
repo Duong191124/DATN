@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.OrderBuyerResponseDTO;
 import com.example.demo.dto.OrderDTO;
 import com.example.demo.dto.OrderOnlineDTO;
 import com.example.demo.entity.Notice;
@@ -74,6 +75,36 @@ public class  OrderController {
                 .build());
     }
 
+    @GetMapping("/{customerId}/getDataByCustomer")
+    public ResponseEntity<?> getOrderByCustomerId (
+            @PathVariable Integer customerId,
+            @RequestParam(required = false) OrderStatus orderStatus,
+            @RequestParam(defaultValue = "0", required = false) int page,
+            @RequestParam(defaultValue = "10", required = false) int limit
+    ) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("createdAt").descending());
+        Page<OrderBuyerResponseDTO> orders = orderService.getOrderByCustomerId(customerId, pageable, orderStatus);
+
+        return ResponseEntity.ok().body(MessageReponse.builder()
+                        .data(orders)
+                        .message("successful")
+                        .status(HttpStatus.OK.value())
+                        .build());
+    }
+
+    @GetMapping("/{customerId}/getDataOrderByOrderId/{orderId}")
+    public ResponseEntity<?> getOrderByOrderId (
+            @PathVariable("customerId") Integer customerId,
+            @PathVariable("orderId") Integer orderId,
+            @RequestParam(required = false) OrderStatus status
+    ){
+        List<OrderBuyerResponseDTO> orderList = orderService.getAllOrderByOrderId(customerId, status, orderId);
+        return ResponseEntity.ok().body(MessageReponse.builder()
+                        .data(orderList)
+                        .message("successful")
+                        .status(HttpStatus.OK.value())
+                        .build());
+    }
 
     @PostMapping("/add")
         public ResponseEntity<?> addOrder(@Valid @RequestBody OrderDTO orderDTO, BindingResult result){
@@ -150,15 +181,19 @@ public class  OrderController {
 
 
     @PutMapping("update-status/{id}")
-    public ResponseEntity<?> updateOrder(@PathVariable int id, @RequestBody Map<String, String> payload){
+    public ResponseEntity<?> updateOrder(@PathVariable int id, @RequestBody Map<String, String> payload) {
         String status = payload.get("status");
+        String note = payload.get("note");
         try {
-            OrderResponse OrderResponse = orderService.updateStatusOrder(id,status);
-            return ResponseEntity.ok(new MessageReponse("updated to ordered successfully",200,OrderResponse));
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+            OrderResponse orderResponse = orderService.updateStatusOrder(id, status, note);
+            return ResponseEntity.ok(new MessageReponse("updated to " + status + " successfully", 200, orderResponse));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReponse(e.getMessage(), 400, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageReponse("Error: " + e.getMessage(), 400, null));
         }
     }
+
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteOrder(@RequestParam int id){
         OrderResponse orderDTO = orderService.findById(id);

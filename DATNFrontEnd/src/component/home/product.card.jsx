@@ -1,6 +1,6 @@
 // ProductCard.jsx
 import React, { useEffect, useState } from "react";
-import { Button, Col, Modal, Row, Space, Typography } from "antd";
+import { Button, Col, message, Modal, Row, Space, Typography } from "antd";
 import {
   ShoppingCartOutlined,
   HeartOutlined,
@@ -14,7 +14,7 @@ import { findByProductId } from "../../service/api.service";
 const { Text } = Typography;
 import "../layout/content/san-pham/product.detail.page.css";
 import { data } from "framer-motion/client";
-
+import "./product.card.css";
 const ProductCardWrapper = styled(motion.div)`
   position: relative;
   background: white;
@@ -284,7 +284,15 @@ const ProductCard = ({
     if (hasError) {
       return;
     }
+    if (availableQuantity === 0) {
+      message.info("Hàng hết, vui lòng mua sản phẩm khác!");
+      return;
+    }
 
+    if (quantity > availableQuantity) {
+      message.info("Số lượng trong kho không đủ!");
+      return;
+    }
     const cartItem = {
       ...productNew,
       size: selectedSize,
@@ -372,11 +380,13 @@ const ProductCard = ({
                       .map((size) => (
                         <button
                           key={size.id}
-                          className={`size-button ${selectedSize === size.name ? "selected" : ""
-                            } ${!availableSizes.includes(size.name)
+                          className={`size-button ${
+                            selectedSize === size.name ? "selected" : ""
+                          } ${
+                            !availableSizes.includes(size.name)
                               ? "disabled-size"
                               : ""
-                            }`}
+                          }`}
                           onClick={() => handleSizeChange(size.name)}
                           disabled={!availableSizes.includes(size.name)}
                         >
@@ -398,11 +408,13 @@ const ProductCard = ({
                       .map((color) => (
                         <button
                           key={color.id}
-                          className={`color-button ${selectedColor === color.name ? "selected" : ""
-                            } ${!availableColors.includes(color.name)
+                          className={`color-button ${
+                            selectedColor === color.name ? "selected" : ""
+                          } ${
+                            !availableColors.includes(color.name)
                               ? "disabled-color"
                               : ""
-                            }`}
+                          }`}
                           onClick={() => handleColorChange(color.name)}
                           disabled={!availableColors.includes(color.name)}
                         >
@@ -418,20 +430,60 @@ const ProductCard = ({
                 )}
                 {selectedColor && selectedSize && availableQuantity >= 0 && (
                   <div style={{ margin: "10px 0" }}>
-                    <p>Số lượng có sẵn: {availableQuantity}</p>
+                    {availableQuantity === 0 ? (
+                      <p style={{ color: "red" }}>Hết hàng</p>
+                    ) : (
+                      <p>Số lượng có sẵn: {availableQuantity}</p>
+                    )}
                   </div>
                 )}
                 <div className="quantity">
                   <button
                     className="quantity-btn"
-                    onClick={() => setQuantity(quantity > 1 ? quantity - 1 : 1)}
+                    onClick={() => {
+                      if (quantity > 1) {
+                        setQuantity(quantity - 1);
+                      } else {
+                        message.info("Số lượng phải lớn hơn hoặc bằng 1!");
+                        setQuantity(1);
+                      }
+                    }}
                   >
                     -
                   </button>
-                  <input type="text" value={quantity} readOnly />
+                  <input
+                    type="number"
+                    className="quantity-input"
+                    value={quantity}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^0-9]/g, ""); // loại bỏ ký tự không phải số
+                      if (availableQuantity === 0) {
+                        message.info("Vui lòng chọn size và màu sắc.");
+                      } else {
+                        if (value > availableQuantity) {
+                          message.info("Số lượng tồn kho không đủ!");
+                        } else if (value < 1) {
+                          message.info("Số lượng phải lớn hơn hoặc bằng 1!");
+                        } else {
+                          setQuantity(value);
+                        }
+                      }
+                    }}
+                  />
                   <button
                     className="quantity-btn"
-                    onClick={() => setQuantity(quantity + 1)}
+                    onClick={() => {
+                      if (availableQuantity === 0) {
+                        message.info("Vui lòng chọn size và màu sắc.");
+                      } else {
+                        const newQuantity = Number(quantity);
+                        if (newQuantity < availableQuantity) {
+                          setQuantity(newQuantity + 1);
+                        } else {
+                          message.info("Số lượng trong kho không đủ!");
+                        }
+                      }
+                    }}
                   >
                     +
                   </button>
@@ -481,9 +533,9 @@ ProductCard.propTypes = {
 };
 
 ProductCard.defaultProps = {
-  onAddToCart: () => { },
-  onAddToWishlist: () => { },
-  onQuickView: () => { },
+  onAddToCart: () => {},
+  onAddToWishlist: () => {},
+  onQuickView: () => {},
 };
 
 export default ProductCard;

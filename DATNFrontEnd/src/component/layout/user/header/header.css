@@ -104,3 +104,36 @@
 .icon-right .icon-right-btn {
   color: #000;
 }
+.marquee-container {
+  position: absolute;
+  width: 100%;
+  overflow: hidden;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-top: 70px;
+  z-index: 100;
+}
+
+.marquee {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  animation: marquee 20s linear infinite;
+}
+.marquee p {
+  margin: 0;
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: #333;
+}
+
+/* Hiệu ứng chạy chữ */
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}

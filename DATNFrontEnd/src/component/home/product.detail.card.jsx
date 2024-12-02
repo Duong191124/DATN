@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, message, Space, Typography } from "antd";
+import { Button, message, Modal, Space, Typography } from "antd";
 import {
   ShoppingCartOutlined,
   HeartOutlined,
@@ -193,9 +193,16 @@ const ProductDetailCard = ({ product, onAddToWishlist, onQuickView }) => {
     };
     addToCart(cartItem);
   };
+
   return (
     <ProductCardWrapper variants={itemVariants}>
-      {promotions && promotions.length > 0 && <SaleIcon>Sale</SaleIcon>}
+      {promotions && promotions.length > 0 && (
+        <SaleIcon>
+          {promotions[0].discountPercent != null
+            ? `Sale ${promotions[0].discountPercent}%`
+            : `Giảm ${promotions[0].discountAmount.toLocaleString("vi-VN")}đ`}
+        </SaleIcon>
+      )}
 
       <StockBadge inStock={quantity > 0}>
         {quantity > 0 ? `${quantity} in stock` : "Out of stock"}
@@ -214,16 +221,7 @@ const ProductDetailCard = ({ product, onAddToWishlist, onQuickView }) => {
         >
           Add to Cart
         </ActionButton>
-        <ActionButton
-          icon={<HeartOutlined />}
-          onClick={() => onAddToWishlist(product)}
-        />
-        <ActionButton
-          icon={<EyeOutlined />}
-          onClick={() => onQuickView(product)}
-        />
       </ProductActions>
-
       <ProductInfo>
         <ProductTitle>{productResponse.name}</ProductTitle>
         <Space direction="vertical" size={4} style={{ width: "100%" }}>

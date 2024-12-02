@@ -19,7 +19,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<MessageReponse> handleAllExceptions(Exception ex) {
         if(ex.getMessage().equalsIgnoreCase("Access Denied")){
             MessageReponse response = MessageReponse.builder()
-                    .message( "Xê ra em êyyy: " + ex.getMessage())
                     .status(HttpStatus.FORBIDDEN.value())
                     .data(null)
                     .build();
@@ -60,10 +59,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<MessageReponse> handleNullPointerException(NullPointerException ex) {
         MessageReponse response = MessageReponse.builder()
                 .message("Null Pointer Exception: " + ex.getMessage())
-                .status(HttpStatus.BAD_REQUEST.value())
+                .status(HttpStatus.NOT_FOUND.value())
                 .data(null)
                 .build();
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

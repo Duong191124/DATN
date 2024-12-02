@@ -47,6 +47,8 @@ const OrderTable = (props) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [currentOrderId, setCurrentOrderId] = useState(null);
+  const [isModalVisibleCancel, setIsModalVisibleCancel] = useState(false); // Trạng thái modal
+  const [cancelNote, setCancelNote] = useState("");
   useEffect(() => {
     const fetchData = async (orderDetailResponses) => {
       if (orderDetailResponses) {
@@ -121,6 +123,15 @@ const OrderTable = (props) => {
     setSelectedStatus(currentStatus);
     setIsModalVisible(true);
   };
+  const showCancelModal = () => {
+    setIsModalVisibleCancel(true);
+  };
+
+  // Hàm đóng modal
+  const handleCancel = () => {
+    setIsModalVisibleCancel(false);
+    setCancelNote("");
+  };
   const handleUpdateStatus = async () => {
     try {
       const currentStatusIndex = statusOptions.findIndex(
@@ -143,6 +154,37 @@ const OrderTable = (props) => {
               : order
           )
         );
+        // if (nextStatus === "delivery") {
+        //   // eslint-disable-next-line react/prop-types
+        //   return dataOrder.map((order) => {
+        //     console.log(order);
+        //     const district = order.address.district;
+        //     const ward = order.address.ward;
+        //     const name = order.address.name;
+        //     const phoneNumber = order.address.phoneNumber;
+        //     const addressDetail = order.address.addressDetail;
+        //     const totalShippingFee = order.deliveryFee;
+        //     const customerEmail = order.customerResponse.email;
+        //     const productDetail = order.orderDetailResponses?.map((detail) => {
+        //       const productDetail = detail.productDetailId || {};
+        //       console.log(productDetail);
+        //       const weight = productDetail.weight;
+        //       const quantity = productDetail.quantity
+        //     })
+        //   })
+        //   // const createOrderGhn = {
+        //   //   toDistrictId: district,
+        //   //   toWardCode: ward,
+        //   //   //   weight: weight,
+        //   //   //   paymentType: 2,
+        //   //   //   shipCOD: totalShippingFee,
+        //   //   customerName: addresses.name,
+        //   //   customerPhone: addresses.phoneNumber,
+        //   //   addressDetail: addresses.addressDetail,
+        //   //   //   customerEmail: addresses?.customer?.email,
+        //   //   // itemsProduct
+        //   //   // }
+        // }
       } else {
         notification.error({
           message: "Lỗi",
@@ -159,9 +201,9 @@ const OrderTable = (props) => {
     }
   };
 
-  const canceledOrder = async (orderId, status) => {
+  const canceledOrder = async (orderId, status, cancelNote) => {
     try {
-      await updateStatusOrder(orderId, status);
+      await updateStatusOrder(orderId, status, cancelNote);
       setDataOrder((prevDataOrder) =>
         prevDataOrder.map((order) =>
           order.id === orderId ? { ...order, status: "cancelled" } : order
@@ -172,6 +214,7 @@ const OrderTable = (props) => {
         description: "Đơn hàng đã bị hủy.",
       });
     } catch (error) {
+      // Hiển thị thông báo lỗi
       notification.error({
         message: "Lỗi khi hủy đơn hàng",
         description: JSON.stringify(error.message),
@@ -180,6 +223,26 @@ const OrderTable = (props) => {
     }
   };
 
+  const handleOk = async () => {
+    if (!cancelNote) {
+      notification.warning({
+        message: "Cảnh báo",
+        description: "Vui lòng nhập lý do hủy.",
+      });
+      return;
+    }
+    try {
+      // Gọi hàm hủy đơn với lý do
+      await canceledOrder(orderDetails.id, "cancelled", cancelNote);
+      setIsModalVisibleCancel(false);
+      setCancelNote(""); // Reset note sau khi hủy
+    } catch (error) {
+      notification.error({
+        message: "Lỗi khi hủy đơn hàng",
+        description: "Đã xảy ra lỗi khi hủy đơn hàng.",
+      });
+    }
+  };
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
       setSelectedKeys,
@@ -384,8 +447,8 @@ const OrderTable = (props) => {
         return discountPrice
           ? `${discountPrice.toLocaleString()} VNĐ`
           : defaultPrice
-          ? `${defaultPrice.toLocaleString()} VNĐ`
-          : "Chưa có giá";
+            ? `${defaultPrice.toLocaleString()} VNĐ`
+            : "Chưa có giá";
       },
     },
     {
@@ -420,7 +483,6 @@ const OrderTable = (props) => {
       title: "Người tạo",
       key: "staffName",
       render: (text, record) => {
-        console.log("reccc", record);
         return (
           record.orderDataPaymentResponse?.staffResponse?.name ||
           "Chưa có thông tin"
@@ -476,24 +538,21 @@ const OrderTable = (props) => {
       .map(
         (record) => `
           <tr>
-            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${
-              record.id
-            }</td>
-            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${
-              record.productDetailId?.code || "N/A"
-            }</td>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${record.id
+          }</td>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${record.productDetailId?.code || "N/A"
+          }</td>
             <td style="border: 1px solid #000; padding: 10px; text-align:center;">${getProductName(
-              record.productDetailId?.productId
-            )}</td>
-            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${
-              record.quantity || "N/A"
-            }</td>
+            record.productDetailId?.productId
+          )}</td>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${record.quantity || "N/A"
+          }</td>
             <td style="border: 1px solid #000; padding: 10px; text-align:center;">${getSizeName(
-              record.productDetailId?.sizeId
-            )}</td>
+            record.productDetailId?.sizeId
+          )}</td>
             <td style="border: 1px solid #000; padding: 10px; text-align:center;">${getColorName(
-              record.productDetailId?.colorId
-            )}</td>
+            record.productDetailId?.colorId
+          )}</td>
             <td style="border: 1px solid #000; padding: 10px; text-align:center;">${record.price.toLocaleString()} VND</td>
           </tr>
         `
@@ -511,15 +570,12 @@ const OrderTable = (props) => {
         <h2 style="text-align: center; font-size: 24px; font-weight: bold;">HÓA ĐƠN BÁN HÀNG</h2>
         <p style="font-size: 16px;">Mã hóa đơn: ${orderDetails.code}</p>
         <p style="font-size: 16px;">Ngày: ${orderDetails.orderDate}</p>
-        <p style="font-size: 16px;">Nhân viên: ${
-          orderDetails?.staffResponse?.name ?? "Không có nhân viên"
-        }</p>
-        <p style="font-size: 16px;">Khách hàng: ${
-          orderDetails.customerResponse.name
-        }</p>
-        <p style="font-size: 16px;">SĐT: ${
-          orderDetails.customerResponse.phoneNumber
-        }</p>
+        <p style="font-size: 16px;">Nhân viên: ${orderDetails?.staffResponse?.name ?? "Không có nhân viên"
+      }</p>
+        <p style="font-size: 16px;">Khách hàng: ${orderDetails.customerResponse.name
+      }</p>
+        <p style="font-size: 16px;">SĐT: ${orderDetails.customerResponse.phoneNumber
+      }</p>
         <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
           <thead>
             <tr>
@@ -540,13 +596,12 @@ const OrderTable = (props) => {
           <div style="width: 250px; border: 1px solid #ddd; padding: 10px;">
             <div className="result_order_detail">
               <span>Giảm giá hóa đơn:</span>
-            ${
-              orderDetails.voucherId
-                ? orderDetails.voucherId.discountAmount !== "0"
-                  ? `${orderDetails.voucherId.discountAmount} VND`
-                  : `${orderDetails.voucherId.discountPercent}%`
-                : "0 VND (0%)"
-            }
+            ${orderDetails.voucherId
+        ? orderDetails.voucherId.discountAmount !== "0"
+          ? `${orderDetails.voucherId.discountAmount} VND`
+          : `${orderDetails.voucherId.discountPercent}%`
+        : "0 VND (0%)"
+      }
             </div>
             <div className="result_order_detail">
               <span>Tổng số lượng:</span>
@@ -560,18 +615,18 @@ const OrderTable = (props) => {
               <span>Trạng thái:</span>
               <span>
                 ${(() => {
-                  const statusOptions = [
-                    { value: "pending", label: "Chờ xử lý" },
-                    { value: "process", label: "Đang xử lý" },
-                    { value: "delivery", label: "Đang giao" },
-                    { value: "shipped", label: "Đã giao" },
-                    { value: "cancelled", label: "Đã hủy" },
-                  ];
-                  const currentStatus = statusOptions.find(
-                    (option) => option.value === orderDetails.status
-                  );
-                  return currentStatus ? currentStatus.label : "";
-                })()}
+        const statusOptions = [
+          { value: "pending", label: "Chờ xử lý" },
+          { value: "process", label: "Đang xử lý" },
+          { value: "delivery", label: "Đang giao" },
+          { value: "shipped", label: "Đã giao" },
+          { value: "cancelled", label: "Đã hủy" },
+        ];
+        const currentStatus = statusOptions.find(
+          (option) => option.value === orderDetails.status
+        );
+        return currentStatus ? currentStatus.label : "";
+      })()}
               </span>
             </div>
           </div>
@@ -612,6 +667,9 @@ const OrderTable = (props) => {
   };
   const expandedRowRender = (record) => {
     const totalQuantity = getTotalQuantity(record.orderDetailResponses || []);
+    // Kiểm tra nếu không có nhân viên
+    const hasStaff = orderDetails.staffResponse != null;
+
     return (
       <Tabs defaultActiveKey="1">
         <TabPane tab="Chi Tiết Đơn Hàng" key="1">
@@ -657,6 +715,9 @@ const OrderTable = (props) => {
                         return currentStatus ? currentStatus.label : "";
                       })()}
                     </p>
+
+                    {/* Thêm thông tin khách hàng nếu không có nhân viên */}
+
                     <p>
                       Phí giao hàng:
                       {orderDetails.deliveryFee
@@ -668,8 +729,14 @@ const OrderTable = (props) => {
                       {orderDetails.staffResponse?.name || "Chưa có thông tin"}
                     </p>
                   </div>
+                  {!hasStaff && (
+                    <div className="col-4">
+                      <p>Khách nhận: {orderDetails.address?.name}</p>
+                      <p>Số điện thoại: {orderDetails.address?.phoneNumber}</p>
+                      <p>Địa chỉ: {orderDetails.address?.addressDetail}</p>
+                    </div>
+                  )}
                 </div>
-
                 <Table
                   style={{ margin: "28px 0", border: "1px solid #d9d9d9" }}
                   pagination={false}
@@ -707,6 +774,7 @@ const OrderTable = (props) => {
                           e.currentTarget.style.height = "50px";
                         }}
                       >
+                        {/* Voucher thông tin */}
                         <div
                           style={{
                             display: "flex",
@@ -815,23 +883,25 @@ const OrderTable = (props) => {
                       orderDetails.status !== "pending" &&
                       orderDetails.status !== "process"
                     }
-                    onClick={() => {
-                      if (
-                        orderDetails.status === "pending" ||
-                        orderDetails.status === "process"
-                      ) {
-                        canceledOrder(orderDetails.id, "cancelled");
-                      } else {
-                        notification.error({
-                          message: "Không thể hủy",
-                          description:
-                            "Đơn hàng không thể hủy vì đang ở quá trình giao hàng hoặc đã giao.",
-                        });
-                      }
-                    }}
+                    onClick={showCancelModal}
                   >
                     Hủy hóa đơn
                   </Button>
+                  <Modal
+                    title="Nhập lý do hủy đơn hàng"
+                    visible={isModalVisibleCancel}
+                    onOk={handleOk}
+                    onCancel={handleCancel}
+                    okText="Xác nhận"
+                    cancelText="Hủy"
+                  >
+                    <Input.TextArea
+                      rows={4}
+                      placeholder="Vui lòng nhập lý do hủy đơn hàng..."
+                      value={cancelNote}
+                      onChange={(e) => setCancelNote(e.target.value)}
+                    />
+                  </Modal>
                 </div>
               </div>
             )}
@@ -847,6 +917,47 @@ const OrderTable = (props) => {
             style={{ margin: "28px 0", border: "1px solid #d9d9d9" }}
             pagination={false}
           />
+          {record.status === "cancelled" && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginTop: "16px",
+              }}
+            >
+              <div
+                style={{
+                  width: "100%",
+                  backgroundColor: "#f7f7f7",
+                  padding: "16px",
+                  borderRadius: "8px",
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "16px",
+                    fontWeight: "600",
+                    marginBottom: "8px",
+                    color: "#333",
+                  }}
+                >
+                  Lý do hủy:
+                </p>
+                <Input
+                  value={record.note}
+                  disabled
+                  style={{
+                    padding: "10px",
+                    fontSize: "14px",
+                    borderRadius: "4px",
+                    border: "1px solid #ccc",
+                    backgroundColor: "#fff",
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </TabPane>
       </Tabs>
     );
@@ -906,9 +1017,9 @@ const OrderTable = (props) => {
                 status.value === "shipped" ||
                 status.value === "cancelled" ||
                 index <=
-                  statusOptions.findIndex(
-                    (option) => option.value === selectedStatus
-                  )
+                statusOptions.findIndex(
+                  (option) => option.value === selectedStatus
+                )
               }
             />
           ))}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, message, Steps, theme } from 'antd';
+import { Button, message, notification, Steps, theme } from 'antd';
 import './checkout.style.css';
 import Summary from './checkout.summary';
 import Payment from './checkout.payment';
@@ -39,7 +39,7 @@ const CheckoutStep = () => {
         setTotalShippingFee,
         totalShippingFee,
         addresses,
-        selectAddress
+        selectAddress,
     } = useCheckout();
     const navigate = useNavigate();
     const [current, setCurrent] = useState(0);
@@ -62,8 +62,24 @@ const CheckoutStep = () => {
         }));
     };
 
+    const convertSelectAddressToOrder = (selectAddress) => {
+        if (selectAddress && typeof selectAddress === 'object') {
+            // Return only the selected fields
+            return {
+                name: selectAddress.name,
+                phoneNumber: selectAddress.phoneNumber,
+                city: selectAddress.city,
+                district: selectAddress.district,
+                ward: selectAddress.ward,
+                addressDetail: selectAddress.addressDetail
+            };
+        } else {
+            console.error("selectAddress is either null or not an object");
+            return null;
+        }
+    }
+
     const convertDataProductToOrder = (cartItemsLocal) => {
-        console.log(cartItemsLocal);
         return cartItemsLocal.map(item => ({
             product: {
                 name: item.productResponse.name,
@@ -88,8 +104,8 @@ const CheckoutStep = () => {
         setLoading(true);
         const cartItemsLocal = cartItems;
         const orderDetailRequests = convertCartToOrderDetails(cartItemsLocal);
-        const itemsProduct = convertDataProductToOrder(cartItemsLocal);
-        console.log(itemsProduct);
+        const addressToOrder = convertSelectAddressToOrder(selectAddress);
+        // const itemsProduct = convertDataProductToOrder(cartItemsLocal);
 
         const orderDTO = {
             code: generateInvoiceCode(), // Mã đơn hàng
@@ -100,20 +116,21 @@ const CheckoutStep = () => {
             voucherId: selectedCoupon || null,  // Mã giảm giá nếu có
             customerId: userId, // Lấy customerId từ localStorage hoặc session
             orderDetailRequests, // Dữ liệu sản phẩm trong đơn hàng
+            addressToOrder
         };
 
-        const createOrderGhn = {
-            toDistrictId: district,
-            toWardCode: ward,
-            weight: weight,
-            paymentType: 2,
-            shipCOD: totalShippingFee,
-            customerName: addresses.name,
-            customerPhone: addresses.phoneNumber,
-            addressDetail: addresses.addressDetail,
-            customerEmail: addresses?.customer?.email,
-            itemsProduct
-        }
+        // const createOrderGhn = {
+        //     toDistrictId: district,
+        //     toWardCode: ward,
+        //     weight: weight,
+        //     paymentType: 2,
+        //     shipCOD: totalShippingFee,
+        //     customerName: addresses.name,
+        //     customerPhone: addresses.phoneNumber,
+        //     addressDetail: addresses.addressDetail,
+        //     customerEmail: addresses?.customer?.email,
+        //     itemsProduct
+        // }
 
         try {
             // Step 1: Create the order in your system
@@ -125,7 +142,8 @@ const CheckoutStep = () => {
                 orderDTO.voucherId,
                 orderDTO.customerId,
                 orderDTO.moneyReceived,
-                orderDTO.orderDetailRequests
+                orderDTO.orderDetailRequests,
+                orderDTO.addressToOrder
             );
 
 
@@ -135,23 +153,23 @@ const CheckoutStep = () => {
             }
 
             // Step 2: Create the order in the GHN system (Shipping)
-            const createOrderGhnResponse = await getCreateOrderGhn(
-                createOrderGhn.toDistrictId,
-                createOrderGhn.toWardCode,
-                createOrderGhn.weight,
-                createOrderGhn.paymentType,
-                createOrderGhn.shipCOD,
-                createOrderGhn.customerName,
-                createOrderGhn.customerPhone,
-                createOrderGhn.addressDetail,
-                createOrderGhn.customerEmail,
-                createOrderGhn.itemsProduct
-            );
+            // const createOrderGhnResponse = await getCreateOrderGhn(
+            //     createOrderGhn.toDistrictId,
+            //     createOrderGhn.toWardCode,
+            //     createOrderGhn.weight,
+            //     createOrderGhn.paymentType,
+            //     createOrderGhn.shipCOD,
+            //     createOrderGhn.customerName,
+            //     createOrderGhn.customerPhone,
+            //     createOrderGhn.addressDetail,
+            //     createOrderGhn.customerEmail,
+            //     createOrderGhn.itemsProduct
+            // );
 
             // If there is any error in the GHN response, throw an error
-            if (createOrderGhnResponse?.error) {
-                throw new Error(createOrderGhnResponse?.error || "Giao hàng không thành công.");
-            }
+            // if (createOrderGhnResponse?.error) {
+            //     throw new Error(createOrderGhnResponse?.error || "Giao hàng không thành công.");
+            // }
 
             // If both orders are successfully created, show success message
             message.success('Đơn hàng đã được tạo thành công!');
@@ -171,6 +189,7 @@ const CheckoutStep = () => {
 
             // Show the error message to the user
             message.error(errorMessage);
+            setLoading(false);
             return;
         }
     };
@@ -192,7 +211,6 @@ const CheckoutStep = () => {
                 values.weight,
                 values.serviceId
             )
-            console.log(res);
             setTotalShippingFee(res.data.data.total);
         } catch (error) {
             let errorMessage = error?.response?.data?.message || "Giao hàng nhanh không hỗ trợ xã này";
@@ -248,6 +266,14 @@ const CheckoutStep = () => {
                     <Button
                         type="primary"
                         onClick={async () => {
+                            if (cartItems.length === 0) {
+                                notification.warning({
+                                    message: 'Không có sản phẩm trong giỏ hàng',
+                                    duration: 2
+                                })
+                                setCurrent(0);
+                                return;
+                            }
                             if (current === 1) {
                                 await handleApiGhn();
                             }
