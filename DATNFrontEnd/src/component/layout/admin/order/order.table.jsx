@@ -112,12 +112,12 @@ const OrderTable = (props) => {
   };
   const statusOptions = [
     { value: "pending", label: "Chờ xử lý" },
-    { value: "process", label: "Đang xử lý" },
-    { value: "delivery", label: "Đang giao" },
-    { value: "shipped", label: "Đã giao" },
+    { value: "confirmed", label: "Đã xác nhận" },
+    { value: "shipping", label: "Đang giao hàng" },
+    { value: "delivered", label: "Đã giao" },
+    { value: "completed", label: "Đã hoàn thành" },
     { value: "cancelled", label: "Đã hủy" },
   ];
-
   const showModal = (orderId, currentStatus) => {
     setCurrentOrderId(orderId);
     setSelectedStatus(currentStatus);
@@ -338,45 +338,25 @@ const OrderTable = (props) => {
       ...getColumnSearchProps("status"),
       render: (status, record) => {
         const statusOptions = [
+          { value: "pending_payment", label: "Chờ thanh toán" },
           { value: "pending", label: "Chờ xử lý" },
-          { value: "process", label: "Đang xử lý" },
-          { value: "delivery", label: "Đang giao" },
-          { value: "shipped", label: "Đã giao" },
+          { value: "confirmed", label: "Đã xác nhận" },
+          { value: "shipping", label: "Đang giao hàng" },
+          { value: "delivered", label: "Đã giao" },
+          { value: "completed", label: "Đã hoàn thành" },
           { value: "cancelled", label: "Đã hủy" },
         ];
-
-        // Tìm trạng thái trong danh sách options
         const currentStatus = statusOptions.find(
           (option) => option.value === status
         );
 
-        // Nếu trạng thái tìm được, hiển thị label, nếu không hiển thị "N/A"
         return currentStatus ? currentStatus.label : "N/A";
       },
     },
     {
-      title: "Thời gian tạo",
-      dataIndex: "createdAt",
-      key: "createdAt",
-      render: (text) => {
-        return text ? moment(text).format("YYYY-MM-DD HH:mm:ss A") : "N/A";
-      },
-    },
-    {
-      title: "Tên Nhân Viên",
-      dataIndex: "staffResponse",
-      key: "staffResponse",
-      render: (text, record) => {
-        return record.staffResponse?.name || "Chưa có thông tin";
-      },
-    },
-    {
-      title: "Tổng Tiền",
-      dataIndex: "totalAmount",
-      key: "totalAmount",
-      ...getColumnSearchProps("totalAmount"),
-      sorter: (a, b) => a.totalAmount - b.totalAmount,
-      render: (totalAmount) => `${totalAmount.toLocaleString()} VNĐ`,
+      title: "Loại Đơn Hàng",
+      dataIndex: "orderType",
+      key: "orderType",
     },
     {
       title: "Hành Động",
@@ -386,7 +366,9 @@ const OrderTable = (props) => {
           style={{ color: "blue" }}
           onClick={() => showModal(record.id, record.status)}
           disabled={
-            record.status === "shipped" || record.status === "cancelled"
+            record.orderType === "offline" ||
+            record.status === "cancelled" ||
+            record.status === "completed"
           }
         >
           Cập nhật trạng thái
@@ -394,6 +376,7 @@ const OrderTable = (props) => {
       ),
     },
   ];
+
   const columnsOrderDetail = [
     { title: "Mã HDCT", dataIndex: "id", key: "id" },
     {
@@ -517,10 +500,12 @@ const OrderTable = (props) => {
       key: "status",
       render: (text, record) => {
         const statusOptions = {
+          pending_payment: "Chờ thanh toán",
           pending: "Chờ xử lý",
-          process: "Đang xử lý",
-          delivery: "Đang giao",
-          shipped: "Đã giao",
+          confirmed: "Đang xử lý",
+          shipping: "Đang giao hàng",
+          delivered: "Đã giao",
+          completed: "Đã hoàn thành",
           cancelled: "Đã hủy",
         };
         return (
@@ -712,10 +697,12 @@ const OrderTable = (props) => {
                       Trạng thái:{" "}
                       {(() => {
                         const statusOptions = [
+                          { value: "pending_payment", label: "Chờ thanh toán" },
                           { value: "pending", label: "Chờ xử lý" },
-                          { value: "process", label: "Đang xử lý" },
-                          { value: "delivery", label: "Đang giao" },
-                          { value: "shipped", label: "Đã giao" },
+                          { value: "confirmed", label: "Đã xác nhận" },
+                          { value: "shipping", label: "Đang giao hàng" },
+                          { value: "delivered", label: "Đã giao" },
+                          { value: "completed", label: "Đã hoàn thành" },
                           { value: "cancelled", label: "Đã hủy" },
                         ];
                         const currentStatus = statusOptions.find(
@@ -889,7 +876,8 @@ const OrderTable = (props) => {
                     danger
                     disabled={
                       orderDetails.status !== "pending" &&
-                      orderDetails.status !== "process"
+                      orderDetails.status !== "confirmed" &&
+                      orderDetails.status !== "pending_payment"
                     }
                     onClick={showCancelModal}
                   >
