@@ -143,45 +143,48 @@ const Shipping = () => {
         <>
             <div style={{ paddingTop: '12px', paddingBottom: '12px' }}>
                 <Title style={{ textAlign: 'center' }} level={4}>Shipping Address</Title>
-
-                {/* Left and Right Buttons Container */}
-                <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
-                    {/* Left Button for Change Address */}
-                    <Col>
-                        <Button
-                            type="primary"
-                            icon={<SwapOutlined />}
-                            onClick={() => setIsModalOpen(true)}
-                        >
-                            Change Address
-                        </Button>
-                    </Col>
-
-                    {/* Right Button for Add Address */}
-                    <Col>
-                        <Button
-                            type="default"
-                            icon={<HomeOutlined />}
-                            onClick={handleAddNewAddress}
-                        >
-                            Add Address
-                        </Button>
-                    </Col>
-                </Row>
-
-                {/* Render the selected address or placeholder */}
-                <Space direction="vertical" size={8}>
-                    <Space>
-                        <Text strong>{selectAddress ? selectAddress.name : 'No Address Selected'}</Text>
-                        <Text type="secondary">|</Text>
-                        <Text>{selectAddress ? selectAddress.phone : 'No phone number'}</Text>
-                    </Space>
-                    <Space align="start">
-                        <HomeOutlined style={{ marginTop: 4 }} />
-                        <Text>{selectAddress ? selectAddress.addressDetail : 'No address selected'}</Text>
-                    </Space>
-                </Space>
             </div>
+            {userId !== 1 && (
+                <div style={{ paddingTop: '12px', paddingBottom: '12px' }}>
+                    {/* Left and Right Buttons Container */}
+                    <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
+                        {/* Left Button for Change Address */}
+                        <Col>
+                            <Button
+                                type="primary"
+                                icon={<SwapOutlined />}
+                                onClick={() => setIsModalOpen(true)}
+                            >
+                                Change Address
+                            </Button>
+                        </Col>
+
+                        {/* Right Button for Add Address */}
+                        <Col>
+                            <Button
+                                type="default"
+                                icon={<HomeOutlined />}
+                                onClick={handleAddNewAddress}
+                            >
+                                Add Address
+                            </Button>
+                        </Col>
+                    </Row>
+
+                    {/* Render the selected address or placeholder */}
+                    <Space direction="vertical" size={8}>
+                        <Space>
+                            <Text strong>{selectAddress ? selectAddress.name : 'No Address Selected'}</Text>
+                            <Text type="secondary">|</Text>
+                            <Text>{selectAddress ? selectAddress.phone : 'No phone number'}</Text>
+                        </Space>
+                        <Space align="start">
+                            <HomeOutlined style={{ marginTop: 4 }} />
+                            <Text>{selectAddress ? selectAddress.addressDetail : 'No address selected'}</Text>
+                        </Space>
+                    </Space>
+                </div>
+            )}
 
             {/* Conditionally render the form for userId === 1 */}
             {userId === 1 && (
