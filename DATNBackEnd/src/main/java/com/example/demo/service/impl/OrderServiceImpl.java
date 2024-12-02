@@ -2,7 +2,6 @@ package com.example.demo.service.impl;
 
 import com.example.demo.dto.OrderBuyerResponseDTO;
 import com.example.demo.dto.OrderDTO;
-import com.example.demo.dto.OrderDetailBuyerResponse;
 import com.example.demo.dto.OrderOnlineDTO;
 import com.example.demo.entity.*;
 import com.example.demo.repository.*;
@@ -97,7 +96,8 @@ public class OrderServiceImpl implements OrderService {
         } else {
             order.setVoucher(null);
         }
-        order.setStatus(OrderStatus.pending);
+        order.setStatus(OrderStatus.pending_payment);
+        order.setOrderType(OrderType.offline);
         if (orderDTO.getDeliveryFee() == null) {
             order.setDeliveryFee(0.0);
         } else {
@@ -140,6 +140,7 @@ public class OrderServiceImpl implements OrderService {
         }
         order.setCustomer(customerRepo.findById(customerId).orElse(null));
         order.setStatus(OrderStatus.pending);  // Mặc định trạng thái là 'process'
+        order.setOrderType(OrderType.online);
         // Lưu đơn hàng vào DB
         Orders savedOrder = orderRepo.save(order);
 
@@ -318,7 +319,6 @@ public class OrderServiceImpl implements OrderService {
         Orders orders = orderRepo.findById(id).orElseThrow(() ->
                 new RuntimeException("Not found order with id: " + id)
         );
-
         // Chuyển đổi trạng thái từ String thành OrderStatus enum
         OrderStatus orderStatus = OrderStatus.valueOf(status.toLowerCase());
 
@@ -479,8 +479,11 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public Page<OrderResponse> pageAll(String staffName, LocalDate  startDate, LocalDate endDate, OrderStatus orderStatus, String orderCode, Pageable pageable) {
-        Page<Orders> ordersPage = orderRepo.pageAll(staffName,startDate,endDate,orderStatus,orderCode,pageable);
+    public Page<OrderResponse> pageAll(String staffName, LocalDate startDate, LocalDate endDate, OrderStatus orderStatus, String orderCode,OrderType orderType ,Pageable pageable) {
+        // Lấy trang dữ liệu từ repository
+        Page<Orders> ordersPage = orderRepo.pageAll(staffName, startDate, endDate, orderStatus, orderCode,orderType, pageable);
+
+        // Chuyển đổi danh sách Orders thành OrderResponse
         return ordersPage.map(OrderResponse::convertOrderResponse);
     }
 

@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.entity.OrderStatus;
+import com.example.demo.entity.OrderType;
 import com.example.demo.entity.Orders;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,15 +21,17 @@ public interface OrderRepo extends JpaRepository<Orders, Integer> {
             "AND (:startDate IS NULL OR o.orderDate >= :startDate) " +
             "AND (:endDate IS NULL OR o.orderDate <= :endDate) " +
             "AND (:orderStatus IS NULL OR o.status = :orderStatus) " +
-            "AND (:orderCode IS NULL OR LOWER(o.code) LIKE LOWER(CONCAT('%', :orderCode, '%'))" +
-            ")"
+            "AND (:orderCode IS NULL OR LOWER(o.code) LIKE LOWER(CONCAT('%', :orderCode, '%'))) " +
+            "AND (:orderType IS NULL OR o.orderType = :orderType)"
     )
     Page<Orders> pageAll(@Param("staffName") String staffName,
                          @Param("startDate") LocalDate startDate,
-                         @Param("endDate") LocalDate  endDate,
+                         @Param("endDate") LocalDate endDate,
                          @Param("orderStatus") OrderStatus orderStatus,
                          @Param("orderCode") String orderCode,
+                         @Param("orderType") OrderType orderType,
                          Pageable pageable);
+
 
     @Query("SELECT o FROM Orders o " +
             "LEFT JOIN o.customer s " +
@@ -51,7 +54,7 @@ public interface OrderRepo extends JpaRepository<Orders, Integer> {
                                  @Param("orderId") Integer orderId
     );
 
-    @Query("SELECT o FROM Orders o WHERE o.status = 'PENDING' AND o.staff.id = :staffId")
+    @Query("SELECT o FROM Orders o WHERE o.status = 'pending_payment' AND o.staff.id = :staffId")
     List<Orders> findPendingOrdersByStaffId(@Param("staffId") Integer staffId);
 
     Orders findByCode(String code);
@@ -68,7 +71,7 @@ public interface OrderRepo extends JpaRepository<Orders, Integer> {
             "SUM(CASE WHEN o.staff_id IS NOT NULL THEN od.price * od.quantity ELSE 0 END) AS offline_revenue " +  // Doanh thu offline
             "FROM orders o " +
             "JOIN order_detail od ON o.id = od.order_id " +
-            "WHERE o.status = 'shipped' " +  // Trạng thái là 'shipped'
+            "WHERE o.status = 'completed' " +  // Trạng thái là 'shipped'
             "GROUP BY day, month, year " +  // Nhóm theo ngày, tháng, năm
             "ORDER BY day, month, year", nativeQuery = true)
     List<Object[]> getMonthProductsStatistics();

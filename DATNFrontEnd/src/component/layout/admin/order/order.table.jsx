@@ -112,12 +112,12 @@ const OrderTable = (props) => {
   };
   const statusOptions = [
     { value: "pending", label: "Chờ xử lý" },
-    { value: "process", label: "Đang xử lý" },
-    { value: "delivery", label: "Đang giao" },
-    { value: "shipped", label: "Đã giao" },
+    { value: "confirmed", label: "Đã xác nhận" },
+    { value: "shipping", label: "Đang giao hàng" },
+    { value: "delivered", label: "Đã giao" },
+    { value: "completed", label: "Đã hoàn thành" },
     { value: "cancelled", label: "Đã hủy" },
   ];
-
   const showModal = (orderId, currentStatus) => {
     setCurrentOrderId(orderId);
     setSelectedStatus(currentStatus);
@@ -338,45 +338,25 @@ const OrderTable = (props) => {
       ...getColumnSearchProps("status"),
       render: (status, record) => {
         const statusOptions = [
+          { value: "pending_payment", label: "Chờ thanh toán" },
           { value: "pending", label: "Chờ xử lý" },
-          { value: "process", label: "Đang xử lý" },
-          { value: "delivery", label: "Đang giao" },
-          { value: "shipped", label: "Đã giao" },
+          { value: "confirmed", label: "Đã xác nhận" },
+          { value: "shipping", label: "Đang giao hàng" },
+          { value: "delivered", label: "Đã giao" },
+          { value: "completed", label: "Đã hoàn thành" },
           { value: "cancelled", label: "Đã hủy" },
         ];
-
-        // Tìm trạng thái trong danh sách options
         const currentStatus = statusOptions.find(
           (option) => option.value === status
         );
 
-        // Nếu trạng thái tìm được, hiển thị label, nếu không hiển thị "N/A"
         return currentStatus ? currentStatus.label : "N/A";
       },
     },
     {
-      title: "Thời gian tạo",
-      dataIndex: "createdAt",
-      key: "createdAt",
-      render: (text) => {
-        return text ? moment(text).format("YYYY-MM-DD HH:mm:ss A") : "N/A";
-      },
-    },
-    {
-      title: "Tên Nhân Viên",
-      dataIndex: "staffResponse",
-      key: "staffResponse",
-      render: (text, record) => {
-        return record.staffResponse?.name || "Chưa có thông tin";
-      },
-    },
-    {
-      title: "Tổng Tiền",
-      dataIndex: "totalAmount",
-      key: "totalAmount",
-      ...getColumnSearchProps("totalAmount"),
-      sorter: (a, b) => a.totalAmount - b.totalAmount,
-      render: (totalAmount) => `${totalAmount.toLocaleString()} VNĐ`,
+      title: "Loại Đơn Hàng",
+      dataIndex: "orderType",
+      key: "orderType",
     },
     {
       title: "Hành Động",
@@ -386,7 +366,9 @@ const OrderTable = (props) => {
           style={{ color: "blue" }}
           onClick={() => showModal(record.id, record.status)}
           disabled={
-            record.status === "shipped" || record.status === "cancelled"
+            record.orderType === "offline" ||
+            record.status === "cancelled" ||
+            record.status === "completed"
           }
         >
           Cập nhật trạng thái
@@ -394,6 +376,7 @@ const OrderTable = (props) => {
       ),
     },
   ];
+
   const columnsOrderDetail = [
     { title: "Mã HDCT", dataIndex: "id", key: "id" },
     {
@@ -447,8 +430,8 @@ const OrderTable = (props) => {
         return discountPrice
           ? `${discountPrice.toLocaleString()} VNĐ`
           : defaultPrice
-            ? `${defaultPrice.toLocaleString()} VNĐ`
-            : "Chưa có giá";
+          ? `${defaultPrice.toLocaleString()} VNĐ`
+          : "Chưa có giá";
       },
     },
     {
@@ -517,10 +500,12 @@ const OrderTable = (props) => {
       key: "status",
       render: (text, record) => {
         const statusOptions = {
+          pending_payment: "Chờ thanh toán",
           pending: "Chờ xử lý",
-          process: "Đang xử lý",
-          delivery: "Đang giao",
-          shipped: "Đã giao",
+          confirmed: "Đang xử lý",
+          shipping: "Đang giao hàng",
+          delivered: "Đã giao",
+          completed: "Đã hoàn thành",
           cancelled: "Đã hủy",
         };
         return (
@@ -538,21 +523,24 @@ const OrderTable = (props) => {
       .map(
         (record) => `
           <tr>
-            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${record.id
-          }</td>
-            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${record.productDetailId?.code || "N/A"
-          }</td>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${
+              record.id
+            }</td>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${
+              record.productDetailId?.code || "N/A"
+            }</td>
             <td style="border: 1px solid #000; padding: 10px; text-align:center;">${getProductName(
-            record.productDetailId?.productId
-          )}</td>
-            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${record.quantity || "N/A"
-          }</td>
+              record.productDetailId?.productId
+            )}</td>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${
+              record.quantity || "N/A"
+            }</td>
             <td style="border: 1px solid #000; padding: 10px; text-align:center;">${getSizeName(
-            record.productDetailId?.sizeId
-          )}</td>
+              record.productDetailId?.sizeId
+            )}</td>
             <td style="border: 1px solid #000; padding: 10px; text-align:center;">${getColorName(
-            record.productDetailId?.colorId
-          )}</td>
+              record.productDetailId?.colorId
+            )}</td>
             <td style="border: 1px solid #000; padding: 10px; text-align:center;">${record.price.toLocaleString()} VND</td>
           </tr>
         `
@@ -570,12 +558,15 @@ const OrderTable = (props) => {
         <h2 style="text-align: center; font-size: 24px; font-weight: bold;">HÓA ĐƠN BÁN HÀNG</h2>
         <p style="font-size: 16px;">Mã hóa đơn: ${orderDetails.code}</p>
         <p style="font-size: 16px;">Ngày: ${orderDetails.orderDate}</p>
-        <p style="font-size: 16px;">Nhân viên: ${orderDetails?.staffResponse?.name ?? "Không có nhân viên"
-      }</p>
-        <p style="font-size: 16px;">Khách hàng: ${orderDetails.customerResponse.name
-      }</p>
-        <p style="font-size: 16px;">SĐT: ${orderDetails.customerResponse.phoneNumber
-      }</p>
+        <p style="font-size: 16px;">Nhân viên: ${
+          orderDetails?.staffResponse?.name ?? "Không có nhân viên"
+        }</p>
+        <p style="font-size: 16px;">Khách hàng: ${
+          orderDetails.customerResponse.name
+        }</p>
+        <p style="font-size: 16px;">SĐT: ${
+          orderDetails.customerResponse.phoneNumber
+        }</p>
         <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
           <thead>
             <tr>
@@ -596,12 +587,13 @@ const OrderTable = (props) => {
           <div style="width: 250px; border: 1px solid #ddd; padding: 10px;">
             <div className="result_order_detail">
               <span>Giảm giá hóa đơn:</span>
-            ${orderDetails.voucherId
-        ? orderDetails.voucherId.discountAmount !== "0"
-          ? `${orderDetails.voucherId.discountAmount} VND`
-          : `${orderDetails.voucherId.discountPercent}%`
-        : "0 VND (0%)"
-      }
+            ${
+              orderDetails.voucherId
+                ? orderDetails.voucherId.discountAmount !== "0"
+                  ? `${orderDetails.voucherId.discountAmount} VND`
+                  : `${orderDetails.voucherId.discountPercent}%`
+                : "0 VND (0%)"
+            }
             </div>
             <div className="result_order_detail">
               <span>Tổng số lượng:</span>
@@ -615,18 +607,18 @@ const OrderTable = (props) => {
               <span>Trạng thái:</span>
               <span>
                 ${(() => {
-        const statusOptions = [
-          { value: "pending", label: "Chờ xử lý" },
-          { value: "process", label: "Đang xử lý" },
-          { value: "delivery", label: "Đang giao" },
-          { value: "shipped", label: "Đã giao" },
-          { value: "cancelled", label: "Đã hủy" },
-        ];
-        const currentStatus = statusOptions.find(
-          (option) => option.value === orderDetails.status
-        );
-        return currentStatus ? currentStatus.label : "";
-      })()}
+                  const statusOptions = [
+                    { value: "pending", label: "Chờ xử lý" },
+                    { value: "process", label: "Đang xử lý" },
+                    { value: "delivery", label: "Đang giao" },
+                    { value: "shipped", label: "Đã giao" },
+                    { value: "cancelled", label: "Đã hủy" },
+                  ];
+                  const currentStatus = statusOptions.find(
+                    (option) => option.value === orderDetails.status
+                  );
+                  return currentStatus ? currentStatus.label : "";
+                })()}
               </span>
             </div>
           </div>
@@ -665,6 +657,8 @@ const OrderTable = (props) => {
       0
     );
   };
+
+  console.log(orderDetails);
   const expandedRowRender = (record) => {
     const totalQuantity = getTotalQuantity(record.orderDetailResponses || []);
     // Kiểm tra nếu không có nhân viên
@@ -703,10 +697,12 @@ const OrderTable = (props) => {
                       Trạng thái:{" "}
                       {(() => {
                         const statusOptions = [
+                          { value: "pending_payment", label: "Chờ thanh toán" },
                           { value: "pending", label: "Chờ xử lý" },
-                          { value: "process", label: "Đang xử lý" },
-                          { value: "delivery", label: "Đang giao" },
-                          { value: "shipped", label: "Đã giao" },
+                          { value: "confirmed", label: "Đã xác nhận" },
+                          { value: "shipping", label: "Đang giao hàng" },
+                          { value: "delivered", label: "Đã giao" },
+                          { value: "completed", label: "Đã hoàn thành" },
                           { value: "cancelled", label: "Đã hủy" },
                         ];
                         const currentStatus = statusOptions.find(
@@ -774,7 +770,6 @@ const OrderTable = (props) => {
                           e.currentTarget.style.height = "50px";
                         }}
                       >
-                        {/* Voucher thông tin */}
                         <div
                           style={{
                             display: "flex",
@@ -881,7 +876,8 @@ const OrderTable = (props) => {
                     danger
                     disabled={
                       orderDetails.status !== "pending" &&
-                      orderDetails.status !== "process"
+                      orderDetails.status !== "confirmed" &&
+                      orderDetails.status !== "pending_payment"
                     }
                     onClick={showCancelModal}
                   >
@@ -1017,9 +1013,9 @@ const OrderTable = (props) => {
                 status.value === "shipped" ||
                 status.value === "cancelled" ||
                 index <=
-                statusOptions.findIndex(
-                  (option) => option.value === selectedStatus
-                )
+                  statusOptions.findIndex(
+                    (option) => option.value === selectedStatus
+                  )
               }
             />
           ))}
