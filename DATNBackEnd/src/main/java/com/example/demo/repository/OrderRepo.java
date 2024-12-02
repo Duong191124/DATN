@@ -40,6 +40,17 @@ public interface OrderRepo extends JpaRepository<Orders, Integer> {
                                  Pageable pageable
     );
 
+    @Query("SELECT o FROM Orders o " +
+            "LEFT JOIN o.customer s " +
+            "WHERE (:orderStatus IS NULL OR o.status = :orderStatus) " +
+            "AND (:customerId IS NULL OR s.id = :customerId)" +
+            "AND (:orderId IS NULL OR o.id = :orderId)"
+    )
+    List<Orders> pageAllByOrderIdAndCustomerId(@Param("orderStatus") OrderStatus orderStatus,
+                                 @Param("customerId") Integer customerId,
+                                 @Param("orderId") Integer orderId
+    );
+
     @Query("SELECT o FROM Orders o WHERE o.status = 'PENDING' AND o.staff.id = :staffId")
     List<Orders> findPendingOrdersByStaffId(@Param("staffId") Integer staffId);
 

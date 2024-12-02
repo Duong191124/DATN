@@ -62,93 +62,23 @@ const CustomerInfoOrder = () => {
     border: "1px solid #ddd",
   };
 
-  // Dữ liệu cho từng tab
-  const orderData = {
-    1: [
-      {
-        id: 1,
-        storeName: "XSmart Store",
-        productName: "Tai Nghe Nhét Tai HiFi S2000 Pro Super Bass Chống Ồn",
-        options: "Đen Full Nâng Cấp",
-        quantity: 1,
-        price: "57.500",
-        originalPrice: "90.000",
-        status: "HOÀN THÀNH",
-        image: "https://via.placeholder.com/100?text=Tai+Nghe",
-      },
-    ],
-    2: [
-      {
-        id: 2,
-        storeName: "YUDESHUI Mall",
-        productName: "Túi đựng máy tính xách tay đa năng chống sốc",
-        options: "Đen, 14 inch",
-        quantity: 1,
-        price: "90.258",
-        originalPrice: "136.000",
-        status: "CHỜ THANH TOÁN",
-        image: "https://via.placeholder.com/100?text=Túi+Laptop",
-      },
-    ],
-    3: [
-      {
-        id: 3,
-        storeName: "TechShop",
-        productName: "Bàn phím cơ không dây Bluetooth",
-        options: "Đen",
-        quantity: 1,
-        price: "1.200.000",
-        originalPrice: "1.500.000",
-        status: "VẬN CHUYỂN",
-        image: "https://via.placeholder.com/100?text=Bàn+Phím",
-      },
-    ],
-    4: [],
-    5: [
-      {
-        id: 4,
-        storeName: "GamingGear Pro",
-        productName: "Chuột chơi game RGB siêu nhạy",
-        options: "Đen",
-        quantity: 1,
-        price: "750.000",
-        originalPrice: "850.000",
-        status: "HOÀN THÀNH",
-        image: "https://via.placeholder.com/100?text=Chuột",
-      },
-    ],
-    6: [
-      {
-        id: 5,
-        storeName: "GadgetWorld",
-        productName: "Ốp lưng iPhone 15 Pro Max",
-        options: "Trong suốt",
-        quantity: 2,
-        price: "200.000",
-        originalPrice: "250.000",
-        status: "ĐÃ HỦY",
-        image: "https://via.placeholder.com/100?text=Ốp+Lưng",
-      },
-    ],
-    7: [
-      {
-        id: 6,
-        storeName: "AccessoryShop",
-        productName: "Dây cáp sạc nhanh USB-C",
-        options: "1m",
-        quantity: 1,
-        price: "150.000",
-        originalPrice: "200.000",
-        status: "TRẢ HÀNG/HOÀN TIỀN",
-        image: "https://via.placeholder.com/100?text=Cáp+Sạc",
-      },
-    ],
+  const getStatusByTab = (tabKey) => {
+    const statusMap = {
+      1: null, // Tất cả
+      2: "pending", // Chờ thanh toán
+      3: "delivery", // Vận chuyển
+      4: "process", // Chờ giao hàng
+      5: "shipped", // Hoàn thành
+      6: "cancelled", // Đã hủy
+    };
+    return statusMap[tabKey] || null;
   };
+
 
   const fetchDataByStatus = async () => {
     try {
-      const res = await fetchDataOrderStatusByCustomerId(userId, limit, pageSize);
-      console.log(res);
+      const status = getStatusByTab(activeTab);
+      const res = await fetchDataOrderStatusByCustomerId(userId, limit, pageSize, status);
       if (res.data) {
         setData(res.data.data.content);
       }
@@ -159,7 +89,7 @@ const CustomerInfoOrder = () => {
 
   useEffect(() => {
     fetchDataByStatus()
-  }, [])
+  }, [activeTab])
 
   const statusOptions = [
     { value: "pending", label: "Chờ xử lý" },
@@ -175,6 +105,8 @@ const CustomerInfoOrder = () => {
     return status ? status.label : "Unknown Status";
   };
 
+  console.log(data);
+
   const renderOrderCard = () => {
     return data.map((order) => {
       const orderId = order.id; // Lấy id của đơn hàng
@@ -187,8 +119,8 @@ const CustomerInfoOrder = () => {
           code: productDetail.code || "Mã sản phẩm",
           image: productDetail.image || "default-image-url.jpg", // Giá trị mặc định khi không có ảnh
           defaultPrice: productDetail.defaultPrice || 0,
-          color: productDetail.colorId || "N/A",
-          size: productDetail.sizeId || "N/A",
+          color: productDetail.colorName || "N/A",
+          size: productDetail.sizeName || "N/A",
           price: detail.price || 0, // Giá mặc định nếu không có giá
           quantity: detail.quantity || 1 // Số lượng mặc định nếu không có
         };
@@ -228,11 +160,22 @@ const CustomerInfoOrder = () => {
                     {/* Chi tiết sản phẩm */}
                     <div>
                       <Text strong>{product.code}</Text>
-                      <div>
-                        <Text type="secondary">
-                          Phân loại hàng:{" "}
-                          {`Màu: ${product.color}, Size: ${product.size}`}
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <Text type="secondary" style={{ marginRight: "10px" }}>
+                          Phân loại hàng:
                         </Text>
+                        <span
+                          style={{
+                            display: "inline-block",
+                            width: "20px",
+                            height: "20px",
+                            backgroundColor: product.color,
+                            borderRadius: '50%',
+                            border: "1px solid #ddd",
+                            marginRight: "10px",
+                          }}
+                        ></span>
+                        <Text type="secondary">{`Size: ${product.size}`}</Text>
                       </div>
                       <div style={{ marginTop: "10px" }}>
                         <Text delete style={{ marginRight: 8 }}>
@@ -250,6 +193,7 @@ const CustomerInfoOrder = () => {
                       </div>
                       <Text>x{product.quantity}</Text> {/* Số lượng */}
                     </div>
+
                   </Col>
                 ))}
             </Row>
@@ -307,18 +251,11 @@ const CustomerInfoOrder = () => {
           <TabPane tab="Chờ giao hàng" key="4"></TabPane>
           <TabPane tab="Hoàn thành" key="5"></TabPane>
           <TabPane tab="Đã hủy" key="6"></TabPane>
-          <TabPane tab="Trả hàng/Hoàn tiền" key="7"></TabPane>
         </Tabs>
       </div>
       <div>
-        {activeTab === "1" && (
-          <Input
-            placeholder="Bạn có thể tìm kiếm theo tên Shop, ID đơn hàng hoặc Tên Sản phẩm"
-            style={inputStyle}
-          />
-        )}
-        {orderData[activeTab].length > 0 ? (
-          orderData[activeTab].map((order) => renderOrderCard(order))
+        {data.length > 0 ? (
+          renderOrderCard()
         ) : (
           <Text type="secondary">Không có đơn hàng nào.</Text>
         )}
