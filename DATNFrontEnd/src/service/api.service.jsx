@@ -245,6 +245,7 @@ const fetchDataOrders = (
   endDate = null,
   orderStatus = "",
   orderCode = "",
+  orderType = "",
   page = 0,
   limit = 10
 ) => {
@@ -258,6 +259,7 @@ const fetchDataOrders = (
         endDate: endDate,
         orderStatus: orderStatus,
         orderCode: orderCode,
+        orderType: orderType,
         page,
         limit,
       },
@@ -267,17 +269,22 @@ const fetchDataOrders = (
     throw error;
   }
 };
-const fetchDataOrderStatusByCustomerId = (customerId, page, limit, orderStatus = null) => {
+const fetchDataOrderStatusByCustomerId = (
+  customerId,
+  page,
+  limit,
+  orderStatus = null
+) => {
   let URL_BACKEND = `/api/v1/orders/${customerId}/getDataByCustomer?${page}&${limit}`;
   if (orderStatus) {
     URL_BACKEND += `&orderStatus=${orderStatus}`;
   }
   return axios.get(URL_BACKEND);
-}
+};
 const fetchDataOrderForCustomerIdByOrderId = async (customerId, orderId) => {
   const URL_BACKEND = `/api/v1/orders/${customerId}/getDataOrderByOrderId/${orderId}`;
   return axios.get(URL_BACKEND);
-}
+};
 const productFindById = (productId) => {
   const URL_BACKEND = `api/v1/products/productId/${productId}`;
   return axios.get(URL_BACKEND);

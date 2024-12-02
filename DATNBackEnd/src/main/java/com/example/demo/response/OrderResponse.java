@@ -2,6 +2,7 @@ package com.example.demo.response;
 
 import com.example.demo.dto.AddressOrderDTO;
 import com.example.demo.entity.OrderStatus;
+import com.example.demo.entity.OrderType;
 import com.example.demo.entity.Orders;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EnumType;
@@ -37,6 +38,8 @@ public class OrderResponse {
     private CustomerResponse customerResponse;
     private AddressOrderDTO address;
     private String note;
+    @Enumerated(EnumType.STRING)
+    private OrderType orderType;
     private List<ProductDetailResponse> productDetailResponses = new ArrayList<>();
     private List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
     private List<PaymentResponse> paymentResponses = new ArrayList<>();
@@ -69,6 +72,7 @@ public class OrderResponse {
                 .paymentResponses(orders.getPayments().stream().map(PaymentResponse::convertPaymentResponse).toList())
                 .address(addressDTO)
                 .note(orders.getNote())
+                .orderType(orders.getOrderType())
                 .createdAt(orders.getCreatedAt())
                 .updatedAt(orders.getUpdatedAt())
                 .build();

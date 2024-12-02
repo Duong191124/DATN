@@ -493,10 +493,6 @@ const ProductCard = ({
           </div>
         </Modal>
         <ActionButton
-          icon={<HeartOutlined />}
-          onClick={() => onAddToWishlist(product)}
-        />
-        <ActionButton
           icon={<EyeOutlined />}
           onClick={() => onQuickView(product)}
         />

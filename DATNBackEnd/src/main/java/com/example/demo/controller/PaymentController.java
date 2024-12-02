@@ -110,7 +110,7 @@ public class PaymentController {
             String paymentStatus = params.get("vnp_ResponseCode");
                     if ("00".equals(paymentStatus)) {
                         // Cập nhật trạng thái thanh toán thành công
-                        order.setStatus(OrderStatus.shipped);
+                        order.setStatus(OrderStatus.completed);
                         orderRepo.save(order);
                         Payment payment = new Payment();
                         payment.setPaymentMethod("VNP");
