@@ -52,7 +52,7 @@ public class Orders extends BaseEntity {
     @JoinColumn(name = "voucher_id", referencedColumnName = "id",nullable = true)
     private Voucher voucher;
     @ManyToOne
-    @JoinColumn(name = "staff_id", referencedColumnName = "id")
+    @JoinColumn(name = "staff_id", referencedColumnName = "id",nullable = true)
     private Staff staff;
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id")

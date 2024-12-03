@@ -45,7 +45,6 @@ public class PaymentController {
         }
         return ResponseEntity.ok(new MessageReponse("success",200,paymentResponses)) ;
     }
-    @PreAuthorize("hasAuthority('CREATE_PAYMENT')")
     @PostMapping("/add")
     public ResponseEntity<?> addPayment(@Valid @RequestBody PaymentDTO paymentDTO, BindingResult result){
         try {
@@ -121,6 +120,7 @@ public class PaymentController {
                         response.put("status", "SUCCESS");
                         response.put("message", "Thanh toán thành công");
                         response.put("orderId", order.getCode()); // Trả về orderId
+                        response.put("paymentMethod", payment.getPaymentMethod());
                         return ResponseEntity.ok(response);
                     } else {
                             // Duyệt qua các chi tiết đơn hàng để cập nhật số lượng sản phẩm

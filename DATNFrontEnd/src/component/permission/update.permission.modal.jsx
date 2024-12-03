@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Modal, Tree, Checkbox, notification } from "antd";
+import { Modal, Tree, Checkbox, notification, Row, Col } from "antd";
 import {
   getAllPermissionPagination,
   getStaffPermissions,
@@ -171,38 +171,60 @@ const UpdatePermissionForUserModal = (props) => {
       onClose();
     }
   };
-
+  const groupByRows = (data, itemsPerRow) => {
+    const rows = [];
+    for (let i = 0; i < data.length; i += itemsPerRow) {
+      rows.push(data.slice(i, i + itemsPerRow));
+    }
+    return rows;
+  };
   const renderTree = () => {
-    return permissions.map((group) => ({
-      title: (
-        <div>
-          <Checkbox
-            checked={group.children.every((permission) => permission.staff)}
-            indeterminate={
-              group.children.some((permission) => permission.staff) &&
-              !group.children.every((permission) => permission.staff)
-            }
-            onChange={(e) => handleGroupCheckAll(group.title, e.target.checked)}
-          >
-            {group.title}
-          </Checkbox>
-        </div>
-      ),
-      key: group.title,
-      children: group.children.map((permission) => ({
-        title: (
-          <Checkbox
-            checked={permission.staff}
-            onChange={(e) =>
-              handleCheckboxChange(permission.key, e.target.checked)
-            }
-          >
-            {permission.title}
-          </Checkbox>
-        ),
-        key: permission.key,
-      })),
-    }));
+    const rows = [];
+    for (let i = 0; i < permissions.length; i += 4) {
+      rows.push(permissions.slice(i, i + 4));
+    }
+    return rows.map((row, rowIndex) => (
+      <Row gutter={16} key={`row-${rowIndex}`}>
+        {row.map((group) => (
+          <Col span={6} key={group.title}>
+            <Tree
+              treeData={[
+                {
+                  title: (
+                    <Checkbox
+                      checked={group.children.every((child) => child.staff)}
+                      indeterminate={
+                        group.children.some((child) => child.staff) &&
+                        !group.children.every((child) => child.staff)
+                      }
+                      onChange={(e) =>
+                        handleGroupCheckAll(group.title, e.target.checked)
+                      }
+                    >
+                      {group.title}
+                    </Checkbox>
+                  ),
+                  key: group.title,
+                  children: group.children.map((permission) => ({
+                    title: (
+                      <Checkbox
+                        checked={permission.staff}
+                        onChange={(e) =>
+                          handleCheckboxChange(permission.key, e.target.checked)
+                        }
+                      >
+                        {permission.title}
+                      </Checkbox>
+                    ),
+                    key: permission.key,
+                  })),
+                },
+              ]}
+            />
+          </Col>
+        ))}
+      </Row>
+    ));
   };
 
   const onCloseModal = () => {
@@ -267,12 +289,7 @@ const UpdatePermissionForUserModal = (props) => {
           Select All READ
         </Checkbox>
       </div>
-      <Tree
-        expandedKeys={expandedKeys}
-        onExpand={(keys) => setExpandedKeys(keys)}
-        checkable={false} // Không dùng checkable của Tree vì xử lý riêng bằng checkbox
-        treeData={renderTree()}
-      />
+      <div>{renderTree()}</div>
     </Modal>
   );
 };
