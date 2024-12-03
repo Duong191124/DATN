@@ -29,7 +29,7 @@ const AccountStats = () => {
         type: "donut",
         height: 350,
       },
-      labels: ["Admin", "Manager", "Employee", "Customer"],
+      labels: ["Admin", "Quản lý", "Nhân viên", "Khách hàng"],
       responsive: [
         {
           breakpoint: 480,
@@ -67,7 +67,7 @@ const AccountStats = () => {
 
   return (
     <div>
-      <h2>Account Statistics</h2>
+      <h2>Thống kê tài khoản</h2>
       <div id="account-chart"></div>
     </div>
   );

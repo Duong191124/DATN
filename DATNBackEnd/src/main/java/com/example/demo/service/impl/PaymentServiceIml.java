@@ -45,7 +45,7 @@ public class PaymentServiceIml implements PaymentService {
                     payment.setPaymentDate(paymentDTO.getPaymentDate());
                     payment.getOrders().setId(paymentDTO.getOrderId());
                     paymentRepo.save(payment);
-                    orders.setStatus(OrderStatus.shipped);
+                    orders.setStatus(OrderStatus.completed);
                     orderRepo.save(orders);
                     return PaymentResponse.convertPaymentResponseUrl(payment, null);
                 }

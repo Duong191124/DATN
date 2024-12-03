@@ -13,84 +13,79 @@ const items = [
   {
     key: "1",
     icon: <TeamOutlined />,
-    label: <Link to="/admin/chart">Statistical</Link>,
+    label: <Link to="/admin/chart">Thống kê</Link>,
   },
   {
     key: "2",
     icon: <TeamOutlined />,
-    label: <Link to="/admin/order">Bill Management</Link>,
+    label: <Link to="/admin/order">Quản lý hóa đơn</Link>,
   },
   {
     key: "opt1",
     icon: <ProductOutlined />,
-    label: "Product",
+    label: "Quản lý sản phẩm",
     children: [
       {
         key: "3",
         icon: <ProductOutlined />,
-        label: <Link to="/admin/products">Product Management</Link>,
+        label: <Link to="/admin/products">Sản phẩm</Link>,
       },
       {
         key: "4",
         icon: <TeamOutlined />,
-        label: <Link to="/admin/colors">Color Management</Link>,
+        label: <Link to="/admin/colors">Quản lý màu sắc</Link>,
       },
       {
         key: "5",
         icon: <TeamOutlined />,
-        label: <Link to="/admin/sizes">Size Management</Link>,
+        label: <Link to="/admin/sizes">Quản lý kích thước</Link>,
       },
       {
         key: "6",
         icon: <TeamOutlined />,
-        label: <Link to="/admin/collars">Collar Management</Link>,
+        label: <Link to="/admin/collars">Quản lý cổ áo</Link>,
       },
       {
         key: "7",
         icon: <TeamOutlined />,
-        label: <Link to="/admin/brands">Brand Management</Link>,
+        label: <Link to="/admin/brands">Quản lý thương hiệu</Link>,
       },
       {
         key: "8",
         icon: <TeamOutlined />,
-        label: <Link to="/admin/categories">Category Management</Link>,
+        label: <Link to="/admin/categories">Quản lý danh mục</Link>,
       },
       {
         key: "9",
         icon: <SettingOutlined />,
-        label: <Link to="/admin/sleeves">Sleeve Management</Link>,
-      },
-      {
-        key: "10",
-        icon: <SettingOutlined />,
-        label: <Link to="/admin/weight"> Weight Management</Link>,
+        label: <Link to="/admin/sleeves">Quản lý tay áo</Link>,
       },
     ],
   },
   {
     key: "11",
     icon: <TeamOutlined />,
-    label: <Link to="/admin/staff">Staff Management</Link>,
+    label: <Link to="/admin/staff">Quản lý nhân viên</Link>,
   },
   {
     key: "12",
     icon: <SettingOutlined />,
-    label: <Link to="/admin/permission">Permission Management</Link>,
+    label: <Link to="/admin/permission">Quản lý quyền</Link>,
   },
   {
     key: "13",
     icon: <SettingOutlined />,
-    label: <Link to="/admin/voucher">Voucher Management</Link>,
+    label: <Link to="/admin/voucher">Quản lý phiếu giảm giá</Link>,
   },
   {
     key: "14",
     icon: <SettingOutlined />,
-    label: <Link to="/admin/promotions">Promotion Management</Link>,
+    label: <Link to="/admin/promotions">Quản lý khuyến mãi</Link>,
   },
   {
     key: "15",
     icon: <SettingOutlined />,
-    label: <Link to="/admin/customer">Customer Management</Link>,
+    label: <Link to="/admin/customer">Quản lý khách hàng</Link>,
   },
 ];
 const getLevelKeys = (items1) => {

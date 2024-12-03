@@ -9,9 +9,9 @@ const instance = axios.create({
 
 // Helper function to show and hide the spinner
 const setSpinLoadingVisibility = (isVisible) => {
-  const spinLoading = document.querySelector('.spin-loading'); // Giả sử class spin-loading có sẵn trong HTML
+  const spinLoading = document.querySelector(".spin-loading"); // Giả sử class spin-loading có sẵn trong HTML
   if (spinLoading) {
-    spinLoading.style.display = isVisible ? 'flex' : 'none';
+    spinLoading.style.display = isVisible ? "flex" : "none";
   }
 };
 
@@ -57,33 +57,31 @@ instance.interceptors.response.use(
       const { status } = error.response;
       // If 401, remove token and redirect to login
       if (status === 401) {
+        notification.error({
+          message: "Hết phiên đăng nhập",
+          description: "Vui lòng đăng nhập lại",
+          duration: 2,
+        });
         if (typeof window !== "undefined") {
           localStorage.removeItem("access_token");
 
           window.location.href = "/login"; // Ensure this matches your app's route
         }
-        notification.error({
-          message: "Hết phiên đăng nhập",
-          description: 'Vui lòng đăng nhập lại',
-          duration: 2
-        })
-      }
-      else if (status === 403) {
+      } else if (status === 403) {
         notification.error({
           message: "Không có quyền truy cập",
-          description: 'Bạn không có quyền',
-          duration: 2
+          description: "Bạn không có quyền",
+          duration: 2,
         });
         return;
       }
-      else {
-        notification.warning({
-          message: 'Warring',
-          description: error.response.data.message,
-          duration: 2
-        });
-      }
-
+      // else {
+      //   notification.warning({
+      //     message: 'Warring',
+      //     description: error.response.data.message,
+      //     duration: 2
+      //   });
+      // }
     }
   }
 );

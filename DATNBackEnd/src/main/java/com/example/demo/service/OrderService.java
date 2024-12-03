@@ -2,8 +2,10 @@ package com.example.demo.service;
 
 
 
+import com.example.demo.dto.OrderBuyerResponseDTO;
 import com.example.demo.dto.OrderDTO;
 import com.example.demo.entity.OrderStatus;
+import com.example.demo.entity.OrderType;
 import com.example.demo.request.OrderWithVoucherAndOrderDetailRequest;
 import com.example.demo.response.OrderResponse;
 import org.springframework.data.domain.Page;
@@ -14,7 +16,8 @@ import java.util.List;
 
 public interface OrderService {
     List<OrderResponse> getAll();
-    Page<OrderResponse> getOrderByCustomerId(Integer customerId, Pageable pageable, OrderStatus orderStatus);
+    List<OrderBuyerResponseDTO> getAllOrderByOrderId(Integer customerId, OrderStatus status, Integer orderId);
+    Page<OrderBuyerResponseDTO> getOrderByCustomerId(Integer customerId, Pageable pageable, OrderStatus orderStatus);
     OrderResponse createdOrder(OrderDTO orderDTO);
     OrderResponse updatedOrder(int id,OrderDTO orderDTO);
     OrderResponse updateStatusOrder(Integer id, String status,String note);
@@ -22,7 +25,7 @@ public interface OrderService {
     OrderResponse findById(Integer id);
     OrderResponse findByCode(String code);
     OrderResponse updatedOrderWithProductDetail(Integer id, OrderWithVoucherAndOrderDetailRequest orderUpdateRequest);
-    Page<OrderResponse> pageAll(String staffName, LocalDate startDate, LocalDate  endDate, OrderStatus orderStatus, String orderCode, Pageable pageable);
+    Page<OrderResponse> pageAll(String staffName, LocalDate startDate, LocalDate  endDate, OrderStatus orderStatus, String orderCode, OrderType orderType, Pageable pageable);
     List<OrderResponse> getPendingOrdersByStaff(Integer staffId);
     boolean hasCustomerExitVoucher(int customerId, int voucherId);
     boolean hasCustomerUsedVoucher(int customerId, int voucherId);

@@ -25,6 +25,8 @@ public class OrderDTO {
     private String code;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+    @Enumerated(EnumType.STRING)
+    private OrderType orderType;
     @NotNull(message = "check delivery fee, please!")
     @Min(value = 0,message = "delivery fee is not valid")
     @JsonProperty("delivery_fee")
@@ -76,6 +78,7 @@ public class OrderDTO {
                 .moneyReceived(orderDTO.getMoneyReceived())
                 .voucher(voucher)  // Gán voucher (nếu có)
                 .customer(customer)
+                .orderType(orderDTO.orderType)
                 .build();
     }
 }

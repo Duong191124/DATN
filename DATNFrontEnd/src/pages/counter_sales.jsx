@@ -135,7 +135,6 @@ const CounterSales = () => {
         setDataColor(response.data.data);
       }
     } catch (error) {
-      console.error("lỗi không thể hiển thị color", error);
       message.error("lỗi không thể tải color");
     }
   };
@@ -210,7 +209,6 @@ const CounterSales = () => {
     };
     loadData();
   }, [customerList]);
-
   const loadCustomerList = useCallback(async () => {
     try {
       const response = await getAllCustomer(1, 1000);
@@ -252,7 +250,6 @@ const CounterSales = () => {
   );
   const addToCart = useCallback(
     async (productDetailId, quantity) => {
-      debugger;
       if (!selectedBill) {
         message.warning("Vui lòng chọn hóa đơn để mua hàng!");
         return false;
@@ -579,6 +576,7 @@ const CounterSales = () => {
     setSelectedBill(null);
     localStorage.setItem("cartItemsByBill", JSON.stringify(updatedCartItems));
   };
+  const billCode = billWaiting.find((bill) => bill.code === selectedBill);
   useEffect(() => {
     const defaultFilters = {
       productName: "",
@@ -751,6 +749,44 @@ const CounterSales = () => {
             height: "100%",
           }}
         >
+          {selectedBill && (
+            <div
+              style={{
+                display: "flex",
+                fontSize: "16px",
+                fontWeight: "500", // Đậm chữ
+                color: "#333", // Màu chữ tối cho dễ đọc
+                lineHeight: "1.5", // Khoảng cách dòng dễ đọc
+                backgroundColor: "#f9f9f9", // Màu nền nhẹ để làm nổi bật
+                padding: "10px", // Khoảng cách giữa nội dung và viền
+                borderRadius: "5px", // Viền bo tròn nhẹ nhàng
+                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", // Hiệu ứng đổ bóng nhẹ
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              Khách hàng:
+              <span
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  padding: "0 5px",
+                }}
+              >
+                {billCode?.customerResponse?.name}
+              </span>
+              - Nhân viên:
+              <span
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  padding: "0 5px",
+                }}
+              >
+                {staff?.name}
+              </span>
+            </div>
+          )}
           <CounterSaleCustomer
             onCustomerSelect={(customer) => setSelectedCustomer(customer)}
             customerList={customerList}

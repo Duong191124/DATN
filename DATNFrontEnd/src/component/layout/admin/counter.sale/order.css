@@ -6,11 +6,6 @@
   position: relative; /* Để định vị dấu tích */
 }
 
-.custom-tabs .ant-tabs-tab-active {
-  background-color: #ddd !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
 .custom-tabs .tab-check-icon {
   position: absolute;
   font-size: 14px;

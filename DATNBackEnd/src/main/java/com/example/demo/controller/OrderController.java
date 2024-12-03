@@ -1,9 +1,11 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.OrderBuyerResponseDTO;
 import com.example.demo.dto.OrderDTO;
 import com.example.demo.dto.OrderOnlineDTO;
 import com.example.demo.entity.Notice;
 import com.example.demo.entity.OrderStatus;
+import com.example.demo.entity.OrderType;
 import com.example.demo.request.OrderWithVoucherAndOrderDetailRequest;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.response.OrderPageResponse;
@@ -56,11 +58,12 @@ public class  OrderController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
             @RequestParam(required = false) OrderStatus orderStatus,
             @RequestParam(defaultValue = "", required = false) String orderCode,
+            @RequestParam(required = false) OrderType orderType,
             @RequestParam(defaultValue = "0", required = false) int page,
             @RequestParam(defaultValue = "10", required = false) int limit
     ) {
         Pageable pageable = PageRequest.of(page, limit, Sort.by("createdAt").descending());
-        Page<OrderResponse> orders = orderService.pageAll(staffName, startDate, endDate, orderStatus, orderCode, pageable);
+        Page<OrderResponse> orders = orderService.pageAll(staffName, startDate, endDate, orderStatus, orderCode, orderType, pageable);
         List<OrderResponse> orderResponses = orders.getContent();
         int totalPage = orders.getTotalPages();
         int pageCurrent = orders.getNumber();
@@ -74,6 +77,7 @@ public class  OrderController {
                 .build());
     }
 
+
     @GetMapping("/{customerId}/getDataByCustomer")
     public ResponseEntity<?> getOrderByCustomerId (
             @PathVariable Integer customerId,
@@ -82,10 +86,24 @@ public class  OrderController {
             @RequestParam(defaultValue = "10", required = false) int limit
     ) {
         Pageable pageable = PageRequest.of(page, limit, Sort.by("createdAt").descending());
-        Page<OrderResponse> orders = orderService.getOrderByCustomerId(customerId, pageable, orderStatus);
+        Page<OrderBuyerResponseDTO> orders = orderService.getOrderByCustomerId(customerId, pageable, orderStatus);
 
         return ResponseEntity.ok().body(MessageReponse.builder()
                         .data(orders)
+                        .message("successful")
+                        .status(HttpStatus.OK.value())
+                        .build());
+    }
+
+    @GetMapping("/{customerId}/getDataOrderByOrderId/{orderId}")
+    public ResponseEntity<?> getOrderByOrderId (
+            @PathVariable("customerId") Integer customerId,
+            @PathVariable("orderId") Integer orderId,
+            @RequestParam(required = false) OrderStatus status
+    ){
+        List<OrderBuyerResponseDTO> orderList = orderService.getAllOrderByOrderId(customerId, status, orderId);
+        return ResponseEntity.ok().body(MessageReponse.builder()
+                        .data(orderList)
                         .message("successful")
                         .status(HttpStatus.OK.value())
                         .build());

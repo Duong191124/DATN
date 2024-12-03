@@ -43,8 +43,11 @@ public class Orders extends BaseEntity {
     private Double moneyReceived;
     @Column(name = "address", columnDefinition = "JSON")
     private String address;
-    @Column(name = "note", columnDefinition = "JSON")
+    @Column(name = "note")
     private String note;
+    @Column(name = "order_type", nullable = true, length = 255)
+    @Enumerated(EnumType.STRING)
+    private OrderType orderType;
     @ManyToOne
     @JoinColumn(name = "voucher_id", referencedColumnName = "id",nullable = true)
     private Voucher voucher;
