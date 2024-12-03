@@ -43,6 +43,8 @@ public class Orders extends BaseEntity {
     private Double moneyReceived;
     @Column(name = "address", columnDefinition = "JSON")
     private String address;
+    @Column(name = "tracking_number")
+    private String trackingNumber;
     @Column(name = "note")
     private String note;
     @Column(name = "order_type", nullable = true, length = 255)

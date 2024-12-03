@@ -83,17 +83,6 @@ const CheckoutStep = () => {
     }
   };
 
-  const convertDataProductToOrder = (cartItemsLocal) => {
-    return cartItemsLocal.map((item) => ({
-      product: {
-        name: item.productResponse.name,
-        categoryName: item.productResponse.categoryName,
-      },
-      code: item.code,
-      quantity: item.quantity,
-    }));
-  };
-
   useEffect(() => {
     const items = JSON.parse(localStorage.getItem(`cart_${userId}`)) || [];
     setCartItems(items);
@@ -109,7 +98,6 @@ const CheckoutStep = () => {
     const cartItemsLocal = cartItems;
     const orderDetailRequests = convertCartToOrderDetails(cartItemsLocal);
     const addressToOrder = convertSelectAddressToOrder(selectAddress);
-    // const itemsProduct = convertDataProductToOrder(cartItemsLocal);
 
     const orderDTO = {
       code: generateInvoiceCode(), // Mã đơn hàng
@@ -122,19 +110,6 @@ const CheckoutStep = () => {
       orderDetailRequests, // Dữ liệu sản phẩm trong đơn hàng
       addressToOrder,
     };
-
-    // const createOrderGhn = {
-    //     toDistrictId: district,
-    //     toWardCode: ward,
-    //     weight: weight,
-    //     paymentType: 2,
-    //     shipCOD: totalShippingFee,
-    //     customerName: addresses.name,
-    //     customerPhone: addresses.phoneNumber,
-    //     addressDetail: addresses.addressDetail,
-    //     customerEmail: addresses?.customer?.email,
-    //     itemsProduct
-    // }
 
     try {
       // Step 1: Create the order in your system
@@ -154,25 +129,6 @@ const CheckoutStep = () => {
       if (!createOrderResponse || createOrderResponse?.error) {
         throw new Error(createOrderResponse?.message);
       }
-
-      // Step 2: Create the order in the GHN system (Shipping)
-      // const createOrderGhnResponse = await getCreateOrderGhn(
-      //     createOrderGhn.toDistrictId,
-      //     createOrderGhn.toWardCode,
-      //     createOrderGhn.weight,
-      //     createOrderGhn.paymentType,
-      //     createOrderGhn.shipCOD,
-      //     createOrderGhn.customerName,
-      //     createOrderGhn.customerPhone,
-      //     createOrderGhn.addressDetail,
-      //     createOrderGhn.customerEmail,
-      //     createOrderGhn.itemsProduct
-      // );
-
-      // If there is any error in the GHN response, throw an error
-      // if (createOrderGhnResponse?.error) {
-      //     throw new Error(createOrderGhnResponse?.error || "Giao hàng không thành công.");
-      // }
 
       // If both orders are successfully created, show success message
       message.success("Đơn hàng đã được tạo thành công!");

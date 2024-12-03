@@ -1158,6 +1158,7 @@ const getShippingFee = (
   return axios.post(URL_BACKEND, data);
 };
 const getCreateOrderGhn = (
+  orderCode,
   toDistrictId,
   toWardCode,
   weight,
@@ -1171,6 +1172,7 @@ const getCreateOrderGhn = (
 ) => {
   const URL_BACKEND = `/api/v1/ghn/create-order-ghn`;
   const data = {
+    orderCode,
     toDistrictId,
     toWardCode,
     weight,
@@ -1184,6 +1186,13 @@ const getCreateOrderGhn = (
   };
   return axios.post(URL_BACKEND, data);
 };
+const cancelOrderGhn = (trackingId) => {
+  const URL_BACKEND = `/api/v1/ghn/cancel-order`;
+  const data = {
+    trackingId
+  }
+  return axios.post(URL_BACKEND, data);
+}
 const getAddressByCustomerId = (customerId) => {
   const URL_BACKEND = `/api/v1/address/${customerId}`;
   return axios.get(URL_BACKEND);
@@ -1260,6 +1269,7 @@ const getProductsWithAttributeAndCustomer = () => {
   return axios.get(URL_BACKEND);
 };
 export {
+  cancelOrderGhn,
   fetchDataOrderForCustomerIdByOrderId,
   fetchDataOrderStatusByCustomerId,
   checkDuplicateProductDetailAPI,
