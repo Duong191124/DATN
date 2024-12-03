@@ -31,7 +31,7 @@ public class OrderDataPaymentResponse {
                 .id(orders.getId())
                 .status(orders.getStatus())
                 .orderDate(orders.getOrderDate())
-                .staffResponse(StaffResponse.fromStaffResponse(orders.getStaff()))
+                .staffResponse(orders.getStaff() != null ? StaffResponse.fromStaffResponse(orders.getStaff()) : null)
                 .deliveryFee(orders.getDeliveryFee())
                 .totalAmount(orders.getTotalAmount())
                 .moneyReceived(orders.getMoneyReceived())

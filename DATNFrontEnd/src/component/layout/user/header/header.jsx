@@ -162,7 +162,6 @@ const Header = () => {
   };
   const filterProduct = async () => {
     const response = await fetchProductsByProductDetails(0, 1000);
-    console.log("response", response);
     if (response?.data?.data) {
       setDataProduct(response?.data?.data.products);
     }
@@ -276,7 +275,11 @@ const Header = () => {
           <div className="input-search">
             <ProductSearch data={dataProduct} />
             <div className="icon-right">
-              <Badge onClick={() => setOpenCart(true)} count={cartItems.length} showZero>
+              <Badge
+                onClick={() => setOpenCart(true)}
+                count={cartItems.length}
+                showZero
+              >
                 <Button
                   type="text"
                   className="icon-right-btn"
