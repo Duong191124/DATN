@@ -87,17 +87,6 @@ const CheckoutStep = () => {
     }
   };
 
-  const convertDataProductToOrder = (cartItemsLocal) => {
-    return cartItemsLocal.map((item) => ({
-      product: {
-        name: item.productResponse.name,
-        categoryName: item.productResponse.categoryName,
-      },
-      code: item.code,
-      quantity: item.quantity,
-    }));
-  };
-
   useEffect(() => {
     const items = JSON.parse(localStorage.getItem(`cart_${userId}`)) || [];
     setCartItems(items);
@@ -113,8 +102,6 @@ const CheckoutStep = () => {
     const cartItemsLocal = cartItems;
     const orderDetailRequests = convertCartToOrderDetails(cartItemsLocal);
     const addressToOrder = convertSelectAddressToOrder(selectAddress);
-    // const itemsProduct = convertDataProductToOrder(cartItemsLocal);
-    const paymentMethod = selectedOption;
     const orderDTO = {
       code: generateInvoiceCode(), // Mã đơn hàng
       orderDate: new Date().toISOString().split("T")[0], // Ngày đặt hàng
@@ -126,19 +113,6 @@ const CheckoutStep = () => {
       orderDetailRequests, // Dữ liệu sản phẩm trong đơn hàng
       addressToOrder,
     };
-
-    // const createOrderGhn = {
-    //     toDistrictId: district,
-    //     toWardCode: ward,
-    //     weight: weight,
-    //     paymentType: 2,
-    //     shipCOD: totalShippingFee,
-    //     customerName: addresses.name,
-    //     customerPhone: addresses.phoneNumber,
-    //     addressDetail: addresses.addressDetail,
-    //     customerEmail: addresses?.customer?.email,
-    //     itemsProduct
-    // }
 
     try {
       // Step 1: Create the order in your system
@@ -159,36 +133,6 @@ const CheckoutStep = () => {
         throw new Error(createOrderResponse?.message);
       }
 
-      // Step 2: Create the order in the GHN system (Shipping)
-      // const createOrderGhnResponse = await getCreateOrderGhn(
-      //     createOrderGhn.toDistrictId,
-      //     createOrderGhn.toWardCode,
-      //     createOrderGhn.weight,
-      //     createOrderGhn.paymentType,
-      //     createOrderGhn.shipCOD,
-      //     createOrderGhn.customerName,
-      //     createOrderGhn.customerPhone,
-      //     createOrderGhn.addressDetail,
-      //     createOrderGhn.customerEmail,
-      //     createOrderGhn.itemsProduct
-      // );
-
-      // If there is any error in the GHN response, throw an error
-      // if (createOrderGhnResponse?.error) {
-      //     throw new Error(createOrderGhnResponse?.error || "Giao hàng không thành công.");
-      // }
-      const paymentDTO = {
-        paymentDate: moment().format("DD/MM/YYYY"),
-        paymentMethod: paymentMethod,
-        orderId: createOrderResponse.data.data.id,
-      };
-      if (paymentMethod === "VNP") {
-        await handleVNPPayment(paymentDTO);
-      } else if (paymentMethod === "Cash") {
-        await handleNormalPayment(paymentDTO);
-      } else {
-        throw new Error("Invalid payment method selected");
-      }
       // If both orders are successfully created, show success message
       message.success("Đơn hàng đã được tạo thành công!");
     } catch (error) {
