@@ -193,7 +193,6 @@ const ProductDetailCard = ({ product, onAddToWishlist, onQuickView }) => {
     };
     addToCart(cartItem);
   };
-  console.log("aff", promotions);
   return (
     <ProductCardWrapper variants={itemVariants}>
       {promotions && promotions.length > 0 && (

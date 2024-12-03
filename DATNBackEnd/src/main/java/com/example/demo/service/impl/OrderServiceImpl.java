@@ -122,6 +122,7 @@ public class OrderServiceImpl implements OrderService {
         order.setCode(orderDTO.getCode());
         order.setDeliveryFee(orderDTO.getDeliveryFee());
         order.setOrderDate(orderDTO.getOrderDate());
+
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String addressJson = objectMapper.writeValueAsString(orderDTO.getAddress());
@@ -129,8 +130,10 @@ public class OrderServiceImpl implements OrderService {
         } catch (Exception e) {
             throw new RuntimeException("Error serializing address: " + e.getMessage(), e);
         }
+
         order.setTotalAmount(orderDTO.getTotalAmount());
-        order.setMoneyReceived(orderDTO.getMoneyReceived());  // Có thể cập nhật sau nếu cần
+        order.setMoneyReceived(orderDTO.getMoneyReceived());
+
         if (orderDTO.getVoucherId() != null) {
             Voucher voucher = voucherRepo.findById(orderDTO.getVoucherId())
                     .orElseThrow(() -> new RuntimeException("Voucher not found"));
@@ -138,9 +141,11 @@ public class OrderServiceImpl implements OrderService {
         } else {
             order.setVoucher(null);
         }
+
         order.setCustomer(customerRepo.findById(customerId).orElse(null));
-        order.setStatus(OrderStatus.pending);  // Mặc định trạng thái là 'process'
+        order.setStatus(OrderStatus.pending); // Mặc định trạng thái là 'pending'
         order.setOrderType(OrderType.online);
+
         // Lưu đơn hàng vào DB
         Orders savedOrder = orderRepo.save(order);
 
@@ -170,13 +175,13 @@ public class OrderServiceImpl implements OrderService {
                 orderDetail.setProductDetail(productDetail);
                 orderDetail.setQuantity(onlineRequest.getQuantity());
                 orderDetail.setPrice(onlineRequest.getPrice());
-
                 // Lưu chi tiết đơn hàng vào DB
                 orderDetailRepo.save(orderDetail);
-
-                // Cập nhật số lượng sản phẩm trong kho
-                productDetail.setQuantity(productDetail.getQuantity() - onlineRequest.getQuantity());
-                productDetailRepo.save(productDetail);  // Lưu lại sản phẩm sau khi trừ số lượng
+                // Cập nhật số lượng sản phẩm trong kho chỉ khi đơn hàng được xác nhận
+                if (savedOrder.getStatus() == OrderStatus.confirmed) {
+                    productDetail.setQuantity(productDetail.getQuantity() - onlineRequest.getQuantity());
+                    productDetailRepo.save(productDetail);  // Lưu lại sản phẩm sau khi trừ số lượng
+                }
 
             } catch (Exception e) {
                 // Log lỗi chi tiết sản phẩm không hợp lệ hoặc lỗi khi lưu chi tiết
@@ -184,7 +189,22 @@ public class OrderServiceImpl implements OrderService {
                 throw new RuntimeException("Error processing order detail: " + e.getMessage());
             }
         }
+
         return OrderResponse.convertOrderResponse(savedOrder);
+    }
+
+    // Phương thức để xác nhận đơn hàng
+    public void confirmOrder(Integer orderId) {
+        Orders order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        order.setStatus(OrderStatus.confirmed);
+        orderRepo.save(order);
+        // Cập nhật số lượng sản phẩm trong kho sau khi xác nhận
+        for (OrderDetail orderDetail : order.getOrderDetails()) {
+            ProductDetail productDetail = orderDetail.getProductDetail();
+            productDetail.setQuantity(productDetail.getQuantity() - orderDetail.getQuantity());
+            productDetailRepo.save(productDetail);
+        }
     }
 
 
@@ -465,7 +485,6 @@ public class OrderServiceImpl implements OrderService {
 
             // Cập nhật voucher cho đơn hàng và khách hàng
             order.setVoucher(voucher);
-            customer.getVouchers().add(voucher);
             customerRepo.save(customer);
         }
             order.setTotalAmount(totalAmount);
