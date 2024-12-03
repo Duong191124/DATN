@@ -66,7 +66,7 @@ const PromotionTable = (props) => {
         // Thiết lập interval để kiểm tra trạng thái mỗi phút
         const intervalId = setInterval(() => {
             checkAndUpdateExpiredPromotions();
-        }, 60000); // 60000ms = 1 phút
+        }, 10000); // 60000ms = 1 phút
 
         // Dọn dẹp interval khi component bị unmount
         return () => {

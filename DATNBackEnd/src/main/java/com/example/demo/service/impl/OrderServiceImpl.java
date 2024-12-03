@@ -477,7 +477,6 @@ public class OrderServiceImpl implements OrderService {
 
             // Cập nhật voucher cho đơn hàng và khách hàng
             order.setVoucher(voucher);
-            customer.getVouchers().add(voucher);
             customerRepo.save(customer);
         }
             order.setTotalAmount(totalAmount);

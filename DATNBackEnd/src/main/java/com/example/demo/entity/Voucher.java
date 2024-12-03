@@ -48,13 +48,4 @@ public class  Voucher extends BaseEntity {
     @Basic
     @Column(name = "status")
     private int status;
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "customer_voucher",
-            joinColumns = @JoinColumn(name = "voucher_id"),
-            inverseJoinColumns = @JoinColumn(name = "customer_id")
-    )
-    @JsonManagedReference
-    private Set<Customer> customers;
-
 }
