@@ -240,24 +240,24 @@ const ChartChannel = () => {
 
   const columns = [
     {
-      title: "Period",
+      title: "Giai đoạn",
       dataIndex: "period",
       key: "period",
     },
     {
-      title: "Online Revenue (đ)",
+      title: "Doanh thu online (đ)",
       dataIndex: "onlineRevenue",
       key: "onlineRevenue",
       render: (text) => text.toLocaleString() + " đ",
     },
     {
-      title: "Offline Revenue (đ)",
+      title: "Doanh thu offline (đ)",
       dataIndex: "offlineRevenue",
       key: "offlineRevenue",
       render: (text) => text.toLocaleString() + " đ",
     },
     {
-      title: "Total Revenue (đ)",
+      title: "Tổng doanh thu (đ)",
       key: "totalRevenue",
       render: (text, record) => {
         const totalRevenue =
@@ -268,15 +268,15 @@ const ChartChannel = () => {
   ];
   return (
     <div>
-      <h2>Channel Statistics</h2>
+      <h2>Doanh thu của online và offline</h2>
       <div
         style={{ display: "flex", justifyContent: "center", margin: "10px 0" }}
       >
         <Radio.Group onChange={handleViewChange} value={view}>
-          <Radio value="day">Day</Radio>
-          <Radio value="week">Week</Radio>
-          <Radio value="month">Month</Radio>
-          <Radio value="year">Year</Radio>
+          <Radio value="day">Ngày</Radio>
+          <Radio value="week">Tuần</Radio>
+          <Radio value="month">Tháng</Radio>
+          <Radio value="year">Năm</Radio>
         </Radio.Group>
       </div>
       <div id="chart"></div>

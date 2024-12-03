@@ -64,7 +64,6 @@ const CounterSaleCustomer = ({
 
       // Tìm hóa đơn đang chờ
       const bill = billWaiting.find((bill) => bill.code === selectedBill);
-      console.log("bill", bill);
       if (!bill) {
         message.error("Không tìm thấy hóa đơn tương ứng");
         return;

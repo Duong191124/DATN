@@ -24,7 +24,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -331,17 +330,12 @@ public class OrderServiceImpl implements OrderService {
             // Cập nhật ghi chú cho đơn hàng
             orders.setNote(note);
             // Duyệt qua các chi tiết đơn hàng để cập nhật số lượng sản phẩm
-            Iterator<OrderDetail> iterator = orders.getOrderDetails().iterator();
-            while (iterator.hasNext()) {
-                OrderDetail orderDetail = iterator.next();
+            for (OrderDetail orderDetail : orders.getOrderDetails()) {
                 ProductDetail productDetail = orderDetail.getProductDetail();
                 int quantityOrdered = orderDetail.getQuantity();
-
                 // Cập nhật lại số lượng sản phẩm trong kho (tăng lại số lượng)
                 productDetail.setQuantity(productDetail.getQuantity() + quantityOrdered);
-                productDetailRepo.save(productDetail);  // Lưu sản phẩm sau khi cập nhật
-                // Xóa OrderDetail khỏi Order
-                iterator.remove();  // Xóa OrderDetail khỏi danh sách
+                productDetailRepo.save(productDetail);
             }
         }
         // Cập nhật trạng thái đơn hàng

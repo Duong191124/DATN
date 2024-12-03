@@ -130,27 +130,27 @@ const BestSeller = () => {
   );
   const columns = [
     {
-      title: "Product Code",
+      title: "Mã sản phẩm",
       dataIndex: "productCode",
       key: "productCode",
     },
     {
-      title: "Product Name",
+      title: "Tên sản phẩm",
       dataIndex: "productName",
       key: "productName",
     },
     {
-      title: "Color",
+      title: "Màu",
       dataIndex: "color",
       key: "color",
     },
     {
-      title: "Size",
+      title: "Kích thước",
       dataIndex: "size",
       key: "size",
     },
     {
-      title: "Total Sold",
+      title: "Tổng số đã bán",
       dataIndex: "totalSold",
       key: "totalSold",
     },
@@ -164,13 +164,13 @@ const BestSeller = () => {
       }}
     >
       <h2 style={{ marginBottom: "20px", fontWeight: "bold", color: "#333" }}>
-        Top 10 Best-Selling Products
+        Top 10 sản phẩm bán nhiều nhất
       </h2>
 
       <Row gutter={16} style={{ marginBottom: "20px" }}>
         <Col span={8}>
           <Select
-            placeholder="Select Year"
+            placeholder="Chọn năm"
             style={{ width: "100%" }}
             onChange={(value) => handleChange(value, "year")}
             value={selectedDate.year}
@@ -184,7 +184,7 @@ const BestSeller = () => {
         </Col>
         <Col span={8}>
           <Select
-            placeholder="Select Month"
+            placeholder="Chọn tháng"
             style={{ width: "100%" }}
             onChange={(value) => handleChange(value, "month")}
             value={selectedDate.month}
@@ -199,7 +199,7 @@ const BestSeller = () => {
         </Col>
         <Col span={8}>
           <Select
-            placeholder="Select Day"
+            placeholder="Chọn ngày"
             style={{ width: "100%" }}
             onChange={(value) => handleChange(value, "day")}
             value={selectedDate.day}
