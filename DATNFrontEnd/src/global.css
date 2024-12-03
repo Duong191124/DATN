@@ -52,3 +52,16 @@ h6 {
   background-color: black;
   border-color: black;
 }
+
+.anticon-edit, .anticon-delete, .anticon-plus-circle, .anticon-retweet{
+  color: black !important;
+}
+
+:where(.css-dev-only-do-not-override-1x0dypw).ant-steps .ant-steps-item-process .ant-steps-item-icon {
+    background-color: black;
+    border-color: white;
+}
+
+.ant-steps-finish-icon{
+  color: black;
+}
