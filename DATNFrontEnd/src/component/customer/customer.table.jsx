@@ -58,7 +58,13 @@ const CustomerTable = ({
       title: "Status",
       key: "status",
       render: (_, record) => (
-        <p>{record.status === 1 ? "Activate" : "Inactivate"}</p>
+        <p
+          style={{
+            color: record.status === 1 ? "green" : "red",
+          }}
+        >
+          {record.status === 1 ? "Activate" : "Inactivate"}
+        </p>
       ),
     },
     {
