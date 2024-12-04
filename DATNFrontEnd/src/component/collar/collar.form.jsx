@@ -38,7 +38,7 @@ const CollarForm = (props) => {
     }
     return (
         <>
-            <Button type="primary" onClick={() => setIsModalOpen(true)}>
+            <Button style={{margin: 15}} type="primary" onClick={() => setIsModalOpen(true)}>
                 Create collar
             </Button>
             <Modal
