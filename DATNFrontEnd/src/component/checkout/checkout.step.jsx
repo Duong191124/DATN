@@ -101,6 +101,7 @@ const CheckoutStep = () => {
     const cartItemsLocal = cartItems;
     const orderDetailRequests = convertCartToOrderDetails(cartItemsLocal);
     const addressToOrder = convertSelectAddressToOrder(selectAddress);
+    const paymentMethod = selectedOption;
     const orderDTO = {
       code: generateInvoiceCode(), // Mã đơn hàng
       orderDate: new Date().toISOString().split("T")[0], // Ngày đặt hàng
@@ -132,12 +133,36 @@ const CheckoutStep = () => {
         throw new Error(createOrderResponse?.message);
       }
 
-      // If both orders are successfully created, show success message
-      message.success("Đơn hàng đã được tạo thành công!");
-      resetCheckoutContext();
-      localStorage.removeItem(`cart_${userId}`);
-      navigate("/");
-      setCartItems([]);
+      // Step 2: Create the order in the GHN system (Shipping)
+      // const createOrderGhnResponse = await getCreateOrderGhn(
+      //     createOrderGhn.toDistrictId,
+      //     createOrderGhn.toWardCode,
+      //     createOrderGhn.weight,
+      //     createOrderGhn.paymentType,
+      //     createOrderGhn.shipCOD,
+      //     createOrderGhn.customerName,
+      //     createOrderGhn.customerPhone,
+      //     createOrderGhn.addressDetail,
+      //     createOrderGhn.customerEmail,
+      //     createOrderGhn.itemsProduct
+      // );
+
+      // If there is any error in the GHN response, throw an error
+      // if (createOrderGhnResponse?.error) {
+      //     throw new Error(createOrderGhnResponse?.error || "Giao hàng không thành công.");
+      // }
+      const paymentDTO = {
+        paymentDate: moment().format("DD/MM/YYYY"),
+        paymentMethod: paymentMethod,
+        orderId: createOrderResponse.data.data.id,
+      };
+      if (paymentMethod === "VNP") {
+        await handleVNPPayment(paymentDTO);
+      } else if (paymentMethod === "Cash") {
+        await handleNormalPayment(paymentDTO);
+      } else {
+        throw new Error("Invalid payment method selected");
+      }
     } catch (error) {
       // Catch and handle errors from both the order creation process or GHN
       let errorMessage =
@@ -183,9 +208,16 @@ const CheckoutStep = () => {
       setCartItems([]);
       localStorage.setItem("paymentStatus", "success");
       localStorage.setItem("paymentMessage", "Thanh toán thành công");
-      navigate("/payments/payment-callback"); // Redirect to callback page
+      localStorage.setItem(
+        "code",
+        paymentResponse?.data?.orderDataPaymentResponse.code
+      );
+      navigate("/payments/payment-callback");
       setLoading(false);
-      return { success: true, message: "Thanh toán thành công" };
+      return {
+        success: true,
+        message: "Thanh toán thành công",
+      };
     } else {
       localStorage.setItem("paymentStatus", "failed");
       localStorage.setItem("paymentMessage", "Thanh toán thất bại");
