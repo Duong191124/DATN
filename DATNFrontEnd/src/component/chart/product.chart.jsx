@@ -108,11 +108,11 @@ const ProductChart = () => {
 
   return (
     <div>
-      <h2>Inventory statistics</h2>
+      <h2>Hàng tồn kho</h2>
       <div id="chartP"></div>
       <Row style={{ display: "flex", justifyContent: "space-between" }}>
         <Col md={11} xs={24}>
-          <h3 style={{ marginBottom: "10px" }}>Product Attributes</h3>
+          <h3 style={{ marginBottom: "10px" }}>Thuộc tính sản phẩm</h3>
           <Table
             columns={attributesColumns}
             dataSource={dataAttributes}
@@ -121,7 +121,7 @@ const ProductChart = () => {
           />
         </Col>
         <Col md={11} xs={24}>
-          <h3 style={{ marginBottom: "10px" }}>Top 10 buyers</h3>
+          <h3 style={{ marginBottom: "10px" }}>Top 10 người mua nhiều nhất</h3>
           <Table
             columns={customerColumns}
             dataSource={customerBoughtInTheMost}

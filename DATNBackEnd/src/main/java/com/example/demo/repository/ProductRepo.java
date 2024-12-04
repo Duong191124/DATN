@@ -62,7 +62,7 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
             "(:day IS NULL OR FUNCTION('DAY', o.orderDate) = :day) " +
             "AND (:month IS NULL OR FUNCTION('MONTH', o.orderDate) = :month) " +
             "AND (:year IS NULL OR FUNCTION('YEAR', o.orderDate) = :year) " +
-            "AND o.status = 'shipped' " +
+            "AND o.status = 'completed' " +
             "GROUP BY p.code, p.name " +
             "ORDER BY SUM(od.quantity) DESC")
     List<TopSellingProductDTO> findTop10SellingProducts(
@@ -85,7 +85,7 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
             "(:day IS NULL OR FUNCTION('DAY', o.orderDate) = :day) " +
             "AND (:month IS NULL OR FUNCTION('MONTH', o.orderDate) = :month) " +
             "AND (:year IS NULL OR FUNCTION('YEAR', o.orderDate) = :year) " +
-            "AND o.status = 'shipped' " +
+            "AND o.status = 'completed' " +
             "GROUP BY p.code, p.name, pd.color, pd.size " +
             "ORDER BY SUM(od.quantity) DESC")
     List<TopSellingProductsAttributesResponse> findTopSellingProductsByAttributes(

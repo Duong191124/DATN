@@ -23,11 +23,10 @@ const OrderPage = () => {
     endDate: null,
     status: "",
     orderCode: "",
+    orderType: "",
   });
-
   // Memoize the filters object to avoid unnecessary re-renders
   const memoizedFilters = useMemo(() => filters, [filters]);
-
   // Cập nhật URL khi bộ lọc thay đổi
   const updateUrl = (newFilters) => {
     const params = new URLSearchParams();
@@ -36,7 +35,7 @@ const OrderPage = () => {
     if (newFilters.endDate) params.append("endDate", newFilters.endDate);
     if (newFilters.status) params.append("orderStatus", newFilters.status);
     if (newFilters.orderCode) params.append("orderCode", newFilters.orderCode);
-
+    if (newFilters.orderType) params.append("orderType", newFilters.orderType);
     params.append("page", currentPage);
     params.append("limit", pageSize);
 
@@ -45,18 +44,10 @@ const OrderPage = () => {
 
   // Lấy tham số từ URL khi tải trang
   useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const newFilters = {
-      staffName: queryParams.get("staffName") || "",
-      startDate: queryParams.get("startDate") || null,
-      endDate: queryParams.get("endDate") || null,
-      status: queryParams.get("orderStatus") || "",
-      orderCode: queryParams.get("orderCode") || "",
-    };
-
-    setFilters(newFilters);
+    setFilters(memoizedFilters);
+    updateUrl(filters);
     loadOrder(); // Tải lại đơn hàng với bộ lọc từ URL
-  }, [location.search]); // Chạy khi URL thay đổi
+  }, [filters, memoizedFilters]); // Chạy khi URL thay đổi
   const handlePageChange = useCallback((page, pageSize) => {
     setCurrentPage(page);
     setPageSize(pageSize);
@@ -67,7 +58,7 @@ const OrderPage = () => {
     async (page = 1, pageSize = 10) => {
       setLoading(true);
       try {
-        const { staffName, startDate, endDate, status, orderCode } =
+        const { staffName, startDate, endDate, status, orderCode, orderType } =
           memoizedFilters;
         const response = await fetchDataOrders(
           staffName,
@@ -75,6 +66,7 @@ const OrderPage = () => {
           endDate,
           status,
           orderCode,
+          orderType,
           page - 1,
           pageSize
         );
@@ -110,7 +102,13 @@ const OrderPage = () => {
       selectedStatus === filters.status ? "" : selectedStatus
     );
   };
-
+  const handleOrderStyleChange = (e) => {
+    const selectedOrderType = e.target.value;
+    updateFilter(
+      "orderType",
+      selectedOrderType === filters.orderType ? "" : selectedOrderType
+    );
+  };
   // Hàm tìm kiếm nhân viên với debounce
   const handleStaffSearch = debounce((value) => {
     updateFilter("staffName", value);
@@ -138,6 +136,7 @@ const OrderPage = () => {
       status: "",
       orderCode: "",
       staffName: "",
+      orderStyle: "",
     }));
     updateUrl({
       staffName: "",
@@ -145,9 +144,9 @@ const OrderPage = () => {
       endDate: null,
       status: "",
       orderCode: "",
+      orderStyle: "",
     }); // Cập nhật URL khi reset
   };
-
   // Khi giá trị trong filters thay đổi, load lại danh sách đơn hàng
   useEffect(() => {
     loadOrder(currentPage, pageSize);
@@ -184,20 +183,41 @@ const OrderPage = () => {
               value={filters.status}
               onChange={handleStatusChange}
             >
+              <Radio value="pending_payment" style={{ marginBottom: "15px" }}>
+                Chờ thanh toán
+              </Radio>
               <Radio value="pending" style={{ marginBottom: "15px" }}>
                 Chờ xử lý
               </Radio>
-              <Radio value="process" style={{ marginBottom: "15px" }}>
-                Đang xử lý
+              <Radio value="confirmed" style={{ marginBottom: "15px" }}>
+                Xác nhận
               </Radio>
-              <Radio value="delivery" style={{ marginBottom: "15px" }}>
+              <Radio value="shipping" style={{ marginBottom: "15px" }}>
                 Đang giao
               </Radio>
-              <Radio value="shipped" style={{ marginBottom: "15px" }}>
+              <Radio value="delivered" style={{ marginBottom: "15px" }}>
                 Đã giao
+              </Radio>
+              <Radio value="completed" style={{ marginBottom: "15px" }}>
+                Đã hoàn thành
               </Radio>
               <Radio value="cancelled" style={{ marginBottom: "15px" }}>
                 Đã hủy
+              </Radio>
+            </Radio.Group>
+          </div>
+          <div className="bill-status">
+            <p>Trạng thái đơn hàng</p>
+            <Radio.Group
+              style={{ display: "flex", flexDirection: "column" }}
+              value={filters.orderType}
+              onChange={handleOrderStyleChange}
+            >
+              <Radio value="online" style={{ marginBottom: "15px" }}>
+                Online
+              </Radio>
+              <Radio value="offline" style={{ marginBottom: "15px" }}>
+                Offline
               </Radio>
             </Radio.Group>
           </div>

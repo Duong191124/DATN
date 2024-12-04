@@ -112,12 +112,12 @@ const OrderTable = (props) => {
   };
   const statusOptions = [
     { value: "pending", label: "Chờ xử lý" },
-    { value: "process", label: "Đang xử lý" },
-    { value: "delivery", label: "Đang giao" },
-    { value: "shipped", label: "Đã giao" },
+    { value: "confirmed", label: "Đã xác nhận" },
+    { value: "shipping", label: "Đang giao hàng" },
+    { value: "delivered", label: "Đã giao" },
+    { value: "completed", label: "Đã hoàn thành" },
     { value: "cancelled", label: "Đã hủy" },
   ];
-
   const showModal = (orderId, currentStatus) => {
     setCurrentOrderId(orderId);
     setSelectedStatus(currentStatus);
@@ -132,6 +132,7 @@ const OrderTable = (props) => {
     setIsModalVisibleCancel(false);
     setCancelNote("");
   };
+
   const handleUpdateStatus = async () => {
     try {
       const currentStatusIndex = statusOptions.findIndex(
@@ -154,37 +155,37 @@ const OrderTable = (props) => {
               : order
           )
         );
-        // if (nextStatus === "delivery") {
-        //   // eslint-disable-next-line react/prop-types
-        //   return dataOrder.map((order) => {
-        //     console.log(order);
-        //     const district = order.address.district;
-        //     const ward = order.address.ward;
-        //     const name = order.address.name;
-        //     const phoneNumber = order.address.phoneNumber;
-        //     const addressDetail = order.address.addressDetail;
-        //     const totalShippingFee = order.deliveryFee;
-        //     const customerEmail = order.customerResponse.email;
-        //     const productDetail = order.orderDetailResponses?.map((detail) => {
-        //       const productDetail = detail.productDetailId || {};
-        //       console.log(productDetail);
-        //       const weight = productDetail.weight;
-        //       const quantity = productDetail.quantity
-        //     })
-        //   })
-        //   // const createOrderGhn = {
-        //   //   toDistrictId: district,
-        //   //   toWardCode: ward,
-        //   //   //   weight: weight,
-        //   //   //   paymentType: 2,
-        //   //   //   shipCOD: totalShippingFee,
-        //   //   customerName: addresses.name,
-        //   //   customerPhone: addresses.phoneNumber,
-        //   //   addressDetail: addresses.addressDetail,
-        //   //   //   customerEmail: addresses?.customer?.email,
-        //   //   // itemsProduct
-        //   //   // }
-        // }
+        if (nextStatus === "shipping") {
+          // eslint-disable-next-line react/prop-types
+          return dataOrder.map((order) => {
+            const district = order.address.district;
+            const ward = order.address.ward;
+            const name = order.address.name;
+            const phoneNumber = order.address.phoneNumber;
+            const addressDetail = order.address.addressDetail;
+            const totalShippingFee = order.deliveryFee;
+            const customerEmail = order.customerResponse.email;
+            const productDetail = order.orderDetailResponses?.map((detail) => {
+              const totalQuantity = order.orderDetailResponses
+                .filter((item) => item.orderId === detail.orderId)
+                .reduce((total, item) => total + item.quantity, 0);
+              const productDetail = detail.productDetailId || {};
+              const weight = productDetail.weight;
+            })
+          })
+          // const createOrderGhn = {
+          //   toDistrictId: district,
+          //   toWardCode: ward,
+          //   //   weight: weight,
+          //   //   paymentType: 2,
+          //   //   shipCOD: totalShippingFee,
+          //   customerName: addresses.name,
+          //   customerPhone: addresses.phoneNumber,
+          //   addressDetail: addresses.addressDetail,
+          //   //   customerEmail: addresses?.customer?.email,
+          //   // itemsProduct
+          //   // }
+        }
       } else {
         notification.error({
           message: "Lỗi",
@@ -332,29 +333,6 @@ const OrderTable = (props) => {
       key: "code",
     },
     {
-      title: "Trạng Thái",
-      dataIndex: "status",
-      key: "status",
-      ...getColumnSearchProps("status"),
-      render: (status, record) => {
-        const statusOptions = [
-          { value: "pending", label: "Chờ xử lý" },
-          { value: "process", label: "Đang xử lý" },
-          { value: "delivery", label: "Đang giao" },
-          { value: "shipped", label: "Đã giao" },
-          { value: "cancelled", label: "Đã hủy" },
-        ];
-
-        // Tìm trạng thái trong danh sách options
-        const currentStatus = statusOptions.find(
-          (option) => option.value === status
-        );
-
-        // Nếu trạng thái tìm được, hiển thị label, nếu không hiển thị "N/A"
-        return currentStatus ? currentStatus.label : "N/A";
-      },
-    },
-    {
       title: "Thời gian tạo",
       dataIndex: "createdAt",
       key: "createdAt",
@@ -371,12 +349,31 @@ const OrderTable = (props) => {
       },
     },
     {
-      title: "Tổng Tiền",
-      dataIndex: "totalAmount",
-      key: "totalAmount",
-      ...getColumnSearchProps("totalAmount"),
-      sorter: (a, b) => a.totalAmount - b.totalAmount,
-      render: (totalAmount) => `${totalAmount.toLocaleString()} VNĐ`,
+      title: "Trạng Thái",
+      dataIndex: "status",
+      key: "status",
+      ...getColumnSearchProps("status"),
+      render: (status, record) => {
+        const statusOptions = [
+          { value: "pending_payment", label: "Chờ thanh toán" },
+          { value: "pending", label: "Chờ xử lý" },
+          { value: "confirmed", label: "Đã xác nhận" },
+          { value: "shipping", label: "Đang giao hàng" },
+          { value: "delivered", label: "Đã giao" },
+          { value: "completed", label: "Đã hoàn thành" },
+          { value: "cancelled", label: "Đã hủy" },
+        ];
+        const currentStatus = statusOptions.find(
+          (option) => option.value === status
+        );
+
+        return currentStatus ? currentStatus.label : "N/A";
+      },
+    },
+    {
+      title: "Loại Đơn Hàng",
+      dataIndex: "orderType",
+      key: "orderType",
     },
     {
       title: "Hành Động",
@@ -386,7 +383,9 @@ const OrderTable = (props) => {
           style={{ color: "blue" }}
           onClick={() => showModal(record.id, record.status)}
           disabled={
-            record.status === "shipped" || record.status === "cancelled"
+            record.orderType === "offline" ||
+            record.status === "cancelled" ||
+            record.status === "completed"
           }
         >
           Cập nhật trạng thái
@@ -394,6 +393,7 @@ const OrderTable = (props) => {
       ),
     },
   ];
+
   const columnsOrderDetail = [
     { title: "Mã HDCT", dataIndex: "id", key: "id" },
     {
@@ -517,10 +517,12 @@ const OrderTable = (props) => {
       key: "status",
       render: (text, record) => {
         const statusOptions = {
+          pending_payment: "Chờ thanh toán",
           pending: "Chờ xử lý",
-          process: "Đang xử lý",
-          delivery: "Đang giao",
-          shipped: "Đã giao",
+          confirmed: "Đang xử lý",
+          shipping: "Đang giao hàng",
+          delivered: "Đã giao",
+          completed: "Đã hoàn thành",
           cancelled: "Đã hủy",
         };
         return (
@@ -665,6 +667,7 @@ const OrderTable = (props) => {
       0
     );
   };
+
   const expandedRowRender = (record) => {
     const totalQuantity = getTotalQuantity(record.orderDetailResponses || []);
     // Kiểm tra nếu không có nhân viên
@@ -703,10 +706,12 @@ const OrderTable = (props) => {
                       Trạng thái:{" "}
                       {(() => {
                         const statusOptions = [
+                          { value: "pending_payment", label: "Chờ thanh toán" },
                           { value: "pending", label: "Chờ xử lý" },
-                          { value: "process", label: "Đang xử lý" },
-                          { value: "delivery", label: "Đang giao" },
-                          { value: "shipped", label: "Đã giao" },
+                          { value: "confirmed", label: "Đã xác nhận" },
+                          { value: "shipping", label: "Đang giao hàng" },
+                          { value: "delivered", label: "Đã giao" },
+                          { value: "completed", label: "Đã hoàn thành" },
                           { value: "cancelled", label: "Đã hủy" },
                         ];
                         const currentStatus = statusOptions.find(
@@ -774,7 +779,6 @@ const OrderTable = (props) => {
                           e.currentTarget.style.height = "50px";
                         }}
                       >
-                        {/* Voucher thông tin */}
                         <div
                           style={{
                             display: "flex",
@@ -881,7 +885,8 @@ const OrderTable = (props) => {
                     danger
                     disabled={
                       orderDetails.status !== "pending" &&
-                      orderDetails.status !== "process"
+                      orderDetails.status !== "confirmed" &&
+                      orderDetails.status !== "pending_payment"
                     }
                     onClick={showCancelModal}
                   >
