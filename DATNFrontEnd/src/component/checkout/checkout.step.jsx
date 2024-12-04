@@ -159,7 +159,7 @@ const CheckoutStep = () => {
       };
       if (paymentMethod === "VNP") {
         await handleVNPPayment(paymentDTO);
-      } else if (paymentMethod === "Cash") {
+      } else if (paymentMethod === "cod") {
         await handleNormalPayment(paymentDTO);
       } else {
         throw new Error("Invalid payment method selected");
