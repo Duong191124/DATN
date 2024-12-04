@@ -43,6 +43,8 @@ public class Orders extends BaseEntity {
     private Double moneyReceived;
     @Column(name = "address", columnDefinition = "JSON")
     private String address;
+    @Column(name = "tracking_number")
+    private String trackingNumber;
     @Column(name = "note")
     private String note;
     @Column(name = "order_type", nullable = true, length = 255)
@@ -52,7 +54,7 @@ public class Orders extends BaseEntity {
     @JoinColumn(name = "voucher_id", referencedColumnName = "id",nullable = true)
     private Voucher voucher;
     @ManyToOne
-    @JoinColumn(name = "staff_id", referencedColumnName = "id")
+    @JoinColumn(name = "staff_id", referencedColumnName = "id",nullable = true)
     private Staff staff;
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id")

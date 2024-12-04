@@ -11,11 +11,13 @@ const PromotionPage = () => {
     const loadData = async () => {
         try {
             const res = await fetchDataPromotion();
-            setDataPromotion(res.data.data); // Cập nhật state với dữ liệu khuyến mãi
+            const sortedData = res.data.data.sort((a, b) => b.id - a.id); // Sắp xếp giảm dần theo ID
+            setDataPromotion(sortedData); // Cập nhật state với dữ liệu đã sắp xếp
         } catch (error) {
             console.error("Error fetching promotions:", error); // Ghi log lỗi nếu có
         }
     };
+
     useEffect(() => {
         loadData(); // Tải dữ liệu khi component được mount
     }, []);

@@ -60,13 +60,13 @@ const PromotionForm = (props) => {
       const endDate = values.endDate.format("YYYY-MM-DDTHH:mm:ss");
 
       // Lấy giá trị của loại giảm giá và các giá trị liên quan
-      let discountPercent = "0";
-      let discountAmount = "0";
+      let discountPercent = null;
+      let discountAmount = null;
 
       if (discountType === "percent") {
-        discountPercent = values.discountPercent;
+        discountPercent = values.discountPercent || null; // Nếu không có giá trị, đặt mặc định là "0"
       } else if (discountType === "amount") {
-        discountAmount = values.discountAmount;
+        discountAmount = values.discountAmount || null; // Nếu không có giá trị, đặt mặc định là "0"
       }
 
       const res = await createPromotion({

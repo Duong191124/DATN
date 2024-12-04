@@ -6,12 +6,14 @@ import Payment from "./checkout.payment";
 import Shipping from "./checkout.shipping";
 import {
   createOrderForOnline,
+  createPayment,
   getCreateOrderGhn,
   getShippingFee,
 } from "../../service/api.service";
 import { useCart } from "../context/cart.context";
 import { useNavigate } from "react-router-dom";
 import { useCheckout } from "../context/checkout.context";
+import moment from "moment";
 
 const steps = [
   {
@@ -44,6 +46,8 @@ const CheckoutStep = () => {
     totalShippingFee,
     addresses,
     selectAddress,
+    selectedOption,
+    shippingData
   } = useCheckout();
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
@@ -83,17 +87,6 @@ const CheckoutStep = () => {
     }
   };
 
-  const convertDataProductToOrder = (cartItemsLocal) => {
-    return cartItemsLocal.map((item) => ({
-      product: {
-        name: item.productResponse.name,
-        categoryName: item.productResponse.categoryName,
-      },
-      code: item.code,
-      quantity: item.quantity,
-    }));
-  };
-
   useEffect(() => {
     const items = JSON.parse(localStorage.getItem(`cart_${userId}`)) || [];
     setCartItems(items);
@@ -109,8 +102,7 @@ const CheckoutStep = () => {
     const cartItemsLocal = cartItems;
     const orderDetailRequests = convertCartToOrderDetails(cartItemsLocal);
     const addressToOrder = convertSelectAddressToOrder(selectAddress);
-    // const itemsProduct = convertDataProductToOrder(cartItemsLocal);
-
+    const paymentMethod = selectedOption;
     const orderDTO = {
       code: generateInvoiceCode(), // Mã đơn hàng
       orderDate: new Date().toISOString().split("T")[0], // Ngày đặt hàng
@@ -122,19 +114,6 @@ const CheckoutStep = () => {
       orderDetailRequests, // Dữ liệu sản phẩm trong đơn hàng
       addressToOrder,
     };
-
-    // const createOrderGhn = {
-    //     toDistrictId: district,
-    //     toWardCode: ward,
-    //     weight: weight,
-    //     paymentType: 2,
-    //     shipCOD: totalShippingFee,
-    //     customerName: addresses.name,
-    //     customerPhone: addresses.phoneNumber,
-    //     addressDetail: addresses.addressDetail,
-    //     customerEmail: addresses?.customer?.email,
-    //     itemsProduct
-    // }
 
     try {
       // Step 1: Create the order in your system
@@ -173,14 +152,18 @@ const CheckoutStep = () => {
       // if (createOrderGhnResponse?.error) {
       //     throw new Error(createOrderGhnResponse?.error || "Giao hàng không thành công.");
       // }
-
-      // If both orders are successfully created, show success message
-      message.success("Đơn hàng đã được tạo thành công!");
-      resetCheckoutContext();
-      localStorage.removeItem(`cart_${userId}`);
-      setCartItems([]);
-      navigate("/");
-      setLoading(false);
+      const paymentDTO = {
+        paymentDate: moment().format("DD/MM/YYYY"),
+        paymentMethod: paymentMethod,
+        orderId: createOrderResponse.data.data.id,
+      };
+      if (paymentMethod === "VNP") {
+        await handleVNPPayment(paymentDTO);
+      } else if (paymentMethod === "cod") {
+        await handleNormalPayment(paymentDTO);
+      } else {
+        throw new Error("Invalid payment method selected");
+      }
     } catch (error) {
       // Catch and handle errors from both the order creation process or GHN
       let errorMessage =
@@ -197,6 +180,76 @@ const CheckoutStep = () => {
       return;
     }
   };
+  const handleVNPPayment = async (paymentDTO) => {
+    const vnPayResponse = await createPayment(
+      paymentDTO.paymentDate,
+      paymentDTO.paymentMethod,
+      paymentDTO.orderId
+    );
+    if (vnPayResponse.status === 201) {
+      window.location.href = vnPayResponse.data.paymentUrl;
+      resetCheckoutContext();
+      localStorage.removeItem(`cart_${userId}`);
+      setCartItems([]);
+      return {
+        success: true,
+        message: "Thanh toán thành công qua VNPAY",
+      };
+    }
+  };
+  const handleNormalPayment = async (paymentDTO) => {
+    const paymentResponse = await createPayment(
+      paymentDTO.paymentDate,
+      paymentDTO.paymentMethod,
+      paymentDTO.orderId
+    );
+    if (paymentResponse.status === 201) {
+      resetCheckoutContext();
+      localStorage.removeItem(`cart_${userId}`);
+      setCartItems([]);
+      localStorage.setItem("paymentStatus", "success");
+      localStorage.setItem("paymentMessage", "Thanh toán thành công");
+      localStorage.setItem(
+        "code",
+        paymentResponse?.data?.orderDataPaymentResponse.code
+      );
+      navigate("/payments/payment-callback");
+      setLoading(false);
+      return {
+        success: true,
+        message: "Thanh toán thành công",
+      };
+    } else {
+      localStorage.setItem("paymentStatus", "failed");
+      localStorage.setItem("paymentMessage", "Thanh toán thất bại");
+      navigate("/payments/payment-callback"); // Redirect to callback page
+      setLoading(false);
+      return { success: false, message: "Thanh toán thất bại" };
+    }
+  };
+
+
+  // const handApiGhnWithUserId = async () => {
+  //   if (!shippingData) {
+  //     message.error("Please fill out your shipping details.");
+  //     return;
+  //   }
+  //   try {
+  //     const fee = await getShippingFee(shippingData);
+  //     setTotalShippingFee(fee.data.data.total);
+  //   } catch (error) {
+  //     let errorMessage =
+  //       error?.response?.data?.message || "Giao hàng nhanh không hỗ trợ xã này";
+
+  //     // Cắt chuỗi để chỉ lấy phần từ "GHN" trở đi
+  //     const ghnIndex = errorMessage.indexOf("Giao");
+  //     if (ghnIndex !== -1) {
+  //       errorMessage = errorMessage.substring(ghnIndex);
+  //     }
+
+  //     message.error(errorMessage);
+  //   }
+  // }
 
   const handleApiGhn = async () => {
     const values = {
@@ -319,7 +372,6 @@ const CheckoutStep = () => {
             }}
             type="primary"
             onClick={confirmOrder}
-            loading={loading}
           >
             Confirm
           </Button>

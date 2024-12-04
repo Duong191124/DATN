@@ -213,7 +213,6 @@ const ProductDetailPage = () => {
     };
     addToCart(cartItem);
   };
-  console.log("prodo", product);
   return (
     <div className="product-detail-page">
       <div className="product-detail">
@@ -305,13 +304,11 @@ const ProductDetailPage = () => {
                   .map((size) => (
                     <button
                       key={size.id}
-                      className={`size-button ${
-                        selectedSize === size.name ? "selected" : ""
-                      } ${
-                        !availableSizes.includes(size.name)
+                      className={`size-button ${selectedSize === size.name ? "selected" : ""
+                        } ${!availableSizes.includes(size.name)
                           ? "disabled-size"
                           : ""
-                      }`}
+                        }`}
                       onClick={() => handleSizeChange(size.name)}
                       disabled={!availableSizes.includes(size.name)}
                     >
@@ -333,13 +330,11 @@ const ProductDetailPage = () => {
                   .map((color) => (
                     <button
                       key={color.id}
-                      className={`color-button ${
-                        selectedColor === color.name ? "selected" : ""
-                      } ${
-                        !availableColors.includes(color.name)
+                      className={`color-button ${selectedColor === color.name ? "selected" : ""
+                        } ${!availableColors.includes(color.name)
                           ? "disabled-color"
                           : ""
-                      }`}
+                        }`}
                       onClick={() => handleColorChange(color.name)}
                       disabled={!availableColors.includes(color.name)}
                     >

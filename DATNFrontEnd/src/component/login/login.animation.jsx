@@ -45,12 +45,10 @@ const LoginAnimation = () => {
     setLoading(true);
     try {
       const res = await loginCustomerAPI(values.username, values.password);
-      console.log(res);
       if (res.status === 200 || res.status === 201) {
         localStorage.setItem("access_token", res.data.token);
 
         const userInfoRes = await getUserInfo(res.data.token);
-        console.log(userInfoRes);
         if (userInfoRes.status === 200) {
           localStorage.setItem("userId", userInfoRes.data.data.id);
           const userCart = JSON.parse(localStorage.getItem(`cart_${userInfoRes.data.data.id}`)) || [];

@@ -32,7 +32,6 @@ export const CartProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    console.log("Loading cart items from localStorage...");
     const savedCartItems = JSON.parse(localStorage.getItem(getCartKey())) || [];
     setCartItems(savedCartItems);
     setTotalAmount(calculateTotal(savedCartItems));

@@ -37,6 +37,7 @@ public class OrderResponse {
     private StaffResponse staffResponse;
     private CustomerResponse customerResponse;
     private AddressOrderDTO address;
+    private String trackingId;
     private String note;
     @Enumerated(EnumType.STRING)
     private OrderType orderType;
@@ -64,6 +65,7 @@ public class OrderResponse {
                 .orderDate(orders.getOrderDate())
                 .staffResponse(orders.getStaff() != null ? StaffResponse.fromStaffResponse(orders.getStaff()) : null)
                 .deliveryFee(orders.getDeliveryFee())
+                .trackingId(orders.getTrackingNumber())
                 .totalAmount(orders.getTotalAmount())
                 .customerResponse(CustomerResponse.fromCustomerResponse(orders.getCustomer()))
                 .moneyReceived(orders.getMoneyReceived())

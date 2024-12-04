@@ -17,6 +17,7 @@ import java.util.List;
 @Builder
 public class OrderDataPaymentResponse {
     private Integer id;
+    private String code;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private LocalDate orderDate;
@@ -29,9 +30,10 @@ public class OrderDataPaymentResponse {
     public static OrderDataPaymentResponse convertOrderDataPaymentResponse(Orders orders){
         return OrderDataPaymentResponse.builder()
                 .id(orders.getId())
+                .code(orders.getCode())
                 .status(orders.getStatus())
                 .orderDate(orders.getOrderDate())
-                .staffResponse(StaffResponse.fromStaffResponse(orders.getStaff()))
+                .staffResponse(orders.getStaff() != null ? StaffResponse.fromStaffResponse(orders.getStaff()) : null)
                 .deliveryFee(orders.getDeliveryFee())
                 .totalAmount(orders.getTotalAmount())
                 .moneyReceived(orders.getMoneyReceived())

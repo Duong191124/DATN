@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class VoucherController {
     @Autowired
     private VoucherServiceImpl voucherService;
-    @GetMapping("")
+    @GetMapping("/getVoucher")
     public ResponseEntity<MessageReponse> getAllVouchers() {
         // Lấy danh sách voucher và tự động cập nhật trạng thái
         List<VoucherResponse> voucherList = voucherService.getAllVouchers()
@@ -80,13 +80,7 @@ public class VoucherController {
             );
         }
     }
-    //@PreAuthorize("hasAuthority('UPDATE_CUSTOMER')")
-    @PutMapping("/{id}/customer")
-    public ResponseEntity<?> updateCustomer(@PathVariable Integer id, @RequestBody VoucherDTO voucherDTO) throws Exception {
-        // Gửi toàn bộ danh sách customerIds tới service, cho phép null hoặc trống
-        VoucherResponse updatedVoucher = voucherService.updateCustomer(id, voucherDTO.getCustomers());
-        return ResponseEntity.ok(updatedVoucher);
-    }
+
    // @PreAuthorize("hasAuthority('UPDATE_VOUCHER')")
     @PutMapping("/{id}/status")
     public ResponseEntity<?> changeStatus(@PathVariable Integer id) {

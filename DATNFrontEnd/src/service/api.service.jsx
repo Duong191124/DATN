@@ -327,7 +327,6 @@ const updateProductDetailWithOrder = (
   };
   return axios.put(URL_BACKEND, data);
 };
-
 const orderStaffFindById = (staffId) => {
   const URL_BACKEND = `api/v1/staff/${staffId}`;
   return axios.get(URL_BACKEND);
@@ -421,8 +420,8 @@ const createPayment = async (paymentDate, paymentMethod, orderId) => {
     throw new Error("Thanh toán thất bại: " + error.message);
   }
 };
-const getVouchersByCustomerId = (customerId) => {
-  const URL_BACKEND = `api/v1/customer-voucher/${customerId}`;
+const getVouchersByCustomerId = () => {
+  const URL_BACKEND = `api/v1/voucher/getVoucher`;
   return axios.get(URL_BACKEND);
 };
 const hasCustomerUsedVoucher = (customerId, voucherId) => {
@@ -887,7 +886,7 @@ const deletePromotionAPI = (id) => {
 
 // API VOUCHER
 const fetchDataVoucher = () => {
-  const URL_BACKEND = "/api/v1/voucher";
+  const URL_BACKEND = "/api/v1/voucher/getVoucher";
   return axios.get(URL_BACKEND);
 };
 const createVoucher = async (
@@ -1158,6 +1157,7 @@ const getShippingFee = (
   return axios.post(URL_BACKEND, data);
 };
 const getCreateOrderGhn = (
+  orderCode,
   toDistrictId,
   toWardCode,
   weight,
@@ -1171,6 +1171,7 @@ const getCreateOrderGhn = (
 ) => {
   const URL_BACKEND = `/api/v1/ghn/create-order-ghn`;
   const data = {
+    orderCode,
     toDistrictId,
     toWardCode,
     weight,
@@ -1181,6 +1182,13 @@ const getCreateOrderGhn = (
     addressDetail,
     customerEmail,
     items,
+  };
+  return axios.post(URL_BACKEND, data);
+};
+const cancelOrderGhn = (trackingId) => {
+  const URL_BACKEND = `/api/v1/ghn/cancel-order`;
+  const data = {
+    trackingId,
   };
   return axios.post(URL_BACKEND, data);
 };
@@ -1260,6 +1268,7 @@ const getProductsWithAttributeAndCustomer = () => {
   return axios.get(URL_BACKEND);
 };
 export {
+  cancelOrderGhn,
   fetchDataOrderForCustomerIdByOrderId,
   fetchDataOrderStatusByCustomerId,
   checkDuplicateProductDetailAPI,

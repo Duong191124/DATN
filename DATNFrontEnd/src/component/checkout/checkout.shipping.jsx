@@ -30,7 +30,8 @@ const Shipping = () => {
         district,
         ward,
         selectAddress,
-        setSelectAddress
+        setSelectAddress,
+        setShippingData
     } = useCheckout();
 
     const [form] = Form.useForm();
@@ -41,6 +42,11 @@ const Shipping = () => {
     const [wards, setWards] = useState([]);
     const [selectedProvince, setSelectedProvince] = useState(null);
     const [selectedDistrict, setSelectedDistrict] = useState(null);
+    const [selectedWard, setSelectedWard] = useState(null);
+    const [name, setName] = useState("");
+    const [phoneNumber, setPhoneNumber] = useState("");
+    const [toDistrict, setToDistrict] = useState([]);
+    const [toWard, setToWard] = useState([]);
 
     useEffect(() => {
         getInformationForCustomer();
@@ -72,9 +78,14 @@ const Shipping = () => {
         }
     };
 
-    const onFinish = async (values) => {
-
-    }
+    const handleChange = () => {
+        setShippingData({
+            name,
+            phoneNumber,
+            toDistrict: selectedDistrict,
+            toWard: selectedWard
+        });
+    };
 
     useEffect(() => {
         const fetchProvinces = async () => {
@@ -110,6 +121,7 @@ const Shipping = () => {
                 }
             };
             fetchWards();
+            setSelectedWard(null)
         } else {
             setWards([]);
         }
@@ -200,16 +212,16 @@ const Shipping = () => {
             )}
 
             {userId === 1 && (
-                <Form form={form} layout="vertical" onFinish={onFinish} style={{ maxWidth: '100%' }}>
+                <Form form={form} layout="vertical" style={{ maxWidth: '100%' }}>
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item name="name" label="Recipient Name" rules={[{ required: true, message: 'Please enter recipient name' }]}>
-                                <Input />
+                                <Input value={name} onChange={(e) => { setName(e.target.value); handleChange() }} />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
                             <Form.Item name="phone" label="Phone Number" rules={[{ required: true, message: 'Please enter phone number' }]}>
-                                <Input />
+                                <Input value={phoneNumber} onChange={(e) => { setPhoneNumber(e.target.value); handleChange() }} />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -260,8 +272,10 @@ const Shipping = () => {
                             >
                                 <Select
                                     placeholder="Select a district"
+                                    value={selectedDistrict}
                                     onChange={(value) => {
                                         setSelectedDistrict(value);
+                                        handleChange()
                                         form.setFieldsValue({
                                             ward: null,
                                         }); // Reset ward value
@@ -287,7 +301,11 @@ const Shipping = () => {
                             >
                                 <Select
                                     placeholder="Select a ward"
-                                    onChange={(value) => setWard(value)}
+                                    value={setSelectedWard}
+                                    onChange={(value) => {
+                                        setSelectedWard(value)
+                                        handleChange()
+                                    }}
                                     disabled={!selectedDistrict} // Disable if district is not selected
                                     allowClear
                                 >

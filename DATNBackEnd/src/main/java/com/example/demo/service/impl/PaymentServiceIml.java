@@ -34,7 +34,7 @@ public class PaymentServiceIml implements PaymentService {
         try {
             Orders orders = orderRepo.findById(paymentDTO.getOrderId()).orElseThrow(()->new RuntimeException("not found order with id:"+paymentDTO.getOrderId()));
             String paymentUrl = null;
-            if(!paymentDTO.getPaymentMethod().equalsIgnoreCase("ocd")){
+            if(!paymentDTO.getPaymentMethod().equalsIgnoreCase("cod")){
                 if(paymentDTO.getPaymentMethod().equalsIgnoreCase("vnp")){
                      paymentUrl = createPaymentUrl(orders.getId(), orders.getTotalAmount().longValue());
                     return PaymentResponse.convertPaymentResponseUrl(null, paymentUrl);
@@ -85,7 +85,7 @@ public class PaymentServiceIml implements PaymentService {
         vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
         vnp_Params.put("vnp_OrderType", orderType);
         vnp_Params.put("vnp_Locale", "vn");
-        vnp_Params.put("vnp_ReturnUrl", "http://127.0.0.1:3000/payments/payment-callback");
+        vnp_Params.put("vnp_ReturnUrl", "http://localhost:3000/payments/payment-callback");
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");

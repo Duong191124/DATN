@@ -24,7 +24,6 @@ public class VoucherResponse {
     private String maxDiscountAmount;
     private String termsAndConditions;
     private int status;
-    private List<Integer> customers;
 
     public static VoucherResponse fromVoucher(Voucher voucher) {
         VoucherResponse response = VoucherResponse.builder()
@@ -39,17 +38,6 @@ public class VoucherResponse {
                 .termsAndConditions(voucher.getTermsAndConditions())
                 .status(voucher.getStatus())
                 .build();
-
-        // Kiểm tra và gán danh sách khách hàng
-        if (voucher.getCustomers() != null && !voucher.getCustomers().isEmpty()) {
-            response.setCustomers(
-                    voucher.getCustomers() // Giả sử thuộc tính là getCustomers()
-                            .stream()
-                            .map(Customer::getId)
-                            .collect(Collectors.toList()));
-        } else {
-            response.setCustomers(new ArrayList<>()); // Trả về một mảng rỗng
-        }
 
         return response;
     }
