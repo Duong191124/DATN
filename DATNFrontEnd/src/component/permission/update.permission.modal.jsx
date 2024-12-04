@@ -124,14 +124,16 @@ const UpdatePermissionForUserModal = (props) => {
     setPermissions(updatedPermissions);
   };
 
-  const handleExpandAll = (checked) => {
-    if (checked) {
-      const allKeys = permissions.map((group) => group.title);
-      setExpandedKeys(allKeys);
-    } else {
-      setExpandedKeys([]);
-    }
-  };
+const handleExpandAll = (checked) => {
+  if (checked) {
+    // Expand all group titles
+    const allKeys = permissions.map((group) => group.title);
+    setExpandedKeys(allKeys);
+  } else {
+    // Collapse all
+    setExpandedKeys([]);
+  }
+};
 
   const handleOk = async () => {
     const permissionsToAdd = [];
@@ -178,54 +180,52 @@ const UpdatePermissionForUserModal = (props) => {
     }
     return rows;
   };
-  const renderTree = () => {
-    const rows = [];
-    for (let i = 0; i < permissions.length; i += 4) {
-      rows.push(permissions.slice(i, i + 4));
-    }
-    return rows.map((row, rowIndex) => (
-      <Row gutter={16} key={`row-${rowIndex}`}>
-        {row.map((group) => (
-          <Col span={6} key={group.title}>
-            <Tree
-              treeData={[
-                {
+const renderTree = () => {
+  return groupByRows(permissions, 4).map((row, rowIndex) => (
+    <Row gutter={16} key={`row-${rowIndex}`}>
+      {row.map((group) => (
+        <Col span={6} key={group.title}>
+          <Tree
+            treeData={[
+              {
+                title: (
+                  <Checkbox
+                    checked={group.children.every((child) => child.staff)}
+                    indeterminate={
+                      group.children.some((child) => child.staff) &&
+                      !group.children.every((child) => child.staff)
+                    }
+                    onChange={(e) =>
+                      handleGroupCheckAll(group.title, e.target.checked)
+                    }
+                  >
+                    {group.title}
+                  </Checkbox>
+                ),
+                key: group.title,
+                children: group.children.map((permission) => ({
                   title: (
                     <Checkbox
-                      checked={group.children.every((child) => child.staff)}
-                      indeterminate={
-                        group.children.some((child) => child.staff) &&
-                        !group.children.every((child) => child.staff)
-                      }
+                      checked={permission.staff}
                       onChange={(e) =>
-                        handleGroupCheckAll(group.title, e.target.checked)
+                        handleCheckboxChange(permission.key, e.target.checked)
                       }
                     >
-                      {group.title}
+                      {permission.title}
                     </Checkbox>
                   ),
-                  key: group.title,
-                  children: group.children.map((permission) => ({
-                    title: (
-                      <Checkbox
-                        checked={permission.staff}
-                        onChange={(e) =>
-                          handleCheckboxChange(permission.key, e.target.checked)
-                        }
-                      >
-                        {permission.title}
-                      </Checkbox>
-                    ),
-                    key: permission.key,
-                  })),
-                },
-              ]}
-            />
-          </Col>
-        ))}
-      </Row>
-    ));
-  };
+                  key: permission.key,
+                })),
+              },
+            ]}
+            expandedKeys={expandedKeys}
+            onExpand={(expandedKeys) => setExpandedKeys(expandedKeys)}
+          />
+        </Col>
+      ))}
+    </Row>
+  ));
+};
 
   const onCloseModal = () => {
     onClose();
@@ -238,7 +238,7 @@ const UpdatePermissionForUserModal = (props) => {
       maskClosable={false}
       onCancel={onCloseModal}
       onOk={handleOk}
-      width={800}
+      width={940}
     >
       <div style={{ marginBottom: "16px" }}>
         <Checkbox
