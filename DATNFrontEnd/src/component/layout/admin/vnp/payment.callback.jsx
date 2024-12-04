@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { Result, Spin, Button } from "antd";
 import { paymentCallBack } from "../../../../service/api.service";
+import { useNavigate } from "react-router-dom";
 
 const PaymentCallback = () => {
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("");
   const [orderId, setOrderId] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState(""); // Track payment method
-
+  const navigate = useNavigate();
   useEffect(() => {
     // For normal payment (cash), get status from localStorage
     const paymentStatus = localStorage.getItem("paymentStatus");
     const paymentMessage = localStorage.getItem("paymentMessage");
+    const code = localStorage.getItem("code");
     if (paymentStatus) {
       setStatus(paymentStatus); // Set status from localStorage
       setMessage(paymentMessage);
+      setOrderId(code);
     } else {
       // If it's a VNPay response, fetch the status from the API as before
       const fetchPaymentStatus = async () => {
@@ -40,17 +43,17 @@ const PaymentCallback = () => {
   }, []);
 
   const handleBackToSales = () => {
-    // Remove payment information from localStorage
     localStorage.removeItem("paymentStatus");
     localStorage.removeItem("paymentMessage");
-    window.location.href = "/";
+    localStorage.removeItem("code");
+    navigate("/");
   };
 
   const handleViewOrder = () => {
-    // Remove payment information from localStorage and redirect to order page
+    navigate(`/info-order-detail?code=${orderId}`);
     localStorage.removeItem("paymentStatus");
     localStorage.removeItem("paymentMessage");
-    // window.location.href = `/order-details/${orderId}`; // Adjust URL as per your order details page
+    localStorage.removeItem("code");
   };
   if (status === "loading") {
     return (
@@ -82,8 +85,11 @@ const PaymentCallback = () => {
       >
         <Result
           status="success"
-          title={`Thanh toán ${paymentMethod === "VNP" ? "VNPay" : "OCD"
-            } thành công!`}
+          title={`${
+            paymentMethod === "VNP"
+              ? "Thanh toán qua VNPay thành công!"
+              : "Cảm ơn bạn đã mua hàng"
+          } `}
           subTitle={`Đơn hàng của bạn (Code: ${orderId}) đã được xử lý thành công.`}
           extra={[
             <Button type="primary" onClick={handleBackToSales} key="back">
