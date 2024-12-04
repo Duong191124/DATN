@@ -50,7 +50,7 @@ const SizeForm = (props) => {
 
     return (
         <>
-            <Button type="primary" onClick={() => setIsModalOpen(true)}>
+            <Button style={{margin: 15}} type="primary" onClick={() => setIsModalOpen(true)}>
                 Create Size
             </Button>
             <Modal

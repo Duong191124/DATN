@@ -110,7 +110,6 @@ const CustomerInfoOrderDetail = () => {
       const orderId = order.id;
       try {
         const res = fetchDataOrderForCustomerIdByOrderId(userId, orderId);
-        console.log(res);
         if (res.data) {
           setDataDetail(res.data.data);
         }

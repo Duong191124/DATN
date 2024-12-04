@@ -75,13 +75,13 @@ instance.interceptors.response.use(
         });
         return;
       }
-      // else {
-      //   notification.warning({
-      //     message: 'Warring',
-      //     description: error.response.data.message,
-      //     duration: 2
-      //   });
-      // }
+      else {
+        notification.warning({
+          message: 'Warring',
+          description: error.response.data.message,
+          duration: 2
+        });
+      }
     }
   }
 );

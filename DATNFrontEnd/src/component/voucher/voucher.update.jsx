@@ -51,12 +51,12 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
         const type = e.target.value;
         setDiscountType(type);
         if (type === "amount") {
-            form.setFieldsValue({ discountAmount: 0 });
-            form.setFieldsValue({ discountPercent: 0 });
-            form.setFieldsValue({ maxDiscountAmount: 0 }); // Đặt về 0 khi chọn giảm giá tiền
+            form.setFieldsValue({ discountAmount: null });
+            form.setFieldsValue({ discountPercent: null });
+            form.setFieldsValue({ maxDiscountAmount: null }); // Đặt về 0 khi chọn giảm giá tiền
         } else {
-            form.setFieldsValue({ discountPercent: 0 });
-            form.setFieldsValue({ discountAmount: 0 });
+            form.setFieldsValue({ discountPercent: null });
+            form.setFieldsValue({ discountAmount: null });
         }
     };
 
@@ -154,14 +154,9 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                                 validator: (_, value) => {
                                     const minPurchaseAmount = form.getFieldValue("minPurchaseAmount");
                                     if (discountType === "percent") {
-                                        if (value < 0 || value > 10000000) {
+                                        if (value < 1000 || value > 10000000) {
                                             return Promise.reject(
-                                                new Error("Số tiền tối đa giảm giá phải nằm trong khoảng từ 0 đến 10,000,000!")
-                                            );
-                                        }
-                                        if (value > minPurchaseAmount) {
-                                            return Promise.reject(
-                                                new Error("Số tiền tối đa giảm giá không được lớn hơn số tiền tối thiểu để mua!")
+                                                new Error("Số tiền tối đa giảm giá phải nằm trong khoảng từ 1,000 đến 10,000,000!")
                                             );
                                         }
                                     }
@@ -170,7 +165,7 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                             },
                         ]}
                     >
-                        <InputNumber min={0} max={10000000} />
+                        <InputNumber min={1000} max={10000000} />
                     </Form.Item>
                 )}
 
@@ -228,14 +223,9 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                                     validator: (_, value) => {
                                         const minPurchaseAmount = form.getFieldValue("minPurchaseAmount");
                                         if (discountType === "percent") {
-                                            if (value < 0 || value > 10000000) {
+                                            if (value < 1000 || value > 10000000) {
                                                 return Promise.reject(
-                                                    new Error("Số tiền tối đa giảm giá phải nằm trong khoảng từ 0 đến 10,000,000!")
-                                                );
-                                            }
-                                            if (value > minPurchaseAmount) {
-                                                return Promise.reject(
-                                                    new Error("Số tiền tối đa giảm giá không được lớn hơn số tiền tối thiểu để mua!")
+                                                    new Error("Số tiền tối đa giảm giá phải nằm trong khoảng từ 1,000 đến 10,000,000!")
                                                 );
                                             }
                                         }
@@ -244,7 +234,7 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                                 },
                             ]}
                         >
-                            <InputNumber min={0} max={10000000} disabled={discountType === "amount"} />
+                            <InputNumber min={1000} max={10000000} disabled={discountType === "amount"} />
                         </Form.Item>
                     </Col>
                 </Row>

@@ -86,17 +86,6 @@ const CheckoutStep = () => {
     }
   };
 
-  const convertDataProductToOrder = (cartItemsLocal) => {
-    return cartItemsLocal.map((item) => ({
-      product: {
-        name: item.productResponse.name,
-        categoryName: item.productResponse.categoryName,
-      },
-      code: item.code,
-      quantity: item.quantity,
-    }));
-  };
-
   useEffect(() => {
     const items = JSON.parse(localStorage.getItem(`cart_${userId}`)) || [];
     setCartItems(items);
@@ -112,7 +101,6 @@ const CheckoutStep = () => {
     const cartItemsLocal = cartItems;
     const orderDetailRequests = convertCartToOrderDetails(cartItemsLocal);
     const addressToOrder = convertSelectAddressToOrder(selectAddress);
-    // const itemsProduct = convertDataProductToOrder(cartItemsLocal);
     const paymentMethod = selectedOption;
     const orderDTO = {
       code: generateInvoiceCode(), // Mã đơn hàng
@@ -125,19 +113,6 @@ const CheckoutStep = () => {
       orderDetailRequests, // Dữ liệu sản phẩm trong đơn hàng
       addressToOrder,
     };
-
-    // const createOrderGhn = {
-    //     toDistrictId: district,
-    //     toWardCode: ward,
-    //     weight: weight,
-    //     paymentType: 2,
-    //     shipCOD: totalShippingFee,
-    //     customerName: addresses.name,
-    //     customerPhone: addresses.phoneNumber,
-    //     addressDetail: addresses.addressDetail,
-    //     customerEmail: addresses?.customer?.email,
-    //     itemsProduct
-    // }
 
     try {
       // Step 1: Create the order in your system
@@ -373,7 +348,6 @@ const CheckoutStep = () => {
             }}
             type="primary"
             onClick={confirmOrder}
-            loading={loading}
           >
             Confirm
           </Button>

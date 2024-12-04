@@ -19,27 +19,20 @@ public class VoucherDTO {
 
     private String code;
 
-
     private String discountAmount;
 
     private int quantity;
 
     private String discountPercent;
 
-
     private LocalDateTime expirationDate;
 
-
     private String minPurchaseAmount;
-
 
     private String maxDiscountAmount;
 
     private String termsAndConditions;
 
-
     private int status;
-
-    private List<Integer> customers;
 
 }

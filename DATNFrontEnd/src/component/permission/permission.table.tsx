@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { message, Popconfirm, Space, Table, Input } from "antd";
+import { message, Popconfirm, Space, Table, Input, notification } from "antd";
 import { deletePermissionById } from "../../service/api.service";
 import PermissionUpdate from "./permission.update";
 import debounce from "lodash/debounce";
@@ -57,13 +57,17 @@ const PermissionTable = ({
         <Space size="middle">
           <EditOutlined
             onClick={() => {
-              handleUpdate(record);
+              // handleUpdate(record);
+              message.warning("cannot modifi, please contact develop to maintain project");
             }}
           />
           <Popconfirm
             title="Are you sure to delete this task?"
             onConfirm={() => {
-              hanleDelete(record.id);
+              // hanleDelete(record.id);
+              notification.warning({
+                message: "cannot modifi, please contact develop to maintain project"
+              })
             }}
             okText="Yes"
             cancelText="No"

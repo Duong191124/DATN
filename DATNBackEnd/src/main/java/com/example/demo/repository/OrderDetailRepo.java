@@ -2,6 +2,7 @@ package com.example.demo.repository;
 
 
 import com.example.demo.entity.OrderDetail;
+import com.example.demo.entity.Orders;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,7 +22,7 @@ public interface OrderDetailRepo extends JpaRepository<OrderDetail, Integer> {
             "ORDER BY pd.createdAt DESC, SUM(od.quantity) DESC, pd.discountPrice ASC")
     List<Object[]> getTopFeaturedProducts(Pageable pageable);
 
-
+    List<OrderDetail> findByOrders(Orders orders);
 
     @Query("SELECT SUM(od.quantity) FROM OrderDetail od JOIN od.orders o WHERE od.productDetail.id = :productDetailId AND o.status = 'shipped'")
     Integer getTotalSoldForProductDetail(@Param("productDetailId") Integer productDetailId);

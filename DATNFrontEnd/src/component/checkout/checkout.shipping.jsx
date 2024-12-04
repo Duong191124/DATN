@@ -72,6 +72,10 @@ const Shipping = () => {
         }
     };
 
+    const onFinish = async (values) => {
+
+    }
+
     useEffect(() => {
         const fetchProvinces = async () => {
             const res = await getProvinces();
@@ -152,35 +156,51 @@ const Shipping = () => {
         <>
             <div style={{ paddingTop: '12px', paddingBottom: '12px' }}>
                 <Title style={{ textAlign: 'center' }} level={4}>Shipping Address</Title>
-
-                <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
-                    <Col>
-                        <Button type="primary" icon={<SwapOutlined />} onClick={() => setIsModalOpen(true)}>
-                            Change Address
-                        </Button>
-                    </Col>
-                    <Col>
-                        <Button type="default" icon={<HomeOutlined />} onClick={handleAddNewAddress}>
-                            Add Address
-                        </Button>
-                    </Col>
-                </Row>
-
-                <Space direction="vertical" size={8}>
-                    <Space>
-                        <Text strong>{selectAddress ? selectAddress.name : 'No Address Selected'}</Text>
-                        <Text type="secondary">|</Text>
-                        <Text>{selectAddress ? selectAddress.phone : 'No phone number'}</Text>
-                    </Space>
-                    <Space align="start">
-                        <HomeOutlined style={{ marginTop: 4 }} />
-                        <Text>{selectAddress ? selectAddress.addressDetail : 'No address selected'}</Text>
-                    </Space>
-                </Space>
             </div>
+            {userId !== 1 && (
+                <div style={{ paddingTop: '12px', paddingBottom: '12px' }}>
+                    {/* Left and Right Buttons Container */}
+                    <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
+                        {/* Left Button for Change Address */}
+                        <Col>
+                            <Button
+                                type="primary"
+                                icon={<SwapOutlined />}
+                                onClick={() => setIsModalOpen(true)}
+                            >
+                                Change Address
+                            </Button>
+                        </Col>
+
+                        {/* Right Button for Add Address */}
+                        <Col>
+                            <Button
+                                type="default"
+                                icon={<HomeOutlined />}
+                                onClick={handleAddNewAddress}
+                            >
+                                Add Address
+                            </Button>
+                        </Col>
+                    </Row>
+
+                    {/* Render the selected address or placeholder */}
+                    <Space direction="vertical" size={8}>
+                        <Space>
+                            <Text strong>{selectAddress ? selectAddress.name : 'No Address Selected'}</Text>
+                            <Text type="secondary">|</Text>
+                            <Text>{selectAddress ? selectAddress.phone : 'No phone number'}</Text>
+                        </Space>
+                        <Space align="start">
+                            <HomeOutlined style={{ marginTop: 4 }} />
+                            <Text>{selectAddress ? selectAddress.addressDetail : 'No address selected'}</Text>
+                        </Space>
+                    </Space>
+                </div>
+            )}
 
             {userId === 1 && (
-                <Form form={form} layout="vertical" style={{ maxWidth: '100%' }}>
+                <Form form={form} layout="vertical" onFinish={onFinish} style={{ maxWidth: '100%' }}>
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item name="name" label="Recipient Name" rules={[{ required: true, message: 'Please enter recipient name' }]}>
@@ -203,84 +223,84 @@ const Shipping = () => {
                     </Form.Item>
 
                     <Row gutter={16}>
-        <Col span={8}>
-            <Form.Item
-                name="city"
-                label="City"
-                rules={[{ required: true, message: 'Please select city' }]}
-            >
-                <Select
-                    placeholder="Select a city"
-                    onChange={(value) => {
-                        setSelectedProvince(value);
-                        form.setFieldsValue({
-                            district: null,
-                            ward: null,
-                        }); // Reset values of district and ward
-                        setSelectedDistrict(null); // Clear district selection
-                        setDistricts([]); // Clear districts options
-                        setWards([]); // Clear wards options
-                    }}
-                    allowClear
-                >
-                    {Array.isArray(provinces) &&
-                        provinces.map((province) => (
-                            <Option key={province.ProvinceID} value={province.ProvinceID}>
-                                {province.ProvinceName}
-                            </Option>
-                        ))}
-                </Select>
-            </Form.Item>
-        </Col>
-        <Col span={8}>
-            <Form.Item
-                name="district"
-                label="District"
-                rules={[{ required: true, message: 'Please select district' }]}
-            >
-                <Select
-                    placeholder="Select a district"
-                    onChange={(value) => {
-                        setSelectedDistrict(value);
-                        form.setFieldsValue({
-                            ward: null,
-                        }); // Reset ward value
-                        setWards([]); // Clear wards options
-                    }}
-                    disabled={!selectedProvince} // Disable if province is not selected
-                    allowClear
-                >
-                    {Array.isArray(districts) &&
-                        districts.map((district) => (
-                            <Option key={district.DistrictID} value={district.DistrictID}>
-                                {district.DistrictName}
-                            </Option>
-                        ))}
-                </Select>
-            </Form.Item>
-        </Col>
-        <Col span={8}>
-            <Form.Item
-                name="ward"
-                label="Ward"
-                rules={[{ required: true, message: 'Please select ward' }]}
-            >
-                <Select
-                    placeholder="Select a ward"
-                    onChange={(value) => setWard(value)}
-                    disabled={!selectedDistrict} // Disable if district is not selected
-                    allowClear
-                >
-                    {Array.isArray(wards) &&
-                        wards.map((ward) => (
-                            <Option key={ward.WardCode} value={ward.WardCode}>
-                                {ward.WardName}
-                            </Option>
-                        ))}
-                </Select>
-            </Form.Item>
-        </Col>
-    </Row>
+                        <Col span={8}>
+                            <Form.Item
+                                name="city"
+                                label="City"
+                                rules={[{ required: true, message: 'Please select city' }]}
+                            >
+                                <Select
+                                    placeholder="Select a city"
+                                    onChange={(value) => {
+                                        setSelectedProvince(value);
+                                        form.setFieldsValue({
+                                            district: null,
+                                            ward: null,
+                                        }); // Reset values of district and ward
+                                        setSelectedDistrict(null); // Clear district selection
+                                        setDistricts([]); // Clear districts options
+                                        setWards([]); // Clear wards options
+                                    }}
+                                    allowClear
+                                >
+                                    {Array.isArray(provinces) &&
+                                        provinces.map((province) => (
+                                            <Option key={province.ProvinceID} value={province.ProvinceID}>
+                                                {province.ProvinceName}
+                                            </Option>
+                                        ))}
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item
+                                name="district"
+                                label="District"
+                                rules={[{ required: true, message: 'Please select district' }]}
+                            >
+                                <Select
+                                    placeholder="Select a district"
+                                    onChange={(value) => {
+                                        setSelectedDistrict(value);
+                                        form.setFieldsValue({
+                                            ward: null,
+                                        }); // Reset ward value
+                                        setWards([]); // Clear wards options
+                                    }}
+                                    disabled={!selectedProvince} // Disable if province is not selected
+                                    allowClear
+                                >
+                                    {Array.isArray(districts) &&
+                                        districts.map((district) => (
+                                            <Option key={district.DistrictID} value={district.DistrictID}>
+                                                {district.DistrictName}
+                                            </Option>
+                                        ))}
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item
+                                name="ward"
+                                label="Ward"
+                                rules={[{ required: true, message: 'Please select ward' }]}
+                            >
+                                <Select
+                                    placeholder="Select a ward"
+                                    onChange={(value) => setWard(value)}
+                                    disabled={!selectedDistrict} // Disable if district is not selected
+                                    allowClear
+                                >
+                                    {Array.isArray(wards) &&
+                                        wards.map((ward) => (
+                                            <Option key={ward.WardCode} value={ward.WardCode}>
+                                                {ward.WardName}
+                                            </Option>
+                                        ))}
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                    </Row>
                 </Form>
             )}
 

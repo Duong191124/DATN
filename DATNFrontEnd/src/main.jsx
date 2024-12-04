@@ -76,9 +76,9 @@ const router = createBrowserRouter([
   {
     path: "/admin",
     element: (
-      //<PrivateRoute>
-      <AppAdmin />
-      //</PrivateRoute>
+      <PrivateRoute>
+        <AppAdmin />
+      </PrivateRoute>
       // <AppAdmin />
     ),
     children: [

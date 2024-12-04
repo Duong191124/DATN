@@ -6,6 +6,7 @@ import com.example.demo.dto.GhnCancelDTO;
 import com.example.demo.dto.ServiceGhnDTO;
 import com.example.demo.response.MessageReponse;
 import com.example.demo.service.impl.GhnServiceImpl;
+import com.example.demo.service.impl.OrderServiceImpl;
 import com.example.demo.utils.MailService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public class GhnController {
 
     @Autowired
     private MailService mailService;
+
+    @Autowired
+    private OrderServiceImpl orderService;
 
     @GetMapping("/provinces")
     public ResponseEntity<?> getProvinces() {
@@ -69,8 +73,8 @@ public class GhnController {
                             .build()
             );
         }
-
         String trackingID = ghnService.createOrder(ghnOrderDTO);
+        orderService.saveTrackingId(ghnOrderDTO, trackingID);
         mailService.sendTrackingOrder(ghnOrderDTO.getCustomerEmail(), trackingID);
         return ResponseEntity.ok(
                 MessageReponse

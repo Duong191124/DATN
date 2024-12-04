@@ -9,8 +9,6 @@ const PaymentCallback = () => {
   const [orderId, setOrderId] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState(""); // Track payment method
   const navigate = useNavigate();
-  console.log("orr", orderId);
-
   useEffect(() => {
     // For normal payment (cash), get status from localStorage
     const paymentStatus = localStorage.getItem("paymentStatus");

@@ -41,46 +41,40 @@ const VoucherTable = ({ refreshData }) => {
         try {
             const response = await fetchDataVoucher();
             if (response.data.data) {
-                const currentDate = new Date(); // Ngày hiện tại
-                const updatedVouchers = response.data.data.map(voucher => {
+                const currentDate = new Date();
+                const updatedVouchers = response.data.data.map((voucher) => {
                     const expirationDate = new Date(voucher.expirationDate);
                     return {
                         ...voucher,
                         status: expirationDate < currentDate ? 0 : voucher.status, // Nếu quá hạn, đặt status = 0
                     };
                 });
-    
+
                 const filteredVouchers = updatedVouchers.filter((voucher) => {
                     if (dateRange.length === 0) return true;
                     const expirationDate = moment(voucher.expirationDate);
                     const [startDate, endDate] = dateRange;
                     return expirationDate.isBetween(startDate, endDate, null, "[]");
                 });
-    
+
+                // Sắp xếp danh sách theo ID giảm dần
+                filteredVouchers.sort((a, b) => b.id - a.id);
+
                 setDataVoucher(filteredVouchers);
             }
         } catch (error) {
             notification.error({
                 message: "Lỗi",
-                description: "Không thể lấy dữ liệu voucher"
+                description: "Không thể lấy dữ liệu voucher",
             });
         }
     };
-    
+
     useEffect(() => {
         loadData();
     }, [refreshData]);
 
     const handleDelete = (id, customers) => {
-        if (customers && customers.length > 0) {
-            // Nếu voucher có khách hàng áp dụng, không cho phép xóa
-            notification.warning({
-                message: "Không thể xóa",
-                description: "Voucher này đã áp dụng cho khách hàng và không thể xóa.",
-            });
-            return;
-        }
-
         Modal.confirm({
             title: "Xác nhận xóa",
             content: "Bạn có chắc chắn muốn xóa voucher này?",
@@ -120,33 +114,6 @@ const VoucherTable = ({ refreshData }) => {
         loadData();
     };
 
-    const handleShowCustomerDetail = (customerIds, voucher) => {
-        // Kiểm tra nếu voucher đã hết hạn
-        if (voucher.status === 0) {
-            notification.warning({
-                message: "Không thể áp dụng",
-                description: "Voucher này đã hết hạn và không thể áp dụng cho khách hàng.",
-            });
-            return; // Dừng lại nếu voucher đã hết hạn
-        }
-
-        setSelectedVoucherId(voucher.id);
-        if (customerIds && customerIds.length > 0) {
-            const selectedCustomer = customers.filter(customer => customerIds.includes(customer.id));
-            setSelectedCustomers(selectedCustomer);
-            setIsCustomerModalOpen(true);
-        } else {
-            notification.warning({
-                message: "Thông báo",
-                description: "Voucher này chưa áp dụng cho khách hàng nào.",
-            });
-            setSelectedCustomers([]);
-            setIsCustomerModalOpen(true);
-        }
-    };
-
-
-
     const handleApply = (selected) => {
         loadData();
     };
@@ -154,7 +121,7 @@ const VoucherTable = ({ refreshData }) => {
     const handleChangeStatus = async (voucher) => {
         const expirationDate = new Date(voucher.expirationDate);
         const currentDate = new Date();
-    
+
         if (expirationDate < currentDate) {
             notification.warning({
                 message: "Không thể kích hoạt lại voucher",
@@ -162,7 +129,7 @@ const VoucherTable = ({ refreshData }) => {
             });
             return;
         }
-    
+
         try {
             const res = await chandleStatus(voucher.id);
             if (res.status === 200 || res.status === 204) {
@@ -184,7 +151,7 @@ const VoucherTable = ({ refreshData }) => {
             });
         }
     };
-    
+
     const columns = [
         {
             title: 'STT',
@@ -403,10 +370,10 @@ const VoucherTable = ({ refreshData }) => {
                         style={{ color: "red", cursor: "pointer" }}
                         onClick={() => handleDelete(record.id, record.customers)}
                     />
-                    <PlusCircleOutlined
+                    {/* <PlusCircleOutlined
                         style={{ color: "green", cursor: "pointer" }}
                         onClick={() => handleShowCustomerDetail(record.customers, record)} // Truyền đúng đối tượng record
-                    />
+                    /> */}
                     <RetweetOutlined
                         style={{ color: "aqua", cursor: "pointer" }}
                         onClick={() => handleChangeStatus(record)}
@@ -441,15 +408,7 @@ const VoucherTable = ({ refreshData }) => {
                     onSuccess={handleUpdateSuccess}
                 />
             )}
-            {isCustomerModalOpen && (
-                <VoucherCustomer
-                    appliedCustomers={selectedCustomers}
-                    onClose={() => setIsCustomerModalOpen(false)}
-                    onApply={handleApply}
-                    voucherId={selectedVoucherId}
-                    onRefresh={loadData}
-                />
-            )}
+
         </div>
     );
 };
