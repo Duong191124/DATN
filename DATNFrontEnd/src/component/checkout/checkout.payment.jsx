@@ -89,13 +89,13 @@ const Payment = () => {
 
             {/* Cash */}
             <div
-              onClick={() => setSelectedOption("Cash")}
+              onClick={() => setSelectedOption("cod")}
               style={{
                 padding: "15px 20px",
                 display: "flex",
                 alignItems: "center",
                 cursor: "pointer",
-                backgroundColor: selectedOption === "Cash" ? "#f9f9f9" : "#fff",
+                backgroundColor: selectedOption === "cod" ? "#f9f9f9" : "#fff",
               }}
             >
               <div
@@ -108,15 +108,15 @@ const Payment = () => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  backgroundColor: selectedOption === "Cash" ? "#000" : "#fff",
+                  backgroundColor: selectedOption === "cod" ? "#000" : "#fff",
                 }}
               >
-                {selectedOption === "Cash" && (
+                {selectedOption === "cod" && (
                   <span style={{ color: "#fff" }}>✓</span>
                 )}
               </div>
               <div style={{ flex: 1 }}>
-                <strong>Cash</strong>
+                <strong>COD</strong>
                 <p style={{ margin: 0, color: "#888" }}>
                   Pay with cash upon delivery.
                 </p>

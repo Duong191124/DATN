@@ -576,7 +576,8 @@ const CounterSales = () => {
     setSelectedBill(null);
     localStorage.setItem("cartItemsByBill", JSON.stringify(updatedCartItems));
   };
-  const billCode = billWaiting.find((bill) => bill.code === selectedBill);
+  const billWaitingArray = Array.from(billWaiting || []);
+  const billCode = billWaitingArray.find((bill) => bill.code === selectedBill);
   useEffect(() => {
     const defaultFilters = {
       productName: "",

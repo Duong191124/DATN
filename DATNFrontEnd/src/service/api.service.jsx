@@ -886,7 +886,7 @@ const deletePromotionAPI = (id) => {
 
 // API VOUCHER
 const fetchDataVoucher = () => {
-  const URL_BACKEND = "/api/v1/voucher";
+  const URL_BACKEND = "/api/v1/voucher/getVoucher";
   return axios.get(URL_BACKEND);
 };
 const createVoucher = async (
