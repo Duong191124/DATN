@@ -47,6 +47,7 @@ const CheckoutStep = () => {
     addresses,
     selectAddress,
     selectedOption,
+    shippingData
   } = useCheckout();
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
@@ -194,6 +195,29 @@ const CheckoutStep = () => {
       return { success: false, message: "Thanh toán thất bại" };
     }
   };
+
+
+  // const handApiGhnWithUserId = async () => {
+  //   if (!shippingData) {
+  //     message.error("Please fill out your shipping details.");
+  //     return;
+  //   }
+  //   try {
+  //     const fee = await getShippingFee(shippingData);
+  //     setTotalShippingFee(fee.data.data.total);
+  //   } catch (error) {
+  //     let errorMessage =
+  //       error?.response?.data?.message || "Giao hàng nhanh không hỗ trợ xã này";
+
+  //     // Cắt chuỗi để chỉ lấy phần từ "GHN" trở đi
+  //     const ghnIndex = errorMessage.indexOf("Giao");
+  //     if (ghnIndex !== -1) {
+  //       errorMessage = errorMessage.substring(ghnIndex);
+  //     }
+
+  //     message.error(errorMessage);
+  //   }
+  // }
 
   const handleApiGhn = async () => {
     const values = {
