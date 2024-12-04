@@ -41,32 +41,35 @@ const VoucherTable = ({ refreshData }) => {
         try {
             const response = await fetchDataVoucher();
             if (response.data.data) {
-                const currentDate = new Date(); // Ngày hiện tại
-                const updatedVouchers = response.data.data.map(voucher => {
+                const currentDate = new Date();
+                const updatedVouchers = response.data.data.map((voucher) => {
                     const expirationDate = new Date(voucher.expirationDate);
                     return {
                         ...voucher,
                         status: expirationDate < currentDate ? 0 : voucher.status, // Nếu quá hạn, đặt status = 0
                     };
                 });
-    
+
                 const filteredVouchers = updatedVouchers.filter((voucher) => {
                     if (dateRange.length === 0) return true;
                     const expirationDate = moment(voucher.expirationDate);
                     const [startDate, endDate] = dateRange;
                     return expirationDate.isBetween(startDate, endDate, null, "[]");
                 });
-    
+
+                // Sắp xếp danh sách theo ID giảm dần
+                filteredVouchers.sort((a, b) => b.id - a.id);
+
                 setDataVoucher(filteredVouchers);
             }
         } catch (error) {
             notification.error({
                 message: "Lỗi",
-                description: "Không thể lấy dữ liệu voucher"
+                description: "Không thể lấy dữ liệu voucher",
             });
         }
     };
-    
+
     useEffect(() => {
         loadData();
     }, [refreshData]);
@@ -118,7 +121,7 @@ const VoucherTable = ({ refreshData }) => {
     const handleChangeStatus = async (voucher) => {
         const expirationDate = new Date(voucher.expirationDate);
         const currentDate = new Date();
-    
+
         if (expirationDate < currentDate) {
             notification.warning({
                 message: "Không thể kích hoạt lại voucher",
@@ -126,7 +129,7 @@ const VoucherTable = ({ refreshData }) => {
             });
             return;
         }
-    
+
         try {
             const res = await chandleStatus(voucher.id);
             if (res.status === 200 || res.status === 204) {
@@ -148,7 +151,7 @@ const VoucherTable = ({ refreshData }) => {
             });
         }
     };
-    
+
     const columns = [
         {
             title: 'STT',
@@ -405,7 +408,7 @@ const VoucherTable = ({ refreshData }) => {
                     onSuccess={handleUpdateSuccess}
                 />
             )}
-            
+
         </div>
     );
 };
