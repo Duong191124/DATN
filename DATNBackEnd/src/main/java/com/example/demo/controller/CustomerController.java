@@ -69,7 +69,11 @@ public class CustomerController {
                     .build()
             );
         }catch(Exception e){
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(MessageReponse.builder()
+                            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .data(null)
+                            .message(e.getMessage())
+                            .build());
         }
     }
     @PreAuthorize("isAuthenticated()")

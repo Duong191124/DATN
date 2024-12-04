@@ -116,16 +116,9 @@ const RegisterPage = () => {
                     navigate('/login'); // Redirect to login page upon success
                 }
             } catch (error) {
-                console.error(error);
-                if (error.response && error.response.status === 500 && error.response.data.message.includes("Username has been taken")) {
+                if (error.response && error.response.status === 500) {
                     setUsernameError("Username has been taken");
                     setCurrentStep(0); // Go back to first step if username is taken
-                } else {
-                    notification.error({
-                        message: "Registration Error",
-                        description: error.message,
-                        style: { borderRadius: '4px' }
-                    });
                 }
             }
         }
