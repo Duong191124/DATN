@@ -1,5 +1,6 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.dto.GhnOrderDTO;
 import com.example.demo.dto.OrderBuyerResponseDTO;
 import com.example.demo.dto.OrderDTO;
 import com.example.demo.dto.OrderOnlineDTO;
@@ -386,6 +387,13 @@ public class OrderServiceImpl implements OrderService {
         List<Orders> orders = orderRepo.findByCustomerId(customerId);
         return orders.stream()
                 .anyMatch(order -> order.getVoucher() != null && order.getVoucher().getId() == voucherId);
+    }
+    public void saveTrackingId(GhnOrderDTO ghnOrderDTO, String trackingID) {
+        Orders order = orderRepo.findByCode(ghnOrderDTO.getOrderCode());
+
+        // Cập nhật trackingID
+        order.setTrackingNumber(trackingID);
+        orderRepo.save(order);
     }
     @Override
     public boolean hasCustomerUsedVoucher(int customerId, int voucherId) {

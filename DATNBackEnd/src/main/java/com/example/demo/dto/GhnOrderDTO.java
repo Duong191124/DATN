@@ -13,6 +13,8 @@ import java.util.List;
 @Setter
 @Builder
 public class GhnOrderDTO {
+    @NotBlank(message = "Order code cannot be blank")
+    private String orderCode;
     @Min(value = 1, message = "District ID must be greater than 0")
     private int toDistrictId;
 
