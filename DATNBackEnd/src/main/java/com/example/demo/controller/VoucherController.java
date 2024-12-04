@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class VoucherController {
     @Autowired
     private VoucherServiceImpl voucherService;
-    @GetMapping("")
+    @GetMapping("/getVoucher")
     public ResponseEntity<MessageReponse> getAllVouchers() {
         // Lấy danh sách voucher và tự động cập nhật trạng thái
         List<VoucherResponse> voucherList = voucherService.getAllVouchers()

@@ -24,7 +24,6 @@ const UpdatePermissionForUserModal = (props) => {
       const allPermissionsRes = await getAllPermissionPagination(1, 100, "");
       const rawData = allPermissionsRes.data.data.content;
 
-      console.log("Raw permissions data:", rawData);
 
       const allPermissions = rawData.reduce((acc, item) => {
         const [action, entity] = item.name.split("_");
@@ -40,7 +39,6 @@ const UpdatePermissionForUserModal = (props) => {
       }, {});
 
       const permissionTree = Object.values(allPermissions);
-      console.log("Permission tree data:", permissionTree);
 
       allPermissionsRef.current = permissionTree;
       setPermissions(permissionTree);
@@ -59,7 +57,6 @@ const UpdatePermissionForUserModal = (props) => {
       const staffPermissionIds = staffPermissionRes.data.data.map(
         (item) => item.id
       );
-      console.log("Staff permissions:", staffPermissionIds);
 
       const updatedPermissions = allPermissionsRef.current.map((group) => ({
         ...group,
@@ -91,12 +88,12 @@ const UpdatePermissionForUserModal = (props) => {
     const updatedPermissions = permissions.map((group) =>
       group.title === groupKey
         ? {
-            ...group,
-            children: group.children.map((permission) => ({
-              ...permission,
-              staff: checked,
-            })),
-          }
+          ...group,
+          children: group.children.map((permission) => ({
+            ...permission,
+            staff: checked,
+          })),
+        }
         : group
     );
     setPermissions(updatedPermissions);

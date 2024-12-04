@@ -48,7 +48,6 @@ const CheckoutStep = () => {
     selectAddress,
     selectedOption,
   } = useCheckout();
-  console.log("abc", selectedOption);
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -135,6 +134,10 @@ const CheckoutStep = () => {
 
       // If both orders are successfully created, show success message
       message.success("Đơn hàng đã được tạo thành công!");
+      resetCheckoutContext();
+      localStorage.removeItem(`cart_${userId}`);
+      navigate("/");
+      setCartItems([]);
     } catch (error) {
       // Catch and handle errors from both the order creation process or GHN
       let errorMessage =
@@ -313,7 +316,6 @@ const CheckoutStep = () => {
             }}
             type="primary"
             onClick={confirmOrder}
-            loading={loading}
           >
             Confirm
           </Button>

@@ -421,8 +421,8 @@ const createPayment = async (paymentDate, paymentMethod, orderId) => {
     throw new Error("Thanh toán thất bại: " + error.message);
   }
 };
-const getVouchersByCustomerId = (customerId) => {
-  const URL_BACKEND = `api/v1/customer-voucher/${customerId}`;
+const getVouchersByCustomerId = () => {
+  const URL_BACKEND = `api/v1/voucher/getVoucher`;
   return axios.get(URL_BACKEND);
 };
 const hasCustomerUsedVoucher = (customerId, voucherId) => {

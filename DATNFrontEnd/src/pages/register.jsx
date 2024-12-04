@@ -82,7 +82,7 @@ const RegisterPage = () => {
                 setFormData(mergedData);
                 setCurrentStep(1);
             } catch (error) {
-                console.log(error);
+                console.error(error);
                 return;
             }
         } else {

@@ -7,7 +7,6 @@ const PaymentCallback = () => {
   const [message, setMessage] = useState("");
   const [orderId, setOrderId] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState(""); // Track payment method
-  console.log("orr", orderId);
 
   useEffect(() => {
     // For normal payment (cash), get status from localStorage
@@ -83,9 +82,8 @@ const PaymentCallback = () => {
       >
         <Result
           status="success"
-          title={`Thanh toán ${
-            paymentMethod === "VNP" ? "VNPay" : "OCD"
-          } thành công!`}
+          title={`Thanh toán ${paymentMethod === "VNP" ? "VNPay" : "OCD"
+            } thành công!`}
           subTitle={`Đơn hàng của bạn (Code: ${orderId}) đã được xử lý thành công.`}
           extra={[
             <Button type="primary" onClick={handleBackToSales} key="back">
