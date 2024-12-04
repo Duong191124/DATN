@@ -71,98 +71,80 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             if (!id) {
                 throw new Error("Promotion ID không hợp lệ.");
             }
-
+    
             const currentDate = new Date(); // Lấy ngày hiện tại
             const promotionExpirationDate = new Date(promotion?.expirationDate); // Ngày hết hạn của khuyến mãi
-
+    
             // Kiểm tra nếu khuyến mãi đã hết hạn
             if (promotionExpirationDate < currentDate) {
                 notification.warning({
                     message: "Khuyến Mãi Hết Hạn",
                     description: "Khuyến mãi này đã hết hạn và không thể áp dụng.",
                 });
-            
-                // Hủy áp dụng khuyến mãi cho tất cả các sản phẩm đã chọn
-                const payload = {
-                    productDetailsIds: selectedDetails,
-                    applyPromotion: false, // Hủy khuyến mãi
-                };
-            
-                try {
-                    const res = await updatePromotionProduct(id, payload);
-                    if (res) {
-                        notification.success({
-                            message: "Thành công",
-                            description: "Khuyến mãi đã hết hạn, tự động hủy áp dụng cho các sản phẩm.",
-                        });
-            
-                        // Fetch lại dữ liệu product details
-                        const updatedProductDetails = await fetchDataProductDetail();
-                        if (updatedProductDetails?.data?.data) {
-                            let restoredDetails = updatedProductDetails.data.data;
-            
-                            // Khôi phục giá về mặc định
-                            restoredDetails = restoredDetails.map(product => ({
-                                ...product,
-                                discountPrice: product.defaultPrice,
-                            }));
-            
-                            setProductDetails(restoredDetails);
-                        }
-            
-                        // Xóa danh sách sản phẩm đã chọn
-                        onApply([]);
-                        onClose();
-            
-                        if (loadData) {
-                            loadData();
-                        }
-                    } else {
-                        throw new Error("Không thể cập nhật khuyến mãi.");
-                    }
-                } catch (error) {
-                    console.error("Error canceling expired promotion:", error);
-                    notification.error({
-                        message: "Lỗi",
-                        description: error.response?.data?.message || "Không thể hủy khuyến mãi đã hết hạn.",
-                    });
-                }
-                return; // Dừng tại đây nếu khuyến mãi đã hết hạn
+                // Hủy áp dụng khuyến mãi logic ở đây
+                return;
             }
-
-            // Nếu khuyến mãi chưa hết hạn, thực hiện như bình thường
+    
+            // Kiểm tra nếu giá trị giảm giá vượt quá giá của sản phẩm
+            const invalidProducts = selectedDetails.filter((productId) => {
+                const product = productDetails.find((item) => item.id === productId);
+                if (!product) return false;
+    
+                const discountAmount = promotion.discountAmount || 0; // Giảm giá cố định
+                const discountPercent = promotion.discountPercent || 0; // Giảm giá phần trăm
+    
+                // Tính giá sau giảm
+                const calculatedDiscountPrice =
+                    discountPercent > 0
+                        ? product.defaultPrice * (1 - discountPercent / 100)
+                        : product.defaultPrice - discountAmount;
+    
+                // Nếu giá sau giảm nhỏ hơn 0, sản phẩm không hợp lệ
+                return calculatedDiscountPrice < 0;
+            });
+    
+            if (invalidProducts.length > 0) {
+                notification.error({
+                    message: "Lỗi Áp Dụng",
+                    description: "Giá trị giảm giá vượt quá giá của một hoặc nhiều sản phẩm đã chọn.",
+                });
+                return;
+            }
+    
+            // Nếu tất cả hợp lệ, tiến hành áp dụng khuyến mãi
             const payload = {
                 productDetailsIds: selectedDetails,
                 applyPromotion: selectedDetails.length > 0,
             };
-           
+    
             const res = await updatePromotionProduct(id, payload);
-            
-            
-        
+    
             if (res) {
                 notification.success({
                     message: "Thành công",
-                    description: selectedDetails.length > 0 ? "Áp dụng khuyến mãi thành công!" : "Đã hủy áp dụng khuyến mãi.",
+                    description: selectedDetails.length > 0
+                        ? "Áp dụng khuyến mãi thành công!"
+                        : "Đã hủy áp dụng khuyến mãi.",
                 });
-
+    
+                // Fetch lại dữ liệu sản phẩm sau khi áp dụng khuyến mãi
                 const updatedProductDetails = await fetchDataProductDetail();
                 if (updatedProductDetails?.data?.data) {
                     let restoredDetails = updatedProductDetails.data.data;
-
+    
                     if (!payload.applyPromotion) {
                         restoredDetails = restoredDetails.map(product => ({
                             ...product,
                             discountPrice: product.defaultPrice,
                         }));
                     }
-
+    
                     setProductDetails(restoredDetails);
                 }
-
+    
                 onApply(selectedDetails);
                 onClose();
-
+    
                 if (loadData) {
                     loadData();
                 }
@@ -177,6 +159,7 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             });
         }
     };
+    
 
 
     const handleSelectAll = () => {
