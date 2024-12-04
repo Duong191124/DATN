@@ -48,7 +48,6 @@ const CheckoutStep = () => {
     selectAddress,
     selectedOption,
   } = useCheckout();
-  console.log("abc", selectedOption);
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -189,8 +188,6 @@ const CheckoutStep = () => {
       } else {
         throw new Error("Invalid payment method selected");
       }
-      // If both orders are successfully created, show success message
-      message.success("Đơn hàng đã được tạo thành công!");
     } catch (error) {
       // Catch and handle errors from both the order creation process or GHN
       let errorMessage =
@@ -236,9 +233,16 @@ const CheckoutStep = () => {
       setCartItems([]);
       localStorage.setItem("paymentStatus", "success");
       localStorage.setItem("paymentMessage", "Thanh toán thành công");
-      navigate("/payments/payment-callback"); // Redirect to callback page
+      localStorage.setItem(
+        "code",
+        paymentResponse?.data?.orderDataPaymentResponse.code
+      );
+      navigate("/payments/payment-callback");
       setLoading(false);
-      return { success: true, message: "Thanh toán thành công" };
+      return {
+        success: true,
+        message: "Thanh toán thành công",
+      };
     } else {
       localStorage.setItem("paymentStatus", "failed");
       localStorage.setItem("paymentMessage", "Thanh toán thất bại");

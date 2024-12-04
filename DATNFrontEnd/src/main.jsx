@@ -77,7 +77,7 @@ const router = createBrowserRouter([
     path: "/admin",
     element: (
       //<PrivateRoute>
-        <AppAdmin />
+      <AppAdmin />
       //</PrivateRoute>
       // <AppAdmin />
     ),
@@ -202,7 +202,7 @@ const router = createBrowserRouter([
         element: <CustomerInfoOrderDetail />,
       },
       {
-        path: "/info-order-detail",
+        path: "/info-order-detail?code=:orderCode",
         element: <CustomerInfoOrderDetail />,
       },
       {

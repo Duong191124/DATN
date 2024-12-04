@@ -327,7 +327,6 @@ const updateProductDetailWithOrder = (
   };
   return axios.put(URL_BACKEND, data);
 };
-
 const orderStaffFindById = (staffId) => {
   const URL_BACKEND = `api/v1/staff/${staffId}`;
   return axios.get(URL_BACKEND);
