@@ -93,9 +93,10 @@ const CustomerInfoOrder = () => {
 
   const statusOptions = [
     { value: "pending", label: "Chờ xử lý" },
-    { value: "process", label: "Đang xử lý" },
-    { value: "delivery", label: "Đang giao" },
-    { value: "shipped", label: "Đã giao" },
+    { value: "confirmed", label: "Đã xác nhận" },
+    { value: "shipping", label: "Đang giao hàng" },
+    { value: "delivered", label: "Đã giao" },
+    { value: "completed", label: "Đã hoàn thành" },
     { value: "cancelled", label: "Đã hủy" },
   ];
 
@@ -105,7 +106,6 @@ const CustomerInfoOrder = () => {
     return status ? status.label : "Unknown Status";
   };
 
-  console.log(data);
 
   const renderOrderCard = () => {
     return data.map((order) => {
