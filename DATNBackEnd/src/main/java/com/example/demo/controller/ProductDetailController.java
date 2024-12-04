@@ -44,7 +44,7 @@ public class ProductDetailController {
                                                   @RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "10") int limit
                                                   ) {
-        Pageable pageable = PageRequest.of(page,limit, Sort.by("createdAt").ascending());
+        Pageable pageable = PageRequest.of(page,limit, Sort.by("createdAt").descending());
         Page<ProductDetailResponse> productDetailResponses = productDetailService.pageAndFilterWithProductDetailResponse(productName,code,colorName,sizeName,minPrice,maxPrice,status,pageable);
         return ResponseEntity.ok(new MessageReponse("successfully",200,productDetailResponses));
     }

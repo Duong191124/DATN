@@ -77,7 +77,8 @@ public class ProductController {
             @RequestParam(defaultValue = "3") int pageSize) {
         // Đảm bảo page không nhỏ hơn 1
         page = Math.max(1, page);
-        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("id").ascending());
+        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("createdAt").descending());
+
 
         Page<ProductResponse> productResponsePage = productService.pageAllProducts(
                 categoryId, productName, sleeveId, collarId, brandId, description, status,pageable);
@@ -94,7 +95,7 @@ public class ProductController {
                 .totalElement(totalElement)
                 .build());
     }
-    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
+//    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
     @PostMapping("")
     public ResponseEntity<?> addProduct(@Valid @RequestBody ProductDTO productDTO, BindingResult result) {
         if (result.hasErrors()) {
