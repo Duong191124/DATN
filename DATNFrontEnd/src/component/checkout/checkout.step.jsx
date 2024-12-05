@@ -47,6 +47,7 @@ const CheckoutStep = () => {
     addresses,
     selectAddress,
     selectedOption,
+    shippingData
   } = useCheckout();
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
@@ -86,6 +87,23 @@ const CheckoutStep = () => {
     }
   };
 
+  const convertAddressToOrder = (shippingData) => {
+    if (shippingData && typeof shippingData === "object") {
+      // Return only the selected fields
+      return {
+        name: shippingData.name,
+        phoneNumber: shippingData.phoneNumber,
+        city: shippingData.toProvide,
+        district: shippingData.toDistrict,
+        ward: shippingData.toWard,
+        addressDetail: shippingData.addressDetail,
+      };
+    } else {
+      console.error("selectAddress is either null or not an object");
+      return null;
+    }
+  };
+
   useEffect(() => {
     const items = JSON.parse(localStorage.getItem(`cart_${userId}`)) || [];
     setCartItems(items);
@@ -101,6 +119,8 @@ const CheckoutStep = () => {
     const cartItemsLocal = cartItems;
     const orderDetailRequests = convertCartToOrderDetails(cartItemsLocal);
     const addressToOrder = convertSelectAddressToOrder(selectAddress);
+    const addressFormToOrder = convertAddressToOrder(shippingData);
+    const changeAddress = userId === "1" ? addressFormToOrder : addressToOrder;
     const paymentMethod = selectedOption;
     const orderDTO = {
       code: generateInvoiceCode(), // Mã đơn hàng
@@ -111,7 +131,7 @@ const CheckoutStep = () => {
       voucherId: selectedCoupon || null, // Mã giảm giá nếu có
       customerId: userId, // Lấy customerId từ localStorage hoặc session
       orderDetailRequests, // Dữ liệu sản phẩm trong đơn hàng
-      addressToOrder,
+      changeAddress,
     };
 
     try {
@@ -125,7 +145,7 @@ const CheckoutStep = () => {
         orderDTO.customerId,
         orderDTO.moneyReceived,
         orderDTO.orderDetailRequests,
-        orderDTO.addressToOrder
+        orderDTO.changeAddress
       );
 
       // If creating the order fails, throw an error
@@ -133,24 +153,6 @@ const CheckoutStep = () => {
         throw new Error(createOrderResponse?.message);
       }
 
-      // Step 2: Create the order in the GHN system (Shipping)
-      // const createOrderGhnResponse = await getCreateOrderGhn(
-      //     createOrderGhn.toDistrictId,
-      //     createOrderGhn.toWardCode,
-      //     createOrderGhn.weight,
-      //     createOrderGhn.paymentType,
-      //     createOrderGhn.shipCOD,
-      //     createOrderGhn.customerName,
-      //     createOrderGhn.customerPhone,
-      //     createOrderGhn.addressDetail,
-      //     createOrderGhn.customerEmail,
-      //     createOrderGhn.itemsProduct
-      // );
-
-      // If there is any error in the GHN response, throw an error
-      // if (createOrderGhnResponse?.error) {
-      //     throw new Error(createOrderGhnResponse?.error || "Giao hàng không thành công.");
-      // }
       const paymentDTO = {
         paymentDate: moment().format("DD/MM/YYYY"),
         paymentMethod: paymentMethod,
@@ -158,7 +160,7 @@ const CheckoutStep = () => {
       };
       if (paymentMethod === "VNP") {
         await handleVNPPayment(paymentDTO);
-      } else if (paymentMethod === "Cash") {
+      } else if (paymentMethod === "cod") {
         await handleNormalPayment(paymentDTO);
       } else {
         throw new Error("Invalid payment method selected");
@@ -228,33 +230,65 @@ const CheckoutStep = () => {
   };
 
   const handleApiGhn = async () => {
-    const values = {
-      fromDistrictId: selectAddress.fromDistrict,
-      toDistrictId: selectAddress.district,
-      toWardCode: selectAddress.ward,
-      weight: weight,
-      serviceId: selectAddress.serviceId,
-    };
-    try {
-      const res = await getShippingFee(
-        values.fromDistrictId,
-        values.toDistrictId,
-        values.toWardCode,
-        values.weight,
-        values.serviceId
-      );
-      setTotalShippingFee(res.data.data.total);
-    } catch (error) {
-      let errorMessage =
-        error?.response?.data?.message || "Giao hàng nhanh không hỗ trợ xã này";
+    if (userId === "1") {
+      const values = {
+        fromDistrictId: 2004,
+        toDistrictId: shippingData.toDistrict,
+        toWardCode: shippingData.toWard,
+        weight: weight,
+        serviceId: 53321,
+      };
+      try {
+        const fee = await getShippingFee(
+          values.fromDistrictId,
+          values.toDistrictId,
+          values.toWardCode,
+          values.weight,
+          values.serviceId
+        );
+        setTotalShippingFee(fee.data.data.total);
+      } catch (error) {
+        let errorMessage =
+          error?.response?.data?.message || "Giao hàng nhanh không hỗ trợ xã này";
 
-      // Cắt chuỗi để chỉ lấy phần từ "GHN" trở đi
-      const ghnIndex = errorMessage.indexOf("Giao");
-      if (ghnIndex !== -1) {
-        errorMessage = errorMessage.substring(ghnIndex);
+        // Cắt chuỗi để chỉ lấy phần từ "GHN" trở đi
+        const ghnIndex = errorMessage.indexOf("Giao");
+        if (ghnIndex !== -1) {
+          errorMessage = errorMessage.substring(ghnIndex);
+        }
+
+        message.error(errorMessage);
       }
+    }
+    else {
+      const values = {
+        fromDistrictId: selectAddress.fromDistrict,
+        toDistrictId: selectAddress.district,
+        toWardCode: selectAddress.ward,
+        weight: weight,
+        serviceId: selectAddress.serviceId,
+      };
+      try {
+        const res = await getShippingFee(
+          values.fromDistrictId,
+          values.toDistrictId,
+          values.toWardCode,
+          values.weight,
+          values.serviceId
+        );
+        setTotalShippingFee(res.data.data.total);
+      } catch (error) {
+        let errorMessage =
+          error?.response?.data?.message || "Giao hàng nhanh không hỗ trợ xã này";
 
-      message.error(errorMessage);
+        // Cắt chuỗi để chỉ lấy phần từ "GHN" trở đi
+        const ghnIndex = errorMessage.indexOf("Giao");
+        if (ghnIndex !== -1) {
+          errorMessage = errorMessage.substring(ghnIndex);
+        }
+
+        message.error(errorMessage);
+      }
     }
   };
 

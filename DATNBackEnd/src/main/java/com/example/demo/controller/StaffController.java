@@ -38,6 +38,7 @@ public class StaffController {
 //                .build()
 //        );
 //    }
+    @PreAuthorize("hasAuthority('READ_STAFF')")
     @GetMapping("/getAll")
     public ResponseEntity<MessageReponse> getAll(
             @RequestParam(name = "username", required = false) String username,

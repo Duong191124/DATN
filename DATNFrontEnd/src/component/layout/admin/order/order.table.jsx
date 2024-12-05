@@ -259,7 +259,6 @@ const OrderTable = (props) => {
         try {
             const res = await updateStatusOrder(orderId, status, cancelNote);
             const trackingId = res.data.data.trackingId;
-            console.log(trackingId);
             await cancelOrderGhn(trackingId);
             setDataOrder((prevDataOrder) =>
                 prevDataOrder.map((order) =>
@@ -727,7 +726,7 @@ const OrderTable = (props) => {
     const expandedRowRender = (record) => {
         const totalQuantity = getTotalQuantity(record.orderDetailResponses || []);
         // Kiểm tra nếu không có nhân viên
-        const hasStaff = orderDetails.staffResponse != null;
+        const hasStaff = orderDetails?.staffResponse != null;
 
         return (
             <Tabs defaultActiveKey="1">
@@ -1058,7 +1057,7 @@ const OrderTable = (props) => {
                 onCancel={() => setIsModalVisible(false)}
                 footer={[
                     <Button key="cancel" onClick={() => setIsModalVisible(false)}>
-                        Hủy
+                        Đóng
                     </Button>,
                     <Button key="confirm" type="primary" onClick={handleUpdateStatus}>
                         Xác nhận chuyển trạng thái

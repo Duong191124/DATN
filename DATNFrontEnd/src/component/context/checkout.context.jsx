@@ -17,6 +17,7 @@ export const CheckoutProvider = ({ children }) => {
   const [addresses, setAddresses] = useState([]);
   const [selectAddress, setSelectAddress] = useState(null);
   const [selectedOption, setSelectedOption] = useState("");
+  const [shippingData, setShippingData] = useState(null);
   const resetCheckoutContext = () => {
     setSelectedCoupon(null);
     setCouponDiscount(0);
@@ -72,6 +73,8 @@ export const CheckoutProvider = ({ children }) => {
         setSelectAddress,
         selectedOption,
         setSelectedOption,
+        shippingData,
+        setShippingData
       }}
     >
       {children}
