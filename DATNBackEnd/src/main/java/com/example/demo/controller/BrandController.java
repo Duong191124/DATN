@@ -24,7 +24,6 @@ public class BrandController {
     private final BrandService brandService;
 
     private final MessageSource messageSource;
-    @PreAuthorize("hasAuthority('READ_BRAND')")
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAll() {
         List<Brand> brandList = brandService.getAll();
