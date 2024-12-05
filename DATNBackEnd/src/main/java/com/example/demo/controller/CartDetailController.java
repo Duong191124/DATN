@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CartDetailController {
     private final CartDetailServiceImpl cartDetailService;
-
+    @PreAuthorize("hasAuthority('READ_CART_DETAIL')")
     @GetMapping("{customerId}")
     public ResponseEntity<MessageReponse> getAll(@PathVariable("customerId") int customerId){
         List<CartDetailResponse> cartDetailList = cartDetailService.getAll(customerId)

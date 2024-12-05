@@ -26,7 +26,7 @@ public class CustomerController {
     private final CustomerServiceImpl customerService;
     private final NoticeServiceImpl noticeService;
 
-
+    @PreAuthorize("hasAuthority('READ_CUSTOMER')")
     @GetMapping("/getAll")
     public ResponseEntity<MessageReponse> getAll(
             @RequestParam(name = "page", defaultValue = "1")int page,
@@ -76,7 +76,7 @@ public class CustomerController {
                             .build());
         }
     }
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAuthority('UPDATE_CUSTOMER') or hasAuthority('ROLE_CUSTOMER')")
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,
@@ -99,7 +99,6 @@ public class CustomerController {
                 .status(HttpStatus.OK.value())
                 .build());
     }
-
 
     @GetMapping("{id}")
     public ResponseEntity<?> getById(@PathVariable("id") Integer id)throws Exception{
