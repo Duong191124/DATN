@@ -130,7 +130,6 @@ const CustomerInfoOrderDetail = () => {
       dataIndex: "product",
       key: "product",
       render: (text, record) => (
-        console.log("re", record),
         (
           <Row align="middle">
             <Col span={4}>
@@ -207,12 +206,12 @@ const CustomerInfoOrderDetail = () => {
   const relevantSteps =
     dataInfoOrder.status === "cancelled"
       ? [
-          { title: "Đơn hàng đã đặt", status: "pending" },
-          ...(dataInfoOrder.status.includes("confirmed")
-            ? [{ title: "Đã xác nhận", status: "confirmed" }]
-            : []),
-          { title: "Đơn hàng đã hủy", status: "cancelled" },
-        ]
+        { title: "Đơn hàng đã đặt", status: "pending" },
+        ...(dataInfoOrder.status.includes("confirmed")
+          ? [{ title: "Đã xác nhận", status: "confirmed" }]
+          : []),
+        { title: "Đơn hàng đã hủy", status: "cancelled" },
+      ]
       : stepData;
   const currentStep = relevantSteps.findIndex(
     (step) => step.status === dataInfoOrder.status

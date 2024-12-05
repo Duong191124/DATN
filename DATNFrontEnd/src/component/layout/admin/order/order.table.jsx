@@ -259,7 +259,6 @@ const OrderTable = (props) => {
         try {
             const res = await updateStatusOrder(orderId, status, cancelNote);
             const trackingId = res.data.data.trackingId;
-            console.log(trackingId);
             await cancelOrderGhn(trackingId);
             setDataOrder((prevDataOrder) =>
                 prevDataOrder.map((order) =>
