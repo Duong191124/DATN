@@ -76,7 +76,7 @@ public class CustomerController {
                             .build());
         }
     }
-    @PreAuthorize("hasAuthority('UPDATE_CUSTOMER') or hasAuthority('ROLE_CUSTOMER')")
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("{id}")
     public ResponseEntity<?> update(
             @PathVariable("id") Integer id,

@@ -23,7 +23,7 @@ public class VoucherController {
     @Autowired
     private VoucherServiceImpl voucherService;
 
-    @PreAuthorize("hasAuthority('READ_VOUCHER')")
+
     @GetMapping("/getVoucher")
     public ResponseEntity<MessageReponse> getAllVouchers() {
         // Lấy danh sách voucher và tự động cập nhật trạng thái

@@ -24,7 +24,7 @@ public class CategoryController {
     private final CategoryServiceImpl categoryService;
 
     private final MessageSource messageSource;
-    @PreAuthorize("hasAuthority('READ_CATEGORY')")
+
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAll() {
         List<Category> categoryList = categoryService.getAll();
