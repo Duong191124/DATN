@@ -45,8 +45,13 @@ const Shipping = () => {
     const [selectedWard, setSelectedWard] = useState(null);
     const [name, setName] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
-    const [toDistrict, setToDistrict] = useState([]);
-    const [toWard, setToWard] = useState([]);
+    const [streetAddress, setStreetAddress] = useState("");
+    const [addressDetails, setAddressDetails] = useState({
+        city: '',
+        district: '',
+        ward: '',
+        stressAddress: '',
+    });
 
     useEffect(() => {
         getInformationForCustomer();
@@ -82,10 +87,13 @@ const Shipping = () => {
         setShippingData({
             name,
             phoneNumber,
+            toProvide: selectedProvince,
             toDistrict: selectedDistrict,
-            toWard: selectedWard
+            toWard: selectedWard,
+            addressDetail: streetAddress
         });
     };
+
 
     useEffect(() => {
         const fetchProvinces = async () => {
@@ -132,6 +140,17 @@ const Shipping = () => {
         form.setFieldsValue(null);
         setIsModalVisible(true);
     };
+
+    useEffect(() => {
+        const { province, district, ward, stressAddress } = addressDetails;
+
+        if (province && district && ward && stressAddress) {
+            const fullAddress = `${stressAddress}, ${ward}, ${district}, ${province}`;
+            form.setFieldsValue({ address: fullAddress });
+        } else {
+            form.setFieldsValue({ address: '' });
+        }
+    }, [addressDetails, form]);
 
     const handleSelectAddress = (selectedAddress) => {
         resetGhnTotalPrice();
@@ -230,8 +249,20 @@ const Shipping = () => {
                         <Input />
                     </Form.Item>
 
+                    <Form.Item
+                        name="stressAddress"
+                        label={t('Street Address')}
+                        rules={[{ required: true, message: t('Stress address is required') }]}
+                    >
+                        <Input
+                            rows={3}
+                            placeholder={t('Enter your stress address')}
+                            value={streetAddress}
+                            onChange={(e) => { setAddressDetails(prev => ({ ...prev, stressAddress: e.target.value })); setStreetAddress(e.target.value); handleChange() }}
+                        />
+                    </Form.Item>
                     <Form.Item name="address" label="Detailed Address" rules={[{ required: true, message: 'Please enter detailed address' }]}>
-                        <Input.TextArea rows={3} />
+                        <Input.TextArea rows={3} disabled />
                     </Form.Item>
 
                     <Row gutter={16}>
@@ -243,8 +274,11 @@ const Shipping = () => {
                             >
                                 <Select
                                     placeholder="Select a city"
+                                    value={selectedProvince}
                                     onChange={(value) => {
+                                        const provinceName = provinces.find(p => p.ProvinceID === value)?.ProvinceName || '';
                                         setSelectedProvince(value);
+                                        handleChange()
                                         form.setFieldsValue({
                                             district: null,
                                             ward: null,
@@ -252,6 +286,7 @@ const Shipping = () => {
                                         setSelectedDistrict(null); // Clear district selection
                                         setDistricts([]); // Clear districts options
                                         setWards([]); // Clear wards options
+                                        setAddressDetails(prev => ({ ...prev, province: provinceName, district: '', ward: '' }));
                                     }}
                                     allowClear
                                 >
@@ -274,12 +309,14 @@ const Shipping = () => {
                                     placeholder="Select a district"
                                     value={selectedDistrict}
                                     onChange={(value) => {
+                                        const districtName = districts.find(d => d.DistrictID === value)?.DistrictName || '';
                                         setSelectedDistrict(value);
                                         handleChange()
                                         form.setFieldsValue({
                                             ward: null,
                                         }); // Reset ward value
                                         setWards([]); // Clear wards options
+                                        setAddressDetails(prev => ({ ...prev, district: districtName, ward: '' }));
                                     }}
                                     disabled={!selectedProvince} // Disable if province is not selected
                                     allowClear
@@ -303,8 +340,10 @@ const Shipping = () => {
                                     placeholder="Select a ward"
                                     value={setSelectedWard}
                                     onChange={(value) => {
+                                        const wardName = wards.find(w => w.WardCode === value)?.WardName || '';
                                         setSelectedWard(value)
                                         handleChange()
+                                        setAddressDetails(prev => ({ ...prev, ward: wardName }));
                                     }}
                                     disabled={!selectedDistrict} // Disable if district is not selected
                                     allowClear
