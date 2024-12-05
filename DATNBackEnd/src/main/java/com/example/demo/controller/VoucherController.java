@@ -22,7 +22,9 @@ import java.util.stream.Collectors;
 public class VoucherController {
     @Autowired
     private VoucherServiceImpl voucherService;
-    @GetMapping("")
+
+
+    @GetMapping("/getVoucher")
     public ResponseEntity<MessageReponse> getAllVouchers() {
         // Lấy danh sách voucher và tự động cập nhật trạng thái
         List<VoucherResponse> voucherList = voucherService.getAllVouchers()
@@ -37,7 +39,7 @@ public class VoucherController {
                 .data(voucherList)
                 .build());
     }
-   // @PreAuthorize("hasAuthority('CREATE_VOUCHER')")
+    @PreAuthorize("hasAuthority('CREATE_VOUCHER')")
     @PostMapping("")
     public ResponseEntity<?> createVoucher(@Valid @RequestBody VoucherDTO voucherDTO, BindingResult result) {
         if (result.hasErrors()) {
@@ -53,7 +55,7 @@ public class VoucherController {
         VoucherResponse createdVoucher = voucherService.add(voucherDTO);
         return new ResponseEntity<>(createdVoucher, HttpStatus.CREATED);
     }
-   // @PreAuthorize("hasAuthority('UPDATE_VOUCHER')")
+    @PreAuthorize("hasAuthority('UPDATE_VOUCHER')")
     @PutMapping("{id}")
     public ResponseEntity<?> updateVoucher(@PathVariable("id") Integer id,
                                            @Valid @RequestBody VoucherDTO voucherDTO,
@@ -81,7 +83,7 @@ public class VoucherController {
         }
     }
 
-   // @PreAuthorize("hasAuthority('UPDATE_VOUCHER')")
+    @PreAuthorize("hasAuthority('UPDATE_VOUCHER')")
     @PutMapping("/{id}/status")
     public ResponseEntity<?> changeStatus(@PathVariable Integer id) {
         try {
@@ -107,7 +109,7 @@ public class VoucherController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-   // @PreAuthorize("hasAuthority('DELETE_VOUCHER')")
+    @PreAuthorize("hasAuthority('DELETE_VOUCHER')")
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteVoucher(@PathVariable("id") Integer id) {
         try {

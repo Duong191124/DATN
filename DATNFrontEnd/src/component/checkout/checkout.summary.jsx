@@ -31,13 +31,9 @@ const Summary = () => {
 
     // Lấy dữ liệu voucher cho người dùng hiện tại
     const fetchDataVoucher = async () => {
-        let customerId = localStorage.getItem("userId");
-        if (!customerId) {
-            customerId = 1;
-        }
 
         try {
-            const res = await getVouchersByCustomerId(customerId);
+            const res = await getVouchersByCustomerId();
             setVouchers(res.data.data);
         } catch (error) {
             console.error(error);
@@ -118,7 +114,6 @@ const Summary = () => {
 
 
     const renderedCartItems = useMemo(() => {
-        console.log("Recalculating cart items...");
         return cartItems.map((product) => (
             <CartItem key={product.id} product={product} />
         ));

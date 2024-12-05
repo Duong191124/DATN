@@ -34,7 +34,7 @@ public class PaymentServiceIml implements PaymentService {
         try {
             Orders orders = orderRepo.findById(paymentDTO.getOrderId()).orElseThrow(()->new RuntimeException("not found order with id:"+paymentDTO.getOrderId()));
             String paymentUrl = null;
-            if(!paymentDTO.getPaymentMethod().equalsIgnoreCase("ocd")){
+            if(!paymentDTO.getPaymentMethod().equalsIgnoreCase("cod")){
                 if(paymentDTO.getPaymentMethod().equalsIgnoreCase("vnp")){
                      paymentUrl = createPaymentUrl(orders.getId(), orders.getTotalAmount().longValue());
                     return PaymentResponse.convertPaymentResponseUrl(null, paymentUrl);

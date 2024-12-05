@@ -327,7 +327,6 @@ const updateProductDetailWithOrder = (
   };
   return axios.put(URL_BACKEND, data);
 };
-
 const orderStaffFindById = (staffId) => {
   const URL_BACKEND = `api/v1/staff/${staffId}`;
   return axios.get(URL_BACKEND);
@@ -421,8 +420,8 @@ const createPayment = async (paymentDate, paymentMethod, orderId) => {
     throw new Error("Thanh toán thất bại: " + error.message);
   }
 };
-const getVouchersByCustomerId = (customerId) => {
-  const URL_BACKEND = `api/v1/customer-voucher/${customerId}`;
+const getVouchersByCustomerId = () => {
+  const URL_BACKEND = `api/v1/voucher/getVoucher`;
   return axios.get(URL_BACKEND);
 };
 const hasCustomerUsedVoucher = (customerId, voucherId) => {
@@ -887,7 +886,7 @@ const deletePromotionAPI = (id) => {
 
 // API VOUCHER
 const fetchDataVoucher = () => {
-  const URL_BACKEND = "/api/v1/voucher";
+  const URL_BACKEND = "/api/v1/voucher/getVoucher";
   return axios.get(URL_BACKEND);
 };
 const createVoucher = async (
@@ -1189,10 +1188,10 @@ const getCreateOrderGhn = (
 const cancelOrderGhn = (trackingId) => {
   const URL_BACKEND = `/api/v1/ghn/cancel-order`;
   const data = {
-    trackingId
-  }
+    trackingId,
+  };
   return axios.post(URL_BACKEND, data);
-}
+};
 const getAddressByCustomerId = (customerId) => {
   const URL_BACKEND = `/api/v1/address/${customerId}`;
   return axios.get(URL_BACKEND);

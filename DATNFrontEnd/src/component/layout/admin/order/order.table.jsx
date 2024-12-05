@@ -62,7 +62,6 @@ const OrderTable = (props) => {
                         productIds.map((id) => productFindById(id))
                     );
                     setProducts(productResponses.map((res) => res.data.data));
-                    console.log(products);
                     const colorIds = orderDetailResponses.map(
                         (detail) => detail.productDetailId.colorId
                     );
@@ -203,7 +202,6 @@ const OrderTable = (props) => {
                     });
 
                     const totalWeight = orderDetailResponses.reduce((total, detail) => {
-                        console.log(detail);
                         const weight = detail?.productDetailId?.weight || 0; // Lấy weight từ productResponse
                         return total + weight * (detail.quantity || 0);
                     }, 0);
@@ -259,7 +257,9 @@ const OrderTable = (props) => {
 
     const canceledOrder = async (orderId, status, cancelNote) => {
         try {
-            await updateStatusOrder(orderId, status, cancelNote);
+            const res = await updateStatusOrder(orderId, status, cancelNote);
+            const trackingId = res.data.data.trackingId;
+            await cancelOrderGhn(trackingId);
             setDataOrder((prevDataOrder) =>
                 prevDataOrder.map((order) =>
                     order.id === orderId ? { ...order, status: "cancelled" } : order
@@ -288,18 +288,8 @@ const OrderTable = (props) => {
             return;
         }
         try {
-            const order = orderDetails.find((order) => order.id === currentOrderId);
-            if (!order) {
-                notification.error({
-                    message: "Lỗi",
-                    description: "Không tìm thấy đơn hàng để hủy.",
-                });
-                return;
-            }
-            const trackingId = order.trackingId;
             // Gọi hàm hủy đơn với lý do
             await canceledOrder(orderDetails.id, "cancelled", cancelNote);
-            await cancelOrderGhn(trackingId);
             setIsModalVisibleCancel(false);
             setCancelNote(""); // Reset note sau khi hủy
         } catch (error) {
@@ -736,7 +726,7 @@ const OrderTable = (props) => {
     const expandedRowRender = (record) => {
         const totalQuantity = getTotalQuantity(record.orderDetailResponses || []);
         // Kiểm tra nếu không có nhân viên
-        const hasStaff = orderDetails.staffResponse != null;
+        const hasStaff = orderDetails?.staffResponse != null;
 
         return (
             <Tabs defaultActiveKey="1">
@@ -1067,7 +1057,7 @@ const OrderTable = (props) => {
                 onCancel={() => setIsModalVisible(false)}
                 footer={[
                     <Button key="cancel" onClick={() => setIsModalVisible(false)}>
-                        Hủy
+                        Đóng
                     </Button>,
                     <Button key="confirm" type="primary" onClick={handleUpdateStatus}>
                         Xác nhận chuyển trạng thái

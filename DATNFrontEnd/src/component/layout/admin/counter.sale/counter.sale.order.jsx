@@ -23,7 +23,6 @@ const CounterSaleBillWaiting = ({
   const [cancelReason, setCancelReason] = useState("");
   const [selectedBillDetail, setSelectedBillDetail] = useState(null); // Hóa đơn đang được xem chi tiết
   const handleTabChange = (key) => {
-    console.log("kê", key);
     if (key === "create") {
       const newBill = handleCreateBillWaiting();
       if (newBill && newBill.code) {
@@ -31,7 +30,6 @@ const CounterSaleBillWaiting = ({
         setActiveTab(newBill.code);
       }
     } else {
-      console.log("activeTab === key", activeTab === key);
       if (activeTab === key) {
         setActiveTab(null);
         setSelectedBill(null);
@@ -84,30 +82,30 @@ const CounterSaleBillWaiting = ({
   // Chỉ hiển thị danh sách hóa đơn, không có dấu cộng trong các hóa đơn
   const tabsItems = Array.isArray(billItems)
     ? billItems.map((bill) => ({
-        label: (
-          <>
-            <div
-              id="selected-bill"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                position: "relative",
-              }}
+      label: (
+        <>
+          <div
+            id="selected-bill"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              position: "relative",
+            }}
+          >
+            {activeTab === bill.code && (
+              <span className="tab-check-icon">✔</span>
+            )}
+            <span
+              style={{ marginLeft: activeTab === bill.code ? "20px" : "0" }}
             >
-              {activeTab === bill.code && (
-                <span className="tab-check-icon">✔</span>
-              )}
-              <span
-                style={{ marginLeft: activeTab === bill.code ? "20px" : "0" }}
-              >
-                Hóa đơn {bill.code}
-              </span>
-            </div>
-          </>
-        ),
-        key: bill.code,
-        closable: true,
-      }))
+              Hóa đơn {bill.code}
+            </span>
+          </div>
+        </>
+      ),
+      key: bill.code,
+      closable: true,
+    }))
     : [];
 
   return (

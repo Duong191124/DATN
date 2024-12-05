@@ -123,6 +123,7 @@ public class OrderServiceImpl implements OrderService {
         order.setDeliveryFee(orderDTO.getDeliveryFee());
         order.setOrderDate(orderDTO.getOrderDate());
 
+        // Serialize địa chỉ
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String addressJson = objectMapper.writeValueAsString(orderDTO.getAddress());
@@ -133,65 +134,49 @@ public class OrderServiceImpl implements OrderService {
 
         order.setTotalAmount(orderDTO.getTotalAmount());
         order.setMoneyReceived(orderDTO.getMoneyReceived());
+        order.setStatus(OrderStatus.pending); // Trạng thái mặc định
+        order.setOrderType(OrderType.online);
 
+        // Xử lý voucher nếu có
         if (orderDTO.getVoucherId() != null) {
             Voucher voucher = voucherRepo.findById(orderDTO.getVoucherId())
                     .orElseThrow(() -> new RuntimeException("Voucher not found"));
             order.setVoucher(voucher);
-        } else {
-            order.setVoucher(null);
         }
 
+        // Gán khách hàng
         order.setCustomer(customerRepo.findById(customerId).orElse(null));
-        order.setStatus(OrderStatus.pending); // Mặc định trạng thái là 'pending'
-        order.setOrderType(OrderType.online);
 
         // Lưu đơn hàng vào DB
         Orders savedOrder = orderRepo.save(order);
 
+        // Kiểm tra chi tiết đơn hàng
         if (orderDTO.getOrderDetailRequests() == null || orderDTO.getOrderDetailRequests().isEmpty()) {
             throw new RuntimeException("No order details provided");
         }
 
         // Xử lý chi tiết đơn hàng
         for (OrderDetailOnlineRequest onlineRequest : orderDTO.getOrderDetailRequests()) {
-            try {
-                if (onlineRequest.getProductDetailId() == null) {
-                    throw new RuntimeException("ProductDetail ID cannot be null");
-                }
-
-                // Tìm ProductDetail theo ID
-                ProductDetail productDetail = productDetailRepo.findById(onlineRequest.getProductDetailId())
-                        .orElseThrow(() -> new RuntimeException("Product detail with ID " + onlineRequest.getProductDetailId() + " not found"));
-
-                // Kiểm tra số lượng sản phẩm trong kho
-                if (productDetail.getQuantity() < onlineRequest.getQuantity()) {
-                    throw new RuntimeException("Insufficient stock for product: " + productDetail.getProduct().getName());
-                }
-
-                // Tạo chi tiết đơn hàng
-                OrderDetail orderDetail = new OrderDetail();
-                orderDetail.setOrders(savedOrder);
-                orderDetail.setProductDetail(productDetail);
-                orderDetail.setQuantity(onlineRequest.getQuantity());
-                orderDetail.setPrice(onlineRequest.getPrice());
-                // Lưu chi tiết đơn hàng vào DB
-                orderDetailRepo.save(orderDetail);
-                // Cập nhật số lượng sản phẩm trong kho chỉ khi đơn hàng được xác nhận
-                if (savedOrder.getStatus() == OrderStatus.confirmed) {
-                    productDetail.setQuantity(productDetail.getQuantity() - onlineRequest.getQuantity());
-                    productDetailRepo.save(productDetail);  // Lưu lại sản phẩm sau khi trừ số lượng
-                }
-
-            } catch (Exception e) {
-                // Log lỗi chi tiết sản phẩm không hợp lệ hoặc lỗi khi lưu chi tiết
-                System.err.println("Error processing order detail: " + e.getMessage());
-                throw new RuntimeException("Error processing order detail: " + e.getMessage());
+            if (onlineRequest.getProductDetailId() == null) {
+                throw new RuntimeException("ProductDetail ID cannot be null");
             }
+
+            // Lấy ProductDetail theo ID
+            ProductDetail productDetail = productDetailRepo.findById(onlineRequest.getProductDetailId())
+                    .orElseThrow(() -> new RuntimeException("Product detail with ID " + onlineRequest.getProductDetailId() + " not found"));
+
+            // Tạo chi tiết đơn hàng
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setOrders(savedOrder);
+            orderDetail.setProductDetail(productDetail);
+            orderDetail.setQuantity(onlineRequest.getQuantity());
+            orderDetail.setPrice(onlineRequest.getPrice());
+            orderDetailRepo.save(orderDetail);
         }
 
         return OrderResponse.convertOrderResponse(savedOrder);
     }
+
 
     // Phương thức để xác nhận đơn hàng
     public void confirmOrder(Integer orderId) {
@@ -342,6 +327,20 @@ public class OrderServiceImpl implements OrderService {
         // Chuyển đổi trạng thái từ String thành OrderStatus enum
         OrderStatus orderStatus = OrderStatus.valueOf(status.toLowerCase());
 
+        if (orderStatus == OrderStatus.confirmed) {
+            List<OrderDetail> orderDetails = orderDetailRepo.findByOrders(orders);
+
+            for (OrderDetail orderDetail : orderDetails) {
+                ProductDetail productDetail = orderDetail.getProductDetail();
+
+                if (productDetail.getQuantity() < orderDetail.getQuantity()) {
+                    throw new RuntimeException("Insufficient stock for product: " + productDetail.getProduct().getName());
+                }
+
+                productDetail.setQuantity(productDetail.getQuantity() - orderDetail.getQuantity());
+                productDetailRepo.save(productDetail); // Lưu lại sản phẩm sau khi trừ số lượng
+            }
+        }
         // Kiểm tra nếu trạng thái là "hủy"
         if (orderStatus == OrderStatus.cancelled) {
             if (note == null || note.trim().isEmpty()) {

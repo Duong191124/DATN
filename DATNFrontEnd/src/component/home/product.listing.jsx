@@ -82,7 +82,6 @@ const ProductList = () => {
   }, 300);
 
   const handleAddToCart = (product) => {
-    console.log("Adding to cart:", product);
     // Implement cart logic here
   };
   const initSize = async () => {
@@ -116,7 +115,6 @@ const ProductList = () => {
     getCategory();
   }, []);
   const handleAddToWishlist = (product) => {
-    console.log("Adding to wishlist:", product);
     // Implement wishlist logic here
   };
 
