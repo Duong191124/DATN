@@ -22,6 +22,7 @@ public class CollarController {
     private CollarService collarService;
 
     // Lấy tất cả các cổ áo
+    @PreAuthorize("hasAuthority('READ_COLLAR')")
     @GetMapping
     public ResponseEntity<List<Collar>> getAllCollars() {
         List<Collar> collars = collarService.getAll();
@@ -61,7 +62,7 @@ public class CollarController {
     }
 
     // Lấy cổ áo theo id
-
+    @PreAuthorize("hasAuthority('READ_COLLAR')")
     @GetMapping("/{id}")
     public ResponseEntity<?> getCollarById(@PathVariable Integer id) {
         try {

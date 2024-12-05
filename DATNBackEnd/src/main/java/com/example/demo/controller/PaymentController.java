@@ -37,6 +37,7 @@ public class PaymentController {
     @Autowired
     ProductDetailRepo productDetailRepo;
 
+    @PreAuthorize("hasAuthority('READ_PAYMENT')")
     @GetMapping("list")
     public ResponseEntity<?> getAllPayment(){
         List<PaymentResponse> paymentResponses = paymentService.getAll();

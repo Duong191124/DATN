@@ -95,7 +95,7 @@ public class ProductController {
                 .totalElement(totalElement)
                 .build());
     }
-//    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
+    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
     @PostMapping("")
     public ResponseEntity<?> addProduct(@Valid @RequestBody ProductDTO productDTO, BindingResult result) {
         if (result.hasErrors()) {
