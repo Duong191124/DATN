@@ -36,6 +36,8 @@ public class PaymentServiceIml implements PaymentService {
             String paymentUrl = null;
             if(!paymentDTO.getPaymentMethod().equalsIgnoreCase("cod")){
                 if(paymentDTO.getPaymentMethod().equalsIgnoreCase("vnp")){
+                    orders.setStatus(OrderStatus.pending);
+                    orderRepo.save(orders);
                      paymentUrl = createPaymentUrl(orders.getId(), orders.getTotalAmount().longValue());
                     return PaymentResponse.convertPaymentResponseUrl(null, paymentUrl);
                 }
@@ -44,6 +46,7 @@ public class PaymentServiceIml implements PaymentService {
                     payment.setPaymentMethod(paymentDTO.getPaymentMethod());
                     payment.setPaymentDate(paymentDTO.getPaymentDate());
                     payment.getOrders().setId(paymentDTO.getOrderId());
+                    payment.setStatus(1);
                     paymentRepo.save(payment);
                     orders.setStatus(OrderStatus.completed);
                     orderRepo.save(orders);
@@ -57,6 +60,7 @@ public class PaymentServiceIml implements PaymentService {
             payment.setPaymentMethod(paymentDTO.getPaymentMethod());
             payment.setPaymentDate(paymentDTO.getPaymentDate());
             payment.getOrders().setId(paymentDTO.getOrderId());
+            payment.setStatus(0);
             paymentRepo.save(payment);
             return PaymentResponse.convertPaymentResponseUrl(payment,null);
         }catch (Exception e){
