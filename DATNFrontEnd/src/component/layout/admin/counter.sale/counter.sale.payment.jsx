@@ -584,7 +584,6 @@ const CounterSalePayment = ({
               style={{ marginBottom: "15px" }}
             >
               <Radio value="Cash">Tiền mặt</Radio>
-              <Radio value="VNP">VN Pay</Radio>
             </Radio.Group>
             <div>
               <Modal

@@ -195,7 +195,7 @@ const ProductDetailCard = ({ product, onAddToWishlist, onQuickView }) => {
   };
   return (
     <ProductCardWrapper variants={itemVariants}>
-      {promotions && promotions.length > 0 && (
+      {promotions && promotions.length > 0 && discountPrice > 0 && (
         <SaleIcon>
           {promotions[0].discountPercent != null
             ? `Sale ${promotions[0].discountPercent}%`

@@ -3,6 +3,7 @@ import { Tabs, Input, Button, Card, Row, Col, Typography, Tag } from "antd";
 import { NavLink } from "react-router-dom";
 import { fetchDataOrderStatusByCustomerId } from "../../../../service/api.service";
 import { useCheckout } from "../../../context/checkout.context";
+import CancelOrder from "./customer.info.order.canceled.child";
 
 const { TabPane } = Tabs;
 const { Text } = Typography;
@@ -145,7 +146,7 @@ const CustomerInfoOrder = () => {
           <NavLink
             to={
               activeTab === "7"
-                ? "/info-order-cancelled"
+                ? `/info-order-cancelled?code=${orderCode}`
                 : `/info-order-detail?code=${orderCode}`
             }
           >
@@ -241,23 +242,8 @@ const CustomerInfoOrder = () => {
             </Text>{" "}
             {/* Thành tiền mặc định nếu không có */}
           </Row>
-
-          {/* Các nút hành động */}
           <Row justify="end" style={{ marginTop: 16 }}>
-            <Button
-              style={primaryButtonStyle}
-              onMouseEnter={() => setPrimaryHover(true)}
-              onMouseLeave={() => setPrimaryHover(false)}
-            >
-              Mua Lại
-            </Button>
-            <Button
-              style={secondaryButtonStyle}
-              onMouseEnter={() => setSecondaryHover(true)}
-              onMouseLeave={() => setSecondaryHover(false)}
-            >
-              Liên Hệ Người Bán
-            </Button>
+            <CancelOrder orderId={orderId} orderStatus={orderStatus} />
           </Row>
         </Card>
       );

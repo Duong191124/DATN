@@ -16,11 +16,13 @@ import java.util.List;
 public interface OrderDetailRepo extends JpaRepository<OrderDetail, Integer> {
     @Query("SELECT pd, COALESCE(SUM(od.quantity), 0) " +
             "FROM ProductDetail pd " +
+            "JOIN pd.promotions p " +
             "LEFT JOIN OrderDetail od ON od.productDetail.id = pd.id " +
-            "WHERE pd.discountPrice IS NOT NULL " +
+            "WHERE pd.discountPrice IS NOT NULL AND pd.discountPrice > 0 " +
             "GROUP BY pd.id " +
-            "ORDER BY pd.createdAt DESC, SUM(od.quantity) DESC, pd.discountPrice ASC")
+            "ORDER BY pd.createdAt DESC, COALESCE(SUM(od.quantity), 0) DESC, pd.discountPrice ASC")
     List<Object[]> getTopFeaturedProducts(Pageable pageable);
+
 
     List<OrderDetail> findByOrders(Orders orders);
 
