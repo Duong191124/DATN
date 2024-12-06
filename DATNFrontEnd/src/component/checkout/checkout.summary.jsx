@@ -114,9 +114,9 @@ const Summary = () => {
 
 
     const renderedCartItems = useMemo(() => {
-        return cartItems.map((product) => (
-            <CartItem key={product.id} product={product} />
-        ));
+        return (
+            <CartItem cartItems={cartItems}  />
+        )
     }, [cartItems]);
 
 

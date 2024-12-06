@@ -22,6 +22,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SizeController {
     private final SizeServiceImpl sizeService;
+
     @GetMapping("")
     public ResponseEntity<MessageReponse> getAll(){
         List<Size> sizeList = sizeService.getAll();

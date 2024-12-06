@@ -18,19 +18,26 @@ const ProductTable = (props) => {
 
   const columns = [
     {
+      title: 'STT',  // Tiêu đề cột Số thứ tự
+      render: (_, __, index) => {
+        // Tính số thứ tự dựa trên trang hiện tại và số lượng phần tử mỗi trang
+        return (page - 1) * pageSize + index + 1;
+      }
+    },
+    {
       title: 'ID',
       dataIndex: 'id'
     },
     {
-      title: 'Code',
+      title: 'Mã SP',
       dataIndex: 'code'
     },
     {
-      title: 'Name',
+      title: 'Tên SP',
       dataIndex: 'name'
     },
     {
-      title: 'Image',
+      title: 'Ảnh SP',
       dataIndex: 'image',
       render: (imageUrl) => (
         <img
@@ -40,34 +47,38 @@ const ProductTable = (props) => {
       )
     },
     {
-      title: 'Collar',
+      title: 'Cổ Áo',
       dataIndex: 'collarName'
     },
     {
-      title: 'Sleeve',
+      title: 'Tay áo',
       dataIndex: 'sleeveName'
     },
     {
-      title: 'Category',
+      title: 'Loại SP',
       dataIndex: 'categoryName'
     },
     {
-      title: 'Brand',
+      title: 'Thương hiệu',
       dataIndex: 'brandName'
     },
     {
-      title: 'Status',
+      title: 'Trạng thái',
       dataIndex: 'status',
       render: (status) => {
-        return status === 1 ? "Dang Hoat Dong" : "Ngung Hoat Dong";
+        return status === 1 ? "Đang hoạt động" : "Ngưng hoạt động";
       }
     },
     {
-      title: 'Description',
+      title: 'Mô tả',
       dataIndex: 'description'
     },
     {
-      title: 'Action',
+      title: 'Ngày tạo',
+      dataIndex: 'createdAt'
+    },
+    {
+      title: 'Hành động',
       key: 'action',
       render: (_, record) => {
         const isDisabled = record.status === 0; // Kiểm tra điều kiện để vô hiệu hóa
