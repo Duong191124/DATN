@@ -348,6 +348,10 @@ const CheckoutStep = () => {
                 return;
               }
               if (current === 1) {
+                if (selectAddress === null || shippingData === null) {
+                  message.error("Vui lòng chọn địa chỉ giao hàng")
+                  return;
+                }
                 await handleApiGhn();
               }
               next();

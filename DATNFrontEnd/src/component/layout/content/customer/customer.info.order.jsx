@@ -84,6 +84,7 @@ const CustomerInfoOrder = () => {
         pageSize,
         status
       );
+      console.log(res);
       if (res.data) {
         setData(res.data.data.content);
       }
@@ -116,6 +117,7 @@ const CustomerInfoOrder = () => {
       const orderId = order.id; // Lấy id của đơn hàng
       const orderStatus = order.status; // Lấy status của đơn hàng
       const orderCode = order.code;
+      console.log(order)
       // Lặp qua orderDetailResponses để lấy chi tiết sản phẩm
       const productDetails =
         order.orderDetailResponses?.map((detail) => {
@@ -195,11 +197,14 @@ const CustomerInfoOrder = () => {
                         <Text type="secondary">{`Size: ${product.size}`}</Text>
                       </div>
                       <div style={{ marginTop: "10px" }}>
-                        <Text delete style={{ marginRight: 8 }}>
-                          {formatCurrency(product.defaultPrice)
-                            ? `${formatCurrency(product.defaultPrice)}`
-                            : ""}
-                        </Text>
+                        {product.defaultPrice && product.price < product.defaultPrice && (
+                          <Text
+                            delete
+                            style={{ marginRight: 8 }}
+                          >
+                            {formatCurrency(product.defaultPrice)}
+                          </Text>
+                        )}
                         <Text
                           style={{
                             fontWeight: 500,
@@ -210,6 +215,7 @@ const CustomerInfoOrder = () => {
                           {formatCurrency(product.price)}
                         </Text>
                       </div>
+
                       <Text>x{product.quantity}</Text> {/* Số lượng */}
                     </div>
                   </Col>

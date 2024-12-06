@@ -101,7 +101,7 @@ public class  OrderController {
             @PathVariable("orderId") Integer orderId,
             @RequestParam(required = false) OrderStatus status
     ){
-        List<OrderBuyerResponseDTO> orderList = orderService.getAllOrderByOrderId(customerId, status, orderId);
+        List<OrderResponse> orderList = orderService.getAllOrderByOrderId(customerId, status, orderId);
         return ResponseEntity.ok().body(MessageReponse.builder()
                         .data(orderList)
                         .message("successful")
