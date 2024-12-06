@@ -47,7 +47,7 @@ const CheckoutStep = () => {
     addresses,
     selectAddress,
     selectedOption,
-    shippingData
+    shippingData,
   } = useCheckout();
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
@@ -249,7 +249,8 @@ const CheckoutStep = () => {
         setTotalShippingFee(fee.data.data.total);
       } catch (error) {
         let errorMessage =
-          error?.response?.data?.message || "Giao hàng nhanh không hỗ trợ xã này";
+          error?.response?.data?.message ||
+          "Giao hàng nhanh không hỗ trợ xã này";
 
         // Cắt chuỗi để chỉ lấy phần từ "GHN" trở đi
         const ghnIndex = errorMessage.indexOf("Giao");
@@ -259,8 +260,7 @@ const CheckoutStep = () => {
 
         message.error(errorMessage);
       }
-    }
-    else {
+    } else {
       const values = {
         fromDistrictId: selectAddress.fromDistrict,
         toDistrictId: selectAddress.district,
@@ -279,7 +279,8 @@ const CheckoutStep = () => {
         setTotalShippingFee(res.data.data.total);
       } catch (error) {
         let errorMessage =
-          error?.response?.data?.message || "Giao hàng nhanh không hỗ trợ xã này";
+          error?.response?.data?.message ||
+          "Giao hàng nhanh không hỗ trợ xã này";
 
         // Cắt chuỗi để chỉ lấy phần từ "GHN" trở đi
         const ghnIndex = errorMessage.indexOf("Giao");

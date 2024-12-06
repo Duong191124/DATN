@@ -1,6 +1,7 @@
 package com.example.demo.response;
 
 import com.example.demo.entity.OrderStatus;
+import com.example.demo.entity.OrderType;
 import com.example.demo.entity.Orders;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -25,7 +26,10 @@ public class OrderDataPaymentResponse {
     private Double totalAmount;
     private Double moneyReceived;
     private Integer voucherId;
+    @Enumerated(EnumType.STRING)
+    private OrderType orderType;
     private StaffResponse staffResponse;
+    private CustomerResponse customerResponse;
     private List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
     public static OrderDataPaymentResponse convertOrderDataPaymentResponse(Orders orders){
         return OrderDataPaymentResponse.builder()
@@ -39,6 +43,8 @@ public class OrderDataPaymentResponse {
                 .moneyReceived(orders.getMoneyReceived())
                 .voucherId(orders.getVoucher() == null ? null : orders.getVoucher().getId())
                 .orderDetailResponses(orders.getOrderDetails().stream().map(OrderDetailResponse::convertOrderDetailsResponse).toList())
+                .orderType(orders.getOrderType())
+                .customerResponse(orders.getCustomer() != null ? CustomerResponse.fromCustomerResponse(orders.getCustomer()) : null)
                 .build();
     }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Button,
   Dropdown,
@@ -315,13 +315,22 @@ const CounterSales = () => {
       );
     }
   }, [billWaiting, tempBillItems, cartItemsByBill, staff]);
+  const [isCreatingBill, setIsCreatingBill] = useState(false);
+  const creatingRef = useRef(false); // Dùng để theo dõi trạng thái tạo hóa đơn
+
   const handleCreateBillWaiting = useCallback(async () => {
+    if (creatingRef.current) return; // Nếu đang tạo hóa đơn, không thực hiện tiếp
+
+    creatingRef.current = true; // Đánh dấu là đang tạo hóa đơn
+    setIsCreatingBill(true); // Đặt trạng thái đang tạo hóa đơn
+
     const defaultCustomerId = 1;
     const randomCode = generateInvoiceCode();
     const now = new Date();
     const customerId = selectedCustomer
       ? selectedCustomer.id
       : defaultCustomerId;
+
     const newBill = {
       code: `HD-${randomCode}`,
       customer: {
@@ -332,6 +341,7 @@ const CounterSales = () => {
       time: now.toLocaleString(),
       orderDate: now.toISOString(),
     };
+
     const orderData = {
       code: newBill.code,
       deliveryFee: 0,
@@ -344,10 +354,9 @@ const CounterSales = () => {
       orderDetailRequests: [],
     };
 
-    // Bắt đầu loading
     setLoading(true);
-
     try {
+      // Kiểm tra số lượng hóa đơn tối đa
       if (billWaiting.length >= 5) {
         notification.warning({
           message: "Giới hạn số lượng",
@@ -358,7 +367,21 @@ const CounterSales = () => {
         return;
       }
 
-      // Tạo hóa đơn với hiệu ứng loading 2s
+      // Kiểm tra sự tồn tại của hóa đơn trong billWaiting
+      const isBillExist = billWaiting.some(
+        (bill) => bill.code === newBill.code
+      );
+      if (isBillExist) {
+        notification.warning({
+          message: "Hóa đơn đã tồn tại",
+          description: "Mã hóa đơn đã được tạo trước đó.",
+          duration: 2,
+          placement: "bottomLeft",
+        });
+        setLoading(false);
+        return;
+      }
+
       const response = await createOrder(
         orderData.code,
         orderData.orderDate,
@@ -370,19 +393,18 @@ const CounterSales = () => {
         orderData.customerId,
         orderData.orderDetailRequests
       );
-      setTimeout(() => {
-        if (response.status === 201) {
-          setBillWaiting((prevBills) => {
-            const updatedBills = [...prevBills, response.data];
-            setActiveTab(response.data.code); // Chọn hóa đơn mới
-            setSelectedBill(response.data.code);
-            return updatedBills;
-          });
-        }
-        setLoading(false); // Kết thúc loading sau 2s
-      }, 1000);
+
+      if (response.status === 201) {
+        const newBill = response.data;
+        setBillWaiting((prevBills) => {
+          return [...prevBills, newBill]; // Thêm hóa đơn mới vào danh sách
+        });
+
+        // Cập nhật trạng thái `selectedBill` và `activeTab` ngay sau khi tạo hóa đơn
+        setSelectedBill(newBill.code);
+        setActiveTab(newBill.code);
+      }
     } catch (error) {
-      setLoading(false); // Kết thúc loading ngay cả khi có lỗi
       notification.error({
         message: "Tạo hóa đơn thất bại",
         description:
@@ -393,8 +415,11 @@ const CounterSales = () => {
       });
     } finally {
       setLoading(false);
+      creatingRef.current = false; // Đặt lại trạng thái khi đã hoàn tất
+      setIsCreatingBill(false); // Đặt lại trạng thái
     }
   }, [selectedCustomer, staff, customerPaid, totalAmount, billWaiting]);
+
   const canceledOrder = useCallback(
     async (orderId, note) => {
       const status = "cancelled";
@@ -706,6 +731,7 @@ const CounterSales = () => {
             setActiveTab={setActiveTab}
             activeTab={activeTab}
             loading={loading}
+            isCreatingBill={isCreatingBill}
           />
         </div>
         <div style={{ textAlign: "end", marginRight: "35px" }}>

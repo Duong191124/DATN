@@ -22,6 +22,9 @@ public class Payment {
     @Basic
     @Column(name = "payment_method", nullable = true, length = 50)
     private String paymentMethod;
+    @Basic
+    @Column(name = "status")
+    private Integer status;
     @ManyToOne
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     private Orders orders;
