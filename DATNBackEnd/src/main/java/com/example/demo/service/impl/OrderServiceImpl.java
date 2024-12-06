@@ -60,14 +60,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderBuyerResponseDTO> getAllOrderByOrderId(Integer customerId, OrderStatus status, Integer orderId){
+    public List<OrderResponse> getAllOrderByOrderId(Integer customerId, OrderStatus status, Integer orderId){
         Customer customer = customerRepo.findById(customerId).orElse(null);
         Orders order = orderRepo.findById(orderId).orElse(null);
         if(customer == null || order == null){
             return null;
         }
         List<Orders> ordersList = orderRepo.pageAllByOrderIdAndCustomerId(status, orderId, customerId);
-        return ordersList.stream().map(OrderBuyerResponseDTO::convertOrderResponse).collect(Collectors.toList());
+        return ordersList.stream().map(OrderResponse::convertOrderResponse).collect(Collectors.toList());
     }
 
     @Override

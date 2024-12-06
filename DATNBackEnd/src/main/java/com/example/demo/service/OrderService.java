@@ -16,7 +16,7 @@ import java.util.List;
 
 public interface OrderService {
     List<OrderResponse> getAll();
-    List<OrderBuyerResponseDTO> getAllOrderByOrderId(Integer customerId, OrderStatus status, Integer orderId);
+    List<OrderResponse> getAllOrderByOrderId(Integer customerId, OrderStatus status, Integer orderId);
     Page<OrderBuyerResponseDTO> getOrderByCustomerId(Integer customerId, Pageable pageable, OrderStatus orderStatus);
     OrderResponse createdOrder(OrderDTO orderDTO);
     OrderResponse updatedOrder(int id,OrderDTO orderDTO);

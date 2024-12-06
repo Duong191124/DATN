@@ -296,7 +296,7 @@ const Header = () => {
               {/* Tùy chọn ngôn ngữ */}
               <Select
                 value={language}
-                style={{ width: 100, marginLeft: 16 }}
+                style={{ width: 110, marginLeft: 16 }}
                 onChange={handleLanguageChange}
                 suffixIcon={<GlobalOutlined />}
               >
