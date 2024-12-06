@@ -229,12 +229,12 @@ const CustomerInfoOrderDetail = () => {
   const relevantSteps =
     dataInfoOrder.status === "cancelled"
       ? [
-          { title: "Đơn hàng đã đặt", status: "pending" },
-          ...(dataInfoOrder.status.includes("confirmed")
-            ? [{ title: "Đã xác nhận", status: "confirmed" }]
-            : []),
-          { title: "Đơn hàng đã hủy", status: "cancelled" },
-        ]
+        { title: "Đơn hàng đã đặt", status: "pending" },
+        ...(dataInfoOrder.status.includes("confirmed")
+          ? [{ title: "Đã xác nhận", status: "confirmed" }]
+          : []),
+        { title: "Đơn hàng đã hủy", status: "cancelled" },
+      ]
       : stepData;
   const currentStep = relevantSteps.findIndex(
     (step) => step.status === dataInfoOrder.status
@@ -276,19 +276,19 @@ const CustomerInfoOrderDetail = () => {
             fontWeight: "bold",
             color:
               dataInfoOrder?.paymentResponses?.length > 0 &&
-              dataInfoOrder?.paymentResponses[0]?.status === 0
+                dataInfoOrder?.paymentResponses[0]?.status === 0
                 ? "#ff4d4f"
                 : "#52c41a",
             padding: "8px 16px",
             borderRadius: "12px",
             backgroundColor:
               dataInfoOrder?.paymentResponses?.length > 0 &&
-              dataInfoOrder?.paymentResponses[0]?.status === 0
+                dataInfoOrder?.paymentResponses[0]?.status === 0
                 ? "#fff1f0"
                 : "#f6ffed",
             border:
               dataInfoOrder?.paymentResponses?.length > 0 &&
-              dataInfoOrder?.paymentResponses[0]?.status === 0
+                dataInfoOrder?.paymentResponses[0]?.status === 0
                 ? "1px solid #ff4d4f"
                 : "1px solid #52c41a",
             textAlign: "center",
@@ -297,7 +297,7 @@ const CustomerInfoOrderDetail = () => {
           }}
         >
           {dataInfoOrder?.paymentResponses?.length > 0 &&
-          dataInfoOrder?.paymentResponses[0]?.status === 0
+            dataInfoOrder?.paymentResponses[0]?.status === 0
             ? "Chưa thanh toán"
             : "Đã thanh toán"}
         </Text>

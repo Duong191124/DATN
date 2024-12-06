@@ -36,6 +36,7 @@ public class OrderBuyerResponseDTO {
     private StaffResponse staffResponse;
     private CustomerResponse customerResponse;
     private AddressOrderDTO address;
+    private String trackingId;
     private List<ProductDetailResponse> productDetailResponses = new ArrayList<>();
     private List<OrderDetailBuyerResponse> orderDetailResponses = new ArrayList<>();
     private List<PaymentResponse> paymentResponses = new ArrayList<>();
@@ -61,6 +62,7 @@ public class OrderBuyerResponseDTO {
                 .staffResponse(orders.getStaff() != null ? StaffResponse.fromStaffResponse(orders.getStaff()) : null)
                 .deliveryFee(orders.getDeliveryFee())
                 .totalAmount(orders.getTotalAmount())
+                .trackingId(orders.getTrackingNumber())
                 .customerResponse(CustomerResponse.fromCustomerResponse(orders.getCustomer()))
                 .moneyReceived(orders.getMoneyReceived())
                 .voucherId(orders.getVoucher() == null ? null : VoucherResponse.fromVoucher(orders.getVoucher()))

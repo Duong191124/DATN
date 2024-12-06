@@ -349,8 +349,8 @@ const CheckoutStep = () => {
                 return;
               }
               if (current === 1) {
-                if (selectAddress === null || shippingData === null) {
-                  message.error("Vui lòng chọn địa chỉ giao hàng")
+                if ((userId !== 1 && selectAddress === null) || (userId === 1 && shippingData === null)) {
+                  message.error("Vui lòng chọn địa chỉ giao hàng");
                   return;
                 }
                 await handleApiGhn();
@@ -391,7 +391,7 @@ const CheckoutStep = () => {
             Confirm
           </Button>
         )}
-      </div>
+      </div >
     </>
   );
 };
