@@ -87,6 +87,7 @@ const CheckoutStep = () => {
     }
   };
 
+
   const convertAddressToOrder = (shippingData) => {
     if (shippingData && typeof shippingData === "object") {
       // Return only the selected fields
@@ -97,6 +98,7 @@ const CheckoutStep = () => {
         district: shippingData.toDistrict,
         ward: shippingData.toWard,
         addressDetail: shippingData.addressDetail,
+        mail: shippingData?.email
       };
     } else {
       console.error("selectAddress is either null or not an object");
@@ -132,6 +134,7 @@ const CheckoutStep = () => {
       customerId: userId, // Lấy customerId từ localStorage hoặc session
       orderDetailRequests, // Dữ liệu sản phẩm trong đơn hàng
       changeAddress,
+
     };
 
     try {
@@ -145,7 +148,8 @@ const CheckoutStep = () => {
         orderDTO.customerId,
         orderDTO.moneyReceived,
         orderDTO.orderDetailRequests,
-        orderDTO.changeAddress
+        orderDTO.changeAddress,
+        orderDTO.mail
       );
 
       // If creating the order fails, throw an error
@@ -298,6 +302,8 @@ const CheckoutStep = () => {
     title: item.title,
   }));
 
+  console.log(shippingData);
+
   return (
     <>
       <Steps
@@ -349,7 +355,7 @@ const CheckoutStep = () => {
                 return;
               }
               if (current === 1) {
-                if ((userId !== 1 && selectAddress === null) || (userId === 1 && shippingData === null)) {
+                if ((userId !== "1" && selectAddress === null) || (userId === "1" && shippingData === null)) {
                   message.error("Vui lòng chọn địa chỉ giao hàng");
                   return;
                 }
