@@ -257,19 +257,21 @@ const CustomerInfoOrderDetail = () => {
           justifyContent: "space-between", // Căn giữa các phần tử
         }}
       >
-        <NavLink
-          to={"/info-order"}
-          style={{
-            color: "gray",
-            padding: "6px 20px",
-            borderRadius: 8,
-            alignItems: "center",
-            fontSize: "16px",
-            display: "flex",
-          }}
-        >
-          <LeftOutlined /> <span style={{ fontSize: "18px" }}>Quay lại</span>
-        </NavLink>
+        {userId !== "1" && (
+          <NavLink
+            to={"/info-order"}
+            style={{
+              color: "gray",
+              padding: "6px 20px",
+              borderRadius: 8,
+              alignItems: "center",
+              fontSize: "16px",
+              display: "flex",
+            }}
+          >
+            <LeftOutlined /> <span style={{ fontSize: "18px" }}>Quay lại</span>
+          </NavLink>
+        )}
         <Text
           style={{
             fontSize: "18px",

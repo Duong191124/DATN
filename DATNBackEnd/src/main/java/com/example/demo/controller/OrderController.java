@@ -12,6 +12,7 @@ import com.example.demo.response.OrderPageResponse;
 import com.example.demo.response.OrderResponse;
 import com.example.demo.service.impl.NoticeServiceImpl;
 import com.example.demo.service.impl.OrderServiceImpl;
+import com.example.demo.utils.MailService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,6 +37,7 @@ import java.util.Map;
 public class  OrderController {
     private final OrderServiceImpl orderService;
     private final NoticeServiceImpl noticeService;
+    private final MailService mailService;
     @GetMapping("/list")
     public ResponseEntity<?> getAllOrders(){
         List<OrderResponse> lstOrderResponses = orderService.getAll();
@@ -132,6 +134,10 @@ public class  OrderController {
         try {
             // Try to create the order
             OrderResponse order = orderService.createOrderOnline(orderDTO);
+
+            if (orderDTO.getCustomerId() == 1 && orderDTO.getAddress().getMail() != null) {
+                mailService.sendOrderCode(orderDTO.getAddress().getMail(), orderDTO.getCode());
+            }
 
             // Return a successful response
             return ResponseEntity.status(HttpStatus.CREATED)
