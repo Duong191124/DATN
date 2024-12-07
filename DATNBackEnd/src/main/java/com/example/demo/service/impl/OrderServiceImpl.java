@@ -39,6 +39,7 @@ public class OrderServiceImpl implements OrderService {
     private final  VoucherRepo voucherRepo;
     private final ProductDetailRepo productDetailRepo;
     private final CustomerRepo customerRepo;
+    private final PaymentRepo paymentRepo;
 
     @Override
     public List<OrderResponse> getAll() {
@@ -356,6 +357,13 @@ public class OrderServiceImpl implements OrderService {
                 // Cập nhật lại số lượng sản phẩm trong kho (tăng lại số lượng)
                 productDetail.setQuantity(productDetail.getQuantity() + quantityOrdered);
                 productDetailRepo.save(productDetail);
+            }
+        }
+        if (orderStatus == OrderStatus.completed) {
+            Payment payment = new Payment();
+            if(payment.getOrders().equals(orders)){
+                payment.setStatus(1);
+                paymentRepo.save(payment);
             }
         }
         // Cập nhật trạng thái đơn hàng
