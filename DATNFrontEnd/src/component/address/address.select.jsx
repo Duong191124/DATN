@@ -58,6 +58,11 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                 ward,
                 stressAddress: '',
             });
+        } else {
+            form.resetFields(); // Reset form khi không có địa chỉ đang chỉnh sửa
+            setSelectedProvince(null);
+            setSelectedDistrict(null);
+            setSelectedWard(null);
         }
     }, [editingAddress, form]);
 
@@ -126,6 +131,7 @@ const AddressModal = ({ isModalVisible, handleCancel, setIsModalVisible, form, e
                 );
                 message.success(t('MES-048'));
             }
+            form.resetFields();
             setIsModalVisible(false);
 
             if (onAddressUpdated) {

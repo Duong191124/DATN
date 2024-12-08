@@ -141,7 +141,11 @@ public class OrderServiceImpl implements OrderService {
         if (orderDTO.getVoucherId() != null) {
             Voucher voucher = voucherRepo.findById(orderDTO.getVoucherId())
                     .orElseThrow(() -> new RuntimeException("Voucher not found"));
-            order.setVoucher(voucher);
+            if (hasCustomerExitVoucher(customerId, orderDTO.getVoucherId())) {
+                throw new RuntimeException("Khách hàng đã sử dụng voucher này.");
+            }
+            voucher.setQuantity(voucher.getQuantity() - 1);
+            voucherRepo.save(voucher);
         }
 
         // Gán khách hàng

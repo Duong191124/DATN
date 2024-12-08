@@ -19,6 +19,7 @@ const Summary = () => {
         formatCurrency
     } = useCheckout();
     const [vouchers, setVouchers] = useState([]);
+    const userId = localStorage.getItem("userId");
 
     // Tính subtotal từ giỏ hàng
     const calculateTotal = () => {
@@ -115,7 +116,7 @@ const Summary = () => {
 
     const renderedCartItems = useMemo(() => {
         return (
-            <CartItem cartItems={cartItems}  />
+            <CartItem cartItems={cartItems} />
         )
     }, [cartItems]);
 
@@ -146,72 +147,68 @@ const Summary = () => {
             <div
                 style={{
                     display: "flex",
-                    justifyContent: "space-between",
+                    justifyContent: userId === "1" ? "flex-end" : "space-between",
                     alignItems: "center",
                     padding: "10px 16px",
                 }}
             >
-                <div style={{ display: "flex", alignItems: "center" }}>
-                    <label htmlFor="coupon" style={{ marginRight: "8px" }}>
-                        Coupon:
-                    </label>
-                    <Select
-                        id="coupon"
-                        placeholder="Select a coupon"
-                        style={{ width: 200 }}
-                        onChange={handleCouponChange}
-                        value={selectedCoupon}
-                    >
-                        {vouchers.map((voucher) => {
-                            const { id, code, discountPercent, discountAmount, minPurchaseAmount } = voucher;
-                            const discountInfo = [];
-
-                            if (discountPercent > 0) {
-                                discountInfo.push(`${formatCurrency(discountPercent)}%`);
-                            }
-                            if (discountAmount > 0) {
-                                discountInfo.push(`${formatCurrency(discountAmount)}`);
-                            }
-
-                            // Kiểm tra điều kiện sử dụng voucher
-                            const isDisabled = subtotal < parseFloat(minPurchaseAmount);
-
-                            return (
-                                <Option
-                                    key={voucher.id}
-                                    value={id}
-                                    disabled={isDisabled} // Disable nếu không đủ điều kiện
-                                >
-                                    {`${code} - ${discountInfo.length > 0 ? `${discountInfo.join(", ")}` : ""
-                                        } ${isDisabled ? `(Min: $${minPurchaseAmount})` : ""}`}
-                                </Option>
-                            );
-                        })}
-                    </Select>
-                    {selectedCoupon && (
-                        <Button
-                            onClick={clearCoupon}
-                            style={{
-                                marginLeft: '8px',
-                                color: '#ff4d4f',  // Red color for the close button
-                                backgroundColor: 'transparent',
-                                border: '1px solid #ff4d4f',  // Red border
-                                borderRadius: '50%',  // Circular button
-                                padding: '0',  // Remove padding to keep the button compact
-                                width: '24px',  // Set fixed width and height for circular shape
-                                height: '24px',  // Set fixed width and height for circular shape
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                fontSize: '14px',
-                                transition: 'all 0.3s ease',  // Smooth transition on hover
-                            }}
-                            className="close-coupon-btn"
+                {userId !== "1" && (
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                        <label htmlFor="coupon" style={{ marginRight: "8px" }}>
+                            Coupon:
+                        </label>
+                        <Select
+                            id="coupon"
+                            placeholder="Select a coupon"
+                            style={{ width: 200 }}
+                            onChange={handleCouponChange}
+                            value={selectedCoupon}
                         >
-                            <span style={{ fontWeight: 'bold' }}>X</span>
-                        </Button>
-                    )}
-                </div>
+                            {vouchers
+                                .filter((voucher) => subtotal >= parseFloat(voucher.minPurchaseAmount)) // Lọc các voucher đủ điều kiện
+                                .map((voucher) => {
+                                    const { id, code, discountPercent, discountAmount, minPurchaseAmount } = voucher;
+                                    const discountInfo = [];
+
+                                    if (discountPercent > 0) {
+                                        discountInfo.push(`${formatCurrency(discountPercent)}%`);
+                                    }
+                                    if (discountAmount > 0) {
+                                        discountInfo.push(`${formatCurrency(discountAmount)}`);
+                                    }
+
+                                    return (
+                                        <Option key={voucher.id} value={id}>
+                                            {`${code} - ${discountInfo.length > 0 ? `${discountInfo.join(", ")}` : ""}`}
+                                        </Option>
+                                    );
+                                })}
+                        </Select>
+                        {selectedCoupon && (
+                            <Button
+                                onClick={clearCoupon}
+                                style={{
+                                    marginLeft: '8px',
+                                    color: '#ff4d4f',  // Red color for the close button
+                                    backgroundColor: 'transparent',
+                                    border: '1px solid #ff4d4f',  // Red border
+                                    borderRadius: '50%',  // Circular button
+                                    padding: '0',  // Remove padding to keep the button compact
+                                    width: '24px',  // Set fixed width and height for circular shape
+                                    height: '24px',  // Set fixed width and height for circular shape
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    fontSize: '14px',
+                                    transition: 'all 0.3s ease',  // Smooth transition on hover
+                                }}
+                                className="close-coupon-btn"
+                            >
+                                <span style={{ fontWeight: 'bold' }}>X</span>
+                            </Button>
+                        )}
+                    </div>
+                )}
                 <div style={{ textAlign: "right", fontSize: "16px", lineHeight: "1.5", marginTop: "10px" }}>
                     <div style={{ marginBottom: "8px", color: "#333" }}>
                         <span style={{ fontWeight: "bold" }}>Subtotal:</span>
