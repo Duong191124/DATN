@@ -111,7 +111,15 @@ const CustomerInfoOrder = () => {
     const status = statusOptions.find((option) => option.value === orderStatus);
     return status ? status.label : "Unknown Status";
   };
-
+  const handleCancelSuccess = (cancelledOrderId) => {
+    setData((prevData) =>
+      prevData.map((order) =>
+        order.id === cancelledOrderId
+          ? { ...order, status: "cancelled" }
+          : order
+      )
+    );
+  };
   const renderOrderCard = () => {
     return data.map((order) => {
       const orderId = order.id; // Lấy id của đơn hàng
@@ -122,7 +130,6 @@ const CustomerInfoOrder = () => {
       const productDetails =
         order.orderDetailResponses?.map((detail) => {
           const productDetail = detail.productDetailId || {};
-          console.log(productDetail?.productDTO?.name);
           return {
             code: productDetail.code || "Mã sản phẩm",
             image: productDetail.image || "default-image-url.jpg", // Giá trị mặc định khi không có ảnh
@@ -131,7 +138,7 @@ const CustomerInfoOrder = () => {
             size: productDetail.sizeName || "N/A",
             price: detail.price || 0, // Giá mặc định nếu không có giá
             quantity: detail.quantity || 1, // Số lượng mặc định nếu không có
-            name: productDetail?.productDTO?.name || ""
+            name: productDetail?.productDTO?.name || "",
           };
         }) || []; // Nếu không có orderDetailResponses, trả về mảng rỗng
 
@@ -167,7 +174,12 @@ const CustomerInfoOrder = () => {
                   <Col
                     key={index}
                     span={24}
-                    style={{ display: "flex", gap: "10px", paddingTop: '12px', paddingBottom: '12px' }}
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      paddingTop: "12px",
+                      paddingBottom: "12px",
+                    }}
                   >
                     {/* Hình ảnh sản phẩm */}
                     <div style={{ width: "100px" }}>
@@ -199,14 +211,12 @@ const CustomerInfoOrder = () => {
                         <Text type="secondary">{`Size: ${product.size}`}</Text>
                       </div>
                       <div style={{ marginTop: "10px" }}>
-                        {product.defaultPrice && product.price < product.defaultPrice && (
-                          <Text
-                            delete
-                            style={{ marginRight: 8 }}
-                          >
-                            {formatCurrency(product.defaultPrice)}
-                          </Text>
-                        )}
+                        {product.defaultPrice &&
+                          product.price < product.defaultPrice && (
+                            <Text delete style={{ marginRight: 8 }}>
+                              {formatCurrency(product.defaultPrice)}
+                            </Text>
+                          )}
                         <Text
                           style={{
                             fontWeight: 500,
@@ -217,7 +227,6 @@ const CustomerInfoOrder = () => {
                           {formatCurrency(product.price)}
                         </Text>
                       </div>
-
                       <Text>x{product.quantity}</Text> {/* Số lượng */}
                     </div>
                   </Col>
@@ -250,11 +259,14 @@ const CustomerInfoOrder = () => {
             {/* Thành tiền mặc định nếu không có */}
           </Row>
           <Row justify="end" style={{ marginTop: 16 }}>
-            <CancelOrder orderId={orderId} orderStatus={orderStatus} />
+            <CancelOrder
+              orderId={orderId}
+              orderStatus={orderStatus}
+              handleCancelSuccess={handleCancelSuccess}
+            />
             {orderStatus !== "confirmed" &&
               orderStatus !== "pending" &&
-              trackingId &&
-              (
+              trackingId && (
                 <Button
                   style={secondaryButtonStyle}
                   onClick={() => {
