@@ -19,6 +19,7 @@ const Summary = () => {
     formatCurrency,
   } = useCheckout();
   const [vouchers, setVouchers] = useState([]);
+  const userId = localStorage.getItem("userId");
 
   // Tính subtotal từ giỏ hàng
   const calculateTotal = () => {
@@ -154,100 +155,101 @@ const Summary = () => {
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: userId === "1" ? "flex-end" : "space-between",
           alignItems: "center",
           padding: "10px 16px",
         }}
       >
-        <div
-          style={{ display: "flex", alignItems: "center", margin: "16px 0" }}
-        >
-          <label
-            htmlFor="coupon"
-            style={{ marginRight: "8px", fontWeight: "bold", fontSize: "14px" }}
+        {userId !== "1" && (
+          <div
+            style={{ display: "flex", alignItems: "center", margin: "16px 0" }}
           >
-            Mã giảm giá:
-          </label>
-          <Select
-            id="coupon"
-            placeholder="Chọn mã giảm giá"
-            style={{
-              width: 350,
-              borderRadius: "8px",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-            }}
-            onChange={handleCouponChange}
-            value={selectedCoupon}
-          >
-            {vouchers.map((voucher) => {
-              const {
-                id,
-                code,
-                discountPercent,
-                discountAmount,
-                minPurchaseAmount,
-                quantity,
-              } = voucher;
+            <label
+              htmlFor="coupon"
+              style={{ marginRight: "8px", fontWeight: "bold", fontSize: "14px" }}
+            >
+              Mã giảm giá:
+            </label>
+            <Select
+              id="coupon"
+              placeholder="Chọn mã giảm giá"
+              style={{
+                width: 350,
+                borderRadius: "8px",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+              }}
+              onChange={handleCouponChange}
+              value={selectedCoupon}
+            >
+              {vouchers.map((voucher) => {
+                const {
+                  id,
+                  code,
+                  discountPercent,
+                  discountAmount,
+                  minPurchaseAmount,
+                  quantity,
+                } = voucher;
 
-              const discountInfo = [];
+                const discountInfo = [];
 
-              if (discountPercent > 0) {
-                discountInfo.push(`${discountPercent}%`);
-              }
-              if (discountAmount > 0) {
-                discountInfo.push(`${discountAmount.toLocaleString()}đ`);
-              }
+                if (discountPercent > 0) {
+                  discountInfo.push(`${discountPercent}%`);
+                }
+                if (discountAmount > 0) {
+                  discountInfo.push(`${discountAmount.toLocaleString()}đ`);
+                }
 
-              const isDisabled =
-                subtotal < parseFloat(minPurchaseAmount) || quantity <= 0;
+                const isDisabled =
+                  subtotal < parseFloat(minPurchaseAmount) || quantity <= 0;
 
-              return (
-                <Option
-                  key={id}
-                  value={id}
-                  disabled={isDisabled}
-                  style={{
-                    color: isDisabled ? "rgba(0, 0, 0, 0.4)" : "#333",
-                    fontWeight: isDisabled ? "normal" : "bold",
-                  }}
-                >
-                  {`${code} - ${discountInfo.join(", ")} ${isDisabled
+                return (
+                  <Option
+                    key={id}
+                    value={id}
+                    disabled={isDisabled}
+                    style={{
+                      color: isDisabled ? "rgba(0, 0, 0, 0.4)" : "#333",
+                      fontWeight: isDisabled ? "normal" : "bold",
+                    }}
+                  >
+                    {`${code} - ${discountInfo.join(", ")} ${isDisabled
                       ? `(Tối thiểu: ${parseFloat(
                         minPurchaseAmount
                       ).toLocaleString()}đ${quantity <= 0 ? ", Đã hết số lượng" : ""
                       })`
                       : ""
-                    }`}
-                </Option>
-              );
-            })}
-          </Select>
-          {selectedCoupon && (
-            <Button
-              onClick={clearCoupon}
-              style={{
-                marginLeft: "8px",
-                color: "#ff4d4f", // Màu đỏ
-                backgroundColor: "transparent",
-                border: "1px solid #ff4d4f",
-                borderRadius: "50%",
-                padding: "0",
-                width: "24px",
-                height: "24px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                fontSize: "14px",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-              }}
-              className="close-coupon-btn"
-            >
-              <span style={{ fontWeight: "bold" }}>X</span>
-            </Button>
-          )}
-        </div>
-
+                      }`}
+                  </Option>
+                );
+              })}
+            </Select>
+            {selectedCoupon && (
+              <Button
+                onClick={clearCoupon}
+                style={{
+                  marginLeft: "8px",
+                  color: "#ff4d4f", // Màu đỏ
+                  backgroundColor: "transparent",
+                  border: "1px solid #ff4d4f",
+                  borderRadius: "50%",
+                  padding: "0",
+                  width: "24px",
+                  height: "24px",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  fontSize: "14px",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                }}
+                className="close-coupon-btn"
+              >
+                <span style={{ fontWeight: "bold" }}>X</span>
+              </Button>
+            )}
+          </div>
+        )}
         <div
           style={{
             textAlign: "right",
