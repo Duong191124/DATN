@@ -3,6 +3,7 @@ import { Tabs, Input, Button, Card, Row, Col, Typography, Tag } from "antd";
 import { NavLink } from "react-router-dom";
 import { fetchDataOrderStatusByCustomerId } from "../../../../service/api.service";
 import { useCheckout } from "../../../context/checkout.context";
+import CancelOrder from "./customer.info.order.canceled.child";
 
 const { TabPane } = Tabs;
 const { Text } = Typography;
@@ -55,8 +56,8 @@ const CustomerInfoOrder = () => {
 
   const secondaryButtonStyle = {
     padding: "20px 20px",
-    background: secondaryHover ? " #999" : "#d9d9d9",
-    color: secondaryHover ? "#000" : "#000000D9",
+    background: "#000",
+    color: "#fff",
     cursor: "pointer",
     transition: "color 0.3s ease, background 0.1s ease-in",
     border: "1px solid #ddd",
@@ -110,16 +111,25 @@ const CustomerInfoOrder = () => {
     const status = statusOptions.find((option) => option.value === orderStatus);
     return status ? status.label : "Unknown Status";
   };
-
+  const handleCancelSuccess = (cancelledOrderId) => {
+    setData((prevData) =>
+      prevData.map((order) =>
+        order.id === cancelledOrderId
+          ? { ...order, status: "cancelled" }
+          : order
+      )
+    );
+  };
   const renderOrderCard = () => {
     return data.map((order) => {
       const orderId = order.id; // Lấy id của đơn hàng
       const orderStatus = order.status; // Lấy status của đơn hàng
       const orderCode = order.code;
+      const trackingId = order.trackingId;
       // Lặp qua orderDetailResponses để lấy chi tiết sản phẩm
       const productDetails =
         order.orderDetailResponses?.map((detail) => {
-          const productDetail = detail.productDetailId || {}; // Bảo vệ khi productDetailId là null hoặc undefined
+          const productDetail = detail.productDetailId || {};
           return {
             code: productDetail.code || "Mã sản phẩm",
             image: productDetail.image || "default-image-url.jpg", // Giá trị mặc định khi không có ảnh
@@ -128,6 +138,7 @@ const CustomerInfoOrder = () => {
             size: productDetail.sizeName || "N/A",
             price: detail.price || 0, // Giá mặc định nếu không có giá
             quantity: detail.quantity || 1, // Số lượng mặc định nếu không có
+            name: productDetail?.productDTO?.name || "",
           };
         }) || []; // Nếu không có orderDetailResponses, trả về mảng rỗng
 
@@ -145,7 +156,7 @@ const CustomerInfoOrder = () => {
           <NavLink
             to={
               activeTab === "7"
-                ? "/info-order-cancelled"
+                ? `/info-order-cancelled?code=${orderCode}`
                 : `/info-order-detail?code=${orderCode}`
             }
           >
@@ -163,7 +174,12 @@ const CustomerInfoOrder = () => {
                   <Col
                     key={index}
                     span={24}
-                    style={{ display: "flex", gap: "10px" }}
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      paddingTop: "12px",
+                      paddingBottom: "12px",
+                    }}
                   >
                     {/* Hình ảnh sản phẩm */}
                     <div style={{ width: "100px" }}>
@@ -176,7 +192,7 @@ const CustomerInfoOrder = () => {
 
                     {/* Chi tiết sản phẩm */}
                     <div>
-                      <Text strong>{product.code}</Text>
+                      <Text strong>{product.name}</Text>
                       <div style={{ display: "flex", alignItems: "center" }}>
                         <Text type="secondary" style={{ marginRight: "10px" }}>
                           Phân loại hàng:
@@ -195,11 +211,12 @@ const CustomerInfoOrder = () => {
                         <Text type="secondary">{`Size: ${product.size}`}</Text>
                       </div>
                       <div style={{ marginTop: "10px" }}>
-                        <Text delete style={{ marginRight: 8 }}>
-                          {formatCurrency(product.defaultPrice)
-                            ? `${formatCurrency(product.defaultPrice)}`
-                            : ""}
-                        </Text>
+                        {product.defaultPrice &&
+                          product.price < product.defaultPrice && (
+                            <Text delete style={{ marginRight: 8 }}>
+                              {formatCurrency(product.defaultPrice)}
+                            </Text>
+                          )}
                         <Text
                           style={{
                             fontWeight: 500,
@@ -241,23 +258,24 @@ const CustomerInfoOrder = () => {
             </Text>{" "}
             {/* Thành tiền mặc định nếu không có */}
           </Row>
-
-          {/* Các nút hành động */}
           <Row justify="end" style={{ marginTop: 16 }}>
-            <Button
-              style={primaryButtonStyle}
-              onMouseEnter={() => setPrimaryHover(true)}
-              onMouseLeave={() => setPrimaryHover(false)}
-            >
-              Mua Lại
-            </Button>
-            <Button
-              style={secondaryButtonStyle}
-              onMouseEnter={() => setSecondaryHover(true)}
-              onMouseLeave={() => setSecondaryHover(false)}
-            >
-              Liên Hệ Người Bán
-            </Button>
+            <CancelOrder
+              orderId={orderId}
+              orderStatus={orderStatus}
+              handleCancelSuccess={handleCancelSuccess}
+            />
+            {orderStatus !== "confirmed" &&
+              orderStatus !== "pending" &&
+              trackingId && (
+                <Button
+                  style={secondaryButtonStyle}
+                  onClick={() => {
+                    window.location.href = `/tracking?tracking_code=${trackingId}`;
+                  }}
+                >
+                  TrackingOrder
+                </Button>
+              )}
           </Row>
         </Card>
       );

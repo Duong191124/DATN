@@ -14,5 +14,7 @@ public class AddressOrderDTO {
 
     private String ward;
 
+    private String mail;
+
     private String addressDetail;
 }

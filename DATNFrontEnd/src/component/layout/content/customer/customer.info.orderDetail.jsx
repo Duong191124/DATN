@@ -14,6 +14,7 @@ import {
   fetchDataOrderForCustomerIdByOrderId,
   fetchDataOrderStatusByCustomerId,
   orderFindByCode,
+  productFindById,
   sizeFindById,
 } from "../../../../service/api.service";
 import { NavLink, useLocation } from "react-router-dom";
@@ -130,29 +131,45 @@ const CustomerInfoOrderDetail = () => {
       dataIndex: "product",
       key: "product",
       render: (text, record) => (
-        (
-          <Row align="middle">
-            <Col span={4}>
-              <img
-                src={record.image}
-                alt={record.productName}
-                style={{ width: "100%", borderRadius: 8 }}
-              />
-            </Col>
-            <Col span={20}>
-              <Text strong>{record.productName}</Text>
-              <br />
-              <Text type="secondary">{record.options}</Text>
-            </Col>
-          </Row>
-        )
+        <Row
+          align="middle"
+          style={{ display: "flex", justifyContent: "space-between" }}
+        >
+          <Col span={4}>
+            <img
+              src={record.image}
+              alt={record.productName}
+              style={{ width: "100%", borderRadius: 8 }}
+            />
+          </Col>
+          <Col span={19}>
+            <Text strong>{record.productName}</Text>
+            <br />
+            <Text type="secondary">{record.options}</Text>
+          </Col>
+        </Row>
       ),
     },
     {
       title: "Đơn giá",
-      dataIndex: "price",
-      key: "price",
-      render: (price) => `₫${price.toLocaleString()}`,
+      render: (text, record) => {
+        const discountPrice = record?.price?.discountPrice;
+        const defaultPrice = record?.price?.defaultPrice;
+        if (discountPrice > 0) {
+          return (
+            <>
+              <span style={{ textDecoration: "line-through", color: "gray" }}>
+                ₫{defaultPrice?.toLocaleString()}
+              </span>
+              <br />
+              <span style={{ color: "red" }}>
+                ₫{discountPrice?.toLocaleString()}
+              </span>
+            </>
+          );
+        }
+        return `₫${defaultPrice?.toLocaleString()}`;
+      },
     },
     {
       title: "Số lượng",
@@ -174,20 +191,26 @@ const CustomerInfoOrderDetail = () => {
   useEffect(() => {
     const fetchProductData = async () => {
       // Map qua danh sách orderDetailResponses và thêm tên màu sắc từ colorId
-      const mappedData = await Promise.all(
+      const mappedData = await Promise?.all(
         dataInfoOrder?.orderDetailResponses?.map(async (item) => {
           const color = await colorFindById(item.productDetailId.colorId);
           const size = await sizeFindById(item.productDetailId.sizeId);
+          const product = await productFindById(item.productDetailId.productId);
           return {
             key: item.id,
-            productName: item.productDetailId.code,
+            productName: product?.data?.data?.name,
             options: `Phân loại hàng: Size-${size?.data?.data.name}, Màu sắc-${color?.data?.data.name}`, // Lấy tên màu
             image: item.productDetailId.image,
-            price: `${item.productDetailId.discountPrice.toLocaleString()}`, // Hiển thị giá
+            price: {
+              discountPrice: item?.productDetailId?.discountPrice,
+              defaultPrice: item?.productDetailId?.defaultPrice,
+            },
             quantity: item.quantity,
             total: `${(
-              item.productDetailId.discountPrice * item.quantity
-            ).toLocaleString()}`, // Tính tổng
+              (item.productDetailId.discountPrice > 0
+                ? item.productDetailId.discountPrice
+                : item.productDetailId.defaultPrice) * item.quantity
+            ).toLocaleString()}`,
           };
         })
       );
@@ -206,12 +229,12 @@ const CustomerInfoOrderDetail = () => {
   const relevantSteps =
     dataInfoOrder.status === "cancelled"
       ? [
-        { title: "Đơn hàng đã đặt", status: "pending" },
-        ...(dataInfoOrder.status.includes("confirmed")
-          ? [{ title: "Đã xác nhận", status: "confirmed" }]
-          : []),
-        { title: "Đơn hàng đã hủy", status: "cancelled" },
-      ]
+          { title: "Đơn hàng đã đặt", status: "pending" },
+          ...(dataInfoOrder.status.includes("confirmed")
+            ? [{ title: "Đã xác nhận", status: "confirmed" }]
+            : []),
+          { title: "Đơn hàng đã hủy", status: "cancelled" },
+        ]
       : stepData;
   const currentStep = relevantSteps.findIndex(
     (step) => step.status === dataInfoOrder.status
@@ -224,25 +247,62 @@ const CustomerInfoOrderDetail = () => {
       <Row
         style={{
           backgroundColor: "#ffff",
-          padding: "5px 0px",
+          padding: "15px 20px", // Điều chỉnh padding để làm cho nó đẹp hơn
           borderRadius: 8,
           alignItems: "center",
           border: "1px solid #ddd",
           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
           marginBottom: "28px",
+          display: "flex", // Dùng flex để căn chỉnh các phần tử
+          justifyContent: userId === "1" ? "flex-end" : "space-between", // Căn giữa các phần tử
         }}
       >
-        <NavLink
-          to={"/info-order"}
+        {userId !== "1" && (
+          <NavLink
+            to={"/info-order"}
+            style={{
+              color: "gray",
+              padding: "6px 20px",
+              borderRadius: 8,
+              alignItems: "center",
+              fontSize: "16px",
+              display: "flex",
+            }}
+          >
+            <LeftOutlined /> <span style={{ fontSize: "18px" }}>Quay lại</span>
+          </NavLink>
+        )}
+        <Text
           style={{
-            color: "gray",
-            padding: "6px 20px",
-            borderRadius: 8,
-            alignItems: "center",
+            fontSize: "18px",
+            fontWeight: "bold",
+            color:
+              dataInfoOrder?.paymentResponses?.length > 0 &&
+              dataInfoOrder?.paymentResponses[0]?.status === 0
+                ? "#ff4d4f"
+                : "#52c41a",
+            padding: "8px 16px",
+            borderRadius: "12px",
+            backgroundColor:
+              dataInfoOrder?.paymentResponses?.length > 0 &&
+              dataInfoOrder?.paymentResponses[0]?.status === 0
+                ? "#fff1f0"
+                : "#f6ffed",
+            border:
+              dataInfoOrder?.paymentResponses?.length > 0 &&
+              dataInfoOrder?.paymentResponses[0]?.status === 0
+                ? "1px solid #ff4d4f"
+                : "1px solid #52c41a",
+            textAlign: "center",
+            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+            display: "inline-block",
           }}
         >
-          <LeftOutlined /> <span style={{ fontSize: "18px" }}>Quay lại</span>
-        </NavLink>
+          {dataInfoOrder?.paymentResponses?.length > 0 &&
+          dataInfoOrder?.paymentResponses[0]?.status === 0
+            ? "Chưa thanh toán"
+            : "Đã thanh toán"}
+        </Text>
       </Row>
       <Row style={stepStyle}>
         <Steps current={currentStep} style={{ width: "100%" }}>
@@ -285,20 +345,20 @@ const CustomerInfoOrderDetail = () => {
           bordered
         />
       </Card>
-
-      {/* Tổng tiền */}
       <div style={cardStyle}>
         <Row justify="space-between">
           <Text>Tổng tiền hàng:</Text>
           <Text>
             ₫{" "}
-            {dataInfoOrder?.orderDetailResponses?.map((item) => (
-              <span key={item.id}>
-                {(
-                  item.productDetailId.discountPrice * item.quantity
-                ).toLocaleString()}
-              </span>
-            ))}
+            {dataInfoOrder?.orderDetailResponses
+              ?.reduce((total, item) => {
+                const itemTotal =
+                  item.productDetailId.discountPrice > 0
+                    ? item.productDetailId.discountPrice * item.quantity
+                    : item.productDetailId.defaultPrice * item.quantity;
+                return total + itemTotal;
+              }, 0)
+              .toLocaleString()}
           </Text>
         </Row>
         <Row justify="space-between">

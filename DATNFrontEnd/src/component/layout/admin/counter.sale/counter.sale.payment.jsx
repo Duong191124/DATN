@@ -430,7 +430,6 @@ const CounterSalePayment = ({
       customerPaid - (vouchers ? totalAmountAfterDiscount : totalAmount)
     );
   }, [vouchers, totalAmountAfterDiscount, totalAmount, customerPaid]);
-
   const handlePayment = async () => {
     if (
       customerPaid < totalAmountAfterDiscount &&
@@ -501,32 +500,35 @@ const CounterSalePayment = ({
               <p> Tổng Tiền:</p>
               <p>{totalAmount ? totalAmount.toLocaleString() : "0"} đ</p>
             </h4>
-            <div
-              style={{
-                fontWeight: "bold",
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: "16px",
-                marginBottom: "20px",
-              }}
-            >
-              <p>Giảm giá</p>
-              {selectedBill && selectedVoucher && vouchers.length > 0 && (
-                <p
-                  style={{
-                    color: "green",
-                    fontStyle: "italic",
-                    textAlign: "end",
-                  }}
-                >
-                  (Đã giảm giá:{" "}
-                  {(totalAmount - totalAmountAfterDiscount).toLocaleString()} đ)
-                </p>
-              )}
-              <Button type="primary" onClick={openModal}>
-                Chọn Voucher
-              </Button>
-            </div>
+            {info?.customerResponse?.id !== 1 && (
+              <div
+                style={{
+                  fontWeight: "bold",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: "16px",
+                  marginBottom: "20px",
+                }}
+              >
+                <p>Giảm giá</p>
+                {selectedBill && selectedVoucher && vouchers.length > 0 && (
+                  <p
+                    style={{
+                      color: "green",
+                      fontStyle: "italic",
+                      textAlign: "end",
+                    }}
+                  >
+                    (Đã giảm giá:{" "}
+                    {(totalAmount - totalAmountAfterDiscount).toLocaleString()}{" "}
+                    đ)
+                  </p>
+                )}
+                <Button type="primary" onClick={openModal}>
+                  Chọn Voucher
+                </Button>
+              </div>
+            )}
             <div>
               <h4
                 style={{
@@ -584,7 +586,6 @@ const CounterSalePayment = ({
               style={{ marginBottom: "15px" }}
             >
               <Radio value="Cash">Tiền mặt</Radio>
-              <Radio value="VNP">VN Pay</Radio>
             </Radio.Group>
             <div>
               <Modal
@@ -593,13 +594,13 @@ const CounterSalePayment = ({
                 onCancel={closeModal}
                 footer={null}
               >
-                {vouchers &&
-                  vouchers.length > 0 &&
+                {vouchers && vouchers.length > 0 ? (
                   vouchers.map((v, index) => {
                     const currentTime = new Date();
                     const expirationTime = new Date(v.expirationDate);
                     const isExpired = currentTime > expirationTime; // Kiểm tra hết hạn
                     const isUsed = voucherUsageStatus[v.id];
+                    const isOutOfStock = v.quantity === 0; // Kiểm tra hết số lượng
                     return (
                       <div
                         key={index}
@@ -612,9 +613,15 @@ const CounterSalePayment = ({
                           border: "1px solid #ddd",
                           borderRadius: "8px",
                           backgroundColor:
-                            isExpired || isUsed ? "#f0f0f0" : "white", // Làm mờ khi đã hết hạn hoặc đã sử dụng
-                          opacity: isExpired || isUsed ? 0.5 : 1, // Giảm độ sáng khi đã hết hạn hoặc đã sử dụng
-                          pointerEvents: isExpired || isUsed ? "none" : "auto", // Không cho chọn khi hết hạn hoặc đã sử dụng
+                            isExpired || isUsed || isOutOfStock
+                              ? "#f0f0f0"
+                              : "white", // Làm mờ khi hết hạn, đã sử dụng, hoặc hết số lượng
+                          opacity:
+                            isExpired || isUsed || isOutOfStock ? 0.5 : 1, // Giảm độ sáng khi hết hạn hoặc hết số lượng
+                          pointerEvents:
+                            isExpired || isUsed || isOutOfStock
+                              ? "none"
+                              : "auto", // Không cho chọn khi hết hạn, hết số lượng hoặc đã sử dụng
                         }}
                       >
                         <div>
@@ -623,12 +630,16 @@ const CounterSalePayment = ({
                             Giảm:{" "}
                             {v.discountPercent > 0
                               ? `${v.discountPercent}%`
-                              : `${v.discountAmount.toLocaleString()} đ`}
+                              : `${
+                                  v.discountAmount
+                                    ? v.discountAmount.toLocaleString()
+                                    : 0
+                                } đ`}
                           </div>
                         </div>
-                        {isExpired || isUsed ? (
+                        {isExpired || isUsed || isOutOfStock ? (
                           <span style={{ color: "red", fontWeight: "bold" }}>
-                            Đã sử dụng
+                            {isOutOfStock ? "Đã hết voucher" : "Đã sử dụng"}
                           </span>
                         ) : selectedVoucher?.id === v.id ? (
                           <Button
@@ -647,10 +658,21 @@ const CounterSalePayment = ({
                         )}
                       </div>
                     );
-                  })}
+                  })
+                ) : (
+                  <div
+                    style={{
+                      textAlign: "center",
+                      padding: "20px",
+                      color: "red",
+                    }}
+                  >
+                    Đã hết hết
+                  </div>
+                )}
               </Modal>
-              {/* Hiển thị chi tiết voucher đã chọn */}
             </div>
+
             {/* Phần thanh toán bằng tiền mặt */}
             {paymentInfo.paymentMethod === "Cash" && (
               <>

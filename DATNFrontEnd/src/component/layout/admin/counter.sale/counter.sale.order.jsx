@@ -18,13 +18,16 @@ const CounterSaleBillWaiting = ({
   handleCreateBillWaiting,
   activeTab,
   setActiveTab,
+  isCreatingBill,
 }) => {
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false); // Modal nhập lý do hủy hóa đơn
   const [cancelReason, setCancelReason] = useState("");
   const [selectedBillDetail, setSelectedBillDetail] = useState(null); // Hóa đơn đang được xem chi tiết
-  const handleTabChange = (key) => {
+
+  const handleTabChange = async (key) => {
     if (key === "create") {
-      const newBill = handleCreateBillWaiting();
+      if (isCreatingBill) return;
+      const newBill = await handleCreateBillWaiting();
       if (newBill && newBill.code) {
         setSelectedBill(newBill.code);
         setActiveTab(newBill.code);
@@ -33,9 +36,11 @@ const CounterSaleBillWaiting = ({
       if (activeTab === key) {
         setActiveTab(null);
         setSelectedBill(null);
+        return;
       } else {
         setActiveTab(key);
         setSelectedBill(key);
+        return;
       }
     }
   };
@@ -43,7 +48,14 @@ const CounterSaleBillWaiting = ({
   const handleTabClose = (targetKey) => {
     const billToCancel = billItems.find((bill) => bill.code === targetKey);
     if (billToCancel) {
-      showCancelModal(billToCancel); // Hiển thị modal nhập lý do hủy
+      if (
+        billToCancel.orderDetailResponses &&
+        billToCancel.orderDetailResponses.length === 0
+      ) {
+        cancelBill(billToCancel);
+      } else {
+        showCancelModal(billToCancel);
+      }
     }
   };
 
@@ -56,19 +68,13 @@ const CounterSaleBillWaiting = ({
     setIsCancelModalVisible(false); // Đóng modal nhập lý do
     setCancelReason(""); // Reset lý do hủy
   };
-  const handleCancelOrder = async () => {
-    const orderId = selectedBillDetail?.id;
-    const reason = cancelReason.trim();
-    if (!reason) {
-      notification.error({
-        message: "Lý do hủy không hợp lệ",
-        description: "Vui lòng nhập lý do hủy đơn hàng.",
-      });
-      return;
-    }
+
+  const cancelBill = async (bill) => {
+    const orderId = bill.id;
     try {
-      await canceledOrder(orderId, reason); // Gọi API hủy đơn với lý do
-      setIsCancelModalVisible(false); // Đóng modal sau khi hủy
+      await canceledOrder(orderId, "Giỏ hàng trống");
+      setActiveTab(null);
+      setSelectedBill(null);
     } catch (error) {
       notification.warning({
         message: "Hủy hóa đơn thất bại",
@@ -79,33 +85,60 @@ const CounterSaleBillWaiting = ({
     }
   };
 
-  // Chỉ hiển thị danh sách hóa đơn, không có dấu cộng trong các hóa đơn
+  const handleCancelOrder = async () => {
+    const orderId = selectedBillDetail?.id;
+    const reason = cancelReason.trim();
+    if (!reason) {
+      notification.info({
+        message: "Lý do hủy không hợp lệ",
+        description: "Vui lòng nhập lý do hủy đơn hàng.",
+        duration: 2,
+        placement: "bottomLeft",
+      });
+      return;
+    }
+    try {
+      await canceledOrder(orderId, reason);
+      setCancelReason("");
+      setActiveTab(null);
+      setSelectedBill(null);
+      setIsCancelModalVisible(false);
+    } catch (error) {
+      notification.warning({
+        message: "Hủy hóa đơn thất bại",
+        description: error?.message || "Đã có lỗi xảy ra khi hủy hóa đơn.",
+        duration: 2,
+        placement: "bottomLeft",
+      });
+    }
+  };
+
   const tabsItems = Array.isArray(billItems)
     ? billItems.map((bill) => ({
-      label: (
-        <>
-          <div
-            id="selected-bill"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              position: "relative",
-            }}
-          >
-            {activeTab === bill.code && (
-              <span className="tab-check-icon">✔</span>
-            )}
-            <span
-              style={{ marginLeft: activeTab === bill.code ? "20px" : "0" }}
+        label: (
+          <>
+            <div
+              id="selected-bill"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                position: "relative",
+              }}
             >
-              Hóa đơn {bill.code}
-            </span>
-          </div>
-        </>
-      ),
-      key: bill.code,
-      closable: true,
-    }))
+              {activeTab === bill.code && (
+                <span className="tab-check-icon">✔</span>
+              )}
+              <span
+                style={{ marginLeft: activeTab === bill.code ? "20px" : "0" }}
+              >
+                Hóa đơn {bill.code}
+              </span>
+            </div>
+          </>
+        ),
+        key: bill.code,
+        closable: true,
+      }))
     : [];
 
   return (
@@ -122,7 +155,7 @@ const CounterSaleBillWaiting = ({
         }}
         style={{ backgroundColor: "#1890ff", padding: "10px 10px 0 10px" }}
         items={[
-          ...tabsItems, // Các hóa đơn hiện tại
+          ...tabsItems,
           {
             label: (
               <div

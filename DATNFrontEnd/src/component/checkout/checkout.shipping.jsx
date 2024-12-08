@@ -46,6 +46,7 @@ const Shipping = () => {
     const [name, setName] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
     const [streetAddress, setStreetAddress] = useState("");
+    const [email, setEmail] = useState("");
     const [addressDetails, setAddressDetails] = useState({
         city: '',
         district: '',
@@ -72,6 +73,7 @@ const Shipping = () => {
                 setAddresses(addressData.data.data);
             }
             const totalWeight = cartItems.reduce((total, cart) => {
+                console.log(total, cart);
                 if (cart && cart.weight && cart.quantity) {
                     return total + cart.weight * cart.quantity;
                 }
@@ -84,15 +86,33 @@ const Shipping = () => {
     };
 
     const handleChange = () => {
+        const { province, district, ward, stressAddress } = addressDetails;
+
+        // Kiểm tra và tạo chuỗi địa chỉ đầy đủ
+        const fullAddress = [
+            stressAddress?.trim(),
+            ward?.trim(),
+            district?.trim(),
+            province?.trim()
+        ]
+            .filter(Boolean) // Loại bỏ các giá trị null, undefined hoặc chuỗi rỗng
+            .join(', '); // Kết hợp thành chuỗi với dấu phẩy
+
+        // Cập nhật giá trị vào form
+        form.setFieldsValue({ address: fullAddress || "" });
+
+        // Cập nhật dữ liệu vận chuyển
         setShippingData({
             name,
             phoneNumber,
+            email,
             toProvide: selectedProvince,
             toDistrict: selectedDistrict,
             toWard: selectedWard,
-            addressDetail: streetAddress
+            addressDetail: fullAddress || "",
         });
     };
+
 
 
     useEffect(() => {
@@ -142,15 +162,8 @@ const Shipping = () => {
     };
 
     useEffect(() => {
-        const { province, district, ward, stressAddress } = addressDetails;
-
-        if (province && district && ward && stressAddress) {
-            const fullAddress = `${stressAddress}, ${ward}, ${district}, ${province}`;
-            form.setFieldsValue({ address: fullAddress });
-        } else {
-            form.setFieldsValue({ address: '' });
-        }
-    }, [addressDetails, form]);
+        handleChange();
+    }, [addressDetails, form, selectedProvince, selectedDistrict, selectedWard, name, phoneNumber, email]);
 
     const handleSelectAddress = (selectedAddress) => {
         resetGhnTotalPrice();
@@ -180,6 +193,7 @@ const Shipping = () => {
     };
 
     const handleCancel = () => {
+        form.resetFields();
         setIsModalOpen(false);
     };
 
@@ -246,7 +260,7 @@ const Shipping = () => {
                     </Row>
 
                     <Form.Item name="email" label="Email" rules={[{ required: true, message: 'Please enter email' }, { type: 'email', message: 'Please enter a valid email' }]}>
-                        <Input />
+                        <Input value={email} onChange={(e) => { setEmail(e.target.value); handleChange() }} />
                     </Form.Item>
 
                     <Form.Item
@@ -338,7 +352,7 @@ const Shipping = () => {
                             >
                                 <Select
                                     placeholder="Select a ward"
-                                    value={setSelectedWard}
+                                    value={selectedWard}
                                     onChange={(value) => {
                                         const wardName = wards.find(w => w.WardCode === value)?.WardName || '';
                                         setSelectedWard(value)

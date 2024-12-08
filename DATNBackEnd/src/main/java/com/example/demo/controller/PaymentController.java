@@ -37,7 +37,7 @@ public class PaymentController {
     @Autowired
     ProductDetailRepo productDetailRepo;
 
-    @PreAuthorize("hasAuthority('READ_PAYMENT')")
+//    @PreAuthorize("hasAuthority('READ_PAYMENT')")
     @GetMapping("list")
     public ResponseEntity<?> getAllPayment(){
         List<PaymentResponse> paymentResponses = paymentService.getAll();
@@ -109,13 +109,11 @@ public class PaymentController {
         if (vnp_SecureHash.equals(calculatedHash)) {
             String paymentStatus = params.get("vnp_ResponseCode");
                     if ("00".equals(paymentStatus)) {
-                        // Cập nhật trạng thái thanh toán thành công
-                        order.setStatus(OrderStatus.completed);
-                        orderRepo.save(order);
                         Payment payment = new Payment();
                         payment.setPaymentMethod("VNP");
                         payment.setPaymentDate(new Date());
                         payment.setOrders(order);
+                        payment.setStatus(1);
                         paymentRepo.save(payment);
                         Map<String, String> response = new HashMap<>();
                         response.put("status", "SUCCESS");
@@ -124,24 +122,7 @@ public class PaymentController {
                         response.put("paymentMethod", payment.getPaymentMethod());
                         return ResponseEntity.ok(response);
                     } else {
-                            // Duyệt qua các chi tiết đơn hàng để cập nhật số lượng sản phẩm
-                        Iterator<OrderDetail> iterator = order.getOrderDetails().iterator();
-                        while (iterator.hasNext()) {
-                            OrderDetail orderDetail = iterator.next();
-                            ProductDetail productDetail = orderDetail.getProductDetail();
-                            int quantityOrdered = orderDetail.getQuantity();
-
-                            // Cập nhật lại số lượng sản phẩm trong kho (tăng lại số lượng)
-                            productDetail.setQuantity(productDetail.getQuantity() + quantityOrdered);
-                            productDetailRepo.save(productDetail);  // Lưu sản phẩm sau khi cập nhật
-
-                            // Xóa OrderDetail khỏi Order
-                            iterator.remove();  // Xóa OrderDetail khỏi danh sách
-                        }
-                        order.setTotalAmount(0.0);
-// Lưu lại Order sau khi đã xóa OrderDetails
-                        orderRepo.save(order);
-
+                        orderRepo.delete(order);
                         return ResponseEntity.ok(Map.of("status", "FAILED", "message", "Thanh toán thất bại"));
                     }
         } else {
