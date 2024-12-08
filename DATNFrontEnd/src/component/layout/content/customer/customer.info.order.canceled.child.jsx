@@ -5,7 +5,7 @@ import {
   updateStatusOrder,
 } from "../../../../service/api.service";
 
-const CancelOrder = ({ orderId, orderStatus }) => {
+const CancelOrder = ({ orderId, orderStatus, handleCancelSuccess }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [cancelNote, setCancelNote] = useState("");
   const [cancelReason, setCancelReason] = useState("");
@@ -39,7 +39,7 @@ const CancelOrder = ({ orderId, orderStatus }) => {
       return;
     }
 
-    canceledOrder(orderId, "cancelled", cancelNote); // Gửi yêu cầu hủy đơn với lý do
+    canceledOrder(orderId, "cancelled", cancelNote);
     setIsModalVisible(false); // Đóng modal sau khi gửi yêu cầu
   };
 
@@ -51,7 +51,13 @@ const CancelOrder = ({ orderId, orderStatus }) => {
       notification.info({
         message: "Cập nhật trạng thái",
         description: "Đơn hàng đã bị hủy.",
+        placement: "top",
+        duration: 2,
       });
+      const updatedOrderStatus = res.data.data.status || "cancelled";
+      if (handleCancelSuccess) {
+        handleCancelSuccess(orderId, updatedOrderStatus);
+      }
     } catch (error) {
       notification.error({
         message: "Lỗi khi hủy đơn hàng",
