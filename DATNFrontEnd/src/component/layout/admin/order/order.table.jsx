@@ -158,6 +158,7 @@ const OrderTable = (props) => {
         );
         if (nextStatus === "shipping") {
           const order = dataOrder.find((order) => order.id === currentOrderId);
+
           if (!order) {
             notification.error({
               message: "Lỗi",
@@ -167,11 +168,13 @@ const OrderTable = (props) => {
           }
           const {
             code: orderCode,
-            address: { district, ward, name, phoneNumber, addressDetail },
+            address: { district, ward, name, phoneNumber, addressDetail, mail },
             deliveryFee: totalShippingFee,
-            customerResponse: { email: customerEmail },
+            customerResponse,
             orderDetailResponses,
           } = order;
+          const customerEmail =
+            customerResponse.id === 1 ? mail : customerResponse.email;
           const productIds = orderDetailResponses.map(
             (detail) => detail.productDetailId.productId
           );
@@ -516,8 +519,8 @@ const OrderTable = (props) => {
         return discountPrice
           ? `${discountPrice.toLocaleString()} VNĐ`
           : defaultPrice
-          ? `${defaultPrice.toLocaleString()} VNĐ`
-          : "Chưa có giá";
+            ? `${defaultPrice.toLocaleString()} VNĐ`
+            : "Chưa có giá";
       },
     },
     {
@@ -598,24 +601,21 @@ const OrderTable = (props) => {
       .map(
         (record) => `
           <tr>
-            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${
-              record.id
-            }</td>
-            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${
-              record.productDetailId?.code || "N/A"
-            }</td>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${record.id
+          }</td>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${record.productDetailId?.code || "N/A"
+          }</td>
             <td style="border: 1px solid #000; padding: 10px; text-align:center;">${getProductName(
-              record.productDetailId?.productId
-            )}</td>
-            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${
-              record.quantity || "N/A"
-            }</td>
+            record.productDetailId?.productId
+          )}</td>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${record.quantity || "N/A"
+          }</td>
             <td style="border: 1px solid #000; padding: 10px; text-align:center;">${getSizeName(
-              record.productDetailId?.sizeId
-            )}</td>
+            record.productDetailId?.sizeId
+          )}</td>
             <td style="border: 1px solid #000; padding: 10px; text-align:center;">${getColorName(
-              record.productDetailId?.colorId
-            )}</td>
+            record.productDetailId?.colorId
+          )}</td>
             <td style="border: 1px solid #000; padding: 10px; text-align:center;">${record.price.toLocaleString()} VND</td>
           </tr>
         `
@@ -633,15 +633,12 @@ const OrderTable = (props) => {
         <h2 style="text-align: center; font-size: 24px; font-weight: bold;">HÓA ĐƠN BÁN HÀNG</h2>
         <p style="font-size: 16px;">Mã hóa đơn: ${orderDetails.code}</p>
         <p style="font-size: 16px;">Ngày: ${orderDetails.orderDate}</p>
-        <p style="font-size: 16px;">Nhân viên: ${
-          orderDetails?.staffResponse?.name ?? "Không có nhân viên"
-        }</p>
-        <p style="font-size: 16px;">Khách hàng: ${
-          orderDetails.customerResponse.name
-        }</p>
-        <p style="font-size: 16px;">SĐT: ${
-          orderDetails.customerResponse.phoneNumber
-        }</p>
+        <p style="font-size: 16px;">Nhân viên: ${orderDetails?.staffResponse?.name ?? "Không có nhân viên"
+      }</p>
+        <p style="font-size: 16px;">Khách hàng: ${orderDetails.customerResponse.name
+      }</p>
+        <p style="font-size: 16px;">SĐT: ${orderDetails.customerResponse.phoneNumber
+      }</p>
         <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
           <thead>
             <tr>
@@ -662,13 +659,12 @@ const OrderTable = (props) => {
           <div style="width: 250px; border: 1px solid #ddd; padding: 10px;">
             <div className="result_order_detail">
               <span>Giảm giá hóa đơn:</span>
-            ${
-              orderDetails.voucherId
-                ? orderDetails.voucherId.discountAmount !== "0"
-                  ? `${orderDetails.voucherId.discountAmount} VND`
-                  : `${orderDetails.voucherId.discountPercent}%`
-                : "0 VND (0%)"
-            }
+            ${orderDetails.voucherId
+        ? orderDetails.voucherId.discountAmount !== "0"
+          ? `${orderDetails.voucherId.discountAmount} VND`
+          : `${orderDetails.voucherId.discountPercent}%`
+        : "0 VND (0%)"
+      }
             </div>
             <div className="result_order_detail">
               <span>Tổng số lượng:</span>
@@ -682,18 +678,18 @@ const OrderTable = (props) => {
               <span>Trạng thái:</span>
               <span>
                 ${(() => {
-                  const statusOptions = [
-                    { value: "pending", label: "Chờ xử lý" },
-                    { value: "process", label: "Đang xử lý" },
-                    { value: "delivery", label: "Đang giao" },
-                    { value: "shipped", label: "Đã giao" },
-                    { value: "cancelled", label: "Đã hủy" },
-                  ];
-                  const currentStatus = statusOptions.find(
-                    (option) => option.value === orderDetails.status
-                  );
-                  return currentStatus ? currentStatus.label : "";
-                })()}
+        const statusOptions = [
+          { value: "pending", label: "Chờ xử lý" },
+          { value: "process", label: "Đang xử lý" },
+          { value: "delivery", label: "Đang giao" },
+          { value: "shipped", label: "Đã giao" },
+          { value: "cancelled", label: "Đã hủy" },
+        ];
+        const currentStatus = statusOptions.find(
+          (option) => option.value === orderDetails.status
+        );
+        return currentStatus ? currentStatus.label : "";
+      })()}
               </span>
             </div>
           </div>
@@ -1088,9 +1084,9 @@ const OrderTable = (props) => {
                 status.value === "shipped" ||
                 status.value === "cancelled" ||
                 index <=
-                  statusOptions.findIndex(
-                    (option) => option.value === selectedStatus
-                  )
+                statusOptions.findIndex(
+                  (option) => option.value === selectedStatus
+                )
               }
             />
           ))}

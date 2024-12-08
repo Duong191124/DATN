@@ -97,6 +97,7 @@ const CheckoutStep = () => {
         district: shippingData.toDistrict,
         ward: shippingData.toWard,
         addressDetail: shippingData.addressDetail,
+        mail: shippingData?.email,
       };
     } else {
       console.error("selectAddress is either null or not an object");
@@ -145,7 +146,8 @@ const CheckoutStep = () => {
         orderDTO.customerId,
         orderDTO.moneyReceived,
         orderDTO.orderDetailRequests,
-        orderDTO.changeAddress
+        orderDTO.changeAddress,
+        orderDTO.mail
       );
 
       // If creating the order fails, throw an error
@@ -297,6 +299,8 @@ const CheckoutStep = () => {
     key: item.title,
     title: item.title,
   }));
+
+  console.log(shippingData);
 
   return (
     <>
