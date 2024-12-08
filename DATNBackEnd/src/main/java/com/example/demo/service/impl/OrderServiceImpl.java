@@ -61,14 +61,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderBuyerResponseDTO> getAllOrderByOrderId(Integer customerId, OrderStatus status, Integer orderId){
+    public List<OrderResponse> getAllOrderByOrderId(Integer customerId, OrderStatus status, Integer orderId){
         Customer customer = customerRepo.findById(customerId).orElse(null);
         Orders order = orderRepo.findById(orderId).orElse(null);
         if(customer == null || order == null){
             return null;
         }
         List<Orders> ordersList = orderRepo.pageAllByOrderIdAndCustomerId(status, orderId, customerId);
-        return ordersList.stream().map(OrderBuyerResponseDTO::convertOrderResponse).collect(Collectors.toList());
+        return ordersList.stream().map(OrderResponse::convertOrderResponse).collect(Collectors.toList());
     }
 
     @Override
@@ -325,6 +325,7 @@ public class OrderServiceImpl implements OrderService {
         Orders orders = orderRepo.findById(id).orElseThrow(() ->
                 new RuntimeException("Not found order with id: " + id)
         );
+        Payment payment = paymentRepo.findByOrdersId(orders.getId());
         // Chuyển đổi trạng thái từ String thành OrderStatus enum
         OrderStatus orderStatus = OrderStatus.valueOf(status.toLowerCase());
 
@@ -354,13 +355,11 @@ public class OrderServiceImpl implements OrderService {
             for (OrderDetail orderDetail : orders.getOrderDetails()) {
                 ProductDetail productDetail = orderDetail.getProductDetail();
                 int quantityOrdered = orderDetail.getQuantity();
-                // Cập nhật lại số lượng sản phẩm trong kho (tăng lại số lượng)
                 productDetail.setQuantity(productDetail.getQuantity() + quantityOrdered);
                 productDetailRepo.save(productDetail);
             }
         }
         if (orderStatus == OrderStatus.completed) {
-            Payment payment = new Payment();
             if(payment.getOrders().equals(orders)){
                 payment.setStatus(1);
                 paymentRepo.save(payment);

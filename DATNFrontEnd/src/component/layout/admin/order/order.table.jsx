@@ -265,7 +265,7 @@ const OrderTable = (props) => {
     try {
       const res = await updateStatusOrder(orderId, status, cancelNote);
       const trackingId = res.data.data.trackingId;
-      await cancelOrderGhn(trackingId);
+
       setDataOrder((prevDataOrder) =>
         prevDataOrder.map((order) =>
           order.id === orderId ? { ...order, status: "cancelled" } : order
@@ -275,6 +275,14 @@ const OrderTable = (props) => {
         message: "Cập nhật trạng thái",
         description: "Đơn hàng đã bị hủy.",
       });
+      // if (trackingId === null) {
+      //   notification.warning({
+      //     message: "Cập nhật trạng thái",
+      //     description: "Chưa đồng bộ với api giao hàng nhanh.",
+      //   });
+      //   return;
+      // }
+      await cancelOrderGhn(trackingId);
     } catch (error) {
       // Hiển thị thông báo lỗi
       notification.error({

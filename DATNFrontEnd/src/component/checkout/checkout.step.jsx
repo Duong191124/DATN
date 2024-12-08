@@ -349,6 +349,13 @@ const CheckoutStep = () => {
                 return;
               }
               if (current === 1) {
+                if (
+                  (userId !== "1" && selectAddress === null) ||
+                  (userId === "1" && shippingData === null)
+                ) {
+                  message.error("Vui lòng chọn địa chỉ giao hàng");
+                  return;
+                }
                 await handleApiGhn();
               }
               next();
