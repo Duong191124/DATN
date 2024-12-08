@@ -123,7 +123,8 @@ public class OrderServiceImpl implements OrderService {
         order.setCode(orderDTO.getCode());
         order.setDeliveryFee(orderDTO.getDeliveryFee());
         order.setOrderDate(orderDTO.getOrderDate());
-
+        Customer customer = customerRepo.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Not found customer with id: " + order.getCustomer().getId()));
         // Serialize địa chỉ
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -142,9 +143,29 @@ public class OrderServiceImpl implements OrderService {
         if (orderDTO.getVoucherId() != null) {
             Voucher voucher = voucherRepo.findById(orderDTO.getVoucherId())
                     .orElseThrow(() -> new RuntimeException("Voucher not found"));
-            order.setVoucher(voucher);
-        }
 
+            // Kiểm tra xem khách hàng đã sử dụng voucher này chưa
+            if (hasCustomerExitVoucher(customer.getId(), orderDTO.getVoucherId())) {
+                throw new RuntimeException("Khách hàng đã sử dụng voucher này.");
+            }
+
+            // Kiểm tra tính hợp lệ của voucher (hạn sử dụng, số lượng, v.v.)
+            if (voucher.getExpirationDate().isBefore(LocalDateTime.now())) {
+                throw new RuntimeException("Voucher has expired");
+            }
+
+            if (voucher.getQuantity() <= 0) {
+                throw new RuntimeException("Voucher is no longer available");
+            }
+
+            // Giảm số lượng voucher và lưu lại
+            voucher.setQuantity(voucher.getQuantity() - 1);
+            voucherRepo.save(voucher);
+
+            // Cập nhật voucher cho đơn hàng và khách hàng
+            order.setVoucher(voucher);
+            customerRepo.save(customer);
+        }
         // Gán khách hàng
         order.setCustomer(customerRepo.findById(customerId).orElse(null));
 

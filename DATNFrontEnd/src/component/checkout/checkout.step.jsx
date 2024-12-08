@@ -9,11 +9,14 @@ import {
   createPayment,
   getCreateOrderGhn,
   getShippingFee,
+  getVouchersByCustomerId,
+  hasCustomerUsedVoucher,
 } from "../../service/api.service";
 import { useCart } from "../context/cart.context";
 import { useNavigate } from "react-router-dom";
 import { useCheckout } from "../context/checkout.context";
 import moment from "moment";
+import { data } from "framer-motion/client";
 
 const steps = [
   {
@@ -52,6 +55,7 @@ const CheckoutStep = () => {
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [vouchers, setVoucher] = useState(null);
   const userId = localStorage.getItem("userId");
 
   const next = () => {
@@ -114,15 +118,63 @@ const CheckoutStep = () => {
     const randomCode = Math.floor(10000 + Math.random() * 90000);
     return `HD-${randomCode}`;
   };
+  const fetchVouchers = async () => {
+    try {
+      const response = await getVouchersByCustomerId(userId);
+      setVoucher(response.data.data);
+    } catch (error) {
+      message.error("Không thể tải voucher.");
+    }
+  };
+  useEffect(() => {
+    fetchVouchers();
+  }, []);
+  const checkVoucherUsage = async (customerId, voucherId) => {
+    try {
+      // Gọi API kiểm tra xem khách hàng đã sử dụng voucher chưa
+      const response = await hasCustomerUsedVoucher(customerId, voucherId);
 
+      // Kiểm tra dữ liệu trả về từ API, giả sử response.data chứa true/false
+      if (response.data) {
+        // Nếu khách hàng đã sử dụng voucher, trả về false
+        return false;
+      }
+      // Nếu chưa sử dụng voucher, trả về true
+      return true;
+    } catch (error) {
+      console.error("Error checking voucher usage:", error);
+      // Nếu có lỗi, trả về false để ngừng quá trình
+      return false;
+    }
+  };
   const confirmOrder = async () => {
     setLoading(true);
+    // Kiểm tra voucher trước khi tạo đơn hàng
+    const voucher = vouchers.find((v) => v.id === selectedCoupon);
+    if (!voucher) {
+      message.info("Voucher không hợp lệ.");
+      setLoading(false);
+      return;
+    }
+    // Kiểm tra số lượng voucher còn lại
+    if (voucher.quantity <= 0) {
+      message.info("Voucher này đã hết số lượng sử dụng.");
+      setLoading(false);
+      return;
+    }
+    const isVoucherValid = await checkVoucherUsage(userId, selectedCoupon);
+    if (!isVoucherValid) {
+      message.info("Voucher đã được sử dụng.");
+      setLoading(false);
+      return; // Dừng quá trình tạo đơn hàng nếu voucher không hợp lệ
+    }
     const cartItemsLocal = cartItems;
     const orderDetailRequests = convertCartToOrderDetails(cartItemsLocal);
     const addressToOrder = convertSelectAddressToOrder(selectAddress);
     const addressFormToOrder = convertAddressToOrder(shippingData);
     const changeAddress = userId === "1" ? addressFormToOrder : addressToOrder;
     const paymentMethod = selectedOption;
+
     const orderDTO = {
       code: generateInvoiceCode(), // Mã đơn hàng
       orderDate: new Date().toISOString().split("T")[0], // Ngày đặt hàng
@@ -150,7 +202,6 @@ const CheckoutStep = () => {
         orderDTO.mail
       );
 
-      // If creating the order fails, throw an error
       if (!createOrderResponse || createOrderResponse?.error) {
         throw new Error(createOrderResponse?.message);
       }
@@ -168,21 +219,19 @@ const CheckoutStep = () => {
         throw new Error("Invalid payment method selected");
       }
     } catch (error) {
-      // Catch and handle errors from both the order creation process or GHN
       let errorMessage =
         error?.message || "Đã xảy ra lỗi. Vui lòng thử lại sau.";
 
-      // Handle insufficient stock error more clearly if it's the issue
       if (error?.message?.includes("Insufficient stock")) {
         errorMessage = "Số lượng sản phẩm không đủ trong kho!";
       }
 
-      // Show the error message to the user
       message.error(errorMessage);
       setLoading(false);
       return;
     }
   };
+
   const handleVNPPayment = async (paymentDTO) => {
     const vnPayResponse = await createPayment(
       paymentDTO.paymentDate,
@@ -299,9 +348,6 @@ const CheckoutStep = () => {
     key: item.title,
     title: item.title,
   }));
-
-  console.log(shippingData);
-
   return (
     <>
       <Steps
