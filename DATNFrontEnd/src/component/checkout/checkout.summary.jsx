@@ -2,7 +2,7 @@ import CartItem from "../cart/cart.item";
 import { useEffect, useMemo, useState } from "react";
 import { Button, message, Select } from "antd";
 import { useCart } from "../context/cart.context";
-import { getVouchersByCustomerId } from "../../service/api.service";
+import { getVouchersByCustomerId, hasCustomerUsedVoucher } from "../../service/api.service";
 import { useCheckout } from "../context/checkout.context";
 
 const { Option } = Select;
@@ -119,6 +119,27 @@ const Summary = () => {
     fetchDataVoucher();
   }, []);
 
+  console.log(userId);
+  console.log(selectedCoupon);
+  const checkVoucherUsage = async () => {
+    try {
+      // Gọi API kiểm tra xem khách hàng đã sử dụng voucher chưa
+      const response = await hasCustomerUsedVoucher(userId, selectedCoupon);
+      console.log(response);
+      // Kiểm tra dữ liệu trả về từ API, giả sử response.data chứa true/false
+      if (response.data) {
+        // Nếu khách hàng đã sử dụng voucher, trả về false
+        return false;
+      }
+      // Nếu chưa sử dụng voucher, trả về true
+      return true;
+    } catch (error) {
+      console.error("Error checking voucher usage:", error);
+      // Nếu có lỗi, trả về false để ngừng quá trình
+      return false;
+    }
+  };
+
   const renderedCartItems = useMemo(() => {
     return <CartItem cartItems={cartItems} />;
   }, [cartItems]);
@@ -174,55 +195,32 @@ const Summary = () => {
               id="coupon"
               placeholder="Chọn mã giảm giá"
               style={{
-                width: 350,
+                width: 200,
                 borderRadius: "8px",
                 boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
               }}
               onChange={handleCouponChange}
               value={selectedCoupon}
             >
-              {vouchers.map((voucher) => {
-                const {
-                  id,
-                  code,
-                  discountPercent,
-                  discountAmount,
-                  minPurchaseAmount,
-                  quantity,
-                } = voucher;
+              {vouchers
+                .filter((voucher) => subtotal >= parseFloat(voucher.minPurchaseAmount)) // Lọc các voucher đủ điều kiện
+                .map((voucher) => {
+                  const { id, code, discountPercent, discountAmount, minPurchaseAmount } = voucher;
+                  const discountInfo = [];
 
-                const discountInfo = [];
+                  if (discountPercent > 0) {
+                    discountInfo.push(`${formatCurrency(discountPercent)}%`);
+                  }
+                  if (discountAmount > 0) {
+                    discountInfo.push(`${formatCurrency(discountAmount)}`);
+                  }
 
-                if (discountPercent > 0) {
-                  discountInfo.push(`${discountPercent}%`);
-                }
-                if (discountAmount > 0) {
-                  discountInfo.push(`${discountAmount.toLocaleString()}đ`);
-                }
-
-                const isDisabled =
-                  subtotal < parseFloat(minPurchaseAmount) || quantity <= 0;
-
-                return (
-                  <Option
-                    key={id}
-                    value={id}
-                    disabled={isDisabled}
-                    style={{
-                      color: isDisabled ? "rgba(0, 0, 0, 0.4)" : "#333",
-                      fontWeight: isDisabled ? "normal" : "bold",
-                    }}
-                  >
-                    {`${code} - ${discountInfo.join(", ")} ${isDisabled
-                      ? `(Tối thiểu: ${parseFloat(
-                        minPurchaseAmount
-                      ).toLocaleString()}đ${quantity <= 0 ? ", Đã hết số lượng" : ""
-                      })`
-                      : ""
-                      }`}
-                  </Option>
-                );
-              })}
+                  return (
+                    <Option key={voucher.id} value={id}>
+                      {`${code} - ${discountInfo.length > 0 ? `${discountInfo.join(", ")}` : ""}`}
+                    </Option>
+                  );
+                })}
             </Select>
             {selectedCoupon && (
               <Button
