@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import debounce from "lodash/debounce";
 import { ChatService } from "../../../../service/chat.service/chat.service";
-
+import { useTranslation } from "react-i18next";
 const ChatContainer = styled(motion.div)`
   display: flex;
   justify-content: end;
@@ -245,7 +245,16 @@ export default function ChatBox() {
   const [isOpen, setIsOpen] = useState(false);
   const [typingBot, setTypingBot] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  const { t, i18n } = useTranslation();
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("i18nextLng");
+    if (savedLanguage) {
+      i18n.changeLanguage(savedLanguage);
+    } else {
+      const defaultLang = i18n.language || "vi";
+      i18n.changeLanguage(defaultLang);
+    }
+  }, [i18n.language]);
   const messagesEndRef = useRef(null);
   const chatboxRef = useRef(null);
 
@@ -300,15 +309,14 @@ export default function ChatBox() {
   const debouncedSend = debounce(sendMessage, 300);
 
   const quickReplies = [
-    { text: "Shipping Info", query: "How long does shipping take?" },
-    { text: "Order Changes", query: "Can I modify my order?" },
-    { text: "Service Hours", query: "What are your service hours?" },
-    { text: "Help", query: "I need help with my purchase" },
-    { text: "Service Hours", query: "What are your service hours?" },
-    { text: "Payment Methods", query: "What payment methods do you accept?" },
-    { text: "International Shipping", query: "Do you ship internationally?" },
-    { text: "Delivery Time", query: "How long will delivery take?" },
-    { text: "Size Guide", query: "Where can I find the size guide?" },
+    { text: `${t("MES-101")}`, query: "How long does shipping take?" },
+    { text: `${t("MES-102")}`, query: "Can I modify my order?" },
+    { text: `${t("MES-103")}`, query: "What are your service hours?" },
+    { text: `${t("MES-104")}`, query: "I need help with my purchase" },
+    { text: `${t("MES-105")}`, query: "What payment methods do you accept?" },
+    { text: `${t("MES-106")}`, query: "Do you ship internationally?" },
+    { text: `${t("MES-107")}`, query: "How long will delivery take?" },
+    { text: `${t("MES-108")}`, query: "Where can I find the size guide?" },
   ];
 
   return (
@@ -323,7 +331,7 @@ export default function ChatBox() {
           >
             <Header>
               <Logo src="/image/logo.jpg" alt="Logo" />
-              <HeaderTitle>Chat Assistant</HeaderTitle>
+              <HeaderTitle>{t("MES-099")}</HeaderTitle>
               <CloseButton onClick={() => setIsOpen(false)}>
                 <CloseOutlined style={{ fontSize: 16 }} />
               </CloseButton>
@@ -363,7 +371,7 @@ export default function ChatBox() {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Type your message..."
+                  placeholder={t("MES-100")}
                   disabled={typingBot || isLoading}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !typingBot && !isLoading) {
