@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Carousel } from "antd";
 import { motion } from "framer-motion";
 import { ArrowRightOutlined } from "@ant-design/icons";
 import styled from "styled-components";
-
+import { useTranslation } from "react-i18next";
 const DEFAULT_IMAGE = "https://picsum.photos/1600/900"; // Ảnh mặc định từ Picsum
 
 const SliderContainer = styled.div`
@@ -106,28 +106,36 @@ const SlideImage = styled.div`
 `;
 
 const HomeSlider = () => {
+  const { t, i18n } = useTranslation();
   const [activeIndex, setActiveIndex] = useState(0);
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("i18nextLng");
+    if (savedLanguage) {
+      i18n.changeLanguage(savedLanguage); // Đảm bảo ngôn ngữ được thay đổi khi khởi tạo
+    } else {
+      const defaultLang = i18n.language || "vi"; // Ngôn ngữ mặc định
+      i18n.changeLanguage(defaultLang);
+    }
+  }, [i18n.language]); // Theo dõi khi i18n.language thay đổi
 
   const slideData = [
     {
       imageUrl: "/image/bannernew.png",
-      title: "Khám phá Sport Shirt",
-      description:
-        "Khám phá những sản phẩm mới, phóng cách hiện đại, mang theo xu hướng đổi mới, phát triển để phù hợp với khác hàng!",
+      title: `${t("MES-051")}`,
+      description: t("MES-053"),
       link: "/product",
     },
     {
       imageUrl:
         "https://bizweb.dktcdn.net/100/340/361/themes/913887/assets/slider_2.jpg?1732774238254",
-      title: "Khám phá các thương hiệu",
-      description:
-        "Sự liên kết với các thương hiệu lớn, mang lại sản phẩm chất lượng cao, uy tín để mang đến cho khách hàng!",
+      title: `${t("MES-052")}`,
+      description: t("MES-054"),
       link: "/product",
     },
     {
       imageUrl: "/image/bannersale.png",
-      title: "Chương trình ưu đãi",
-      description: "Giảm giá các sản phẩm, với nhiều ưu đãi khác nhau!",
+      title: `${t("MES-050")}`,
+      description: t("MES-055"),
       link: "/product",
     },
   ];
@@ -179,7 +187,7 @@ const HomeSlider = () => {
                 {slide.description}
               </Description>
               <LearnMoreButton href={slide.link} variants={contentVariants}>
-                MUA NGAY
+                {t("MES-056")}
                 <ArrowRightOutlined className="icon" />
               </LearnMoreButton>
             </SlideContent>

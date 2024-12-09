@@ -1,11 +1,30 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Form, Input, Button, Select, DatePicker, message, Spin, Card } from 'antd';
-import { UserOutlined, MailOutlined, PhoneOutlined, HomeOutlined, SaveOutlined } from '@ant-design/icons';
-import styled from 'styled-components';
-import moment from 'moment';
-import { motion } from 'framer-motion';
-import { AuthContext } from '../context/auth.context';
-import { getCustomerById, updateCustomer, updateCustomerInfo } from '../../service/api.service';
+import React, { useState, useEffect, useContext } from "react";
+import {
+  Form,
+  Input,
+  Button,
+  Select,
+  DatePicker,
+  message,
+  Spin,
+  Card,
+} from "antd";
+import {
+  UserOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  HomeOutlined,
+  SaveOutlined,
+} from "@ant-design/icons";
+import styled from "styled-components";
+import moment from "moment";
+import { motion } from "framer-motion";
+import { AuthContext } from "../context/auth.context";
+import {
+  getCustomerById,
+  updateCustomer,
+  updateCustomerInfo,
+} from "../../service/api.service";
 
 const { Option } = Select;
 
@@ -24,11 +43,11 @@ const StyledCard = styled(Card)`
   max-width: 600px;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  
+
   .ant-card-head {
     border-bottom: 1px solid #f0f0f0;
     padding: 16px 24px;
-    
+
     .ant-card-head-title {
       font-size: 24px;
       font-weight: 600;
@@ -55,7 +74,7 @@ const SubmitButton = styled(Button)`
   border-color: #000;
   height: 45px;
   font-size: 16px;
-  
+
   &:hover {
     background: #333 !important;
     border-color: #333 !important;
@@ -73,189 +92,187 @@ const LoadingIcon = styled(Spin)`
   }
 `;
 
-const InfoPanel = ({ user }) => {
-    const [form] = Form.useForm();
-    const [loading, setLoading] = useState(false);
-    const [initialLoading, setInitialLoading] = useState(true);
+const InfoPanel = ({ user, t }) => {
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
+  useEffect(() => {
+    fetchUserInfo();
+  }, []);
 
-    useEffect(() => {
-        fetchUserInfo();
-    }, []);
-
-    const fetchUserInfo = async () => {
-        try {
-            const res = await getCustomerById(user.id);
-            const userData = res.data.data;
-            // Map API response to form fields
-            form.setFieldsValue({
-                userName: userData.username || '',
-                email: userData.email || '',
-                phone: userData.phoneNumber || '',
-                address: userData.address || '',
-                dateOfBirth: userData.dateOfBirth ? moment(userData.dateOfBirth) : undefined,
-                gender: userData.gender
-            });
-        } catch (error) {
-            message.error('Failed to load user information');
-        } finally {
-            setInitialLoading(false);
-        }
-    };
-
-
-    const onFinish = async (values) => {
-        setLoading(true);
-        try {
-            await updateCustomerInfo(
-                user.id,
-                values.email,
-                values.address,
-                values.phone,
-                values.dateOfBirth,
-                values.gender,
-                values.userName
-            );
-            message.success({
-                content: 'Information updated successfully!',
-                className: 'custom-message',
-                style: {
-                    marginTop: '20vh',
-                },
-            });
-        } catch (error) {
-            message.error('Failed to update information');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const validateMessages = {
-        required: '${label} is required!',
-        types: {
-            email: '${label} is not a valid email!',
-            number: '${label} is not a valid number!',
-        },
-    };
-
-    if (initialLoading) {
-        return (
-            <PageWrapper>
-                <StyledCard>
-                    <div style={{ textAlign: 'center', padding: '50px' }}>
-                        <Spin size="large" />
-                    </div>
-                </StyledCard>
-            </PageWrapper>
-        );
+  const fetchUserInfo = async () => {
+    try {
+      const res = await getCustomerById(user.id);
+      const userData = res.data.data;
+      // Map API response to form fields
+      form.setFieldsValue({
+        userName: userData.username || "",
+        email: userData.email || "",
+        phone: userData.phoneNumber || "",
+        address: userData.address || "",
+        dateOfBirth: userData.dateOfBirth
+          ? moment(userData.dateOfBirth)
+          : undefined,
+        gender: userData.gender,
+      });
+    } catch (error) {
+      message.error("Failed to load user information");
+    } finally {
+      setInitialLoading(false);
     }
+  };
 
+  const onFinish = async (values) => {
+    setLoading(true);
+    try {
+      await updateCustomerInfo(
+        user.id,
+        values.email,
+        values.address,
+        values.phone,
+        values.dateOfBirth,
+        values.gender,
+        values.userName
+      );
+      message.success({
+        content: t("MES-168"),
+        className: "custom-message",
+        style: {
+          marginTop: "20vh",
+        },
+      });
+    } catch (error) {
+      message.error("Failed to update information");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const validateMessages = {
+    required: t("MES-178", { label: "${label}" }),
+    types: {
+      email: t("MES-179", { label: "${label}" }),
+      number: t("MES-180", { label: "${label}" }),
+    },
+  };
+
+  if (initialLoading) {
     return (
-        <PageWrapper>
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                style={{ width: '100%', maxWidth: '600px' }}
-            >
-                <StyledCard
-                    title="Personal Information"
-                    extra={<span style={{ color: '#888' }}>Update your profile</span>}
-                >
-                    <Form
-                        form={form}
-                        layout="vertical"
-                        onFinish={onFinish}
-                        validateMessages={validateMessages}
-                        requiredMark={false}
-                    >
-                        <Form.Item
-                            name="userName"
-                            label="Username"
-                        >
-                            <Input
-                                disabled
-                                prefix={<UserOutlined style={{ color: '#888' }} />}
-                                placeholder="Enter your username"
-                            />
-                        </Form.Item>
-
-                        <Form.Item
-                            name="email"
-                            label="Email"
-                            rules={[{ required: true, type: 'email' }]}
-                        >
-                            <Input
-                                prefix={<MailOutlined style={{ color: '#888' }} />}
-                                placeholder="Enter your email"
-                            />
-                        </Form.Item>
-
-                        <Form.Item
-                            name="phone"
-                            label="Phone"
-                            rules={[
-                                { required: true },
-                                { pattern: /^[0-9-+()]*$/, message: 'Please enter a valid phone number' }
-                            ]}
-                        >
-                            <Input
-                                prefix={<PhoneOutlined style={{ color: '#888' }} />}
-                                placeholder="Enter your phone number"
-                            />
-                        </Form.Item>
-
-                        <Form.Item
-                            name="address"
-                            label="Address"
-                            rules={[{ required: true }]}
-                        >
-                            <Input
-                                prefix={<HomeOutlined style={{ color: '#888' }} />}
-                                placeholder="Enter your address"
-                            />
-                        </Form.Item>
-
-                        <Form.Item
-                            name="dateOfBirth"
-                            label="Date of Birth"
-                            rules={[{ required: true }]}
-                        >
-                            <DatePicker
-                                style={{ width: '100%' }}
-                                format="DD/MM/YYYY"
-                                placeholder="Select your date of birth"
-                            />
-                        </Form.Item>
-
-                        <Form.Item
-                            name="gender"
-                            label="Gender"
-                            rules={[{ required: true }]}
-                        >
-                            <Select placeholder="Select your gender">
-                                <Option value={1}>Male</Option>
-                                <Option value={2}>Female</Option>
-                                <Option value={0}>Other</Option>
-                            </Select>
-                        </Form.Item>
-
-                        <Form.Item>
-                            <SubmitButton
-                                type="primary"
-                                htmlType="submit"
-                                block
-                                loading={loading}
-                                icon={<SaveOutlined />}
-                            >
-                                {loading ? 'Saving Changes' : 'Save Changes'}
-                            </SubmitButton>
-                        </Form.Item>
-                    </Form>
-                </StyledCard>
-            </motion.div>
-        </PageWrapper>
+      <PageWrapper>
+        <StyledCard>
+          <div style={{ textAlign: "center", padding: "50px" }}>
+            <Spin size="large" />
+          </div>
+        </StyledCard>
+      </PageWrapper>
     );
+  }
+
+  return (
+    <PageWrapper>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        style={{ width: "100%", maxWidth: "600px" }}
+      >
+        <StyledCard
+          title={t("MES-186")}
+          extra={<span style={{ color: "#888" }}>{t("MES-169")}</span>}
+        >
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={onFinish}
+            validateMessages={validateMessages}
+            requiredMark={false}
+          >
+            <Form.Item name="userName" label={t("MES-181")}>
+              <Input
+                disabled
+                prefix={<UserOutlined style={{ color: "#888" }} />}
+                placeholder={t("MES-170")}
+              />
+            </Form.Item>
+            <Form.Item
+              name="email"
+              label="Email"
+              rules={[{ required: true, type: "email" }]}
+            >
+              <Input
+                prefix={<MailOutlined style={{ color: "#888" }} />}
+                placeholder="Enter your email"
+              />
+            </Form.Item>
+            <Form.Item
+              name="phone"
+              label={t("MES-182")}
+              rules={[
+                { required: true },
+                {
+                  pattern: /^[0-9-+()]*$/,
+                  message: t("MES-171"),
+                },
+              ]}
+            >
+              <Input
+                prefix={<PhoneOutlined style={{ color: "#888" }} />}
+                placeholder={t("MES-172")}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="address"
+              label={t("MES-183")}
+              rules={[{ required: true }]}
+            >
+              <Input
+                prefix={<HomeOutlined style={{ color: "#888" }} />}
+                placeholder={t("MES-173")}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="dateOfBirth"
+              label={t("MES-184")}
+              rules={[{ required: true }]}
+            >
+              <DatePicker
+                style={{ width: "100%" }}
+                format="DD/MM/YYYY"
+                placeholder={t("MES-174")}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="gender"
+              label={t("MES-185")}
+              rules={[{ required: true }]}
+            >
+              <Select placeholder={t("MES-177")}>
+                <Option value={1}>{t("MES-175")}</Option>
+                <Option value={2}>{t("MES-176")}</Option>
+                <Option value={0}>{t("MES-162")}</Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item>
+              <SubmitButton
+                type="primary"
+                htmlType="submit"
+                block
+                loading={loading}
+                icon={<SaveOutlined />}
+              >
+                {loading ? t("MES-187") : t("MES-187")}
+              </SubmitButton>
+            </Form.Item>
+          </Form>
+        </StyledCard>
+      </motion.div>
+    </PageWrapper>
+  );
 };
 
 export default InfoPanel;

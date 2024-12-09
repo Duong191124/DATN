@@ -5,16 +5,16 @@ import {
   updateStatusOrder,
 } from "../../../../service/api.service";
 
-const CancelOrder = ({ orderId, orderStatus, handleCancelSuccess }) => {
+const CancelOrder = ({ orderId, orderStatus, handleCancelSuccess, t }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [cancelNote, setCancelNote] = useState("");
   const [cancelReason, setCancelReason] = useState("");
 
   const cancelReasons = [
-    "Chuyển sang đơn hàng khác",
-    "Sản phẩm không đúng mô tả",
-    "Lý do cá nhân",
-    "Khác",
+    t("MES-159"), // Chuyển sang đơn hàng khác
+    t("MES-160"), // Sản phẩm không đúng mô tả
+    t("MES-161"), // Lý do cá nhân
+    t("MES-162"),
   ];
 
   const handleCancel = () => {
@@ -22,18 +22,18 @@ const CancelOrder = ({ orderId, orderStatus, handleCancelSuccess }) => {
   };
 
   const handleSubmitCancel = () => {
-    if (cancelReason === "Khác" && !cancelNote) {
+    if (cancelReason === t("MES-162") && !cancelNote) {
       notification.warning({
-        message: "Vui lòng nhập lý do hủy",
-        description: "Hãy nhập lý do hủy!",
+        message: t("MES-165"),
+        description: t("MES-167"),
         placement: "top",
       });
       return;
     }
     if (!cancelNote) {
       notification.warning({
-        message: "Vui lòng chọn lý do hủy",
-        description: "Hãy chọn hoặc nhập lý do hủy đơn hàng!",
+        message: t("MES-165"),
+        description: t("MES-166"),
         placement: "top",
       });
       return;
@@ -49,8 +49,8 @@ const CancelOrder = ({ orderId, orderStatus, handleCancelSuccess }) => {
       const trackingId = res.data.data.trackingId;
       await cancelOrderGhn(trackingId);
       notification.info({
-        message: "Cập nhật trạng thái",
-        description: "Đơn hàng đã bị hủy.",
+        message: t("MES-163"),
+        description: t("MES-164"),
         placement: "top",
         duration: 2,
       });
@@ -71,20 +71,20 @@ const CancelOrder = ({ orderId, orderStatus, handleCancelSuccess }) => {
     <div>
       {["pending", "confirmed", "shipping"].includes(orderStatus) && (
         <Button style={{ marginRight: 10 }} onClick={handleCancel}>
-          Hủy
+          {t("MES-156")}
         </Button>
       )}
 
       <Modal
-        title="Lý do hủy đơn hàng"
+        title={t("MES-155")}
         visible={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         footer={[
           <Button key="back" onClick={() => setIsModalVisible(false)}>
-            Đóng
+            {t("MES-112")}
           </Button>,
           <Button key="submit" type="primary" onClick={handleSubmitCancel}>
-            Hủy đơn
+            {t("MES-156")}
           </Button>,
         ]}
       >
@@ -95,7 +95,7 @@ const CancelOrder = ({ orderId, orderStatus, handleCancelSuccess }) => {
             setCancelNote(value); // Cập nhật lý do hủy khi chọn lý do
           }}
           style={{ width: "100%" }}
-          placeholder="Chọn lý do hủy"
+          placeholder={t("MES-157")}
         >
           {cancelReasons.map((reason, index) => (
             <Select.Option key={index} value={reason}>
@@ -104,10 +104,10 @@ const CancelOrder = ({ orderId, orderStatus, handleCancelSuccess }) => {
           ))}
         </Select>
 
-        {cancelReason === "Khác" && (
+        {cancelReason === t("MES-162") && (
           <Input
             style={{ marginTop: 10 }}
-            placeholder="Nhập lý do hủy"
+            placeholder={t("MES-157")}
             value={cancelNote}
             onChange={(e) => setCancelNote(e.target.value)} // Cập nhật lý do hủy khi người dùng nhập
           />
