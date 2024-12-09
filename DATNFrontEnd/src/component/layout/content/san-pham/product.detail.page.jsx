@@ -9,7 +9,7 @@ import {
 } from "../../../../service/api.service";
 import { useCart } from "../../../context/cart.context";
 import ProductCarousel from "../../../home/product.carousel";
-import { Collapse, message, Tabs } from "antd";
+import { Collapse, Input, message, Tabs } from "antd";
 import TabPane from "antd/es/tabs/TabPane";
 const styles = {
   productDescription: {
@@ -181,12 +181,15 @@ const ProductDetailPage = () => {
 
   const handleAddToCart = () => {
     let hasError = false;
+
+    // Kiểm tra màu sắc
     if (!selectedColor) {
       setColorError(true);
       hasError = true;
     } else {
       setColorError(false);
     }
+    // Kiểm tra kích thước
     if (!selectedSize) {
       setSizeError(true);
       hasError = true;
@@ -196,23 +199,32 @@ const ProductDetailPage = () => {
     if (hasError) {
       return;
     }
+    // Kiểm tra số lượng trong kho
     if (availableQuantity === 0) {
       message.info("Hàng hết, vui lòng mua sản phẩm khác!");
       return;
     }
-
-    if (quantity > availableQuantity) {
+    if (!quantity || parseInt(quantity, 10) === 0) {
+      message.warning("Vui lòng nhập số lượng.");
+      return;
+    }
+    // Kiểm tra số lượng yêu cầu
+    const numericQuantity = parseInt(quantity, 10); // Chuyển quantity thành số nguyên
+    if (numericQuantity > availableQuantity) {
       message.info("Số lượng trong kho không đủ!");
       return;
     }
+
     const cartItem = {
       ...product,
       size: selectedSize,
       color: selectedColor,
-      quantity: quantity,
+      quantity: numericQuantity, // Đảm bảo quantity là số
     };
+
     addToCart(cartItem);
   };
+
   return (
     <div className="product-detail-page">
       <div className="product-detail">
@@ -304,11 +316,13 @@ const ProductDetailPage = () => {
                   .map((size) => (
                     <button
                       key={size.id}
-                      className={`size-button ${selectedSize === size.name ? "selected" : ""
-                        } ${!availableSizes.includes(size.name)
+                      className={`size-button ${
+                        selectedSize === size.name ? "selected" : ""
+                      } ${
+                        !availableSizes.includes(size.name)
                           ? "disabled-size"
                           : ""
-                        }`}
+                      }`}
                       onClick={() => handleSizeChange(size.name)}
                       disabled={!availableSizes.includes(size.name)}
                     >
@@ -330,11 +344,13 @@ const ProductDetailPage = () => {
                   .map((color) => (
                     <button
                       key={color.id}
-                      className={`color-button ${selectedColor === color.name ? "selected" : ""
-                        } ${!availableColors.includes(color.name)
+                      className={`color-button ${
+                        selectedColor === color.name ? "selected" : ""
+                      } ${
+                        !availableColors.includes(color.name)
                           ? "disabled-color"
                           : ""
-                        }`}
+                      }`}
                       onClick={() => handleColorChange(color.name)}
                       disabled={!availableColors.includes(color.name)}
                     >
@@ -370,22 +386,38 @@ const ProductDetailPage = () => {
               >
                 -
               </button>
-              <input
+              <Input
                 type="number"
+                min={1}
+                max={999}
                 className="quantity-input"
                 value={quantity}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === "." || // Dấu chấm
+                    e.key === "," || // Dấu phẩy
+                    e.key === "e" || // Số mũ
+                    e.key === "-" || // Dấu trừ
+                    e.key === "+" // Dấu cộng
+                  ) {
+                    e.preventDefault();
+                  }
+                }}
                 onChange={(e) => {
-                  const value = e.target.value.replace(/[^0-9]/g, ""); // loại bỏ ký tự không phải số
+                  const value = e.target.value.replace(/[^0-9]/g, ""); // Loại bỏ ký tự không phải số nguyên
+                  if (!value) {
+                    setQuantity(""); // Cho phép xóa toàn bộ để về rỗng
+                    return;
+                  }
+                  const numericValue = parseInt(value, 10);
                   if (availableQuantity === 0) {
                     message.info("Vui lòng chọn size và màu sắc.");
+                  } else if (numericValue < 1) {
+                    message.info("Số lượng phải lớn hơn hoặc bằng 1!");
+                  } else if (numericValue > availableQuantity) {
+                    message.info("Số lượng tồn kho không đủ!");
                   } else {
-                    if (value > availableQuantity) {
-                      message.info("Số lượng tồn kho không đủ!");
-                    } else if (value < 1) {
-                      message.info("Số lượng phải lớn hơn hoặc bằng 1!");
-                    } else {
-                      setQuantity(value);
-                    }
+                    setQuantity(numericValue); // Đặt giá trị hợp lệ
                   }
                 }}
               />
