@@ -307,21 +307,37 @@ const AddressModal = ({
           <Input.TextArea rows={3} placeholder={t("MES-043")} disabled />
         </Form.Item>
 
+        <Form.Item
+          name="stressAddress"
+          label={t('MES-963')}
+          rules={[{ required: true, message: t('MES-949') }]}
+        >
+          <Input
+            rows={3}
+            placeholder={t('MES-962')}
+            onChange={(e) => setAddressDetails(prev => ({ ...prev, stressAddress: e.target.value }))}
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="address"
+          label={t('MES-041')}
+          rules={[{ required: true, message: t('MES-042') }]}
+        >
+          <Input.TextArea rows={3} placeholder={t('MES-043')} disabled />
+        </Form.Item>
+
         <Form.Item>
           <Row gutter={16} justify="end">
             <Col>
-              <Button onClick={handleCancel}>{t("MES-044")}</Button>
+              <Button onClick={handleCancel}>{t('MES-044')}</Button>
             </Col>
             <Col>
-              <Button
-                style={{
-                  backgroundColor: "black",
-                  width: 130,
-                }}
-                type="primary"
-                htmlType="submit"
-              >
-                {t("MES-045")}
+              <Button style={{
+                backgroundColor: 'black',
+                width: 130,
+              }} type="primary" htmlType="submit">
+                {t('MES-045')}
               </Button>
             </Col>
           </Row>

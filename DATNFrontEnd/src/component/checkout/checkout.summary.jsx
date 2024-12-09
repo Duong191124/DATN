@@ -4,6 +4,7 @@ import { Button, message, Select } from "antd";
 import { useCart } from "../context/cart.context";
 import { getVouchersByCustomerId, hasCustomerUsedVoucher } from "../../service/api.service";
 import { useCheckout } from "../context/checkout.context";
+import { useTranslation } from "react-i18next";
 
 const { Option } = Select;
 
@@ -19,6 +20,8 @@ const Summary = () => {
     formatCurrency,
   } = useCheckout();
   const [vouchers, setVouchers] = useState([]);
+  const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("language") || "vi";
   const userId = localStorage.getItem("userId");
 
   // Tính subtotal từ giỏ hàng
@@ -33,6 +36,10 @@ const Summary = () => {
   };
 
   const subtotal = calculateTotal();
+
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
 
   // Lấy dữ liệu voucher cho người dùng hiện tại
   const fetchDataVoucher = async () => {
@@ -87,13 +94,13 @@ const Summary = () => {
       try {
         await fetchDataVoucher();
 
-        message.success("Voucher applied successfully!");
+        message.success(t('MES-1000'));
       } catch (error) {
         console.error("Failed to apply voucher:", error);
-        message.error("Failed to apply the voucher. Please try again.");
+        message.error(t('MES-999'));
       }
     } else {
-      message.info("No coupon selected or coupon not valid.");
+      message.info(t('MES-998'));
       setCouponDiscount(0);
       setTotalPrice(subtotal);
       setSelectedCoupon(null);
@@ -119,8 +126,6 @@ const Summary = () => {
     fetchDataVoucher();
   }, []);
 
-  console.log(userId);
-  console.log(selectedCoupon);
   const checkVoucherUsage = async () => {
     try {
       // Gọi API kiểm tra xem khách hàng đã sử dụng voucher chưa
@@ -147,8 +152,8 @@ const Summary = () => {
   return (
     <>
       <div style={{ textAlign: "center", padding: "20px" }}>
-        <h3>Order Summary</h3>
-        <p>Review items in your cart.</p>
+        <h3>{t('MES-997')}</h3>
+        <p>{t('MES-996')}</p>
       </div>
       <div
         className="summary"
@@ -168,7 +173,7 @@ const Summary = () => {
             {cartItems?.length > 0 ? (
               renderedCartItems
             ) : (
-              <p>Your cart is empty</p>
+              <p>{t('MES-995')}</p>
             )}
           </div>
         </div>
@@ -189,7 +194,7 @@ const Summary = () => {
               htmlFor="coupon"
               style={{ marginRight: "8px", fontWeight: "bold", fontSize: "14px" }}
             >
-              Mã giảm giá:
+              {t('MES-994')}:
             </label>
             <Select
               id="coupon"
@@ -257,7 +262,7 @@ const Summary = () => {
           }}
         >
           <div style={{ marginBottom: "8px", color: "#333" }}>
-            <span style={{ fontWeight: "bold" }}>Subtotal:</span>
+            <span style={{ fontWeight: "bold" }}>{t('MES-976')}:</span>
             <span style={{ marginLeft: "8px" }}>
               {formatCurrency(subtotal)}
             </span>
@@ -265,7 +270,7 @@ const Summary = () => {
 
           {couponDiscount > 0 && (
             <div style={{ marginBottom: "8px", color: "#f5222d" }}>
-              <span style={{ fontWeight: "bold" }}>Coupon Discount:</span>
+              <span style={{ fontWeight: "bold" }}>{t('MES-975')}:</span>
               <span style={{ marginLeft: "8px" }}>
                 - {formatCurrency(couponDiscount)}
               </span>
@@ -281,7 +286,7 @@ const Summary = () => {
                 fontWeight: "bold",
               }}
             >
-              <span>Total:</span>
+              <span>{t('MES-993')}:</span>
               <span style={{ marginLeft: "8px" }}>
                 {formatCurrency(totalPrice)}
               </span>

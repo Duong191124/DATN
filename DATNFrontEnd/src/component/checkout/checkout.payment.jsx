@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useCheckout } from "../context/checkout.context";
+import { useTranslation } from "react-i18next";
 
 const Payment = () => {
   const {
@@ -11,6 +12,8 @@ const Payment = () => {
     selectedOption,
     setSelectedOption,
   } = useCheckout();
+  const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("language") || "vi";
   const handleMinusTotalPrice = () => {
     const subTotal = totalPrice + totalShippingFee;
     setTotalPriceAll(subTotal);
@@ -20,6 +23,10 @@ const Payment = () => {
     handleMinusTotalPrice();
   }, []);
 
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
+
   return (
     <>
       <div
@@ -28,7 +35,7 @@ const Payment = () => {
           padding: "20px",
         }}
       >
-        <h3>Payment</h3>
+        <h3>{t('MES-991')}</h3>
       </div>
       <div
         className="payment"
@@ -82,7 +89,7 @@ const Payment = () => {
               <div style={{ flex: 1 }}>
                 <strong>VN Pay</strong>
                 <p style={{ margin: 0, color: "#888" }}>
-                  Pay securely through VN Pay.
+                  {t('MES-948')}
                 </p>
               </div>
             </div>
@@ -118,7 +125,7 @@ const Payment = () => {
               <div style={{ flex: 1 }}>
                 <strong>COD</strong>
                 <p style={{ margin: 0, color: "#888" }}>
-                  Pay with cash upon delivery.
+                  {t('MES-947')}
                 </p>
               </div>
             </div>
@@ -127,13 +134,13 @@ const Payment = () => {
           <div style={{ textAlign: "right", paddingTop: 20 }}>
             {totalShippingFee > 0 && (
               <div style={{ marginBottom: "8px", color: "#f5222d" }}>
-                <span style={{ fontWeight: "bold" }}>Total Shipping:</span>
+                <span style={{ fontWeight: "bold" }}>{t('MES-946')}:</span>
                 <span style={{ marginLeft: "8px" }}>
                   + {formatCurrency(totalShippingFee)}
                 </span>
               </div>
             )}
-            <strong>Total:</strong>
+            <strong>{t('MES-993')}:</strong>
             <span style={{ fontSize: 24, marginLeft: 10 }}>
               {formatCurrency(totalPriceAll)}
             </span>
