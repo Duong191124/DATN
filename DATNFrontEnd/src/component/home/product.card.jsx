@@ -1,6 +1,15 @@
 // ProductCard.jsx
 import React, { useEffect, useState } from "react";
-import { Button, Col, message, Modal, Row, Space, Typography } from "antd";
+import {
+  Button,
+  Col,
+  Input,
+  message,
+  Modal,
+  Row,
+  Space,
+  Typography,
+} from "antd";
 import {
   ShoppingCartOutlined,
   HeartOutlined,
@@ -288,20 +297,27 @@ const ProductCard = ({
       message.info("Hàng hết, vui lòng mua sản phẩm khác!");
       return;
     }
-
-    if (quantity > availableQuantity) {
+    if (!quantity || parseInt(quantity, 10) === 0) {
+      message.warning("Vui lòng nhập số lượng.");
+      return;
+    }
+    if (parseInt(quantity, 10) > availableQuantity) {
       message.info("Số lượng trong kho không đủ!");
       return;
     }
+
     const cartItem = {
       ...productNew,
       size: selectedSize,
       color: selectedColor,
-      quantity: quantity,
+      quantity: parseInt(quantity, 10), // Chuyển quantity thành số
     };
+
     addToCart(cartItem);
     setIsModalVisible(false);
+    setQuantity(1);
   };
+
   const fetchProductFindById = async (product) => {
     const res = await findByProductId(product.id);
     const productDetails = res.data.data.details;
@@ -451,22 +467,28 @@ const ProductCard = ({
                   >
                     -
                   </button>
-                  <input
-                    type="number"
+                  <Input
+                    min={1}
+                    max={999}
                     className="quantity-input"
                     value={quantity}
+                    onKeyDown={(e) => {
+                      if (
+                        e.key === "." || // Dấu chấm
+                        e.key === "," || // Dấu phẩy
+                        e.key === "e" || // Số mũ
+                        e.key === "-" || // Dấu trừ
+                        e.key === "+" // Dấu cộng
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
                     onChange={(e) => {
-                      const value = e.target.value.replace(/[^0-9]/g, ""); // loại bỏ ký tự không phải số
+                      const value = e.target.value.replace(/[^0-9]/g, ""); // Loại bỏ ký tự không phải số
                       if (availableQuantity === 0) {
                         message.info("Vui lòng chọn size và màu sắc.");
                       } else {
-                        if (value > availableQuantity) {
-                          message.info("Số lượng tồn kho không đủ!");
-                        } else if (value < 1) {
-                          message.info("Số lượng phải lớn hơn hoặc bằng 1!");
-                        } else {
-                          setQuantity(value);
-                        }
+                        setQuantity(value); // Đặt giá trị (có thể rỗng nếu người dùng xóa toàn bộ)
                       }
                     }}
                   />
