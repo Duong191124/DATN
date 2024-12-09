@@ -72,15 +72,6 @@ const CartItemDetail = ({
   };
   const handleRemove = () => removeFromCart(product.id);
   console.log("product", product);
-  useEffect(() => {
-    const result = {};
-
-    for (let i = 100; i <= 1000; i++) {
-      result[`MES-${i}`] = "";
-    }
-
-    console.log(result);
-  });
   return (
     <div
       style={{

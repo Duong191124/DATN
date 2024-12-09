@@ -273,7 +273,7 @@ const Header = () => {
             </div>
           </div>
           <div className="input-search">
-            <ProductSearch data={dataProduct} />
+            <ProductSearch data={dataProduct} t={t} />
             <div className="icon-right">
               <Badge
                 onClick={() => setOpenCart(true)}
@@ -311,10 +311,7 @@ const Header = () => {
       {location.pathname === "/" && (
         <div className="marquee-container">
           <div className="marquee">
-            <p>
-              Chào mừng đến với cửa hàng của chúng tôi! Ưu đãi lớn hôm nay: Giảm
-              giá 20% cho các sản phẩm!
-            </p>
+            <p>{t("MES-096")}</p>
           </div>
         </div>
       )}

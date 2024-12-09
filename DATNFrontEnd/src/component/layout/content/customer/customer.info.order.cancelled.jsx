@@ -4,10 +4,20 @@ import { BorderTopOutlined, LeftOutlined } from "@ant-design/icons";
 import { NavLink, useLocation } from "react-router-dom";
 import { orderFindByCode } from "../../../../service/api.service";
 import moment from "moment";
-
+import { useTranslation } from "react-i18next";
 const { Title, Text } = Typography;
 
 const CustomerInfoOrderCanceled = () => {
+  const { t, i18n } = useTranslation();
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("i18nextLng");
+    if (savedLanguage) {
+      i18n.changeLanguage(savedLanguage);
+    } else {
+      const defaultLang = i18n.language || "vi";
+      i18n.changeLanguage(defaultLang);
+    }
+  }, [i18n.language]);
   const cardStyle = {
     borderRadius: 8,
     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
@@ -45,7 +55,6 @@ const CustomerInfoOrderCanceled = () => {
   const updatedAtFormatted = moment(dataInfoOrder.updatedAt).format(
     "DD-MM-YYYY HH:mm:ss"
   );
-  console.log("a", dataInfoOrder);
   return (
     <div style={{ padding: 16, marginTop: "85px" }}>
       <Row
@@ -68,9 +77,12 @@ const CustomerInfoOrderCanceled = () => {
             alignItems: "center",
           }}
         >
-          <LeftOutlined /> <span style={{ fontSize: "18px" }}>Quay lại</span>
+          <LeftOutlined />{" "}
+          <span style={{ fontSize: "18px" }}>{t("MES-135")}</span>
         </NavLink>
-        <Text type="secondary">Yêu cầu vào: {updatedAtFormatted}</Text>
+        <Text type="secondary">
+          {t("MES-146")}: {updatedAtFormatted}
+        </Text>
       </Row>
       <Row
         style={{
@@ -84,9 +96,9 @@ const CustomerInfoOrderCanceled = () => {
         }}
       >
         <Text style={{ color: "#ff4d4f", fontWeight: "500", fontSize: "20px" }}>
-          Đã hủy đơn hàng
+          {t("MES-147")}
         </Text>
-        <Text type="secondary"> vào: {updatedAtFormatted}</Text>
+        <Text type="secondary"> enter: {updatedAtFormatted}</Text>
       </Row>
       <Card style={cardStyle}>
         {dataInfoOrder?.orderDetailResponses?.map((item, index) => (
@@ -100,22 +112,26 @@ const CustomerInfoOrderCanceled = () => {
             </Col>
             <Col span={22} style={{ paddingLeft: 16 }}>
               <Title level={5}>
-                {`Sản phẩm: ${item.productDetailId?.code}`}
+                {`${t("MES-131")}: ${item.productDetailId?.code}`}
               </Title>
               <Row
                 justify="space-between"
                 align="middle"
                 style={{ margin: "5px 0" }}
               >
-                <Text>{`Trạng thái: ${
-                  item.productDetailId?.status === 1 ? "Còn hàng" : "Hết hàng"
+                <Text>{`${t("MES-148")}: ${
+                  item.productDetailId?.status === 1
+                    ? `${t("MES-149")}`
+                    : `${t("MES-150")}`
                 }`}</Text>
                 <Text style={{ fontSize: "16px" }}>
                   {item.price.toLocaleString()}
                   <sup>₫</sup>
                 </Text>
               </Row>
-              <Text type="secondary">{`Số lượng: x${item.quantity}`}</Text>
+              <Text type="secondary">{`${t("MES-133")}: x${
+                item.quantity
+              }`}</Text>
             </Col>
           </Row>
         ))}
@@ -133,10 +149,10 @@ const CustomerInfoOrderCanceled = () => {
               textAlign: "end",
             }}
           >
-            <Text style={{ color: "gray" }}>Yêu cầu bởi </Text>
+            <Text style={{ color: "gray" }}>{t("MES-151")} </Text>
           </Col>
           <Col span={6} style={{ textAlign: "right", padding: "10px 0" }}>
-            <Text strong>Người mua</Text>
+            <Text strong>{t("MES-152")}</Text>
           </Col>
         </Row>
         <Row
@@ -152,7 +168,7 @@ const CustomerInfoOrderCanceled = () => {
               textAlign: "end",
             }}
           >
-            <Text style={{ color: "gray" }}>Phương thức thanh toán</Text>
+            <Text style={{ color: "gray" }}>{t("MES-105")}</Text>
           </Col>
           <Col span={6} style={{ textAlign: "right", padding: "10px 0" }}>
             <Tag color="green">
@@ -170,7 +186,7 @@ const CustomerInfoOrderCanceled = () => {
               textAlign: "end",
             }}
           >
-            <Text style={{ color: "gray" }}>Mã đơn hàng</Text>
+            <Text style={{ color: "gray" }}>{t("MES-153")}</Text>
           </Col>
           <Col span={6} style={{ textAlign: "right", padding: "10px 0" }}>
             <NavLink to={`/info-order-detail?code=${dataInfoOrder?.code}`}>
@@ -181,7 +197,7 @@ const CustomerInfoOrderCanceled = () => {
       </Card>
       <div style={addressSectionStyle}>
         <Text style={{ fontSize: "14px" }}>
-          Lý do: {dataInfoOrder?.note || "Không có lý do cụ thể"}
+          {t("MES-154")}: {dataInfoOrder?.note || "Không có lý do cụ thể"}
         </Text>
       </div>
     </div>
