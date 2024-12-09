@@ -254,7 +254,7 @@ const CustomerInfoOrderDetail = () => {
           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
           marginBottom: "28px",
           display: "flex", // Dùng flex để căn chỉnh các phần tử
-          justifyContent: "space-between", // Căn giữa các phần tử
+          justifyContent: userId === "1" ? "flex-end" : "space-between", // Căn giữa các phần tử
         }}
       >
         {userId !== "1" && (

@@ -33,21 +33,6 @@ const CartDrawer = ({ openCart, setOpenCart }) => {
                 width={600}
                 onClose={onClose}
                 open={openCart}
-                extra={
-                    <Button
-                        type="text"
-                        icon={<ClearOutlined />}
-                        style={{
-                            border: '1px solid black',
-                            borderRadius: '4px',
-                            padding: '4px 12px',
-                            marginLeft: 10
-                        }}
-                        onClick={clearAll}
-                    >
-                        Clear all
-                    </Button>
-                }
             >
                 <div
                     style={{

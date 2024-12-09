@@ -193,6 +193,7 @@ const Shipping = () => {
     };
 
     const handleCancel = () => {
+        form.resetFields();
         setIsModalOpen(false);
     };
 
