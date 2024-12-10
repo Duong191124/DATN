@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Layout,
   Avatar,
@@ -22,6 +22,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import NoticeDrawer from "../../../notice/notice.drawer";
+import { AuthContext } from "../../../context/auth.context";
 
 const { Header } = Layout;
 
@@ -118,7 +119,7 @@ const Sell = styled.div`
 const HeaderAdmin = ({ collapsed, setCollapsed }) => {
   const [openNotice, setOpenNotice] = useState(false);
   const navigate = useNavigate();
-
+  const { user } = useContext(AuthContext);
   const handleLogOut = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("loginStatus");
@@ -129,19 +130,6 @@ const HeaderAdmin = ({ collapsed, setCollapsed }) => {
     navigate("/counter-sales");
   };
   const userMenuItems = [
-    {
-      key: "1",
-      icon: <UserOutlined />,
-      label: "Profile",
-    },
-    {
-      key: "2",
-      icon: <SettingOutlined />,
-      label: "Settings",
-    },
-    {
-      type: "divider",
-    },
     {
       key: "3",
       icon: <LogoutOutlined />,
@@ -154,6 +142,10 @@ const HeaderAdmin = ({ collapsed, setCollapsed }) => {
   const showNotice = () => {
     setOpenNotice(true);
   };
+
+  useEffect(()=>{
+    console.log("admin login: ", user.name);
+  }, [])
 
   return (
     <>
@@ -202,7 +194,7 @@ const HeaderAdmin = ({ collapsed, setCollapsed }) => {
                   verticalAlign: "middle",
                 }}
               />
-              <UserName>Admin User</UserName>
+              <UserName>{user.name}</UserName>
             </UserSection>
           </Dropdown>
         </HeaderRight>
