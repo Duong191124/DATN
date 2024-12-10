@@ -48,7 +48,6 @@ const Summary = () => {
       const updatedVouchers = await Promise.all(
         res.data.data.map(async (voucher) => {
           const isDisabled = await hasCustomerUsedVoucher(userId, voucher.id);
-          console.log(userId, voucher.id, isDisabled);
           return { ...voucher, isDisabled };
         })
       );

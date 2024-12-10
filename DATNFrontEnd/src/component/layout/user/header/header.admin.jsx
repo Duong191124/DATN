@@ -143,8 +143,7 @@ const HeaderAdmin = ({ collapsed, setCollapsed }) => {
     setOpenNotice(true);
   };
 
-  useEffect(()=>{
-    console.log("admin login: ", user.name);
+  useEffect(() => {
   }, [])
 
   return (

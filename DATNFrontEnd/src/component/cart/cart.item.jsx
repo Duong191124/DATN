@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo } from "react";
-import { Button } from "antd";
+import React, { useEffect, useMemo, useState } from "react";
+import { Button, message } from "antd";
 import { MinusOutlined, PlusOutlined, CloseOutlined } from "@ant-design/icons";
 import { useCart } from "../context/cart.context";
 import { useTranslation } from "react-i18next";
+import { findByProductDetailId } from "../../service/api.service";
 
 const CartItem = () => {
   const {
@@ -70,14 +71,21 @@ const CartItemDetail = ({
   updateQuantity,
   formatCurrency,
 }) => {
-  const increaseQuantity = () =>
+  const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
+
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
+
+  const increaseQuantity = () => {
     updateQuantity(product.id, product.quantity + 1);
+  }
   const decreaseQuantity = () => {
     if (product.quantity > 1) {
       updateQuantity(product.id, product.quantity - 1);
     }
   };
-  console.log(product)
   const handleRemove = () => removeFromCart(product.id);
   return (
     <div
