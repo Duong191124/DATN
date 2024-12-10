@@ -586,6 +586,7 @@ const CounterSalePayment = ({
               style={{ marginBottom: "15px" }}
             >
               <Radio value="Cash">Tiền mặt</Radio>
+              <Radio value="banking">Chuyển khoản</Radio>
             </Radio.Group>
             <div>
               <Modal
