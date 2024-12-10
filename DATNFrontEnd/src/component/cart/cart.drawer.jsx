@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 const CartDrawer = ({ openCart, setOpenCart }) => {
 
     const { t, i18n } = useTranslation();
-    const language = localStorage.getItem("language") || "vi";
+    const language = localStorage.getItem("i18nextLng") || "vi";
 
     const [totalAmount, setTotalAmount] = useState(0);
     const [cartItems, setCartItems] = useState([]); // State to hold the cart items

@@ -44,7 +44,7 @@ const CheckoutStep = () => {
   const [vouchers, setVoucher] = useState(null);
   const userId = localStorage.getItem("userId");
   const { t, i18n } = useTranslation();
-  const language = localStorage.getItem("language") || "vi";
+  const language = localStorage.getItem("i18nextLng") || "vi";
 
   const steps = [
     {
