@@ -136,45 +136,9 @@ const CheckoutStep = () => {
   useEffect(() => {
     fetchVouchers();
   }, []);
-  const checkVoucherUsage = async (customerId, voucherId) => {
-    try {
-      // Gọi API kiểm tra xem khách hàng đã sử dụng voucher chưa
-      const response = await hasCustomerUsedVoucher(customerId, voucherId);
-
-      // Kiểm tra dữ liệu trả về từ API, giả sử response.data chứa true/false
-      if (response.data) {
-        // Nếu khách hàng đã sử dụng voucher, trả về false
-        return false;
-      }
-      // Nếu chưa sử dụng voucher, trả về true
-      return true;
-    } catch (error) {
-      console.error("Error checking voucher usage:", error);
-      // Nếu có lỗi, trả về false để ngừng quá trình
-      return false;
-    }
-  };
   const confirmOrder = async () => {
     setLoading(true);
     // Kiểm tra voucher trước khi tạo đơn hàng
-    const voucher = vouchers.find((v) => v.id === selectedCoupon);
-    if (!voucher) {
-      message.info(t('MES-989'));
-      setLoading(false);
-      return;
-    }
-    // Kiểm tra số lượng voucher còn lại
-    if (voucher.quantity <= 0) {
-      message.info(t('MES-988'));
-      setLoading(false);
-      return;
-    }
-    const isVoucherValid = await checkVoucherUsage(userId, selectedCoupon);
-    if (!isVoucherValid) {
-      message.info(t('MES-987'));
-      setLoading(false);
-      return; // Dừng quá trình tạo đơn hàng nếu voucher không hợp lệ
-    }
     const cartItemsLocal = cartItems;
     const orderDetailRequests = convertCartToOrderDetails(cartItemsLocal);
     const addressToOrder = convertSelectAddressToOrder(selectAddress);

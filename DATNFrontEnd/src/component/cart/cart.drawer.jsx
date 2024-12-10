@@ -4,7 +4,11 @@ import CartItem from './cart.item';
 import CartBottom from './cart.bottom';
 import './cart.style.css'
 import { ClearOutlined, CloseOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 const CartDrawer = ({ openCart, setOpenCart }) => {
+
+    const { t, i18n } = useTranslation();
+    const language = localStorage.getItem("language") || "vi";
 
     const [totalAmount, setTotalAmount] = useState(0);
     const [cartItems, setCartItems] = useState([]); // State to hold the cart items
@@ -12,6 +16,10 @@ const CartDrawer = ({ openCart, setOpenCart }) => {
     useEffect(() => {
         setCartItems([])
     }, []);
+
+    useEffect(() => {
+        i18n.changeLanguage(language);
+    }, [i18n, language]);
 
     const showDrawer = () => {
         setOpenCart(true);
@@ -29,7 +37,7 @@ const CartDrawer = ({ openCart, setOpenCart }) => {
     return (
         <>
             <Drawer
-                title="My cart"
+                title={t('MES-942')}
                 width={600}
                 onClose={onClose}
                 open={openCart}
