@@ -59,14 +59,12 @@ const LoginAnimation = () => {
           message.success("Đăng nhập thành công");
           navigate(res.status === 200 ? "/" : "/admin");
         }
+      }else{
+        message.warning("Username or password invalid")
       }
       setLoading(false);
     } catch (error) {
-      if (error.response && error.response.status === 400) {
-        form.setFieldValue("");
-      } else {
-        console.error(error);
-      }
+      message.error("Username or password invalid");
       setLoading(false);
     }
   };
