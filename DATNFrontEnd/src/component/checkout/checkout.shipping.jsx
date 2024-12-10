@@ -74,7 +74,6 @@ const Shipping = () => {
                 setAddresses(addressData.data.data);
             }
             const totalWeight = cartItems.reduce((total, cart) => {
-                console.log(total, cart);
                 if (cart && cart.weight && cart.quantity) {
                     return total + cart.weight * cart.quantity;
                 }

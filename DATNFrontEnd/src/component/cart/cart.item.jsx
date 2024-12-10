@@ -77,8 +77,8 @@ const CartItemDetail = ({
       updateQuantity(product.id, product.quantity - 1);
     }
   };
+  console.log(product)
   const handleRemove = () => removeFromCart(product.id);
-  console.log("product", product);
   return (
     <div
       style={{
@@ -105,7 +105,7 @@ const CartItemDetail = ({
       >
         <img
           src={product.image}
-          alt={product.name}
+          alt={product?.productResponse?.name}
           style={{
             maxWidth: "100%",
             maxHeight: "120px",
@@ -130,7 +130,7 @@ const CartItemDetail = ({
             color: "#333",
           }}
         >
-          {product.name}
+          {product?.productResponse?.name}
         </div>
 
         <div

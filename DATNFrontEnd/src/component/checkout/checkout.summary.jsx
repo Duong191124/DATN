@@ -45,7 +45,14 @@ const Summary = () => {
   const fetchDataVoucher = async () => {
     try {
       const res = await getVouchersByCustomerId();
-      setVouchers(res.data.data);
+      const updatedVouchers = await Promise.all(
+        res.data.data.map(async (voucher) => {
+          const isDisabled = await hasCustomerUsedVoucher(userId, voucher.id);
+          console.log(userId, voucher.id, isDisabled);
+          return { ...voucher, isDisabled };
+        })
+      );
+      setVouchers(updatedVouchers);
     } catch (error) {
       console.error(error);
     }
@@ -126,24 +133,21 @@ const Summary = () => {
     fetchDataVoucher();
   }, []);
 
-  const checkVoucherUsage = async () => {
-    try {
-      // Gọi API kiểm tra xem khách hàng đã sử dụng voucher chưa
-      const response = await hasCustomerUsedVoucher(userId, selectedCoupon);
-      console.log(response);
-      // Kiểm tra dữ liệu trả về từ API, giả sử response.data chứa true/false
-      if (response.data) {
-        // Nếu khách hàng đã sử dụng voucher, trả về false
-        return false;
-      }
-      // Nếu chưa sử dụng voucher, trả về true
-      return true;
-    } catch (error) {
-      console.error("Error checking voucher usage:", error);
-      // Nếu có lỗi, trả về false để ngừng quá trình
-      return false;
-    }
-  };
+  // const checkVoucherUsage = async () => {
+  //   try {
+  //     const isVoucherValid = await checkVoucherUsage(userId, selectedCoupon);
+  //     console.log(userId, selectedCoupon);
+  //     if (!isVoucherValid) {
+  //       message.info(t('MES-987'));
+  //       return; // Dừng quá trình tạo đơn hàng nếu voucher không hợp lệ
+  //     }
+  //     return true;
+  //   } catch (error) {
+  //     console.error("Error checking voucher usage:", error);
+  //     // Nếu có lỗi, trả về false để ngừng quá trình
+  //     return false;
+  //   }
+  // };
 
   const renderedCartItems = useMemo(() => {
     return <CartItem cartItems={cartItems} />;
@@ -200,7 +204,7 @@ const Summary = () => {
               id="coupon"
               placeholder="Chọn mã giảm giá"
               style={{
-                width: 200,
+                width: 300,
                 borderRadius: "8px",
                 boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
               }}
@@ -208,21 +212,31 @@ const Summary = () => {
               value={selectedCoupon}
             >
               {vouchers
-                .filter((voucher) => subtotal >= parseFloat(voucher.minPurchaseAmount)) // Lọc các voucher đủ điều kiện
+                .filter((voucher) =>
+                  subtotal >= parseFloat(voucher.minPurchaseAmount) &&
+                  voucher.status !== 0 &&
+                  voucher.quantity > 0
+                ) // Lọc các voucher đủ điều kiện
                 .map((voucher) => {
-                  const { id, code, discountPercent, discountAmount, minPurchaseAmount } = voucher;
+                  const { id, code, discountPercent, discountAmount, minPurchaseAmount, status, quantity, isDisabled } = voucher;
                   const discountInfo = [];
 
+                  const isTrue = isDisabled.data === true;
                   if (discountPercent > 0) {
                     discountInfo.push(`${formatCurrency(discountPercent)}%`);
                   }
                   if (discountAmount > 0) {
                     discountInfo.push(`${formatCurrency(discountAmount)}`);
                   }
-
                   return (
-                    <Option key={voucher.id} value={id}>
-                      {`${code} - ${discountInfo.length > 0 ? `${discountInfo.join(", ")}` : ""}`}
+                    <Option
+                      key={id}
+                      value={id}
+                      disabled={isTrue}
+                      style={isTrue ? { color: "gray" } : {}}
+                    >
+                      {`${code} - ${discountInfo.length > 0 ? `${discountInfo.join(", ")}` : ""
+                        } ${isTrue ? "(Đã sử dụng)" : ""}`}
                     </Option>
                   );
                 })}
