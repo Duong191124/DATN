@@ -239,15 +239,15 @@ const CustomerInfoOrderDetail = () => {
   const relevantSteps =
     dataInfoOrder.status === "cancelled"
       ? [
-          { title: t("MES-124"), status: "pending" },
-          ...(dataInfoOrder.status.includes("confirmed")
-            ? [{ title: t("MES-125"), status: "confirmed" }]
-            : []),
-          ...(dataInfoOrder.status.includes("shipping")
-            ? [{ title: t("MES-125"), status: "shipping" }]
-            : []),
-          { title: t("MES-129"), status: "cancelled" },
-        ]
+        { title: t("MES-124"), status: "pending" },
+        ...(dataInfoOrder.status.includes("confirmed")
+          ? [{ title: t("MES-125"), status: "confirmed" }]
+          : []),
+        ...(dataInfoOrder.status.includes("shipping")
+          ? [{ title: t("MES-125"), status: "shipping" }]
+          : []),
+        { title: t("MES-129"), status: "cancelled" },
+      ]
       : stepData;
   const currentStep = relevantSteps.findIndex(
     (step) => step.status === dataInfoOrder.status
@@ -292,19 +292,19 @@ const CustomerInfoOrderDetail = () => {
             fontWeight: "bold",
             color:
               dataInfoOrder?.paymentResponses?.length > 0 &&
-              dataInfoOrder?.paymentResponses[0]?.status === 0
+                dataInfoOrder?.paymentResponses[0]?.status === 0
                 ? "#ff4d4f"
                 : "#52c41a",
             padding: "8px 16px",
             borderRadius: "12px",
             backgroundColor:
               dataInfoOrder?.paymentResponses?.length > 0 &&
-              dataInfoOrder?.paymentResponses[0]?.status === 0
+                dataInfoOrder?.paymentResponses[0]?.status === 0
                 ? "#fff1f0"
                 : "#f6ffed",
             border:
               dataInfoOrder?.paymentResponses?.length > 0 &&
-              dataInfoOrder?.paymentResponses[0]?.status === 0
+                dataInfoOrder?.paymentResponses[0]?.status === 0
                 ? "1px solid #ff4d4f"
                 : "1px solid #52c41a",
             textAlign: "center",
@@ -313,7 +313,7 @@ const CustomerInfoOrderDetail = () => {
           }}
         >
           {dataInfoOrder?.paymentResponses?.length > 0 &&
-          dataInfoOrder?.paymentResponses[0]?.status === 0
+            dataInfoOrder?.paymentResponses[0]?.status === 0
             ? t("MES-136")
             : t("MES-137")}
         </Text>
@@ -423,7 +423,7 @@ const CustomerInfoOrderDetail = () => {
                         </span>
                       ) : dataInfoOrder?.voucherId.discountAmount > 0 ? (
                         <span style={{ color: "#fff" }}>
-                          {t("MES-144")}{" "}
+                          {t("MES-196")}{" "}
                           {new Intl.NumberFormat("vi-VN").format(
                             dataInfoOrder?.voucherId.discountAmount
                           )}
