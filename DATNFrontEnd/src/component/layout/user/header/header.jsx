@@ -75,6 +75,27 @@ const Header = () => {
   const navigate = useNavigate();
   const { cartItems, setCartItems } = useCart();
 
+  const handleLanguageChange = (value) => {
+    setLanguage(value);
+    localStorage.setItem("i18nextLng", value); 
+    i18n.changeLanguage(value); 
+  };
+
+  useEffect(() => {
+    const loggedIn = !!localStorage.getItem("access_token");
+    setIsLoggedIn(loggedIn);
+
+    const savedLanguage = localStorage.getItem("i18nextLng"); 
+    if (savedLanguage) {
+      setLanguage(savedLanguage); 
+      i18n.changeLanguage(savedLanguage); 
+    } else {
+      const defaultLanguage = i18n.language || "en"; 
+      setLanguage(defaultLanguage); 
+      localStorage.setItem("i18nextLng", defaultLanguage);
+    }
+  }, []);
+
   const items = category.map((cat) => {
     const categoryProducts = product.filter(
       (prod) => prod.category.id === cat.id
@@ -199,10 +220,6 @@ const Header = () => {
       message.error(t("MES-023"));
       console.error(error);
     }
-  };
-  const handleLanguageChange = (value) => {
-    setLanguage(value);
-    i18n.changeLanguage(value); // Thay đổi ngôn ngữ cho toàn bộ ứng dụng
   };
   const userMenu = (
     <Menu>
