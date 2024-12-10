@@ -2,6 +2,7 @@ import React, { useEffect, useMemo } from "react";
 import { Button } from "antd";
 import { MinusOutlined, PlusOutlined, CloseOutlined } from "@ant-design/icons";
 import { useCart } from "../context/cart.context";
+import { useTranslation } from "react-i18next";
 
 const CartItem = () => {
   const {
@@ -11,6 +12,12 @@ const CartItem = () => {
     updateQuantity,
     formatCurrency,
   } = useCart();
+  const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("language") || "vi";
+
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
 
   const totalAmount = useMemo(() => {
     return cartItems.reduce((total, product) => {
@@ -40,7 +47,7 @@ const CartItem = () => {
             fontStyle: "italic",
           }}
         >
-          Your cart is empty.
+          {t('MES-995')}.
         </div>
       ) : (
         cartItems.map((product) => (
