@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 const CartBottom = () => {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation();
-    const language = localStorage.getItem("language") || "vi";
+    const language = localStorage.getItem("i18nextLng") || "vi";
     const { cartItems, totalAmount, formatCurrency } = useCart();
 
     useEffect(() => {

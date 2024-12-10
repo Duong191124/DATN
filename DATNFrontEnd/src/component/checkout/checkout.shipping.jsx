@@ -15,7 +15,7 @@ const defaultOption = { ProvinceID: '', ProvinceName: 'Select', DistrictID: '', 
 
 const Shipping = () => {
     const { t, i18n } = useTranslation();
-    const language = localStorage.getItem("language") || "vi";
+    const language = localStorage.getItem("i18nextLng") || "vi";
     const { cartItems } = useCart();
     const {
         setDistrict,

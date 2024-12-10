@@ -13,7 +13,7 @@ const CartItem = () => {
     formatCurrency,
   } = useCart();
   const { t, i18n } = useTranslation();
-  const language = localStorage.getItem("language") || "vi";
+  const language = localStorage.getItem("i18nextLng") || "vi";
 
   useEffect(() => {
     i18n.changeLanguage(language);
