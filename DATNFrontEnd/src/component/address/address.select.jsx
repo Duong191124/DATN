@@ -284,31 +284,6 @@ const AddressModal = ({
 
         <Form.Item
           name="stressAddress"
-          label={t("Street Address")}
-          rules={[{ required: true, message: t("Stress address is required") }]}
-        >
-          <Input
-            rows={3}
-            placeholder={t("Enter your stress address")}
-            onChange={(e) =>
-              setAddressDetails((prev) => ({
-                ...prev,
-                stressAddress: e.target.value,
-              }))
-            }
-          />
-        </Form.Item>
-
-        <Form.Item
-          name="address"
-          label={t("MES-041")}
-          rules={[{ required: true, message: t("MES-042") }]}
-        >
-          <Input.TextArea rows={3} placeholder={t("MES-043")} disabled />
-        </Form.Item>
-
-        <Form.Item
-          name="stressAddress"
           label={t('MES-963')}
           rules={[{ required: true, message: t('MES-949') }]}
         >
