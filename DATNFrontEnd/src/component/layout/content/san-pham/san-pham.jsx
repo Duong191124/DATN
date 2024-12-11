@@ -28,6 +28,7 @@ import {
 import ProductCard from "../../../home/product.card";
 import { range, values } from "lodash";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -56,6 +57,16 @@ const SanPham = () => {
   const [categories, setCategories] = useState([]);
   const [priceRange, setPriceRange] = useState([0, 10000000]);
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("i18nextLng");
+    if (savedLanguage) {
+      i18n.changeLanguage(savedLanguage);
+    } else {
+      const defaultLang = i18n.language || "vi";
+      i18n.changeLanguage(defaultLang);
+    }
+  }, [i18n.language]);
   useEffect(() => {
     const initCategory = async () => {
       const res = await fetchDataCategory();
@@ -233,16 +244,16 @@ const SanPham = () => {
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span>
                   <FilterTwoTone />
-                  <span style={{ fontWeight: 500 }}> Bộ lọc tìm kiếm</span>
+                  <span style={{ fontWeight: 500 }}> {t("MES-204")}</span>
                 </span>
-                <ReloadOutlined title="Reset" onClick={handleReset} />
+                <ReloadOutlined title={t("MES-205")} onClick={handleReset} />
               </div>
               <Divider />
               <Form onFinish={onFinish} form={form}>
                 <Form.Item
                   name="brand"
                   label={
-                    <span style={{ fontWeight: "bold" }}>Thương hiệu</span>
+                    <span style={{ fontWeight: "bold" }}>{t("MES-206")}</span>
                   }
                   labelCol={{ span: 24 }}
                 >
@@ -278,9 +289,7 @@ const SanPham = () => {
                 <Form.Item
                   name="category"
                   label={
-                    <span style={{ fontWeight: "bold" }}>
-                      Danh mục sản phẩm
-                    </span>
+                    <span style={{ fontWeight: "bold" }}>{t("MES-207")}</span>
                   }
                   labelCol={{ span: 24 }}
                 >
@@ -320,7 +329,9 @@ const SanPham = () => {
                 <Divider />
                 <Form.Item
                   name="color"
-                  label={<span style={{ fontWeight: "bold" }}>Màu</span>}
+                  label={
+                    <span style={{ fontWeight: "bold" }}>{t("MES-014")}</span>
+                  }
                   labelCol={{ span: 24 }}
                 >
                   <Checkbox.Group
@@ -357,7 +368,9 @@ const SanPham = () => {
                 <Divider />
                 <Form.Item
                   name="size"
-                  label={<span style={{ fontWeight: "bold" }}>Kích thước</span>}
+                  label={
+                    <span style={{ fontWeight: "bold" }}>{t("MES-015")}</span>
+                  }
                   labelCol={{ span: 24 }}
                 >
                   <Checkbox.Group
@@ -392,7 +405,7 @@ const SanPham = () => {
                   </Checkbox.Group>
                 </Form.Item>
                 <Divider />
-                <Form.Item label="Khoảng giá" labelCol={{ span: 24 }}>
+                <Form.Item label={t("MES-208")} labelCol={{ span: 24 }}>
                   <Row gutter={[10, 10]} style={{ width: "100%" }}>
                     <Col xl={11} md={24}>
                       <Form.Item name={["range", "from"]}>
@@ -454,7 +467,7 @@ const SanPham = () => {
                   </Row>
                   <div>
                     <Button type="primary" htmlType="submit">
-                      Áp dụng
+                      {t("MES-209")}
                     </Button>
                   </div>
                 </Form.Item>

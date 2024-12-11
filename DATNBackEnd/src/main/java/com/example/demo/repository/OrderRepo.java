@@ -67,8 +67,8 @@ public interface OrderRepo extends JpaRepository<Orders, Integer> {
             "YEAR(o.order_date) AS year, " +  // Năm
             "SUM(CASE WHEN o.staff_id IS NULL THEN od.quantity ELSE 0 END) AS online_quantity, " +  // Số lượng bán online
             "SUM(CASE WHEN o.staff_id IS NOT NULL THEN od.quantity ELSE 0 END) AS offline_quantity, " +  // Số lượng bán offline
-            "SUM(CASE WHEN o.staff_id IS NULL THEN od.price * od.quantity ELSE 0 END) AS online_revenue, " +  // Doanh thu online
-            "SUM(CASE WHEN o.staff_id IS NOT NULL THEN od.price * od.quantity ELSE 0 END) AS offline_revenue " +  // Doanh thu offline
+            "SUM(CASE WHEN o.staff_id IS NULL THEN o.total_amount ELSE 0 END) AS online_revenue, " +  // Doanh thu online (bao gồm voucher và phí ship)
+            "SUM(CASE WHEN o.staff_id IS NOT NULL THEN o.total_amount ELSE 0 END) AS offline_revenue " +  // Doanh thu offline (bao gồm voucher và phí ship)
             "FROM orders o " +
             "JOIN order_detail od ON o.id = od.order_id " +
             "WHERE o.status = 'completed' " +

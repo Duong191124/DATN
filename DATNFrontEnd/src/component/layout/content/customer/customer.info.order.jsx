@@ -1,7 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Tabs, Input, Button, Card, Row, Col, Typography, Tag } from "antd";
+import {
+  Tabs,
+  Input,
+  Button,
+  Card,
+  Row,
+  Col,
+  Typography,
+  Tag,
+  message,
+} from "antd";
 import { NavLink } from "react-router-dom";
-import { fetchDataOrderStatusByCustomerId } from "../../../../service/api.service";
+import {
+  fetchDataOrderStatusByCustomerId,
+  retryPayment,
+} from "../../../../service/api.service";
 import { useCheckout } from "../../../context/checkout.context";
 import CancelOrder from "./customer.info.order.canceled.child";
 import { useTranslation } from "react-i18next";
@@ -130,13 +143,26 @@ const CustomerInfoOrder = () => {
       )
     );
   };
+  const handleRetryPayment = async (orderCode) => {
+    try {
+      const retryResponse = await retryPayment(orderCode);
+      const paymentUrl = retryResponse.data.paymentUrl;
+      if (paymentUrl) {
+        window.location.href = paymentUrl;
+      } else {
+        message.info("Không nhận được liên kết thanh toán mới.");
+      }
+    } catch (error) {
+      message.error("Thanh toán lại thất bại. Vui lòng thử lại.");
+    }
+  };
   const renderOrderCard = () => {
     return data.map((order) => {
       const orderId = order.id; // Lấy id của đơn hàng
       const orderStatus = order.status; // Lấy status của đơn hàng
       const orderCode = order.code;
       const trackingId = order.trackingId;
-      // Lặp qua orderDetailResponses để lấy chi tiết sản phẩm
+      const vnp = order?.paymentResponses[0]?.paymentMethod;
       const productDetails =
         order.orderDetailResponses?.map((detail) => {
           const productDetail = detail.productDetailId || {};
@@ -275,6 +301,15 @@ const CustomerInfoOrder = () => {
               handleCancelSuccess={handleCancelSuccess}
               t={t}
             />
+            {orderStatus === "pending" && vnp === "VNP" && (
+              <Button
+                type="default"
+                onClick={() => handleRetryPayment(orderCode)}
+                key="retry"
+              >
+                {t("MES-232")}
+              </Button>
+            )}
             {orderStatus !== "confirmed" &&
               orderStatus !== "pending" &&
               trackingId && (
