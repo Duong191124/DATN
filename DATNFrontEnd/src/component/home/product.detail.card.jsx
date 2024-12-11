@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import PropTypes from "prop-types";
 import { useCart } from "../context/cart.context";
 import { useTranslation } from "react-i18next";
+import { findByProductDetailId } from "../../service/api.service";
 const { Text } = Typography;
 
 const ProductCardWrapper = styled(motion.div)`
@@ -185,6 +186,7 @@ const ProductDetailCard = ({ product, onAddToWishlist, onQuickView }) => {
   } = product;
   const { addToCart } = useCart();
   const { t, i18n } = useTranslation();
+  const [quantityDetail, setQuantityDetail] = useState();
   useEffect(() => {
     const savedLanguage = localStorage.getItem("i18nextLng");
     if (savedLanguage) {
@@ -201,8 +203,24 @@ const ProductDetailCard = ({ product, onAddToWishlist, onQuickView }) => {
       color: color.name,
       quantity: 1,
     };
+    fetchData(product?.id);
+    if (cartItem.quantity > quantityDetail) {
+      message.warning(t('MES-111'))
+      return;
+    }
     addToCart(cartItem);
   };
+  const fetchData = async () => {
+    try {
+      const res = await findByProductDetailId(product?.id)
+      setQuantityDetail(res.data.data.quantity);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  useEffect(() => {
+    fetchData();
+  }, [])
   return (
     <ProductCardWrapper variants={itemVariants}>
       {promotions && promotions.length > 0 && discountPrice > 0 && (
@@ -302,9 +320,9 @@ ProductDetailCard.propTypes = {
 };
 
 ProductDetailCard.defaultProps = {
-  onAddToCart: () => {},
-  onAddToWishlist: () => {},
-  onQuickView: () => {},
+  onAddToCart: () => { },
+  onAddToWishlist: () => { },
+  onQuickView: () => { },
 };
 
 export default ProductDetailCard;

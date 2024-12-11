@@ -62,6 +62,9 @@ public class PaymentServiceIml implements PaymentService {
             payment.getOrders().setId(paymentDTO.getOrderId());
             payment.setStatus(0);
             paymentRepo.save(payment);
+//            if (orderDTO.getCustomerId() == 1 && orderDTO.getAddress().getMail() != null) {
+//                mailService.sendOrderCode(orderDTO.getAddress().getMail(), orderDTO.getCode());
+//            }
             return PaymentResponse.convertPaymentResponseUrl(payment,null);
         }catch (Exception e){
             throw new RuntimeException("not found payment"+e.getMessage());

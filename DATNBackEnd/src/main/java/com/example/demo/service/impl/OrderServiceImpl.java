@@ -522,10 +522,6 @@ public class OrderServiceImpl implements OrderService {
         return OrderResponse.convertOrderResponse(order);
     }
 
-
-
-
-
     @Override
     public Page<OrderResponse> pageAll(String staffName, LocalDate startDate, LocalDate endDate, OrderStatus orderStatus, String orderCode,OrderType orderType ,Pageable pageable) {
         // Lấy trang dữ liệu từ repository

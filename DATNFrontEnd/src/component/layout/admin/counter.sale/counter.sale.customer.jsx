@@ -131,7 +131,6 @@ const CounterSaleCustomer = ({
         values.gender
       );
       // Cập nhật lại danh sách khách hàng trong component cha
-      console.log("â", newCustomer);
       if (newCustomer.status === 201) {
         setCustomerList((prevCustomerList) => [
           ...prevCustomerList,
