@@ -11,6 +11,7 @@ import { useCart } from "../../../context/cart.context";
 import ProductCarousel from "../../../home/product.carousel";
 import { Collapse, Input, message, Tabs } from "antd";
 import TabPane from "antd/es/tabs/TabPane";
+import { useTranslation } from "react-i18next";
 const styles = {
   productDescription: {
     fontFamily: "Arial, sans-serif",
@@ -90,6 +91,16 @@ const ProductDetailPage = () => {
   const [colorError, setColorError] = useState(false);
   const [sizeError, setSizeError] = useState(false);
   const [availableQuantity, setAvailableQuantity] = useState(0);
+  const { t, i18n } = useTranslation();
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("i18nextLng");
+    if (savedLanguage) {
+      i18n.changeLanguage(savedLanguage);
+    } else {
+      const defaultLang = i18n.language || "vi";
+      i18n.changeLanguage(defaultLang);
+    }
+  }, [i18n.language]);
   const initSize = async () => {
     const res = await fetchDataSize();
     setSize(res.data.data);
@@ -201,17 +212,17 @@ const ProductDetailPage = () => {
     }
     // Kiểm tra số lượng trong kho
     if (availableQuantity === 0) {
-      message.info("Hàng hết, vui lòng mua sản phẩm khác!");
+      message.info(t("MES-109"));
       return;
     }
     if (!quantity || parseInt(quantity, 10) === 0) {
-      message.warning("Vui lòng nhập số lượng.");
+      message.warning(t("MES-110"));
       return;
     }
     // Kiểm tra số lượng yêu cầu
     const numericQuantity = parseInt(quantity, 10); // Chuyển quantity thành số nguyên
     if (numericQuantity > availableQuantity) {
-      message.info("Số lượng trong kho không đủ!");
+      message.info(t("MES-111"));
       return;
     }
 
@@ -309,7 +320,7 @@ const ProductDetailPage = () => {
                 )}
             </p>
             <div className="select-size" style={{ flexWrap: "wrap" }}>
-              <label>Size:</label>
+              <label>{t("MES-014")}:</label>
               <div className="size-options" style={{ flexWrap: "wrap" }}>
                 {size
                   .filter((size) => size.status === 1)
@@ -332,12 +343,10 @@ const ProductDetailPage = () => {
               </div>
             </div>
             {sizeError && (
-              <p style={{ color: "red", marginTop: "8px" }}>
-                Vui lòng chọn size!
-              </p>
+              <p style={{ color: "red", marginTop: "8px" }}>{t("MES-0116")}</p>
             )}
             <div className="select-color" style={{ flexWrap: "wrap" }}>
-              <label>Color:</label>
+              <label>{t("MES-015")}:</label>
               <div className="color-options" style={{ flexWrap: "wrap" }}>
                 {color
                   .filter((color) => color.status === 1)
@@ -360,16 +369,16 @@ const ProductDetailPage = () => {
               </div>
             </div>
             {colorError && (
-              <p style={{ color: "red", marginTop: "8px" }}>
-                Vui lòng chọn màu!
-              </p>
+              <p style={{ color: "red", marginTop: "8px" }}>{t("MES-117")}</p>
             )}
             {selectedColor && selectedSize && availableQuantity >= 0 && (
               <div style={{ margin: "10px 0" }}>
                 {availableQuantity === 0 ? (
-                  <p style={{ color: "red" }}>Hết hàng</p>
+                  <p style={{ color: "red" }}>{t("MES-118")}</p>
                 ) : (
-                  <p>Số lượng có sẵn: {availableQuantity}</p>
+                  <p>
+                    {t("MES-119")}: {availableQuantity}
+                  </p>
                 )}
               </div>
             )}
@@ -380,7 +389,7 @@ const ProductDetailPage = () => {
                   if (quantity > 1) {
                     setQuantity(quantity - 1);
                   } else {
-                    message.info("Số lượng phải lớn hơn hoặc bằng 1!");
+                    message.info(t("MES-120"));
                   }
                 }}
               >
@@ -411,11 +420,11 @@ const ProductDetailPage = () => {
                   }
                   const numericValue = parseInt(value, 10);
                   if (availableQuantity === 0) {
-                    message.info("Vui lòng chọn size và màu sắc.");
+                    message.info(t("MES-121"));
                   } else if (numericValue < 1) {
-                    message.info("Số lượng phải lớn hơn hoặc bằng 1!");
+                    message.info(t("MES-120"));
                   } else if (numericValue > availableQuantity) {
-                    message.info("Số lượng tồn kho không đủ!");
+                    message.info(t("MES-111"));
                   } else {
                     setQuantity(numericValue); // Đặt giá trị hợp lệ
                   }
@@ -425,13 +434,13 @@ const ProductDetailPage = () => {
                 className="quantity-btn"
                 onClick={() => {
                   if (availableQuantity === 0) {
-                    message.info("Vui lòng chọn size và màu sắc.");
+                    message.info(t("MES-121"));
                   } else {
                     const newQuantity = Number(quantity);
                     if (newQuantity < availableQuantity) {
                       setQuantity(newQuantity + 1);
                     } else {
-                      message.info("Số lượng trong kho không đủ!");
+                      message.info(t("MES-111"));
                     }
                   }
                 }}
@@ -440,106 +449,72 @@ const ProductDetailPage = () => {
               </button>
             </div>
             <button className="add-to-cart" onClick={handleAddToCart}>
-              Add to Cart
+              {t("MES-017")}
             </button>
           </div>
         </div>
       </div>
       <div style={styles.productDescription}>
         <Tabs defaultActiveKey="1" tabPosition="top" size="large" centered>
-          <TabPane tab="Mô tả sản phẩm" key="1">
+          <TabPane tab={t("MES-210")} key="1">
             <p>
-              <strong style={styles.strong}>Mã sản phẩm:</strong>{" "}
+              <strong style={styles.strong}>{t("MES-211")}:</strong>{" "}
               {product?.code || "Không có mã sản phẩm"}
             </p>
             <h3 style={styles.h3}>
-              Sản phẩm:{" "}
+              {t("MES-131")}:{" "}
               {product?.productResponse?.name || "Không có tên sản phẩm"}
             </h3>
             <p>
-              Mô tả: {product?.productResponse?.description || "Không có mô tả"}
+              {t("MES-212")}:{" "}
+              {product?.productResponse?.description || "Không có mô tả"}
             </p>
             <div>
-              <strong style={styles.strong}>Công nghệ & Chất liệu:</strong>
+              <strong style={styles.strong}>{t("MES-213")}:</strong>
               <ul style={styles.ul}>
                 <li>
-                  Kích thước: {product?.size?.name || "Không có kích thước"}
+                  {t("MES-014")}: {product?.size?.name || "Không có kích thước"}
                 </li>
-                <li>Màu: {product?.color?.name || "Không có màu"}</li>
                 <li>
-                  Thiết kế thời thượng, vẻ đẹp hoàn mĩ trong các sản phẩm, mang
-                  đến cho người dùng sản phẩm tốt nhất!
+                  {t("MES-015")}: {product?.color?.name || "Không có màu"}
                 </li>
+                <li>{t("MES-214")}</li>
               </ul>
             </div>
             <p>
-              <strong style={styles.strong}>Thông tin thương hiệu:</strong>
+              <strong style={styles.strong}>{t("MES-215")}:</strong>
             </p>
             <p style={styles.brandInfo}>
               <i style={{ fontSize: "16px" }}>
                 {product?.productResponse?.brandName || "Không có thương hiệu"}
               </i>
-              , là một trong các thương hiệu nổi tiếng hàng đầu trên thế giới.
+              , {t("MES-216")}
             </p>
           </TabPane>
 
-          <TabPane tab="Chính sách giao hàng" key="2">
-            <h3 style={styles.h3}>1. CƯỚC PHÍ VẬN CHUYỂN:</h3>
-            <p>
-              Tất cả các đơn hàng áp dụng biểu phí giao hàng theo từng khu vực
-              được quy định bởi bên thứ 3...
-            </p>
-            <h3 style={styles.h3}>2. THỜI GIAN VẬN CHUYỂN:</h3>
+          <TabPane tab={t("MES-217")} key="2">
+            <h3 style={styles.h3}>1. {t("MES-218")}:</h3>
+            <p>{t("MES-219")}</p>
+            <h3 style={styles.h3}>2. {t("MES-220")}:</h3>
             <ul style={styles.ul}>
-              <li>
-                Tuyến nội thành Hà Nội: giao hàng trong vòng 3-5 ngày kể từ khi
-                hệ thống xác nhận qua tin nhắn (SMS)/điện thoại.
-              </li>
-              <li>
-                Tuyến ngoại thành Hà Nội: giao hàng trong vòng 3-7 ngày kể từ
-                khi hệ thống xác nhận qua tin nhắn (SMS)/điện thoại.
-              </li>
-              <li>
-                Tuyến Đà Nẵng, TP.HCM: giao hàng trong vòng 3-7 ngày kể từ khi
-                hệ thống xác nhận qua tin nhắn (SMS)/điện thoại.
-              </li>
-              <li>
-                Tất cả thành phố khác: giao hàng trong vòng từ 3-7 ngày kể từ
-                khi hệ thống xác nhận qua tin nhắn (SMS)/điện thoại.
-              </li>
+              <li>{t("MES-221")}</li>
+              <li>{t("MES-222")}</li>
+              <li>{t("MES-223")}</li>
+              <li>{t("MES-224")}</li>
             </ul>
-            <p>
-              Thời gian giao hàng không tính thứ bảy, chủ nhật hay các ngày lễ
-              tết.
-            </p>
+            <p>{t("MES-225")}</p>
 
-            <h3 style={styles.h3}>3. ĐƠN HÀNG ĐƯỢC GIAO TỐI ĐA MẤY LẦN?</h3>
-            <p>
-              Đơn hàng được giao tối đa 2 lần. Nếu lần 1 đơn hàng giao không
-              thành công, nhân viên vận chuyển sẽ liên hệ lại bạn lần 2 sau 1-2
-              ngày làm việc kế tiếp. Như vậy sau 2 lần giao dịch không thành
-              công đơn hàng sẽ hủy.
-            </p>
+            <h3 style={styles.h3}>3. {t("MES-226")}</h3>
+            <p>{t("MES-227")}</p>
 
-            <h3 style={styles.h3}>4. KIỂM TRA TÌNH TRẠNG ĐƠN HÀNG:</h3>
-            <p>
-              Để kiểm tra thông tin hoặc tình trạng đơn hàng bạn vui lòng sử
-              dụng MÃ ĐƠN HÀNG đã được gửi trong email xác nhận hoặc tin nhắn
-              xác nhận để thông báo tới bộ phận Chăm sóc khách hàng...
-            </p>
+            <h3 style={styles.h3}>4. {t("MES-228")}:</h3>
+            <p>{t("MES-229")}</p>
 
-            <h3 style={styles.h3}>
-              5. KHI NHẬN ĐƠN HÀNG CÓ ĐƯỢC XEM SẢN PHẨM TRƯỚC KHI THANH TOÁN?
-            </h3>
-            <p>
-              Bạn hoàn toàn có thể mở gói hàng kiểm tra sản phẩm trước khi thanh
-              toán hoặc trước khi vận chuyển rời đi. Trong trường hợp bạn gặp
-              vấn đề phát sinh bạn liên hệ ngay đến chúng tôi...
-            </p>
+            <h3 style={styles.h3}>5. {t("MES-230")}</h3>
+            <p>{t("MES-231")}</p>
           </TabPane>
         </Tabs>
       </div>
-
       <ProductCarousel />
     </div>
   );

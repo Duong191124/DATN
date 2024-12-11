@@ -38,7 +38,7 @@ public class PaymentServiceIml implements PaymentService {
                 if(paymentDTO.getPaymentMethod().equalsIgnoreCase("vnp")){
                     orders.setStatus(OrderStatus.pending);
                     orderRepo.save(orders);
-                     paymentUrl = createPaymentUrl(orders.getId(), orders.getTotalAmount().longValue());
+                     paymentUrl = createPaymentUrl(orders.getCode(), orders.getTotalAmount().longValue());
                     return PaymentResponse.convertPaymentResponseUrl(null, paymentUrl);
                 }
                 else {
@@ -67,12 +67,13 @@ public class PaymentServiceIml implements PaymentService {
             throw new RuntimeException("not found payment"+e.getMessage());
         }
     }
-    private String createPaymentUrl(Integer uniqueId, long amount) throws UnsupportedEncodingException {
+    @Override
+    public String createPaymentUrl(String uniqueId, long amount) throws UnsupportedEncodingException {
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         long amounts = amount*100;
         String orderType = "billpayment";
-        Integer vnp_TxnRef = uniqueId;
+        String vnp_TxnRef = uniqueId;
         String vnp_IpAddr = "127.0.0.1";
 
         String vnp_TmnCode = VNPayConfig.vnp_TmnCode;
