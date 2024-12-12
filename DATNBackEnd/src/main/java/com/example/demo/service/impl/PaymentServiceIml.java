@@ -36,10 +36,16 @@ public class PaymentServiceIml implements PaymentService {
             String paymentUrl = null;
             if(!paymentDTO.getPaymentMethod().equalsIgnoreCase("cod")){
                 if(paymentDTO.getPaymentMethod().equalsIgnoreCase("vnp")){
+                    Payment payment = PaymentDTO.convertPayment(paymentDTO, orderRepo);
+                    payment.setPaymentMethod(paymentDTO.getPaymentMethod());
+                    payment.setPaymentDate(paymentDTO.getPaymentDate());
+                    payment.getOrders().setId(paymentDTO.getOrderId());
+                    payment.setStatus(0);
+                    paymentRepo.save(payment);
                     orders.setStatus(OrderStatus.pending);
                     orderRepo.save(orders);
                      paymentUrl = createPaymentUrl(orders.getCode(), orders.getTotalAmount().longValue());
-                    return PaymentResponse.convertPaymentResponseUrl(null, paymentUrl);
+                    return PaymentResponse.convertPaymentResponseUrl(payment, paymentUrl);
                 }
                 else {
                     Payment payment = PaymentDTO.convertPayment(paymentDTO, orderRepo);
@@ -62,9 +68,7 @@ public class PaymentServiceIml implements PaymentService {
             payment.getOrders().setId(paymentDTO.getOrderId());
             payment.setStatus(0);
             paymentRepo.save(payment);
-//            if (orderDTO.getCustomerId() == 1 && orderDTO.getAddress().getMail() != null) {
-//                mailService.sendOrderCode(orderDTO.getAddress().getMail(), orderDTO.getCode());
-//            }
+//
             return PaymentResponse.convertPaymentResponseUrl(payment,null);
         }catch (Exception e){
             throw new RuntimeException("not found payment"+e.getMessage());
@@ -75,10 +79,10 @@ public class PaymentServiceIml implements PaymentService {
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         long amounts = amount*100;
-        String orderType = "billpayment";
+        String orderType = "other";
         String vnp_TxnRef = uniqueId;
         String vnp_IpAddr = "127.0.0.1";
-
+        String bankCode ="NCB";
         String vnp_TmnCode = VNPayConfig.vnp_TmnCode;
 
         Map<String, String> vnp_Params = new HashMap<>();
@@ -88,7 +92,7 @@ public class PaymentServiceIml implements PaymentService {
         vnp_Params.put("vnp_Amount", String.valueOf(amounts));
         vnp_Params.put("vnp_CurrCode", "VND");
 
-//        vnp_Params.put("vnp_BankCode", bankCode);
+        vnp_Params.put("vnp_BankCode", bankCode);
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef.toString());
         vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
         vnp_Params.put("vnp_OrderType", orderType);

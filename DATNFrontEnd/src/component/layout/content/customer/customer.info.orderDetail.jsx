@@ -8,6 +8,7 @@ import {
   Card,
   Divider,
   Table,
+  message,
 } from "antd";
 import {
   colorFindById,
@@ -15,6 +16,7 @@ import {
   fetchDataOrderStatusByCustomerId,
   orderFindByCode,
   productFindById,
+  retryPayment,
   sizeFindById,
 } from "../../../../service/api.service";
 import { NavLink, useLocation } from "react-router-dom";
@@ -50,7 +52,23 @@ const CustomerInfoOrderDetail = () => {
     padding: 16,
     marginBottom: 16,
   };
-
+  const handleRetryPayment = async (orderCode) => {
+    try {
+      if (orderCode) {
+        const retryResponse = await retryPayment(orderCode);
+        const paymentUrl = retryResponse.data.paymentUrl;
+        if (paymentUrl) {
+          window.location.href = paymentUrl;
+        } else {
+          message.info("Không nhận được liên kết thanh toán mới.");
+        }
+      } else {
+        message.info("Không tìm thấy đơn hàng để thanh toán.");
+      }
+    } catch (error) {
+      message.error("Thanh toán lại thất bại. Vui lòng thử lại.");
+    }
+  };
   const stepStyle = {
     marginBottom: 32,
   };
@@ -239,15 +257,15 @@ const CustomerInfoOrderDetail = () => {
   const relevantSteps =
     dataInfoOrder.status === "cancelled"
       ? [
-        { title: t("MES-124"), status: "pending" },
-        ...(dataInfoOrder.status.includes("confirmed")
-          ? [{ title: t("MES-125"), status: "confirmed" }]
-          : []),
-        ...(dataInfoOrder.status.includes("shipping")
-          ? [{ title: t("MES-125"), status: "shipping" }]
-          : []),
-        { title: t("MES-129"), status: "cancelled" },
-      ]
+          { title: t("MES-124"), status: "pending" },
+          ...(dataInfoOrder.status.includes("confirmed")
+            ? [{ title: t("MES-125"), status: "confirmed" }]
+            : []),
+          ...(dataInfoOrder.status.includes("shipping")
+            ? [{ title: t("MES-125"), status: "shipping" }]
+            : []),
+          { title: t("MES-129"), status: "cancelled" },
+        ]
       : stepData;
   const currentStep = relevantSteps.findIndex(
     (step) => step.status === dataInfoOrder.status
@@ -255,6 +273,7 @@ const CustomerInfoOrderDetail = () => {
   const updatedAtFormatted = moment(dataInfoOrder.updatedAt).format(
     "DD-MM-YYYY HH:mm:ss"
   );
+  console.log("daa", dataInfoOrder);
   return (
     <div style={{ padding: 16, marginTop: "80px" }}>
       <Row
@@ -267,7 +286,11 @@ const CustomerInfoOrderDetail = () => {
           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
           marginBottom: "28px",
           display: "flex", // Dùng flex để căn chỉnh các phần tử
-          justifyContent: userId === "1" ? "flex-end" : "space-between", // Căn giữa các phần tử
+          justifyContent:
+            dataInfoOrder?.paymentResponses?.length > 0 &&
+            dataInfoOrder?.paymentResponses[0]?.status !== 0
+              ? "flex-end"
+              : "space-between", // Căn giữa các phần tử
         }}
       >
         {userId !== "1" && (
@@ -286,25 +309,46 @@ const CustomerInfoOrderDetail = () => {
             <span style={{ fontSize: "18px" }}>{t("MES-135")}</span>
           </NavLink>
         )}
+        {userId === "1" && // Kiểm tra nếu userId là "1"
+          dataInfoOrder?.paymentResponses?.length > 0 && // Kiểm tra nếu paymentResponses có phần tử
+          dataInfoOrder?.paymentResponses[0]?.paymentMethod === "VNP" && // Kiểm tra paymentMethod của phần tử đầu tiên
+          dataInfoOrder?.paymentResponses[0]?.status === 0 && ( // Kiểm tra status của phần tử đầu tiên
+            <Button
+              type="default"
+              onClick={() => handleRetryPayment(dataInfoOrder?.code)} // Gọi hàm khi nhấn nút
+              key="retry"
+              style={{
+                color: "gray",
+                padding: "6px 20px",
+                borderRadius: 8,
+                alignItems: "center",
+                fontSize: "16px",
+                display: "flex",
+              }}
+            >
+              {t("MES-232")} {/* Hiển thị thông điệp */}
+            </Button>
+          )}
+
         <Text
           style={{
             fontSize: "18px",
             fontWeight: "bold",
             color:
               dataInfoOrder?.paymentResponses?.length > 0 &&
-                dataInfoOrder?.paymentResponses[0]?.status === 0
+              dataInfoOrder?.paymentResponses[0]?.status === 0
                 ? "#ff4d4f"
                 : "#52c41a",
             padding: "8px 16px",
             borderRadius: "12px",
             backgroundColor:
               dataInfoOrder?.paymentResponses?.length > 0 &&
-                dataInfoOrder?.paymentResponses[0]?.status === 0
+              dataInfoOrder?.paymentResponses[0]?.status === 0
                 ? "#fff1f0"
                 : "#f6ffed",
             border:
               dataInfoOrder?.paymentResponses?.length > 0 &&
-                dataInfoOrder?.paymentResponses[0]?.status === 0
+              dataInfoOrder?.paymentResponses[0]?.status === 0
                 ? "1px solid #ff4d4f"
                 : "1px solid #52c41a",
             textAlign: "center",
@@ -313,7 +357,7 @@ const CustomerInfoOrderDetail = () => {
           }}
         >
           {dataInfoOrder?.paymentResponses?.length > 0 &&
-            dataInfoOrder?.paymentResponses[0]?.status === 0
+          dataInfoOrder?.paymentResponses[0]?.status === 0
             ? t("MES-136")
             : t("MES-137")}
         </Text>

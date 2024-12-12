@@ -58,10 +58,6 @@ export const CartProvider = ({ children }) => {
     const productDetail = dataProductDetail.find((item) =>
       item.details.some((detail) => detail.id === cartItem.id)
     );
-    if (!productDetail) {
-      message.error("Không tìm thấy sản phẩm trong kho.");
-      return;
-    }
     const productDetails = productDetail.details.find(
       (detail) => detail.id === cartItem.id
     );

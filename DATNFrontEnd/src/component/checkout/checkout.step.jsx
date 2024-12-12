@@ -48,15 +48,15 @@ const CheckoutStep = () => {
 
   const steps = [
     {
-      title: t('MES-997'),
+      title: t("MES-997"),
       content: <Summary />,
     },
     {
-      title: t('MES-992'),
+      title: t("MES-992"),
       content: <Shipping />,
     },
     {
-      title: t('MES-991'),
+      title: t("MES-991"),
       content: <Payment />,
     },
   ];
@@ -130,7 +130,7 @@ const CheckoutStep = () => {
       const response = await getVouchersByCustomerId(userId);
       setVoucher(response.data.data);
     } catch (error) {
-      message.error(t('MES-990'));
+      message.error(t("MES-990"));
     }
   };
   useEffect(() => {
@@ -157,7 +157,6 @@ const CheckoutStep = () => {
       orderDetailRequests, // Dữ liệu sản phẩm trong đơn hàng
       changeAddress,
     };
-
     try {
       // Step 1: Create the order in your system
       const createOrderResponse = await createOrderForOnline(
@@ -190,11 +189,10 @@ const CheckoutStep = () => {
         throw new Error("Invalid payment method selected");
       }
     } catch (error) {
-      let errorMessage =
-        error?.message || t('MES-985');
+      let errorMessage = error?.message || t("MES-985");
 
       if (error?.message?.includes("Insufficient stock")) {
-        errorMessage = t('MES-986');
+        errorMessage = t("MES-986");
       }
 
       message.error(errorMessage);
@@ -216,7 +214,7 @@ const CheckoutStep = () => {
       setCartItems([]);
       return {
         success: true,
-        message: t('MES-984'),
+        message: t("MES-984"),
       };
     }
   };
@@ -231,7 +229,7 @@ const CheckoutStep = () => {
       localStorage.removeItem(`cart_${userId}`);
       setCartItems([]);
       localStorage.setItem("paymentStatus", "success");
-      localStorage.setItem("paymentMessage", t('MES-983'));
+      localStorage.setItem("paymentMessage", t("MES-983"));
       localStorage.setItem(
         "code",
         paymentResponse?.data?.orderDataPaymentResponse.code
@@ -240,14 +238,14 @@ const CheckoutStep = () => {
       setLoading(false);
       return {
         success: true,
-        message: t('MES-983'),
+        message: t("MES-983"),
       };
     } else {
       localStorage.setItem("paymentStatus", "failed");
-      localStorage.setItem("paymentMessage", t('MES-982'));
+      localStorage.setItem("paymentMessage", t("MES-982"));
       navigate("/payments/payment-callback"); // Redirect to callback page
       setLoading(false);
-      return { success: false, message: t('MES-982') };
+      return { success: false, message: t("MES-982") };
     }
   };
 
@@ -354,7 +352,7 @@ const CheckoutStep = () => {
             }}
             onClick={prev}
           >
-            {t('MES-979')}
+            {t("MES-979")}
           </Button>
         )}
         {current < steps.length - 1 && (
@@ -363,7 +361,7 @@ const CheckoutStep = () => {
             onClick={async () => {
               if (cartItems.length === 0) {
                 notification.warning({
-                  message: t('MES-981'),
+                  message: t("MES-981"),
                   duration: 2,
                 });
                 setCurrent(0);
@@ -374,7 +372,7 @@ const CheckoutStep = () => {
                   (userId !== "1" && selectAddress === null) ||
                   (userId === "1" && shippingData === null)
                 ) {
-                  message.error(t('MES-980'));
+                  message.error(t("MES-980"));
                   return;
                 }
                 await handleApiGhn();
@@ -393,7 +391,7 @@ const CheckoutStep = () => {
               borderRadius: "6px",
             }}
           >
-            {t('MES-978')}
+            {t("MES-978")}
           </Button>
         )}
         {current === steps.length - 1 && (
@@ -412,7 +410,7 @@ const CheckoutStep = () => {
             type="primary"
             onClick={confirmOrder}
           >
-            {t('MES-977')}
+            {t("MES-977")}
           </Button>
         )}
       </div>

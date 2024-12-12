@@ -1,8 +1,10 @@
 package com.example.demo.response;
 
+import com.example.demo.dto.AddressOrderDTO;
 import com.example.demo.entity.OrderStatus;
 import com.example.demo.entity.OrderType;
 import com.example.demo.entity.Orders;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.*;
@@ -30,8 +32,18 @@ public class OrderDataPaymentResponse {
     private OrderType orderType;
     private StaffResponse staffResponse;
     private CustomerResponse customerResponse;
+    private AddressOrderDTO address;
     private List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
     public static OrderDataPaymentResponse convertOrderDataPaymentResponse(Orders orders){
+        AddressOrderDTO addressDTO = null;
+        if (orders.getAddress() != null) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                addressDTO = objectMapper.readValue(orders.getAddress(), AddressOrderDTO.class);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return OrderDataPaymentResponse.builder()
                 .id(orders.getId())
                 .code(orders.getCode())
@@ -45,6 +57,7 @@ public class OrderDataPaymentResponse {
                 .orderDetailResponses(orders.getOrderDetails().stream().map(OrderDetailResponse::convertOrderDetailsResponse).toList())
                 .orderType(orders.getOrderType())
                 .customerResponse(orders.getCustomer() != null ? CustomerResponse.fromCustomerResponse(orders.getCustomer()) : null)
+                .address(addressDTO)
                 .build();
     }
 }
