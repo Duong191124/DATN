@@ -435,7 +435,7 @@ const paymentCallBack = () => {
 };
 const retryPayment = (orderId) => {
   const URL_BACKEND = `api/v1/payments/orders/retry-payment?orderId=${orderId}`;
-  return axios.post(URL_BACKEND);
+  return axios.put(URL_BACKEND);
 };
 const updateCustomerByOrder = (orderId, customerId) => {
   const URL_BACKEND = `api/v1/orders/update-customer/${orderId}`;

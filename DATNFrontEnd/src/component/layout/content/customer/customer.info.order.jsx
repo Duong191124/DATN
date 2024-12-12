@@ -145,12 +145,16 @@ const CustomerInfoOrder = () => {
   };
   const handleRetryPayment = async (orderCode) => {
     try {
-      const retryResponse = await retryPayment(orderCode);
-      const paymentUrl = retryResponse.data.paymentUrl;
-      if (paymentUrl) {
-        window.location.href = paymentUrl;
+      if (orderCode) {
+        const retryResponse = await retryPayment(orderCode);
+        const paymentUrl = retryResponse.data.paymentUrl;
+        if (paymentUrl) {
+          window.location.href = paymentUrl;
+        } else {
+          message.info("Không nhận được liên kết thanh toán mới.");
+        }
       } else {
-        message.info("Không nhận được liên kết thanh toán mới.");
+        message.info("Không tìm thấy đơn hàng để thanh toán.");
       }
     } catch (error) {
       message.error("Thanh toán lại thất bại. Vui lòng thử lại.");
@@ -163,6 +167,7 @@ const CustomerInfoOrder = () => {
       const orderCode = order.code;
       const trackingId = order.trackingId;
       const vnp = order?.paymentResponses[0]?.paymentMethod;
+      const vnpStatus = order?.paymentResponses[0]?.status;
       const productDetails =
         order.orderDetailResponses?.map((detail) => {
           const productDetail = detail.productDetailId || {};
@@ -301,7 +306,7 @@ const CustomerInfoOrder = () => {
               handleCancelSuccess={handleCancelSuccess}
               t={t}
             />
-            {orderStatus === "pending" && vnp === "VNP" && (
+            {orderStatus === "pending" && vnp === "VNP" && vnpStatus === 0 && (
               <Button
                 type="default"
                 onClick={() => handleRetryPayment(orderCode)}
