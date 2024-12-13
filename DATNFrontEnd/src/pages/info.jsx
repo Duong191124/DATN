@@ -9,16 +9,11 @@ import { useTranslation } from "react-i18next";
 const InfoPage = () => {
   const { user } = useContext(AuthContext);
   const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("i18nextLng");
-    if (savedLanguage) {
-      i18n.changeLanguage(savedLanguage);
-    } else {
-      const defaultLang = i18n.language || "vi";
-      i18n.changeLanguage(defaultLang);
-    }
-  }, [i18n.language]);
-  useEffect(() => {}, []);
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
+  useEffect(() => { }, []);
 
   return (
     <>

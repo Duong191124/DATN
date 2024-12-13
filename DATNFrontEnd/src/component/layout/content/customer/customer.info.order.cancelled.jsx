@@ -9,15 +9,10 @@ const { Title, Text } = Typography;
 
 const CustomerInfoOrderCanceled = () => {
   const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("i18nextLng");
-    if (savedLanguage) {
-      i18n.changeLanguage(savedLanguage);
-    } else {
-      const defaultLang = i18n.language || "vi";
-      i18n.changeLanguage(defaultLang);
-    }
-  }, [i18n.language]);
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
   const cardStyle = {
     borderRadius: 8,
     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
@@ -119,19 +114,17 @@ const CustomerInfoOrderCanceled = () => {
                 align="middle"
                 style={{ margin: "5px 0" }}
               >
-                <Text>{`${t("MES-148")}: ${
-                  item.productDetailId?.status === 1
+                <Text>{`${t("MES-148")}: ${item.productDetailId?.status === 1
                     ? `${t("MES-149")}`
                     : `${t("MES-150")}`
-                }`}</Text>
+                  }`}</Text>
                 <Text style={{ fontSize: "16px" }}>
                   {item.price.toLocaleString()}
                   <sup>₫</sup>
                 </Text>
               </Row>
-              <Text type="secondary">{`${t("MES-133")}: x${
-                item.quantity
-              }`}</Text>
+              <Text type="secondary">{`${t("MES-133")}: x${item.quantity
+                }`}</Text>
             </Col>
           </Row>
         ))}

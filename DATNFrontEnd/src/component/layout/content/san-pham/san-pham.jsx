@@ -58,15 +58,10 @@ const SanPham = () => {
   const [priceRange, setPriceRange] = useState([0, 10000000]);
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("i18nextLng");
-    if (savedLanguage) {
-      i18n.changeLanguage(savedLanguage);
-    } else {
-      const defaultLang = i18n.language || "vi";
-      i18n.changeLanguage(defaultLang);
-    }
-  }, [i18n.language]);
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
   useEffect(() => {
     const initCategory = async () => {
       const res = await fetchDataCategory();

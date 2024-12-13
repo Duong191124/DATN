@@ -37,15 +37,10 @@ const CustomerInfoOrderDetail = () => {
   const params = new URLSearchParams(location.search);
   const code = params.get("code");
   const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("i18nextLng");
-    if (savedLanguage) {
-      i18n.changeLanguage(savedLanguage);
-    } else {
-      const defaultLang = i18n.language || "vi";
-      i18n.changeLanguage(defaultLang);
-    }
-  }, [i18n.language]);
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
   const cardStyle = {
     borderRadius: 8,
     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
@@ -257,15 +252,15 @@ const CustomerInfoOrderDetail = () => {
   const relevantSteps =
     dataInfoOrder.status === "cancelled"
       ? [
-          { title: t("MES-124"), status: "pending" },
-          ...(dataInfoOrder.status.includes("confirmed")
-            ? [{ title: t("MES-125"), status: "confirmed" }]
-            : []),
-          ...(dataInfoOrder.status.includes("shipping")
-            ? [{ title: t("MES-125"), status: "shipping" }]
-            : []),
-          { title: t("MES-129"), status: "cancelled" },
-        ]
+        { title: t("MES-124"), status: "pending" },
+        ...(dataInfoOrder.status.includes("confirmed")
+          ? [{ title: t("MES-125"), status: "confirmed" }]
+          : []),
+        ...(dataInfoOrder.status.includes("shipping")
+          ? [{ title: t("MES-125"), status: "shipping" }]
+          : []),
+        { title: t("MES-129"), status: "cancelled" },
+      ]
       : stepData;
   const currentStep = relevantSteps.findIndex(
     (step) => step.status === dataInfoOrder.status
@@ -288,7 +283,7 @@ const CustomerInfoOrderDetail = () => {
           display: "flex", // Dùng flex để căn chỉnh các phần tử
           justifyContent:
             dataInfoOrder?.paymentResponses?.length > 0 &&
-            dataInfoOrder?.paymentResponses[0]?.status !== 0
+              dataInfoOrder?.paymentResponses[0]?.status !== 0
               ? "flex-end"
               : "space-between", // Căn giữa các phần tử
         }}
@@ -336,19 +331,19 @@ const CustomerInfoOrderDetail = () => {
             fontWeight: "bold",
             color:
               dataInfoOrder?.paymentResponses?.length > 0 &&
-              dataInfoOrder?.paymentResponses[0]?.status === 0
+                dataInfoOrder?.paymentResponses[0]?.status === 0
                 ? "#ff4d4f"
                 : "#52c41a",
             padding: "8px 16px",
             borderRadius: "12px",
             backgroundColor:
               dataInfoOrder?.paymentResponses?.length > 0 &&
-              dataInfoOrder?.paymentResponses[0]?.status === 0
+                dataInfoOrder?.paymentResponses[0]?.status === 0
                 ? "#fff1f0"
                 : "#f6ffed",
             border:
               dataInfoOrder?.paymentResponses?.length > 0 &&
-              dataInfoOrder?.paymentResponses[0]?.status === 0
+                dataInfoOrder?.paymentResponses[0]?.status === 0
                 ? "1px solid #ff4d4f"
                 : "1px solid #52c41a",
             textAlign: "center",
@@ -357,7 +352,7 @@ const CustomerInfoOrderDetail = () => {
           }}
         >
           {dataInfoOrder?.paymentResponses?.length > 0 &&
-          dataInfoOrder?.paymentResponses[0]?.status === 0
+            dataInfoOrder?.paymentResponses[0]?.status === 0
             ? t("MES-136")
             : t("MES-137")}
         </Text>
