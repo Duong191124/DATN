@@ -7,15 +7,10 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 const ProductCarousel = () => {
   const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("i18nextLng");
-    if (savedLanguage) {
-      i18n.changeLanguage(savedLanguage); // Đảm bảo ngôn ngữ được thay đổi khi khởi tạo
-    } else {
-      const defaultLang = i18n.language || "vi"; // Ngôn ngữ mặc định
-      i18n.changeLanguage(defaultLang);
-    }
-  }, [i18n.language]);
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
   const responsive = {
     desktop: {
       breakpoint: { max: 3000, min: 1024 },

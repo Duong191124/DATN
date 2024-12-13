@@ -26,6 +26,7 @@ export const CheckoutProvider = ({ children }) => {
     setTotalPriceAll(0);
     setSelectAddress(null);
     setSelectedOption("");
+    setShippingData(null);
   };
 
   const resetGhnTotalPrice = () => {

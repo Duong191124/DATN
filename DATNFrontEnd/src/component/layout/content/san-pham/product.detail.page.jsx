@@ -92,15 +92,10 @@ const ProductDetailPage = () => {
   const [sizeError, setSizeError] = useState(false);
   const [availableQuantity, setAvailableQuantity] = useState(0);
   const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("i18nextLng");
-    if (savedLanguage) {
-      i18n.changeLanguage(savedLanguage);
-    } else {
-      const defaultLang = i18n.language || "vi";
-      i18n.changeLanguage(defaultLang);
-    }
-  }, [i18n.language]);
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
   const initSize = async () => {
     const res = await fetchDataSize();
     setSize(res.data.data);
@@ -327,13 +322,11 @@ const ProductDetailPage = () => {
                   .map((size) => (
                     <button
                       key={size.id}
-                      className={`size-button ${
-                        selectedSize === size.name ? "selected" : ""
-                      } ${
-                        !availableSizes.includes(size.name)
+                      className={`size-button ${selectedSize === size.name ? "selected" : ""
+                        } ${!availableSizes.includes(size.name)
                           ? "disabled-size"
                           : ""
-                      }`}
+                        }`}
                       onClick={() => handleSizeChange(size.name)}
                       disabled={!availableSizes.includes(size.name)}
                     >
@@ -353,13 +346,11 @@ const ProductDetailPage = () => {
                   .map((color) => (
                     <button
                       key={color.id}
-                      className={`color-button ${
-                        selectedColor === color.name ? "selected" : ""
-                      } ${
-                        !availableColors.includes(color.name)
+                      className={`color-button ${selectedColor === color.name ? "selected" : ""
+                        } ${!availableColors.includes(color.name)
                           ? "disabled-color"
                           : ""
-                      }`}
+                        }`}
                       onClick={() => handleColorChange(color.name)}
                       disabled={!availableColors.includes(color.name)}
                     >

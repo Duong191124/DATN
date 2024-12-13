@@ -186,16 +186,11 @@ const ProductDetailCard = ({ product, onAddToWishlist, onQuickView }) => {
   } = product;
   const { addToCart } = useCart();
   const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
   const [quantityDetail, setQuantityDetail] = useState();
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("i18nextLng");
-    if (savedLanguage) {
-      i18n.changeLanguage(savedLanguage); // Đảm bảo ngôn ngữ được thay đổi khi khởi tạo
-    } else {
-      const defaultLang = i18n.language || "vi"; // Ngôn ngữ mặc định
-      i18n.changeLanguage(defaultLang);
-    }
-  }, [i18n.language]);
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
   const handleAddToCart = () => {
     const cartItem = {
       ...product,
