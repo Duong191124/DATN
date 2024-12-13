@@ -369,16 +369,23 @@ public class OrderServiceImpl implements OrderService {
             if (note == null || note.trim().isEmpty()) {
                 throw new IllegalArgumentException("Note is required when cancelling the order.");
             }
-
+            if(orders.getStatus().equals(OrderStatus.pending) || orders.getStatus().equals(OrderStatus.pending_payment)){
+                orders.setNote(note);
+                // Duyệt qua các chi tiết đơn hàng để cập nhật số lượng sản phẩm
+                for (OrderDetail orderDetail : orders.getOrderDetails()) {
+                    ProductDetail productDetail = orderDetail.getProductDetail();
+                    productDetailRepo.save(productDetail);
+                }
+            }else {
+                for (OrderDetail orderDetail : orders.getOrderDetails()) {
+                    ProductDetail productDetail = orderDetail.getProductDetail();
+                    int quantityOrdered = orderDetail.getQuantity();
+                    productDetail.setQuantity(productDetail.getQuantity() + quantityOrdered);
+                    productDetailRepo.save(productDetail);
+                }
+            }
             // Cập nhật ghi chú cho đơn hàng
             orders.setNote(note);
-            // Duyệt qua các chi tiết đơn hàng để cập nhật số lượng sản phẩm
-            for (OrderDetail orderDetail : orders.getOrderDetails()) {
-                ProductDetail productDetail = orderDetail.getProductDetail();
-                int quantityOrdered = orderDetail.getQuantity();
-                productDetail.setQuantity(productDetail.getQuantity() + quantityOrdered);
-                productDetailRepo.save(productDetail);
-            }
         }
         if (orderStatus == OrderStatus.completed) {
             if(payment.getOrders().equals(orders)){
@@ -521,10 +528,6 @@ public class OrderServiceImpl implements OrderService {
         // Trả về phản hồi đơn hàng đã cập nhật
         return OrderResponse.convertOrderResponse(order);
     }
-
-
-
-
 
     @Override
     public Page<OrderResponse> pageAll(String staffName, LocalDate startDate, LocalDate endDate, OrderStatus orderStatus, String orderCode,OrderType orderType ,Pageable pageable) {

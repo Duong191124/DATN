@@ -24,6 +24,7 @@ const { Text } = Typography;
 import "../layout/content/san-pham/product.detail.page.css";
 import { data } from "framer-motion/client";
 import "./product.card.css";
+import { useTranslation } from "react-i18next";
 const ProductCardWrapper = styled(motion.div)`
   position: relative;
   background: white;
@@ -208,7 +209,16 @@ const ProductCard = ({
   const [sizeError, setSizeError] = useState(false);
   const { addToCart } = useCart();
   const [availableQuantity, setAvailableQuantity] = useState(0);
-
+  const { t, i18n } = useTranslation();
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("i18nextLng");
+    if (savedLanguage) {
+      i18n.changeLanguage(savedLanguage); // Đảm bảo ngôn ngữ được thay đổi khi khởi tạo
+    } else {
+      const defaultLang = i18n.language || "vi"; // Ngôn ngữ mặc định
+      i18n.changeLanguage(defaultLang);
+    }
+  }, [i18n.language]);
   const min = (minPrice || 0).toLocaleString("vi-VN", {
     style: "currency",
     currency: "VND",
@@ -294,15 +304,15 @@ const ProductCard = ({
       return;
     }
     if (availableQuantity === 0) {
-      message.info("Hàng hết, vui lòng mua sản phẩm khác!");
+      message.info(t("MES-109"));
       return;
     }
     if (!quantity || parseInt(quantity, 10) === 0) {
-      message.warning("Vui lòng nhập số lượng.");
+      message.warning(t("MES-110"));
       return;
     }
     if (parseInt(quantity, 10) > availableQuantity) {
-      message.info("Số lượng trong kho không đủ!");
+      message.info(t("MES-111"));
       return;
     }
 
@@ -338,7 +348,9 @@ const ProductCard = ({
   return (
     <ProductCardWrapper variants={itemVariants}>
       <StockBadge inStock={totalQuantity > 0}>
-        {totalQuantity > 0 ? `${totalQuantity} in stock` : "Out of stock"}
+        {totalQuantity > 0
+          ? t("MES-058", { quantity: totalQuantity })
+          : t("MES-059")}
       </StockBadge>
 
       <ProductImageContainer className="product-image">
@@ -355,19 +367,19 @@ const ProductCard = ({
           disabled={totalQuantity === 0}
           onClick={() => addToCartShow()}
         >
-          Add to Cart
+          {t("MES-060")}
         </ActionButton>
         <Modal
-          title="Select Size and Color"
+          title={t("MES-122")}
           visible={isModalVisible}
           onCancel={() => setIsModalVisible(false)} // Đóng modal khi nhấn nút Cancel
           width={800}
           footer={[
             <Button key="back" onClick={() => setIsModalVisible(false)}>
-              Cancel
+              {t("MES-112")}
             </Button>,
             <Button key="submit" type="primary" onClick={handleAddToCart}>
-              Add to Cart
+              {t("MES-060")}
             </Button>,
           ]}
         >
@@ -383,13 +395,13 @@ const ProductCard = ({
               </Col>
               <Col xs={24} md={14}>
                 <div style={priceStyle}>
-                  Price:{" "}
+                  {t("MES-113")}:{" "}
                   <span style={priceRangeStyle}>
                     {minPrice.toLocaleString()}đ - {maxPrice.toLocaleString()}đ
                   </span>
                 </div>
                 <div className="select-size" style={{ flexWrap: "wrap" }}>
-                  <label>Size:</label>
+                  <label>{t("MES-114")}:</label>
                   <div className="size-options" style={{ flexWrap: "wrap" }}>
                     {size
                       .filter((size) => size.status === 1)
@@ -413,11 +425,11 @@ const ProductCard = ({
                 </div>
                 {sizeError && (
                   <p style={{ color: "red", marginTop: "8px" }}>
-                    Vui lòng chọn size!
+                    {t("MES-116")}
                   </p>
                 )}
                 <div className="select-color" style={{ flexWrap: "wrap" }}>
-                  <label>Color:</label>
+                  <label>{t("MES-115")}:</label>
                   <div className="color-options" style={{ flexWrap: "wrap" }}>
                     {color
                       .filter((color) => color.status === 1)
@@ -441,15 +453,17 @@ const ProductCard = ({
                 </div>
                 {colorError && (
                   <p style={{ color: "red", marginTop: "8px" }}>
-                    Vui lòng chọn màu!
+                    {t("MES-117")}
                   </p>
                 )}
                 {selectedColor && selectedSize && availableQuantity >= 0 && (
                   <div style={{ margin: "10px 0" }}>
                     {availableQuantity === 0 ? (
-                      <p style={{ color: "red" }}>Hết hàng</p>
+                      <p style={{ color: "red" }}>{t("MES-118")}</p>
                     ) : (
-                      <p>Số lượng có sẵn: {availableQuantity}</p>
+                      <p>
+                        {t("MES-119")}: {availableQuantity}
+                      </p>
                     )}
                   </div>
                 )}
@@ -460,7 +474,7 @@ const ProductCard = ({
                       if (quantity > 1) {
                         setQuantity(quantity - 1);
                       } else {
-                        message.info("Số lượng phải lớn hơn hoặc bằng 1!");
+                        message.info(t("MES-120"));
                         setQuantity(1);
                       }
                     }}
@@ -486,7 +500,7 @@ const ProductCard = ({
                     onChange={(e) => {
                       const value = e.target.value.replace(/[^0-9]/g, ""); // Loại bỏ ký tự không phải số
                       if (availableQuantity === 0) {
-                        message.info("Vui lòng chọn size và màu sắc.");
+                        message.info(t("MES-121"));
                       } else {
                         setQuantity(value); // Đặt giá trị (có thể rỗng nếu người dùng xóa toàn bộ)
                       }
@@ -496,13 +510,13 @@ const ProductCard = ({
                     className="quantity-btn"
                     onClick={() => {
                       if (availableQuantity === 0) {
-                        message.info("Vui lòng chọn size và màu sắc.");
+                        message.info(t("MES-121"));
                       } else {
                         const newQuantity = Number(quantity);
                         if (newQuantity < availableQuantity) {
                           setQuantity(newQuantity + 1);
                         } else {
-                          message.info("Số lượng trong kho không đủ!");
+                          message.info(t("MES-111"));
                         }
                       }
                     }}

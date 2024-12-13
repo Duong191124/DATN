@@ -4,6 +4,7 @@ import { Button, message, Select } from "antd";
 import { useCart } from "../context/cart.context";
 import { getVouchersByCustomerId, hasCustomerUsedVoucher } from "../../service/api.service";
 import { useCheckout } from "../context/checkout.context";
+import { useTranslation } from "react-i18next";
 
 const { Option } = Select;
 
@@ -19,6 +20,8 @@ const Summary = () => {
     formatCurrency,
   } = useCheckout();
   const [vouchers, setVouchers] = useState([]);
+  const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
   const userId = localStorage.getItem("userId");
 
   // Tính subtotal từ giỏ hàng
@@ -34,11 +37,21 @@ const Summary = () => {
 
   const subtotal = calculateTotal();
 
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
+
   // Lấy dữ liệu voucher cho người dùng hiện tại
   const fetchDataVoucher = async () => {
     try {
       const res = await getVouchersByCustomerId();
-      setVouchers(res.data.data);
+      const updatedVouchers = await Promise.all(
+        res.data.data.map(async (voucher) => {
+          const isDisabled = await hasCustomerUsedVoucher(userId, voucher.id);
+          return { ...voucher, isDisabled };
+        })
+      );
+      setVouchers(updatedVouchers);
     } catch (error) {
       console.error(error);
     }
@@ -87,13 +100,13 @@ const Summary = () => {
       try {
         await fetchDataVoucher();
 
-        message.success("Voucher applied successfully!");
+        message.success(t('MES-1000'));
       } catch (error) {
         console.error("Failed to apply voucher:", error);
-        message.error("Failed to apply the voucher. Please try again.");
+        message.error(t('MES-999'));
       }
     } else {
-      message.info("No coupon selected or coupon not valid.");
+      message.info(t('MES-998'));
       setCouponDiscount(0);
       setTotalPrice(subtotal);
       setSelectedCoupon(null);
@@ -119,26 +132,21 @@ const Summary = () => {
     fetchDataVoucher();
   }, []);
 
-  console.log(userId);
-  console.log(selectedCoupon);
-  const checkVoucherUsage = async () => {
-    try {
-      // Gọi API kiểm tra xem khách hàng đã sử dụng voucher chưa
-      const response = await hasCustomerUsedVoucher(userId, selectedCoupon);
-      console.log(response);
-      // Kiểm tra dữ liệu trả về từ API, giả sử response.data chứa true/false
-      if (response.data) {
-        // Nếu khách hàng đã sử dụng voucher, trả về false
-        return false;
-      }
-      // Nếu chưa sử dụng voucher, trả về true
-      return true;
-    } catch (error) {
-      console.error("Error checking voucher usage:", error);
-      // Nếu có lỗi, trả về false để ngừng quá trình
-      return false;
-    }
-  };
+  // const checkVoucherUsage = async () => {
+  //   try {
+  //     const isVoucherValid = await checkVoucherUsage(userId, selectedCoupon);
+  //     console.log(userId, selectedCoupon);
+  //     if (!isVoucherValid) {
+  //       message.info(t('MES-987'));
+  //       return; // Dừng quá trình tạo đơn hàng nếu voucher không hợp lệ
+  //     }
+  //     return true;
+  //   } catch (error) {
+  //     console.error("Error checking voucher usage:", error);
+  //     // Nếu có lỗi, trả về false để ngừng quá trình
+  //     return false;
+  //   }
+  // };
 
   const renderedCartItems = useMemo(() => {
     return <CartItem cartItems={cartItems} />;
@@ -147,8 +155,8 @@ const Summary = () => {
   return (
     <>
       <div style={{ textAlign: "center", padding: "20px" }}>
-        <h3>Order Summary</h3>
-        <p>Review items in your cart.</p>
+        <h3>{t('MES-997')}</h3>
+        <p>{t('MES-996')}</p>
       </div>
       <div
         className="summary"
@@ -168,7 +176,7 @@ const Summary = () => {
             {cartItems?.length > 0 ? (
               renderedCartItems
             ) : (
-              <p>Your cart is empty</p>
+              <p>{t('MES-995')}</p>
             )}
           </div>
         </div>
@@ -189,13 +197,13 @@ const Summary = () => {
               htmlFor="coupon"
               style={{ marginRight: "8px", fontWeight: "bold", fontSize: "14px" }}
             >
-              Mã giảm giá:
+              {t('MES-994')}:
             </label>
             <Select
               id="coupon"
               placeholder="Chọn mã giảm giá"
               style={{
-                width: 200,
+                width: 300,
                 borderRadius: "8px",
                 boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
               }}
@@ -203,21 +211,31 @@ const Summary = () => {
               value={selectedCoupon}
             >
               {vouchers
-                .filter((voucher) => subtotal >= parseFloat(voucher.minPurchaseAmount)) // Lọc các voucher đủ điều kiện
+                .filter((voucher) =>
+                  subtotal >= parseFloat(voucher.minPurchaseAmount) &&
+                  voucher.status !== 0 &&
+                  voucher.quantity > 0
+                ) // Lọc các voucher đủ điều kiện
                 .map((voucher) => {
-                  const { id, code, discountPercent, discountAmount, minPurchaseAmount } = voucher;
+                  const { id, code, discountPercent, discountAmount, minPurchaseAmount, status, quantity, isDisabled } = voucher;
                   const discountInfo = [];
 
+                  const isTrue = isDisabled.data === true;
                   if (discountPercent > 0) {
                     discountInfo.push(`${formatCurrency(discountPercent)}%`);
                   }
                   if (discountAmount > 0) {
                     discountInfo.push(`${formatCurrency(discountAmount)}`);
                   }
-
                   return (
-                    <Option key={voucher.id} value={id}>
-                      {`${code} - ${discountInfo.length > 0 ? `${discountInfo.join(", ")}` : ""}`}
+                    <Option
+                      key={id}
+                      value={id}
+                      disabled={isTrue}
+                      style={isTrue ? { color: "gray" } : {}}
+                    >
+                      {`${code} - ${discountInfo.length > 0 ? `${discountInfo.join(", ")}` : ""
+                        } ${isTrue ? "(Đã sử dụng)" : ""}`}
                     </Option>
                   );
                 })}
@@ -257,7 +275,7 @@ const Summary = () => {
           }}
         >
           <div style={{ marginBottom: "8px", color: "#333" }}>
-            <span style={{ fontWeight: "bold" }}>Subtotal:</span>
+            <span style={{ fontWeight: "bold" }}>{t('MES-976')}:</span>
             <span style={{ marginLeft: "8px" }}>
               {formatCurrency(subtotal)}
             </span>
@@ -265,7 +283,7 @@ const Summary = () => {
 
           {couponDiscount > 0 && (
             <div style={{ marginBottom: "8px", color: "#f5222d" }}>
-              <span style={{ fontWeight: "bold" }}>Coupon Discount:</span>
+              <span style={{ fontWeight: "bold" }}>{t('MES-975')}:</span>
               <span style={{ marginLeft: "8px" }}>
                 - {formatCurrency(couponDiscount)}
               </span>
@@ -281,7 +299,7 @@ const Summary = () => {
                 fontWeight: "bold",
               }}
             >
-              <span>Total:</span>
+              <span>{t('MES-993')}:</span>
               <span style={{ marginLeft: "8px" }}>
                 {formatCurrency(totalPrice)}
               </span>

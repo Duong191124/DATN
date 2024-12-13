@@ -1,8 +1,9 @@
 // src/components/SelectAddressModal.jsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Modal, Row, Col, Space, Radio, Button, Typography, Card, Divider } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, HomeOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 
 const { Text } = Typography;
 
@@ -82,11 +83,17 @@ const SelectAddressModal = ({
   onDeleteAddress,
   onCancel
 }) => {
+  const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("language") || "vi";
+
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
   return (
     <Modal
       title={
         <Row justify="space-between" align="middle">
-          <Text strong>Select Shipping Address</Text>
+          <Text strong>{t('MES-945')}</Text>
         </Row>
       }
       open={isModalOpen}

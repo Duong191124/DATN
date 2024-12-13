@@ -1,7 +1,9 @@
-import React, { useEffect, useMemo } from "react";
-import { Button } from "antd";
+import React, { useEffect, useMemo, useState } from "react";
+import { Button, message } from "antd";
 import { MinusOutlined, PlusOutlined, CloseOutlined } from "@ant-design/icons";
 import { useCart } from "../context/cart.context";
+import { useTranslation } from "react-i18next";
+import { fetchProductsByProductDetails } from "../../service/api.service";
 
 const CartItem = () => {
   const {
@@ -11,6 +13,12 @@ const CartItem = () => {
     updateQuantity,
     formatCurrency,
   } = useCart();
+  const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
+
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
 
   const totalAmount = useMemo(() => {
     return cartItems.reduce((total, product) => {
@@ -40,7 +48,7 @@ const CartItem = () => {
             fontStyle: "italic",
           }}
         >
-          Your cart is empty.
+          {t("MES-995")}.
         </div>
       ) : (
         cartItems.map((product) => (
@@ -63,24 +71,45 @@ const CartItemDetail = ({
   updateQuantity,
   formatCurrency,
 }) => {
-  const increaseQuantity = () =>
-    updateQuantity(product.id, product.quantity + 1);
+  const [dataCheckProduct, setDataCheckProduct] = useState([]);
   const decreaseQuantity = () => {
     if (product.quantity > 1) {
       updateQuantity(product.id, product.quantity - 1);
     }
   };
   const handleRemove = () => removeFromCart(product.id);
-  console.log("product", product);
+  const fetchAllProductDetail = async () => {
+    const response = await fetchProductsByProductDetails(0, 1000);
+    if (response?.data?.data) {
+      setDataCheckProduct(response.data.data?.products);
+    }
+  };
   useEffect(() => {
-    const result = {};
-
-    for (let i = 100; i <= 1000; i++) {
-      result[`MES-${i}`] = "";
+    fetchAllProductDetail();
+  }, []);
+  const increaseQuantity = () => {
+    // Tìm sản phẩm trong details của các phần tử trong dataCheckProduct
+    const productDetail = dataCheckProduct
+      .flatMap((item) =>
+        item.details.filter((detail) => detail.id === product.id)
+      )
+      .find((detail) => detail);
+    if (!productDetail) {
+      console.error("Không tìm thấy thông tin sản phẩm trong tồn kho.");
+      return;
     }
 
-    console.log(result);
-  });
+    // Số lượng tồn kho của sản phẩm
+    const availableQuantity = productDetail?.quantity || 0;
+
+    // Kiểm tra số lượng
+    if (product.quantity + 1 > availableQuantity) {
+      message.info("Số lượng sản phẩm vượt quá số lượng tồn kho.");
+      return;
+    }
+    // Cập nhật số lượng nếu hợp lệ
+    updateQuantity(product.id, product.quantity + 1);
+  };
   return (
     <div
       style={{
@@ -107,7 +136,7 @@ const CartItemDetail = ({
       >
         <img
           src={product.image}
-          alt={product.name}
+          alt={product?.productResponse?.name}
           style={{
             maxWidth: "100%",
             maxHeight: "120px",
@@ -132,7 +161,7 @@ const CartItemDetail = ({
             color: "#333",
           }}
         >
-          {product.name}
+          {product?.productResponse?.name}
         </div>
 
         <div

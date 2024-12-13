@@ -3,7 +3,6 @@ import ProductCarousel from "../../../home/product.carousel";
 import BrandCarousel from "../../../home/brand.carousel";
 import HomeSlider from "../../../home/home.slider";
 import ProductList from "../../../home/product.listing";
-
 const Home = () => {
   return (
     <>

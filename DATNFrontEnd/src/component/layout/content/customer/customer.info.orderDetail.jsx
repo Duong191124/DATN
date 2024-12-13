@@ -8,6 +8,7 @@ import {
   Card,
   Divider,
   Table,
+  message,
 } from "antd";
 import {
   colorFindById,
@@ -15,12 +16,13 @@ import {
   fetchDataOrderStatusByCustomerId,
   orderFindByCode,
   productFindById,
+  retryPayment,
   sizeFindById,
 } from "../../../../service/api.service";
 import { NavLink, useLocation } from "react-router-dom";
 import moment from "moment";
 import { LeftOutlined } from "@ant-design/icons";
-
+import { useTranslation } from "react-i18next";
 const { Step } = Steps;
 const { Title, Text } = Typography;
 
@@ -34,13 +36,39 @@ const CustomerInfoOrderDetail = () => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const code = params.get("code");
+  const { t, i18n } = useTranslation();
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("i18nextLng");
+    if (savedLanguage) {
+      i18n.changeLanguage(savedLanguage);
+    } else {
+      const defaultLang = i18n.language || "vi";
+      i18n.changeLanguage(defaultLang);
+    }
+  }, [i18n.language]);
   const cardStyle = {
     borderRadius: 8,
     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
     padding: 16,
     marginBottom: 16,
   };
-
+  const handleRetryPayment = async (orderCode) => {
+    try {
+      if (orderCode) {
+        const retryResponse = await retryPayment(orderCode);
+        const paymentUrl = retryResponse.data.paymentUrl;
+        if (paymentUrl) {
+          window.location.href = paymentUrl;
+        } else {
+          message.info("Không nhận được liên kết thanh toán mới.");
+        }
+      } else {
+        message.info("Không tìm thấy đơn hàng để thanh toán.");
+      }
+    } catch (error) {
+      message.error("Thanh toán lại thất bại. Vui lòng thử lại.");
+    }
+  };
   const stepStyle = {
     marginBottom: 32,
   };
@@ -127,7 +155,7 @@ const CustomerInfoOrderDetail = () => {
 
   const productColumns = [
     {
-      title: "Sản phẩm",
+      title: t("MES-131"),
       dataIndex: "product",
       key: "product",
       render: (text, record) => (
@@ -151,7 +179,7 @@ const CustomerInfoOrderDetail = () => {
       ),
     },
     {
-      title: "Đơn giá",
+      title: t("MES-132"),
       render: (text, record) => {
         const discountPrice = record?.price?.discountPrice;
         const defaultPrice = record?.price?.defaultPrice;
@@ -172,12 +200,12 @@ const CustomerInfoOrderDetail = () => {
       },
     },
     {
-      title: "Số lượng",
+      title: t("MES-133"),
       dataIndex: "quantity",
       key: "quantity",
     },
     {
-      title: "Thành tiền",
+      title: t("MES-134"),
       dataIndex: "total",
       key: "total",
       render: (total) => (
@@ -220,20 +248,23 @@ const CustomerInfoOrderDetail = () => {
     fetchProductData();
   }, [dataInfoOrder]);
   const stepData = [
-    { title: "Đơn hàng đã đặt", status: "pending" },
-    { title: "Đã xác nhận", status: "confirmed" },
-    { title: "Đang giao", status: "shipping" },
-    { title: "Đã nhận được hàng", status: "delivered" },
-    { title: "Đơn hàng đã hoàn thành", status: "completed" },
+    { title: t("MES-124"), status: "pending" },
+    { title: t("MES-125"), status: "confirmed" },
+    { title: t("MES-126"), status: "shipping" },
+    { title: t("MES-127"), status: "delivered" },
+    { title: t("MES-128"), status: "completed" },
   ];
   const relevantSteps =
     dataInfoOrder.status === "cancelled"
       ? [
-          { title: "Đơn hàng đã đặt", status: "pending" },
+          { title: t("MES-124"), status: "pending" },
           ...(dataInfoOrder.status.includes("confirmed")
-            ? [{ title: "Đã xác nhận", status: "confirmed" }]
+            ? [{ title: t("MES-125"), status: "confirmed" }]
             : []),
-          { title: "Đơn hàng đã hủy", status: "cancelled" },
+          ...(dataInfoOrder.status.includes("shipping")
+            ? [{ title: t("MES-125"), status: "shipping" }]
+            : []),
+          { title: t("MES-129"), status: "cancelled" },
         ]
       : stepData;
   const currentStep = relevantSteps.findIndex(
@@ -242,6 +273,7 @@ const CustomerInfoOrderDetail = () => {
   const updatedAtFormatted = moment(dataInfoOrder.updatedAt).format(
     "DD-MM-YYYY HH:mm:ss"
   );
+  console.log("daa", dataInfoOrder);
   return (
     <div style={{ padding: 16, marginTop: "80px" }}>
       <Row
@@ -254,7 +286,11 @@ const CustomerInfoOrderDetail = () => {
           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
           marginBottom: "28px",
           display: "flex", // Dùng flex để căn chỉnh các phần tử
-          justifyContent: userId === "1" ? "flex-end" : "space-between", // Căn giữa các phần tử
+          justifyContent:
+            dataInfoOrder?.paymentResponses?.length > 0 &&
+            dataInfoOrder?.paymentResponses[0]?.status !== 0
+              ? "flex-end"
+              : "space-between", // Căn giữa các phần tử
         }}
       >
         {userId !== "1" && (
@@ -269,9 +305,31 @@ const CustomerInfoOrderDetail = () => {
               display: "flex",
             }}
           >
-            <LeftOutlined /> <span style={{ fontSize: "18px" }}>Quay lại</span>
+            <LeftOutlined />{" "}
+            <span style={{ fontSize: "18px" }}>{t("MES-135")}</span>
           </NavLink>
         )}
+        {userId === "1" && // Kiểm tra nếu userId là "1"
+          dataInfoOrder?.paymentResponses?.length > 0 && // Kiểm tra nếu paymentResponses có phần tử
+          dataInfoOrder?.paymentResponses[0]?.paymentMethod === "VNP" && // Kiểm tra paymentMethod của phần tử đầu tiên
+          dataInfoOrder?.paymentResponses[0]?.status === 0 && ( // Kiểm tra status của phần tử đầu tiên
+            <Button
+              type="default"
+              onClick={() => handleRetryPayment(dataInfoOrder?.code)} // Gọi hàm khi nhấn nút
+              key="retry"
+              style={{
+                color: "gray",
+                padding: "6px 20px",
+                borderRadius: 8,
+                alignItems: "center",
+                fontSize: "16px",
+                display: "flex",
+              }}
+            >
+              {t("MES-232")} {/* Hiển thị thông điệp */}
+            </Button>
+          )}
+
         <Text
           style={{
             fontSize: "18px",
@@ -300,8 +358,8 @@ const CustomerInfoOrderDetail = () => {
         >
           {dataInfoOrder?.paymentResponses?.length > 0 &&
           dataInfoOrder?.paymentResponses[0]?.status === 0
-            ? "Chưa thanh toán"
-            : "Đã thanh toán"}
+            ? t("MES-136")
+            : t("MES-137")}
         </Text>
       </Row>
       <Row style={stepStyle}>
@@ -322,22 +380,28 @@ const CustomerInfoOrderDetail = () => {
         </Steps>
       </Row>
       <div style={addressSectionStyle}>
-        <Title level={5}>Địa Chỉ Nhận Hàng</Title>
+        <Title level={5}>{t("MES-138")}</Title>
         <Text strong>{dataInfoOrder?.address?.name}</Text>
         <br />
-        <Text>Số điện thoại:{dataInfoOrder?.address?.phoneNumber}</Text>
+        <Text>
+          {t("MES-139")}:{dataInfoOrder?.address?.phoneNumber}
+        </Text>
         <br />
-        <Text>Địa chỉ: {dataInfoOrder?.address?.addressDetail}</Text>
+        <Text>
+          {t("MES-140")}: {dataInfoOrder?.address?.addressDetail}
+        </Text>
         <Divider />
         {dataInfoOrder.status === "completed" && (
           <div>
-            <Text>{updatedAtFormatted} - Giao hàng thành công</Text>
+            <Text>
+              {updatedAtFormatted} - {t("MES-141")}
+            </Text>
           </div>
         )}
       </div>
 
       {/* Sản phẩm */}
-      <Card title="Chi Tiết Sản Phẩm" style={cardStyle}>
+      <Card title={t("MES-142")} style={cardStyle}>
         <Table
           columns={productColumns}
           dataSource={productData}
@@ -347,7 +411,7 @@ const CustomerInfoOrderDetail = () => {
       </Card>
       <div style={cardStyle}>
         <Row justify="space-between">
-          <Text>Tổng tiền hàng:</Text>
+          <Text>{t("MES-143")}:</Text>
           <Text>
             ₫{" "}
             {dataInfoOrder?.orderDetailResponses
@@ -362,7 +426,7 @@ const CustomerInfoOrderDetail = () => {
           </Text>
         </Row>
         <Row justify="space-between">
-          <Text>Phí vận chuyển:</Text>
+          <Text>{t("MES-144")}:</Text>
           <Text>
             ₫
             {dataInfoOrder?.deliveryFee != null
@@ -398,11 +462,12 @@ const CustomerInfoOrderDetail = () => {
                     {dataInfoOrder?.voucherId ? (
                       dataInfoOrder?.voucherId.discountPercent > 0 ? (
                         <span style={{ color: "#fff" }}>
-                          Giảm giá {dataInfoOrder?.voucherId.discountPercent}%
+                          {t("MES-144")}{" "}
+                          {dataInfoOrder?.voucherId.discountPercent}%
                         </span>
                       ) : dataInfoOrder?.voucherId.discountAmount > 0 ? (
                         <span style={{ color: "#fff" }}>
-                          Giảm giá{" "}
+                          {t("MES-196")}{" "}
                           {new Intl.NumberFormat("vi-VN").format(
                             dataInfoOrder?.voucherId.discountAmount
                           )}
@@ -422,7 +487,7 @@ const CustomerInfoOrderDetail = () => {
         )}
         <Divider />
         <Row justify="space-between" align="middle">
-          <Title level={5}>Thành tiền:</Title>
+          <Title level={5}>{t("MES-134")}:</Title>
           <Title level={5} style={{ color: "#ff4d4f" }}>
             ₫{" "}
             {dataInfoOrder.totalAmount

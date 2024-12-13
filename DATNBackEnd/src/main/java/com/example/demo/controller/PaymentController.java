@@ -10,6 +10,7 @@ import com.example.demo.response.MessageReponse;
 import com.example.demo.response.PaymentResponse;
 import com.example.demo.service.OrderService;
 import com.example.demo.service.PaymentService;
+import com.example.demo.utils.MailService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -36,7 +38,8 @@ public class PaymentController {
     OrderRepo orderRepo;
     @Autowired
     ProductDetailRepo productDetailRepo;
-
+    @Autowired
+     MailService mailService;
 //    @PreAuthorize("hasAuthority('READ_PAYMENT')")
     @GetMapping("list")
     public ResponseEntity<?> getAllPayment(){
@@ -54,6 +57,9 @@ public class PaymentController {
                 return ResponseEntity.badRequest().body(messageError);
             }
             PaymentResponse paymentResponse = paymentService.createdPayment(paymentDTO);
+            if (paymentResponse.getOrderDataPaymentResponse().getCustomerResponse().getId() == 1 && paymentResponse.getOrderDataPaymentResponse().getAddress().getMail() != null) {
+                mailService.sendOrderCode(paymentResponse.getOrderDataPaymentResponse().getAddress().getMail(), paymentResponse.getOrderDataPaymentResponse().getCode());
+            }
             return ResponseEntity.status(HttpStatus.CREATED).body(new MessageReponse("added successfully",201,paymentResponse));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -101,34 +107,74 @@ public class PaymentController {
 
     @GetMapping("/payment-callback")
     public ResponseEntity<Map<String, String>> paymentCallback(@RequestParam Map<String, String> params) {
-        Integer orderId = Integer.valueOf(params.get("vnp_TxnRef"));
+        String orderId = params.get("vnp_TxnRef");
         String vnp_SecureHash = params.get("vnp_SecureHash");
 
+        // Kiểm tra đơn hàng
+        Orders order = orderRepo.findByCode(orderId);
+        if (order == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "status", "INVALID_ORDER",
+                    "message", "Đơn hàng không tồn tại"
+            ));
+        }
+
+        // Kiểm tra mã hash bảo mật
         String calculatedHash = generateSecureHash(params);
-        Orders order = orderRepo.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
-        if (vnp_SecureHash.equals(calculatedHash)) {
-            String paymentStatus = params.get("vnp_ResponseCode");
-                    if ("00".equals(paymentStatus)) {
-                        Payment payment = new Payment();
-                        payment.setPaymentMethod("VNP");
-                        payment.setPaymentDate(new Date());
-                        payment.setOrders(order);
-                        payment.setStatus(1);
-                        paymentRepo.save(payment);
-                        Map<String, String> response = new HashMap<>();
-                        response.put("status", "SUCCESS");
-                        response.put("message", "Thanh toán thành công");
-                        response.put("orderId", order.getCode()); // Trả về orderId
-                        response.put("paymentMethod", payment.getPaymentMethod());
-                        return ResponseEntity.ok(response);
-                    } else {
-                        orderRepo.delete(order);
-                        return ResponseEntity.ok(Map.of("status", "FAILED", "message", "Thanh toán thất bại"));
-                    }
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("status", "INVALID", "message", "Mã bảo mật không hợp lệ"));
+        if (!vnp_SecureHash.equals(calculatedHash)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "status", "INVALID_HASH",
+                    "message", "Mã bảo mật không hợp lệ"
+            ));
+        }
+
+        // Xử lý trạng thái thanh toán
+        String paymentStatus = params.get("vnp_ResponseCode");
+
+        // Tìm kiếm hoặc tạo mới đối tượng Payment
+        Payment payment = paymentRepo.findByOrders(order).orElseGet(() -> {
+            Payment newPayment = new Payment();
+            newPayment.setOrders(order);
+            return newPayment;
+        });
+
+        // Thiết lập thông tin thanh toán
+        payment.setPaymentMethod("VNP");
+        payment.setPaymentDate(new Date());
+
+        if ("00".equals(paymentStatus)) { // Thanh toán thành công
+            payment.setStatus(1);
+            paymentRepo.save(payment);
+            return ResponseEntity.ok(Map.of(
+                    "status", "SUCCESS",
+                    "message", "Thanh toán thành công",
+                    "orderId", order.getCode(),
+                    "paymentMethod", payment.getPaymentMethod()
+            ));
+        } else { // Thanh toán thất bại
+            payment.setStatus(0);
+            paymentRepo.save(payment);
+            return ResponseEntity.ok(Map.of(
+                    "status", "FAILED",
+                    "message", "Thanh toán thất bại",
+                    "orderId", order.getCode()
+            ));
         }
     }
+
+
+    @PutMapping("/orders/retry-payment")
+    public ResponseEntity<Map<String, String>> retryPayment(@RequestParam String orderId) throws UnsupportedEncodingException {
+        Orders order = orderRepo.findByCode(orderId);
+
+        if (order.getStatus() != OrderStatus.pending) {
+            throw new RuntimeException("Order is not in a pending state");
+        }
+
+        String paymentUrl =  paymentService.createPaymentUrl(order.getCode(), order.getTotalAmount().longValue());
+        return ResponseEntity.ok(Map.of("paymentUrl", paymentUrl));
+    }
+
     private String generateSecureHash(Map<String, String> params) {
         List<String> fieldNames = new ArrayList<>(params.keySet());
         Collections.sort(fieldNames);

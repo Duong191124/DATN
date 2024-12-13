@@ -9,7 +9,8 @@ import styled from "styled-components";
 import { motion } from "framer-motion";
 import PropTypes from "prop-types";
 import { useCart } from "../context/cart.context";
-
+import { useTranslation } from "react-i18next";
+import { findByProductDetailId } from "../../service/api.service";
 const { Text } = Typography;
 
 const ProductCardWrapper = styled(motion.div)`
@@ -184,6 +185,17 @@ const ProductDetailCard = ({ product, onAddToWishlist, onQuickView }) => {
     promotions,
   } = product;
   const { addToCart } = useCart();
+  const { t, i18n } = useTranslation();
+  const [quantityDetail, setQuantityDetail] = useState();
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("i18nextLng");
+    if (savedLanguage) {
+      i18n.changeLanguage(savedLanguage); // Đảm bảo ngôn ngữ được thay đổi khi khởi tạo
+    } else {
+      const defaultLang = i18n.language || "vi"; // Ngôn ngữ mặc định
+      i18n.changeLanguage(defaultLang);
+    }
+  }, [i18n.language]);
   const handleAddToCart = () => {
     const cartItem = {
       ...product,
@@ -191,8 +203,24 @@ const ProductDetailCard = ({ product, onAddToWishlist, onQuickView }) => {
       color: color.name,
       quantity: 1,
     };
+    fetchData(product?.id);
+    if (cartItem.quantity > quantityDetail) {
+      message.warning(t('MES-111'))
+      return;
+    }
     addToCart(cartItem);
   };
+  const fetchData = async () => {
+    try {
+      const res = await findByProductDetailId(product?.id)
+      setQuantityDetail(res.data.data.quantity);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  useEffect(() => {
+    fetchData();
+  }, [])
   return (
     <ProductCardWrapper variants={itemVariants}>
       {promotions && promotions.length > 0 && discountPrice > 0 && (
@@ -202,11 +230,9 @@ const ProductDetailCard = ({ product, onAddToWishlist, onQuickView }) => {
             : `Giảm ${promotions[0].discountAmount.toLocaleString("vi-VN")}đ`}
         </SaleIcon>
       )}
-
       <StockBadge inStock={quantity > 0}>
-        {quantity > 0 ? `${quantity} in stock` : "Out of stock"}
+        {quantity > 0 ? t("MES-058", { quantity: quantity }) : t("MES-059")}
       </StockBadge>
-
       <ProductImageContainer className="product-image">
         <ProductImage src={image} alt={name} />
       </ProductImageContainer>
@@ -218,7 +244,7 @@ const ProductDetailCard = ({ product, onAddToWishlist, onQuickView }) => {
           onClick={() => handleAddToCart()}
           disabled={quantity === 0}
         >
-          Add to Cart
+          {t("MES-060")}
         </ActionButton>
       </ProductActions>
       <ProductInfo>
@@ -294,9 +320,9 @@ ProductDetailCard.propTypes = {
 };
 
 ProductDetailCard.defaultProps = {
-  onAddToCart: () => {},
-  onAddToWishlist: () => {},
-  onQuickView: () => {},
+  onAddToCart: () => { },
+  onAddToWishlist: () => { },
+  onQuickView: () => { },
 };
 
 export default ProductDetailCard;

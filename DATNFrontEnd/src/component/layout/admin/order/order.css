@@ -5,6 +5,8 @@
 }
 .filter-bill {
   width: 18%;
+  position: relative;
+  bottom: 90px;
 }
 .filter-bill .bill-order-code {
   background-color: #ddd;

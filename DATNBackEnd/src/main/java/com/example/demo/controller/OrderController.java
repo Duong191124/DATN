@@ -135,10 +135,6 @@ public class  OrderController {
             // Try to create the order
             OrderResponse order = orderService.createOrderOnline(orderDTO);
 
-            if (orderDTO.getCustomerId() == 1 && orderDTO.getAddress().getMail() != null) {
-                mailService.sendOrderCode(orderDTO.getAddress().getMail(), orderDTO.getCode());
-            }
-
             // Return a successful response
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new MessageReponse("Order added successfully", 201, order));

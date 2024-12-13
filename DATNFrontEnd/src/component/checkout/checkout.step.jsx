@@ -17,21 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { useCheckout } from "../context/checkout.context";
 import moment from "moment";
 import { data } from "framer-motion/client";
-
-const steps = [
-  {
-    title: "Order Summary",
-    content: <Summary />,
-  },
-  {
-    title: "Shipping Details",
-    content: <Shipping />,
-  },
-  {
-    title: "Payment",
-    content: <Payment />,
-  },
-];
+import { useTranslation } from "react-i18next";
 
 const CheckoutStep = () => {
   const { token } = theme.useToken();
@@ -57,6 +43,23 @@ const CheckoutStep = () => {
   const [loading, setLoading] = useState(false);
   const [vouchers, setVoucher] = useState(null);
   const userId = localStorage.getItem("userId");
+  const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
+
+  const steps = [
+    {
+      title: t("MES-997"),
+      content: <Summary />,
+    },
+    {
+      title: t("MES-992"),
+      content: <Shipping />,
+    },
+    {
+      title: t("MES-991"),
+      content: <Payment />,
+    },
+  ];
 
   const next = () => {
     setCurrent(current + 1);
@@ -65,6 +68,10 @@ const CheckoutStep = () => {
   const prev = () => {
     setCurrent(current - 1);
   };
+
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
 
   const convertCartToOrderDetails = (cartItemsLocal) => {
     return cartItemsLocal.map((item) => ({
@@ -123,51 +130,15 @@ const CheckoutStep = () => {
       const response = await getVouchersByCustomerId(userId);
       setVoucher(response.data.data);
     } catch (error) {
-      message.error("Không thể tải voucher.");
+      message.error(t("MES-990"));
     }
   };
   useEffect(() => {
     fetchVouchers();
   }, []);
-  const checkVoucherUsage = async (customerId, voucherId) => {
-    try {
-      // Gọi API kiểm tra xem khách hàng đã sử dụng voucher chưa
-      const response = await hasCustomerUsedVoucher(customerId, voucherId);
-
-      // Kiểm tra dữ liệu trả về từ API, giả sử response.data chứa true/false
-      if (response.data) {
-        // Nếu khách hàng đã sử dụng voucher, trả về false
-        return false;
-      }
-      // Nếu chưa sử dụng voucher, trả về true
-      return true;
-    } catch (error) {
-      console.error("Error checking voucher usage:", error);
-      // Nếu có lỗi, trả về false để ngừng quá trình
-      return false;
-    }
-  };
   const confirmOrder = async () => {
     setLoading(true);
     // Kiểm tra voucher trước khi tạo đơn hàng
-    const voucher = vouchers.find((v) => v.id === selectedCoupon);
-    if (!voucher) {
-      message.info("Voucher không hợp lệ.");
-      setLoading(false);
-      return;
-    }
-    // Kiểm tra số lượng voucher còn lại
-    if (voucher.quantity <= 0) {
-      message.info("Voucher này đã hết số lượng sử dụng.");
-      setLoading(false);
-      return;
-    }
-    const isVoucherValid = await checkVoucherUsage(userId, selectedCoupon);
-    if (!isVoucherValid) {
-      message.info("Voucher đã được sử dụng.");
-      setLoading(false);
-      return; // Dừng quá trình tạo đơn hàng nếu voucher không hợp lệ
-    }
     const cartItemsLocal = cartItems;
     const orderDetailRequests = convertCartToOrderDetails(cartItemsLocal);
     const addressToOrder = convertSelectAddressToOrder(selectAddress);
@@ -186,7 +157,6 @@ const CheckoutStep = () => {
       orderDetailRequests, // Dữ liệu sản phẩm trong đơn hàng
       changeAddress,
     };
-
     try {
       // Step 1: Create the order in your system
       const createOrderResponse = await createOrderForOnline(
@@ -219,11 +189,10 @@ const CheckoutStep = () => {
         throw new Error("Invalid payment method selected");
       }
     } catch (error) {
-      let errorMessage =
-        error?.message || "Đã xảy ra lỗi. Vui lòng thử lại sau.";
+      let errorMessage = error?.message || t("MES-985");
 
       if (error?.message?.includes("Insufficient stock")) {
-        errorMessage = "Số lượng sản phẩm không đủ trong kho!";
+        errorMessage = t("MES-986");
       }
 
       message.error(errorMessage);
@@ -245,7 +214,7 @@ const CheckoutStep = () => {
       setCartItems([]);
       return {
         success: true,
-        message: "Thanh toán thành công qua VNPAY",
+        message: t("MES-984"),
       };
     }
   };
@@ -260,7 +229,7 @@ const CheckoutStep = () => {
       localStorage.removeItem(`cart_${userId}`);
       setCartItems([]);
       localStorage.setItem("paymentStatus", "success");
-      localStorage.setItem("paymentMessage", "Thanh toán thành công");
+      localStorage.setItem("paymentMessage", t("MES-983"));
       localStorage.setItem(
         "code",
         paymentResponse?.data?.orderDataPaymentResponse.code
@@ -269,14 +238,14 @@ const CheckoutStep = () => {
       setLoading(false);
       return {
         success: true,
-        message: "Thanh toán thành công",
+        message: t("MES-983"),
       };
     } else {
       localStorage.setItem("paymentStatus", "failed");
-      localStorage.setItem("paymentMessage", "Thanh toán thất bại");
+      localStorage.setItem("paymentMessage", t("MES-982"));
       navigate("/payments/payment-callback"); // Redirect to callback page
       setLoading(false);
-      return { success: false, message: "Thanh toán thất bại" };
+      return { success: false, message: t("MES-982") };
     }
   };
 
@@ -383,7 +352,7 @@ const CheckoutStep = () => {
             }}
             onClick={prev}
           >
-            Previous
+            {t("MES-979")}
           </Button>
         )}
         {current < steps.length - 1 && (
@@ -392,7 +361,7 @@ const CheckoutStep = () => {
             onClick={async () => {
               if (cartItems.length === 0) {
                 notification.warning({
-                  message: "Không có sản phẩm trong giỏ hàng",
+                  message: t("MES-981"),
                   duration: 2,
                 });
                 setCurrent(0);
@@ -403,7 +372,7 @@ const CheckoutStep = () => {
                   (userId !== "1" && selectAddress === null) ||
                   (userId === "1" && shippingData === null)
                 ) {
-                  message.error("Vui lòng chọn địa chỉ giao hàng");
+                  message.error(t("MES-980"));
                   return;
                 }
                 await handleApiGhn();
@@ -422,7 +391,7 @@ const CheckoutStep = () => {
               borderRadius: "6px",
             }}
           >
-            Next
+            {t("MES-978")}
           </Button>
         )}
         {current === steps.length - 1 && (
@@ -441,7 +410,7 @@ const CheckoutStep = () => {
             type="primary"
             onClick={confirmOrder}
           >
-            Confirm
+            {t("MES-977")}
           </Button>
         )}
       </div>

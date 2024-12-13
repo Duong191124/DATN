@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 const { Search } = Input;
 const { Text } = Typography;
 
-const ProductSearch = ({ data }) => {
+const ProductSearch = ({ data, t }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showNoResults, setShowNoResults] = useState(false);
@@ -42,9 +42,7 @@ const ProductSearch = ({ data }) => {
           // Khi đã xóa xong, đổi chuỗi và bắt đầu gõ lại
           isDeleting.current = false;
           setCurrentPlaceholder(
-            currentPlaceholder === "Tìm kiếm sản phẩm"
-              ? "Tìm kiếm theo thương hiệu"
-              : "Tìm kiếm sản phẩm"
+            currentPlaceholder === t("MES-097") ? t("MES-098") : t("MES-097")
           );
         }
       }
