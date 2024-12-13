@@ -103,7 +103,7 @@ import java.util.Set;
 
             return PromotionResponse.fromPromotionResponse(updatedPromotion);
         }
-        
+
         @Override
         public PromotionResponse updateProductDetails(Integer promotionId, List<Integer> productDetailsIds, Boolean applyPromotion) throws Exception {
             Promotion existingPromotion = getPromotionById(promotionId);

@@ -1,6 +1,5 @@
-// src/App.jsx
 import React, { useContext } from 'react';
-import { DarkModeContext } from './DarkModeContext'; // Import Context
+import { DarkModeContext } from '../darkmode/DarkModeContext';  // Import DarkModeContext
 
 const sunIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" className="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -14,18 +13,14 @@ const moonIcon = (
   </svg>
 );
 
-const App = () => {
-  const { darkMode, toggleDarkMode } = useContext(DarkModeContext);
+const DarkModeToggleButton = () => {
+  const { darkMode, toggleDarkMode } = useContext(DarkModeContext);  // Sử dụng Context đã import
 
   return (
-    <div className={darkMode ? 'dark-mode' : 'light-mode'}>
-      <header>
-        <button onClick={toggleDarkMode} style={{ fontSize: '24px', padding: '10px', cursor: 'pointer' }}>
-          {darkMode ? sunIcon : moonIcon}
-        </button>
-      </header>
-    </div>
+    <button className="dark-mode-toggle-btn" onClick={toggleDarkMode}>
+      {darkMode ? sunIcon : moonIcon}
+    </button>
   );
 };
 
-export default App;
+export default DarkModeToggleButton;

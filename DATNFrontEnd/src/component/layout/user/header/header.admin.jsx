@@ -193,7 +193,7 @@ const HeaderAdmin = ({ collapsed, setCollapsed }) => {
                   verticalAlign: "middle",
                 }}
               />
-              <UserName>{user.name}</UserName>
+              <UserName>{user?.name || "Guest"}</UserName>
             </UserSection>
           </Dropdown>
         </HeaderRight>

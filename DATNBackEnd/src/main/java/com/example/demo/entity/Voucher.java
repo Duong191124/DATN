@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -48,4 +49,5 @@ public class  Voucher extends BaseEntity {
     @Basic
     @Column(name = "status")
     private int status;
+
 }

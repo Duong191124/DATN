@@ -137,3 +137,17 @@
     transform: translateX(-100%);
   }
 }
+
+/* header.css */
+.header {
+  background-color: #fff;
+  color: #000;
+}
+
+.header.dark-mode {
+  background-color: #333;
+  color: #fff;
+}
+
+/* Các phần khác của giao diện có thể thay đổi theo dark mode */
+
