@@ -54,6 +54,7 @@ const VoucherForm = (props) => {
       formattedValues.termsAndConditions,
       formattedValues.customers
     );
+    console.log('Formatted expirationDate:', formattedValues.expirationDate);
 
     if (res && res.data) {
       notification.success({

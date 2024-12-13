@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -60,10 +61,17 @@ public class VoucherServiceImpl implements VoucherService {
         return VoucherResponse.fromVoucher(savedVoucher); // Sửa tên phương thức từ `fromVoucherResponse`
     }
 
-    @Override
     public VoucherResponse update(Integer id, VoucherDTO voucherDTO) throws Exception {
         Voucher existingVoucher = getById(id); // Kiểm tra nếu voucher tồn tại
-        Set<Customer> customers = new HashSet<>();
+
+        // Kiểm tra và chuyển đổi thời gian sang UTC (nếu cần)
+        if (voucherDTO.getExpirationDate() != null) {
+            // Đảm bảo chuyển đổi thời gian của ngày hết hạn sang UTC
+            voucherDTO.setExpirationDate(voucherDTO.getExpirationDate()
+                    .atZone(ZoneId.systemDefault()) // Chuyển sang múi giờ hệ thống (hoặc một múi giờ cố định)
+                    .withZoneSameInstant(ZoneId.of("UTC")) // Chuyển sang UTC
+                    .toLocalDateTime());
+        }
 
         // Cập nhật thông tin voucher
         existingVoucher.setCode(voucherDTO.getCode());
@@ -75,8 +83,6 @@ public class VoucherServiceImpl implements VoucherService {
         existingVoucher.setMaxDiscountAmount(voucherDTO.getMaxDiscountAmount());
         existingVoucher.setTermsAndConditions(voucherDTO.getTermsAndConditions());
         existingVoucher.setStatus(voucherDTO.getStatus());
-
-
 
         Voucher updatedVoucher = voucherRepository.save(existingVoucher);
         return VoucherResponse.fromVoucher(updatedVoucher);
