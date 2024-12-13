@@ -25,7 +25,7 @@ const SleevePage = () => {
     }, [])
     return (
         <div style={{ margin: "20px" }}>
-            <h1 style={{ textAlign: "center" }}>SLEEVE MANAGEMENT</h1>
+            <h1 style={{ textAlign: "center" }}>QUẢN LÝ TAY ÁO</h1>
             <SleeveForm
                 loadSleeve={loadSleeve}
                 listSleeveName={listSleeveName}
