@@ -268,7 +268,6 @@ const CustomerInfoOrderDetail = () => {
   const updatedAtFormatted = moment(dataInfoOrder.updatedAt).format(
     "DD-MM-YYYY HH:mm:ss"
   );
-  console.log("daa", dataInfoOrder);
   return (
     <div style={{ padding: 16, marginTop: "80px" }}>
       <Row
