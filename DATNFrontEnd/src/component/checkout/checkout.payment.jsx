@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useCheckout } from "../context/checkout.context";
 import { useTranslation } from "react-i18next";
+import { useCart } from "../context/cart.context";
 
 const Payment = () => {
   const {
@@ -11,6 +12,7 @@ const Payment = () => {
     formatCurrency,
     selectedOption,
     setSelectedOption,
+    couponDiscount
   } = useCheckout();
   const { t, i18n } = useTranslation();
   const language = localStorage.getItem("i18nextLng") || "vi";
@@ -18,6 +20,20 @@ const Payment = () => {
     const subTotal = totalPrice + totalShippingFee;
     setTotalPriceAll(subTotal);
   };
+
+  const { cartItems } = useCart();
+
+  const calculateTotal = () => {
+    return cartItems.reduce((total, product) => {
+      return (
+        total +
+        (product.discountPrice || product.defaultPrice) *
+        (product.quantity || 1)
+      );
+    }, 0);
+  };
+
+  const totalProduct = calculateTotal();
 
   useEffect(() => {
     handleMinusTotalPrice();
@@ -131,19 +147,35 @@ const Payment = () => {
             </div>
           </div>
 
-          <div style={{ textAlign: "right", paddingTop: 20 }}>
+          <div style={{ textAlign: "right", paddingTop: 20, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div>
+              <strong>{t('MES-941')}:</strong>
+              <span style={{ fontSize: 24, marginLeft: 10 }}>
+                {formatCurrency(totalProduct)}
+              </span>
+            </div>
+            {couponDiscount > 0 && (
+              <div style={{ color: "#f5222d" }}>
+                <span style={{ fontWeight: "bold" }}>{t('MES-975')}:</span>
+                <span style={{ marginLeft: "8px" }}>
+                  - {formatCurrency(couponDiscount)}
+                </span>
+              </div>
+            )}
             {totalShippingFee > 0 && (
-              <div style={{ marginBottom: "8px", color: "#f5222d" }}>
+              <div style={{ color: "#f5222d" }}>
                 <span style={{ fontWeight: "bold" }}>{t('MES-946')}:</span>
                 <span style={{ marginLeft: "8px" }}>
                   + {formatCurrency(totalShippingFee)}
                 </span>
               </div>
             )}
-            <strong>{t('MES-993')}:</strong>
-            <span style={{ fontSize: 24, marginLeft: 10 }}>
-              {formatCurrency(totalPriceAll)}
-            </span>
+            <div>
+              <strong>{t('MES-993')}:</strong>
+              <span style={{ fontSize: 24, marginLeft: 10 }}>
+                {formatCurrency(totalPriceAll)}
+              </span>
+            </div>
           </div>
         </div>
       </div>
