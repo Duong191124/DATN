@@ -14,6 +14,11 @@ public class ChatboxServiceImpl implements ChatboxService {
     @Override
     public ChatboxResponse callChatbot(ChatboxRequest chatboxRequest){
         String url = "http://127.0.0.1:5001/chat";
-        return restTemplate.postForObject(url, chatboxRequest, ChatboxResponse.class);
+        try {
+            return restTemplate.postForObject(url, chatboxRequest, ChatboxResponse.class);
+        }catch (Exception e){
+            System.err.println("Lỗi khi gửi yêu cầu: " + e.getMessage());
+            return null;
+        }
     }
 }
