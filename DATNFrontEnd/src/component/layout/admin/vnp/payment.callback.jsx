@@ -61,9 +61,7 @@ const PaymentCallback = () => {
     try {
       setStatus("loading");
       setMessage("Đang thử lại thanh toán...");
-      console.log("order", orderId);
       const retryResponse = await retryPayment(orderId);
-      console.log("rr", retryResponse);
       const paymentUrl = retryResponse.data.paymentUrl;
 
       // Redirect to the payment URL if it's provided
@@ -74,7 +72,6 @@ const PaymentCallback = () => {
         setMessage("Không nhận được liên kết thanh toán mới.");
       }
     } catch (error) {
-      console.log("Error retrying payment:", error);
       setStatus("error");
       setMessage("Thanh toán lại thất bại. Vui lòng thử lại.");
     }
@@ -110,11 +107,10 @@ const PaymentCallback = () => {
       >
         <Result
           status="success"
-          title={`${
-            paymentMethod === "VNP"
+          title={`${paymentMethod === "VNP"
               ? "Thanh toán qua VNPay thành công!"
               : "Cảm ơn bạn đã mua hàng"
-          } `}
+            } `}
           subTitle={`Đơn hàng của bạn (Code: ${orderId}) đã được xử lý thành công.`}
           extra={[
             <Button type="primary" onClick={handleBackToSales} key="back">
