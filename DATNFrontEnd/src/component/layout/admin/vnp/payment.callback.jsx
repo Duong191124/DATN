@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Result, Spin, Button } from "antd";
-import { paymentCallBack } from "../../../../service/api.service";
+import { paymentCallBack, retryPayment } from "../../../../service/api.service";
 import { useNavigate } from "react-router-dom";
 
 const PaymentCallback = () => {
@@ -9,6 +9,7 @@ const PaymentCallback = () => {
   const [orderId, setOrderId] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState(""); // Track payment method
   const navigate = useNavigate();
+
   useEffect(() => {
     // For normal payment (cash), get status from localStorage
     const paymentStatus = localStorage.getItem("paymentStatus");
@@ -55,6 +56,30 @@ const PaymentCallback = () => {
     localStorage.removeItem("paymentMessage");
     localStorage.removeItem("code");
   };
+
+  const handleRetryPayment = async () => {
+    try {
+      setStatus("loading");
+      setMessage("Đang thử lại thanh toán...");
+      console.log("order", orderId);
+      const retryResponse = await retryPayment(orderId);
+      console.log("rr", retryResponse);
+      const paymentUrl = retryResponse.data.paymentUrl;
+
+      // Redirect to the payment URL if it's provided
+      if (paymentUrl) {
+        window.location.href = paymentUrl;
+      } else {
+        setStatus("error");
+        setMessage("Không nhận được liên kết thanh toán mới.");
+      }
+    } catch (error) {
+      console.log("Error retrying payment:", error);
+      setStatus("error");
+      setMessage("Thanh toán lại thất bại. Vui lòng thử lại.");
+    }
+  };
+
   if (status === "loading") {
     return (
       <div
@@ -104,7 +129,7 @@ const PaymentCallback = () => {
     );
   }
 
-  // Failed UI
+  // Failed UI with Retry Payment Button
   if (status === "failed") {
     return (
       <div
@@ -123,6 +148,9 @@ const PaymentCallback = () => {
           extra={[
             <Button type="primary" onClick={handleBackToSales} key="back">
               Quay lại bán hàng
+            </Button>,
+            <Button type="default" onClick={handleRetryPayment} key="retry">
+              Thử thanh toán lại
             </Button>,
           ]}
         />

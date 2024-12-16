@@ -7,7 +7,7 @@ import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import { fetchDataBrand } from "../../service/api.service";
 import { useNavigate } from "react-router-dom";
-
+import { useTranslation } from "react-i18next";
 const { Title, Text } = Typography;
 
 const StyledContainer = styled.div`
@@ -192,6 +192,11 @@ const BrandCarousel = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [brand, setBrand] = useState([]);
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
   const getBrands = async () => {
     const response = await fetchDataBrand();
     if (response?.data?.data) {
@@ -201,48 +206,44 @@ const BrandCarousel = () => {
           case "Nike":
             logo =
               "https://logos-world.net/wp-content/uploads/2020/04/Nike-Logo-700x394.png"; // Nike logo
-            description =
-              "Nike - Global sportswear brand known for innovation.";
+            description = `${t("MES-061")}`;
             break;
           case "Adidas":
             logo =
               "https://logos-world.net/wp-content/uploads/2020/04/Adidas-Logo-700x394.png"; // Adidas logo
-            description = "Adidas - Leading German sportswear brand.";
+            description = `${t("MES-062")}`;
             break;
           case "Puma":
             logo =
               "https://logos-world.net/wp-content/uploads/2020/04/Puma-Logo-700x394.png"; // Puma logo
-            description =
-              "Puma - German sportswear brand known for performance.";
+            description = `${t("MES-063")}`;
             break;
           case "Reebok":
             logo =
               "https://logos-world.net/wp-content/uploads/2020/04/Reebok-Logo-700x394.png"; // Reebok logo
-            description = "Reebok - International fitness brand under Adidas.";
+            description = `${t("MES-064")}`;
             break;
           case "Under Armour":
             logo =
               "https://logos-world.net/wp-content/uploads/2020/04/Under-Armour-Logo-700x394.png"; // Under Armour logo
-            description =
-              "Under Armour - Known for innovative sportswear technology.";
+            description = `${t("MES-065")}`;
             break;
           case "New Balance":
             logo =
               "https://logos-world.net/wp-content/uploads/2020/09/New-Balance-Logo-700x394.png"; // New Balance logo
-            description = "New Balance - American footwear and apparel brand.";
+            description = `${t("MES-066")}`;
             break;
           case "Converse":
             logo =
               "https://logos-world.net/wp-content/uploads/2020/06/Converse-Logo-700x394.png"; // Converse logo
-            description = "Converse - Famous for iconic Chuck Taylor sneakers.";
+            description = `${t("MES-067")}`;
             break;
           default:
             logo =
               "https://tse3.mm.bing.net/th?id=OIP.GzuYVC7BRiRpCnYboqeAkQAAAA&pid=Api&P=0&h=220";
-            description = "Not updated yet";
+            description = `${t("MES-068")}`;
             break;
         }
-
         return {
           ...brand,
           logo,
@@ -305,7 +306,7 @@ const BrandCarousel = () => {
 
   return (
     <StyledContainer>
-      <StyledTitle level={3}>Thương hiệu uy tín</StyledTitle>
+      <StyledTitle level={3}>{t("MES-069")}</StyledTitle>
       <CarouselContainer
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}

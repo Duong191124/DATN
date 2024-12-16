@@ -1,11 +1,18 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Row, Col, Typography, Button, Card, Divider, Tag } from "antd";
 import { BorderTopOutlined, LeftOutlined } from "@ant-design/icons";
-import { NavLink } from "react-router-dom";
-
+import { NavLink, useLocation } from "react-router-dom";
+import { orderFindByCode } from "../../../../service/api.service";
+import moment from "moment";
+import { useTranslation } from "react-i18next";
 const { Title, Text } = Typography;
 
 const CustomerInfoOrderCanceled = () => {
+  const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
   const cardStyle = {
     borderRadius: 8,
     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
@@ -27,6 +34,22 @@ const CustomerInfoOrderCanceled = () => {
     borderRadius: 8,
     backgroundColor: "#f9f9f9",
   };
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const code = params.get("code");
+  const [dataInfoOrder, setDataInfoOrder] = useState({});
+  const findByOrderCodeWithCustomer = async () => {
+    const response = await orderFindByCode(code);
+    if (response?.data?.data) {
+      setDataInfoOrder(response.data.data);
+    }
+  };
+  useEffect(() => {
+    findByOrderCodeWithCustomer();
+  }, [code]);
+  const updatedAtFormatted = moment(dataInfoOrder.updatedAt).format(
+    "DD-MM-YYYY HH:mm:ss"
+  );
   return (
     <div style={{ padding: 16, marginTop: "85px" }}>
       <Row
@@ -49,9 +72,12 @@ const CustomerInfoOrderCanceled = () => {
             alignItems: "center",
           }}
         >
-          <LeftOutlined /> <span style={{ fontSize: "18px" }}>Quay lại</span>
+          <LeftOutlined />{" "}
+          <span style={{ fontSize: "18px" }}>{t("MES-135")}</span>
         </NavLink>
-        <Text type="secondary">Yêu cầu vào: 14:15 06-02-2024</Text>
+        <Text type="secondary">
+          {t("MES-146")}: {updatedAtFormatted}
+        </Text>
       </Row>
       <Row
         style={{
@@ -65,40 +91,43 @@ const CustomerInfoOrderCanceled = () => {
         }}
       >
         <Text style={{ color: "#ff4d4f", fontWeight: "500", fontSize: "20px" }}>
-          Đã hủy đơn hàng
+          {t("MES-147")}
         </Text>
-        <Text type="secondary"> vào: 14:15 06-02-2024</Text>
+        <Text type="secondary"> enter: {updatedAtFormatted}</Text>
       </Row>
       <Card style={cardStyle}>
-        <Row justify="end" style={{ marginBottom: 16 }}>
-          <Button style={{}}>Xem Shop</Button>
-        </Row>
-        <Row style={productStyle}>
-          <Col span={2}>
-            <img
-              src="https://via.placeholder.com/100?text=Áo+Sơ+Mi"
-              alt="Áo sơ mi"
-              style={{ width: "100%", borderRadius: 8 }}
-            />
-          </Col>
-          <Col span={22} style={{ paddingLeft: 16 }}>
-            <Title level={5}>
-              Áo sơ mi cộc tay Original ODIN CLUB, Áo sơ mi form rộng unisex nam
-              nữ, Local Brand ODIN CLUB
-            </Title>
-            <Row
-              justify="space-between"
-              align="middle"
-              style={{ margin: "5px 0" }}
-            >
-              <Text>Trắng, M</Text>
-              <Text style={{ fontSize: "16px" }}>
-                115.000<sup>₫</sup>
-              </Text>
-            </Row>
-            <Text type="secondary">x1</Text>
-          </Col>
-        </Row>
+        {dataInfoOrder?.orderDetailResponses?.map((item, index) => (
+          <Row key={index} style={productStyle}>
+            <Col span={2}>
+              <img
+                src={item.productDetailId?.image}
+                alt={item.productDetailId?.code}
+                style={{ width: "100%", borderRadius: 8 }}
+              />
+            </Col>
+            <Col span={22} style={{ paddingLeft: 16 }}>
+              <Title level={5}>
+                {`${t("MES-131")}: ${item.productDetailId?.code}`}
+              </Title>
+              <Row
+                justify="space-between"
+                align="middle"
+                style={{ margin: "5px 0" }}
+              >
+                <Text>{`${t("MES-148")}: ${item.productDetailId?.status === 1
+                    ? `${t("MES-149")}`
+                    : `${t("MES-150")}`
+                  }`}</Text>
+                <Text style={{ fontSize: "16px" }}>
+                  {item.price.toLocaleString()}
+                  <sup>₫</sup>
+                </Text>
+              </Row>
+              <Text type="secondary">{`${t("MES-133")}: x${item.quantity
+                }`}</Text>
+            </Col>
+          </Row>
+        ))}
         <Row
           style={{
             borderTop: "1px solid #ddd",
@@ -113,10 +142,10 @@ const CustomerInfoOrderCanceled = () => {
               textAlign: "end",
             }}
           >
-            <Text style={{ color: "gray" }}>Yêu cầu bởi </Text>
+            <Text style={{ color: "gray" }}>{t("MES-151")} </Text>
           </Col>
           <Col span={6} style={{ textAlign: "right", padding: "10px 0" }}>
-            <Text strong>Người mua</Text>
+            <Text strong>{t("MES-152")}</Text>
           </Col>
         </Row>
         <Row
@@ -132,10 +161,13 @@ const CustomerInfoOrderCanceled = () => {
               textAlign: "end",
             }}
           >
-            <Text style={{ color: "gray" }}>Phương thức thanh toán </Text>
+            <Text style={{ color: "gray" }}>{t("MES-105")}</Text>
           </Col>
           <Col span={6} style={{ textAlign: "right", padding: "10px 0" }}>
-            <Tag color="green">COD</Tag>
+            <Tag color="green">
+              {dataInfoOrder?.paymentResponses?.[0]?.paymentMethod?.toUpperCase() ||
+                "N/A"}
+            </Tag>
           </Col>
         </Row>
         <Row>
@@ -147,16 +179,18 @@ const CustomerInfoOrderCanceled = () => {
               textAlign: "end",
             }}
           >
-            <Text style={{ color: "gray" }}>Mã đơn hàng </Text>
+            <Text style={{ color: "gray" }}>{t("MES-153")}</Text>
           </Col>
           <Col span={6} style={{ textAlign: "right", padding: "10px 0" }}>
-            <NavLink to={"/info-order-detail"}>240206T4UAHRJ9</NavLink>
+            <NavLink to={`/info-order-detail?code=${dataInfoOrder?.code}`}>
+              {dataInfoOrder?.code || "N/A"}
+            </NavLink>
           </Col>
         </Row>
       </Card>
       <div style={addressSectionStyle}>
         <Text style={{ fontSize: "14px" }}>
-          Lý do: Thay đổi đơn hàng (màu sắc, kích thước, thêm mã giảm giá,...)
+          {t("MES-154")}: {dataInfoOrder?.note || "Không có lý do cụ thể"}
         </Text>
       </div>
     </div>

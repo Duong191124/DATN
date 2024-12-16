@@ -9,26 +9,15 @@ import {
   createPayment,
   getCreateOrderGhn,
   getShippingFee,
+  getVouchersByCustomerId,
+  hasCustomerUsedVoucher,
 } from "../../service/api.service";
 import { useCart } from "../context/cart.context";
 import { useNavigate } from "react-router-dom";
 import { useCheckout } from "../context/checkout.context";
 import moment from "moment";
-
-const steps = [
-  {
-    title: "Order Summary",
-    content: <Summary />,
-  },
-  {
-    title: "Shipping Details",
-    content: <Shipping />,
-  },
-  {
-    title: "Payment",
-    content: <Payment />,
-  },
-];
+import { data } from "framer-motion/client";
+import { useTranslation } from "react-i18next";
 
 const CheckoutStep = () => {
   const { token } = theme.useToken();
@@ -47,12 +36,30 @@ const CheckoutStep = () => {
     addresses,
     selectAddress,
     selectedOption,
-    shippingData
+    shippingData,
   } = useCheckout();
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [vouchers, setVoucher] = useState(null);
   const userId = localStorage.getItem("userId");
+  const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
+
+  const steps = [
+    {
+      title: t("MES-997"),
+      content: <Summary />,
+    },
+    {
+      title: t("MES-992"),
+      content: <Shipping />,
+    },
+    {
+      title: t("MES-991"),
+      content: <Payment />,
+    },
+  ];
 
   const next = () => {
     setCurrent(current + 1);
@@ -61,6 +68,10 @@ const CheckoutStep = () => {
   const prev = () => {
     setCurrent(current - 1);
   };
+
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
 
   const convertCartToOrderDetails = (cartItemsLocal) => {
     return cartItemsLocal.map((item) => ({
@@ -87,6 +98,24 @@ const CheckoutStep = () => {
     }
   };
 
+  const convertAddressToOrder = (shippingData) => {
+    if (shippingData && typeof shippingData === "object") {
+      // Return only the selected fields
+      return {
+        name: shippingData.name,
+        phoneNumber: shippingData.phoneNumber,
+        city: shippingData.toProvide,
+        district: shippingData.toDistrict,
+        ward: shippingData.toWard,
+        addressDetail: shippingData.addressDetail,
+        mail: shippingData?.email,
+      };
+    } else {
+      console.error("selectAddress is either null or not an object");
+      return null;
+    }
+  };
+
   useEffect(() => {
     const items = JSON.parse(localStorage.getItem(`cart_${userId}`)) || [];
     setCartItems(items);
@@ -96,13 +125,27 @@ const CheckoutStep = () => {
     const randomCode = Math.floor(10000 + Math.random() * 90000);
     return `HD-${randomCode}`;
   };
-
+  const fetchVouchers = async () => {
+    try {
+      const response = await getVouchersByCustomerId(userId);
+      setVoucher(response.data.data);
+    } catch (error) {
+      message.error(t("MES-990"));
+    }
+  };
+  useEffect(() => {
+    fetchVouchers();
+  }, []);
   const confirmOrder = async () => {
     setLoading(true);
+    // Kiểm tra voucher trước khi tạo đơn hàng
     const cartItemsLocal = cartItems;
     const orderDetailRequests = convertCartToOrderDetails(cartItemsLocal);
     const addressToOrder = convertSelectAddressToOrder(selectAddress);
+    const addressFormToOrder = convertAddressToOrder(shippingData);
+    const changeAddress = userId === "1" ? addressFormToOrder : addressToOrder;
     const paymentMethod = selectedOption;
+
     const orderDTO = {
       code: generateInvoiceCode(), // Mã đơn hàng
       orderDate: new Date().toISOString().split("T")[0], // Ngày đặt hàng
@@ -112,9 +155,8 @@ const CheckoutStep = () => {
       voucherId: selectedCoupon || null, // Mã giảm giá nếu có
       customerId: userId, // Lấy customerId từ localStorage hoặc session
       orderDetailRequests, // Dữ liệu sản phẩm trong đơn hàng
-      addressToOrder,
+      changeAddress,
     };
-
     try {
       // Step 1: Create the order in your system
       const createOrderResponse = await createOrderForOnline(
@@ -126,32 +168,14 @@ const CheckoutStep = () => {
         orderDTO.customerId,
         orderDTO.moneyReceived,
         orderDTO.orderDetailRequests,
-        orderDTO.addressToOrder
+        orderDTO.changeAddress,
+        orderDTO.mail
       );
 
-      // If creating the order fails, throw an error
       if (!createOrderResponse || createOrderResponse?.error) {
         throw new Error(createOrderResponse?.message);
       }
 
-      // Step 2: Create the order in the GHN system (Shipping)
-      // const createOrderGhnResponse = await getCreateOrderGhn(
-      //     createOrderGhn.toDistrictId,
-      //     createOrderGhn.toWardCode,
-      //     createOrderGhn.weight,
-      //     createOrderGhn.paymentType,
-      //     createOrderGhn.shipCOD,
-      //     createOrderGhn.customerName,
-      //     createOrderGhn.customerPhone,
-      //     createOrderGhn.addressDetail,
-      //     createOrderGhn.customerEmail,
-      //     createOrderGhn.itemsProduct
-      // );
-
-      // If there is any error in the GHN response, throw an error
-      // if (createOrderGhnResponse?.error) {
-      //     throw new Error(createOrderGhnResponse?.error || "Giao hàng không thành công.");
-      // }
       const paymentDTO = {
         paymentDate: moment().format("DD/MM/YYYY"),
         paymentMethod: paymentMethod,
@@ -165,21 +189,18 @@ const CheckoutStep = () => {
         throw new Error("Invalid payment method selected");
       }
     } catch (error) {
-      // Catch and handle errors from both the order creation process or GHN
-      let errorMessage =
-        error?.message || "Đã xảy ra lỗi. Vui lòng thử lại sau.";
+      let errorMessage = error?.message || t("MES-985");
 
-      // Handle insufficient stock error more clearly if it's the issue
       if (error?.message?.includes("Insufficient stock")) {
-        errorMessage = "Số lượng sản phẩm không đủ trong kho!";
+        errorMessage = t("MES-986");
       }
 
-      // Show the error message to the user
       message.error(errorMessage);
       setLoading(false);
       return;
     }
   };
+
   const handleVNPPayment = async (paymentDTO) => {
     const vnPayResponse = await createPayment(
       paymentDTO.paymentDate,
@@ -193,7 +214,7 @@ const CheckoutStep = () => {
       setCartItems([]);
       return {
         success: true,
-        message: "Thanh toán thành công qua VNPAY",
+        message: t("MES-984"),
       };
     }
   };
@@ -208,7 +229,7 @@ const CheckoutStep = () => {
       localStorage.removeItem(`cart_${userId}`);
       setCartItems([]);
       localStorage.setItem("paymentStatus", "success");
-      localStorage.setItem("paymentMessage", "Thanh toán thành công");
+      localStorage.setItem("paymentMessage", t("MES-983"));
       localStorage.setItem(
         "code",
         paymentResponse?.data?.orderDataPaymentResponse.code
@@ -217,68 +238,78 @@ const CheckoutStep = () => {
       setLoading(false);
       return {
         success: true,
-        message: "Thanh toán thành công",
+        message: t("MES-983"),
       };
     } else {
       localStorage.setItem("paymentStatus", "failed");
-      localStorage.setItem("paymentMessage", "Thanh toán thất bại");
+      localStorage.setItem("paymentMessage", t("MES-982"));
       navigate("/payments/payment-callback"); // Redirect to callback page
       setLoading(false);
-      return { success: false, message: "Thanh toán thất bại" };
+      return { success: false, message: t("MES-982") };
     }
   };
 
-
-  // const handApiGhnWithUserId = async () => {
-  //   if (!shippingData) {
-  //     message.error("Please fill out your shipping details.");
-  //     return;
-  //   }
-  //   try {
-  //     const fee = await getShippingFee(shippingData);
-  //     setTotalShippingFee(fee.data.data.total);
-  //   } catch (error) {
-  //     let errorMessage =
-  //       error?.response?.data?.message || "Giao hàng nhanh không hỗ trợ xã này";
-
-  //     // Cắt chuỗi để chỉ lấy phần từ "GHN" trở đi
-  //     const ghnIndex = errorMessage.indexOf("Giao");
-  //     if (ghnIndex !== -1) {
-  //       errorMessage = errorMessage.substring(ghnIndex);
-  //     }
-
-  //     message.error(errorMessage);
-  //   }
-  // }
-
   const handleApiGhn = async () => {
-    const values = {
-      fromDistrictId: selectAddress.fromDistrict,
-      toDistrictId: selectAddress.district,
-      toWardCode: selectAddress.ward,
-      weight: weight,
-      serviceId: selectAddress.serviceId,
-    };
-    try {
-      const res = await getShippingFee(
-        values.fromDistrictId,
-        values.toDistrictId,
-        values.toWardCode,
-        values.weight,
-        values.serviceId
-      );
-      setTotalShippingFee(res.data.data.total);
-    } catch (error) {
-      let errorMessage =
-        error?.response?.data?.message || "Giao hàng nhanh không hỗ trợ xã này";
+    if (userId === "1") {
+      const values = {
+        fromDistrictId: 2004,
+        toDistrictId: shippingData.toDistrict,
+        toWardCode: shippingData.toWard,
+        weight: weight,
+        serviceId: 53321,
+      };
+      try {
+        const fee = await getShippingFee(
+          values.fromDistrictId,
+          values.toDistrictId,
+          values.toWardCode,
+          values.weight,
+          values.serviceId
+        );
+        setTotalShippingFee(fee.data.data.total);
+      } catch (error) {
+        let errorMessage =
+          error?.response?.data?.message ||
+          "Giao hàng nhanh không hỗ trợ xã này";
 
-      // Cắt chuỗi để chỉ lấy phần từ "GHN" trở đi
-      const ghnIndex = errorMessage.indexOf("Giao");
-      if (ghnIndex !== -1) {
-        errorMessage = errorMessage.substring(ghnIndex);
+        // Cắt chuỗi để chỉ lấy phần từ "GHN" trở đi
+        const ghnIndex = errorMessage.indexOf("Giao");
+        if (ghnIndex !== -1) {
+          errorMessage = errorMessage.substring(ghnIndex);
+        }
+
+        message.error(errorMessage);
       }
+    } else {
+      const values = {
+        fromDistrictId: selectAddress.fromDistrict,
+        toDistrictId: selectAddress.district,
+        toWardCode: selectAddress.ward,
+        weight: weight,
+        serviceId: selectAddress.serviceId,
+      };
+      try {
+        const res = await getShippingFee(
+          values.fromDistrictId,
+          values.toDistrictId,
+          values.toWardCode,
+          values.weight,
+          values.serviceId
+        );
+        setTotalShippingFee(res.data.data.total);
+      } catch (error) {
+        let errorMessage =
+          error?.response?.data?.message ||
+          "Giao hàng nhanh không hỗ trợ xã này";
 
-      message.error(errorMessage);
+        // Cắt chuỗi để chỉ lấy phần từ "GHN" trở đi
+        const ghnIndex = errorMessage.indexOf("Giao");
+        if (ghnIndex !== -1) {
+          errorMessage = errorMessage.substring(ghnIndex);
+        }
+
+        message.error(errorMessage);
+      }
     }
   };
 
@@ -286,7 +317,6 @@ const CheckoutStep = () => {
     key: item.title,
     title: item.title,
   }));
-
   return (
     <>
       <Steps
@@ -322,7 +352,7 @@ const CheckoutStep = () => {
             }}
             onClick={prev}
           >
-            Previous
+            {t("MES-979")}
           </Button>
         )}
         {current < steps.length - 1 && (
@@ -331,13 +361,20 @@ const CheckoutStep = () => {
             onClick={async () => {
               if (cartItems.length === 0) {
                 notification.warning({
-                  message: "Không có sản phẩm trong giỏ hàng",
+                  message: t("MES-981"),
                   duration: 2,
                 });
                 setCurrent(0);
                 return;
               }
               if (current === 1) {
+                if (
+                  (userId !== "1" && selectAddress === null) ||
+                  (userId === "1" && shippingData === null)
+                ) {
+                  message.error(t("MES-980"));
+                  return;
+                }
                 await handleApiGhn();
               }
               next();
@@ -354,7 +391,7 @@ const CheckoutStep = () => {
               borderRadius: "6px",
             }}
           >
-            Next
+            {t("MES-978")}
           </Button>
         )}
         {current === steps.length - 1 && (
@@ -373,7 +410,7 @@ const CheckoutStep = () => {
             type="primary"
             onClick={confirmOrder}
           >
-            Confirm
+            {t("MES-977")}
           </Button>
         )}
       </div>

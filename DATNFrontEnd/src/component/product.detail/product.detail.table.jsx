@@ -38,23 +38,23 @@ const ProductDetailTable = (props) => {
 
   const columns = [
     {
-      title: "Code",
+      title: "Mã",
       dataIndex: "code",
     },
     {
-      title: "Quantity",
+      title: "Số Lượng",
       dataIndex: "quantity",
     },
     {
-      title: "Default Price",
+      title: "Giá Mặc Định",
       dataIndex: "defaultPrice",
     },
     {
-      title: "Discount Price",
+      title: "Giá Giảm",
       dataIndex: "discountPrice",
     },
     {
-      title: "Image",
+      title: "Ảnh",
       dataIndex: "image",
       render: (imageUrl) => (
         <img
@@ -64,26 +64,26 @@ const ProductDetailTable = (props) => {
       ),
     },
     {
-      title: "Size",
+      title: "Kích Cỡ",
       dataIndex: "size",
       render: (text, record) => {
         return record.size?.name || "Chưa có size";
       },
     },
     {
-      title: "Color",
+      title: "Màu Sắc",
       dataIndex: "color",
       render: (text, record) => {
         return record.color?.name || "Chưa có color";
       },
     },
     {
-      title: "Weight",
+      title: "Cân Nặng",
       dataIndex: "weight",
 
     },
     {
-      title: "Status",
+      title: "Trạng Thái",
       dataIndex: "status",
       render: (status) => {
         switch (status) {
@@ -98,27 +98,9 @@ const ProductDetailTable = (props) => {
         }
       },
     },
+
     {
-      title: "QR Code",
-      render: (_, record) => (
-        <div style={{ textAlign: "center" }}>
-          <div ref={qrCodeRef}>
-            <ReactQRCode
-              value={record.code} // Chỉ mã hóa mã code của sản phẩm
-              size={100} // Kích thước của mã QR
-            />
-          </div>
-          <Button
-            style={{ marginTop: "10px" }}
-            onClick={() => downloadQRCode()}
-          >
-            Tải QR xuống
-          </Button>
-        </div>
-      ),
-    },
-    {
-      title: "Action",
+      title: "Hành Động",
       key: "action",
       render: (_, record) => {
         return (
@@ -144,15 +126,7 @@ const ProductDetailTable = (props) => {
     },
   ];
 
-  const downloadQRCode = () => {
-    html2canvas(qrCodeRef.current).then((canvas) => {
-      const dataUrl = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.href = dataUrl;
-      link.download = "product_qr_code.png"; // Tên file tải xuống
-      link.click();
-    });
-  };
+
 
   // Lấy tên của sản phẩm đầu tiên trong danh sách
   const productName =

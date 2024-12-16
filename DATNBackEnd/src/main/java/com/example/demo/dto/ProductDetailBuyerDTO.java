@@ -1,5 +1,6 @@
 package com.example.demo.dto;
 
+import com.example.demo.entity.Product;
 import com.example.demo.entity.ProductDetail;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -33,7 +34,7 @@ public class ProductDetailBuyerDTO {
     private int status;
 
     //    @NotNull(message = "Product is required")
-    private int productId;
+    private Product productDTO;
 
     @NotNull(message = "Size is required")
     private String sizeName;
@@ -53,10 +54,9 @@ public class ProductDetailBuyerDTO {
                 .image(productDetail.getImage())
                 .weight(productDetail.getWeight())
                 .status(productDetail.getStatus())
-                .productId(productDetail.getProduct().getId())
+                .productDTO(productDetail.getProduct())
                 .colorName(productDetail.getColor().getName())
                 .sizeName(productDetail.getSize().getName())
-
                 .build();
     }
 }

@@ -1,7 +1,9 @@
-import React, { useEffect, useMemo } from "react";
-import { Button } from "antd";
+import React, { useEffect, useMemo, useState } from "react";
+import { Button, message } from "antd";
 import { MinusOutlined, PlusOutlined, CloseOutlined } from "@ant-design/icons";
 import { useCart } from "../context/cart.context";
+import { useTranslation } from "react-i18next";
+import { fetchProductsByProductDetails } from "../../service/api.service";
 
 const CartItem = () => {
   const {
@@ -11,8 +13,13 @@ const CartItem = () => {
     updateQuantity,
     formatCurrency,
   } = useCart();
+  const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
 
-  // Memoize the total calculation to optimize performance
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
+
   const totalAmount = useMemo(() => {
     return cartItems.reduce((total, product) => {
       const price = product.discountPrice || product.defaultPrice;
@@ -20,16 +27,28 @@ const CartItem = () => {
     }, 0);
   }, [cartItems]);
 
-  // Update the total amount whenever the cartItems change
   useEffect(() => {
     setTotalAmount(totalAmount);
   }, [totalAmount, setTotalAmount]);
 
   return (
-    <div>
+    <div
+      style={{
+        backgroundColor: "#f9f9f9",
+        borderRadius: "8px",
+        padding: "16px",
+      }}
+    >
       {cartItems.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "16px", color: "gray" }}>
-          Your cart is empty.
+        <div
+          style={{
+            textAlign: "center",
+            padding: "16px",
+            color: "gray",
+            fontStyle: "italic",
+          }}
+        >
+          {t("MES-995")}.
         </div>
       ) : (
         cartItems.map((product) => (
@@ -46,110 +65,276 @@ const CartItem = () => {
   );
 };
 
-const CartItemDetail = ({ product, removeFromCart, updateQuantity, formatCurrency }) => {
-  const increaseQuantity = () => updateQuantity(product.id, product.quantity + 1);
+const CartItemDetail = ({
+  product,
+  removeFromCart,
+  updateQuantity,
+  formatCurrency,
+}) => {
+  const [dataCheckProduct, setDataCheckProduct] = useState([]);
   const decreaseQuantity = () => {
     if (product.quantity > 1) {
       updateQuantity(product.id, product.quantity - 1);
     }
   };
   const handleRemove = () => removeFromCart(product.id);
+  const fetchAllProductDetail = async () => {
+    const response = await fetchProductsByProductDetails(0, 1000);
+    if (response?.data?.data) {
+      setDataCheckProduct(response.data.data?.products);
+    }
+  };
+  useEffect(() => {
+    fetchAllProductDetail();
+  }, []);
+  const increaseQuantity = () => {
+    // Tìm sản phẩm trong details của các phần tử trong dataCheckProduct
+    const productDetail = dataCheckProduct
+      .flatMap((item) =>
+        item.details.filter((detail) => detail.id === product.id)
+      )
+      .find((detail) => detail);
+    if (!productDetail) {
+      console.error("Không tìm thấy thông tin sản phẩm trong tồn kho.");
+      return;
+    }
 
+    // Số lượng tồn kho của sản phẩm
+    const availableQuantity = productDetail?.quantity || 0;
+
+    // Kiểm tra số lượng
+    if (product.quantity + 1 > availableQuantity) {
+      message.info("Số lượng sản phẩm vượt quá số lượng tồn kho.");
+      return;
+    }
+    // Cập nhật số lượng nếu hợp lệ
+    updateQuantity(product.id, product.quantity + 1);
+  };
   return (
     <div
       style={{
         display: "flex",
         alignItems: "center",
-        justifyContent: "space-between",
-        border: "1px solid #ddd",
+        border: "1px solid #e0e0e0",
+        borderRadius: "8px",
         padding: "16px",
         marginBottom: "16px",
+        backgroundColor: "white",
+        boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+        position: "relative",
       }}
     >
       {/* Product Image */}
-      <div style={{ width: "150px", display: "flex", alignItems: "center" }}>
+      <div
+        style={{
+          width: "120px",
+          marginRight: "16px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <img
           src={product.image}
-          alt={product.name}
-          style={{ width: "80px", height: "auto" }}
+          alt={product?.productResponse?.name}
+          style={{
+            maxWidth: "100%",
+            maxHeight: "120px",
+            objectFit: "contain",
+          }}
         />
       </div>
 
       {/* Product Details */}
-      <div style={{ flexGrow: 1, paddingLeft: "16px", paddingRight: "10px" }}>
-        <div style={{ fontWeight: "bold", fontSize: "16px" }}>{product.name}</div>
-        <div style={{ display: "flex", gap: "24px", color: "gray", marginTop: "8px" }}>
-          <div>
-            <div>Quantity</div>
-            <div style={{ display: "flex", alignItems: "center" }}>
+      <div
+        style={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+        }}
+      >
+        <div
+          style={{
+            fontWeight: "bold",
+            fontSize: "16px",
+            color: "#333",
+          }}
+        >
+          {product?.productResponse?.name}
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            gap: "24px",
+            color: "#666",
+            alignItems: "center",
+          }}
+        >
+          {/* Quantity Control */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "4px",
+            }}
+          >
+            <div style={{ fontSize: "12px", color: "#888" }}>Quantity</div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                border: "1px solid #e0e0e0",
+                borderRadius: "4px",
+                overflow: "hidden",
+              }}
+            >
               <Button
+                type="text"
                 onClick={decreaseQuantity}
                 icon={<MinusOutlined />}
-                size="small"
-                style={{ marginRight: "8px" }}
+                style={{
+                  padding: "4px 8px",
+                  borderRight: "1px solid #e0e0e0",
+                }}
               />
-              <span>{product.quantity}</span>
+              <span
+                style={{
+                  padding: "0 12px",
+                  minWidth: "40px",
+                  textAlign: "center",
+                }}
+              >
+                {product.quantity}
+              </span>
               <Button
+                type="text"
                 onClick={increaseQuantity}
                 icon={<PlusOutlined />}
-                size="small"
-                style={{ marginLeft: "8px" }}
+                style={{
+                  padding: "4px 8px",
+                  borderLeft: "1px solid #e0e0e0",
+                }}
               />
             </div>
           </div>
-          <div>
-            <div>Size</div>
-            <div>{product.size}</div>
-          </div>
-          <div>
-            <div>Color</div>
+
+          {/* Size */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "4px",
+            }}
+          >
+            <div style={{ fontSize: "12px", color: "#888" }}>Size</div>
             <div
               style={{
-                width: "20px",
-                height: "20px",
+                fontWeight: "500",
+                color: "#333",
+              }}
+            >
+              {product.size}
+            </div>
+          </div>
+
+          {/* Color */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "4px",
+            }}
+          >
+            <div style={{ fontSize: "12px", color: "#888" }}>Color</div>
+            <div
+              style={{
+                width: "24px",
+                height: "24px",
                 backgroundColor: product.color,
                 borderRadius: "50%",
-                boxShadow: "0 0 3px rgba(0, 0, 0, 0.88)",
+                border: "1px solid rgba(0,0,0,0.1)",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
               }}
             ></div>
           </div>
         </div>
       </div>
 
-      {/* Product Price */}
-      <div style={{ fontWeight: "bold", fontSize: "17px", marginRight: "auto" }}>
+      {/* Pricing Section */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-end",
+          marginLeft: "16px",
+          minWidth: "120px",
+        }}
+      >
         {product.discountPrice ? (
           <>
-            <span
+            <div
               style={{
                 textDecoration: "line-through",
-                color: "gray",
-                marginRight: "8px",
+                color: "#888",
+                fontSize: "14px",
+                marginBottom: "4px",
               }}
             >
               {formatCurrency(product.defaultPrice)}
-            </span>
-            <span style={{ color: "red" }}>{formatCurrency(product.discountPrice)}</span>
+            </div>
+            <div
+              style={{
+                color: "#d32f2f",
+                fontWeight: "bold",
+                fontSize: "16px",
+                backgroundColor: "rgba(211, 47, 47, 0.1)",
+                padding: "2px 8px",
+                borderRadius: "4px",
+              }}
+            >
+              {formatCurrency(product.discountPrice)}
+            </div>
           </>
         ) : (
-          <span>{formatCurrency(product.defaultPrice)}</span>
+          <div
+            style={{
+              color: "#333",
+              fontWeight: "bold",
+              fontSize: "16px",
+            }}
+          >
+            {formatCurrency(product.defaultPrice)}
+          </div>
         )}
       </div>
 
       {/* Remove Button */}
-      <div>
-        <Button
-          type="text"
-          icon={<CloseOutlined />}
-          style={{
-            border: "1px solid black",
-            borderRadius: "4px",
-            padding: "4px 12px",
-            marginLeft: "10px",
-          }}
-          onClick={handleRemove}
-        />
-      </div>
+      <Button
+        type="text"
+        icon={<CloseOutlined />}
+        style={{
+          position: "absolute",
+          top: "8px",
+          right: "8px",
+          color: "#666",
+          padding: "4px",
+          borderRadius: "50%",
+          backgroundColor: "transparent",
+          border: "1px solid transparent",
+          transition: "all 0.3s ease",
+        }}
+        onClick={handleRemove}
+        onMouseEnter={(e) => {
+          e.target.style.backgroundColor = "rgba(0,0,0,0.05)";
+          e.target.style.border = "1px solid #e0e0e0";
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.backgroundColor = "transparent";
+          e.target.style.border = "1px solid transparent";
+        }}
+      />
     </div>
   );
 };

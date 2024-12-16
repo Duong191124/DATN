@@ -131,15 +131,20 @@ const CounterSaleCustomer = ({
         values.gender
       );
       // Cập nhật lại danh sách khách hàng trong component cha
-      setCustomerList((prevCustomerList) => [...prevCustomerList, newCustomer]);
-      notification.success({
-        message: "Khách hàng đã được thêm thành công",
-        description: `Khách hàng ${values.name} đã được thêm.`,
-        placement: "top",
-      });
-      setIsModalVisible(false);
-      setIsCreated(true);
-      form.resetFields();
+      if (newCustomer.status === 201) {
+        setCustomerList((prevCustomerList) => [
+          ...prevCustomerList,
+          newCustomer,
+        ]);
+        notification.success({
+          message: "Khách hàng đã được thêm thành công",
+          description: `Khách hàng ${values.name} đã được thêm.`,
+          placement: "top",
+        });
+        setIsModalVisible(false);
+        setIsCreated(true);
+        form.resetFields();
+      }
     } catch (error) {
       notification.error({
         message: "Lỗi khi thêm khách hàng",
@@ -148,15 +153,15 @@ const CounterSaleCustomer = ({
     }
   };
   useEffect(() => {
-    const filtered = customerList.filter(
+    const filtered = customerList?.filter(
       (customer) =>
-        (customer.name?.toLowerCase() ?? "").includes(
+        (customer?.name?.toLowerCase() ?? "").includes(
           searchText.toLowerCase()
         ) ||
-        (customer.email?.toLowerCase() ?? "").includes(
+        (customer?.email?.toLowerCase() ?? "").includes(
           searchText.toLowerCase()
         ) ||
-        (customer.phoneNumber?.toLowerCase() ?? "").includes(
+        (customer?.phoneNumber?.toLowerCase() ?? "").includes(
           searchText.toLowerCase()
         )
     );
@@ -244,6 +249,10 @@ const CounterSaleCustomer = ({
                 name="phone"
                 rules={[
                   { required: true, message: "Vui lòng nhập số điện thoại!" },
+                  {
+                    pattern: /^(0[3-9][0-9]{8})$/,
+                    message: "Số điện thoại không hợp lệ.",
+                  },
                 ]}
               >
                 <Input />

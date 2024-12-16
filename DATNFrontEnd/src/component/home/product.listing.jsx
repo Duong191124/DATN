@@ -17,6 +17,7 @@ import debounce from "lodash/debounce";
 import { motion, AnimatePresence } from "framer-motion";
 import moment from "moment";
 import ProductCard from "./product.card";
+import { useTranslation } from "react-i18next";
 import {
   fetchDataBrand,
   fetchDataCategory,
@@ -76,6 +77,11 @@ const ProductList = () => {
   const [size, setSize] = useState([]);
   const [color, setColor] = useState([]);
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
   const debouncedSearch = debounce((value) => {
     setSearchText(value);
     setCurrentPage(1);
@@ -224,7 +230,7 @@ const ProductList = () => {
   return (
     <Container>
       <Title level={2} style={{ marginBottom: 32, color: "#000" }}>
-        Featured Products
+        {t("MES-070")}
       </Title>
 
       <FilterContainer>
@@ -233,7 +239,7 @@ const ProductList = () => {
             <Input
               size="large"
               prefix={<SearchOutlined />}
-              placeholder="Search products..."
+              placeholder={t("MES-071")}
               onChange={(e) => debouncedSearch(e.target.value)}
               allowClear
             />
@@ -242,7 +248,7 @@ const ProductList = () => {
             <Select
               size="large"
               style={{ width: "100%" }}
-              placeholder="Chọn danh mục"
+              placeholder={t("MES-072")}
               value={selectedCategory === "All" ? undefined : selectedCategory}
               onChange={(value) => setSelectedCategory(value || "All")}
               allowClear
@@ -258,7 +264,7 @@ const ProductList = () => {
             <Select
               size="large"
               style={{ width: "100%" }}
-              placeholder="Chọn thương hiệu"
+              placeholder={t("MES-073")}
               value={selectedBrand === "All" ? undefined : selectedBrand}
               onChange={(value) => setSelectedBrand(value || "All")}
               allowClear
@@ -344,9 +350,9 @@ const ProductList = () => {
               value={sortBy}
               onChange={setSortBy}
             >
-              <Option value="newest">Newest First</Option>
-              <Option value="price-asc">Price: Low to High</Option>
-              <Option value="price-desc">Price: High to Low</Option>
+              <Option value="newest">{t("MES-074")}</Option>
+              <Option value="price-asc">{t("MES-075")}</Option>
+              <Option value="price-desc">{t("MES-076")}</Option>
             </Select>
           </Col>
         </Row>
@@ -376,7 +382,9 @@ const ProductList = () => {
       </motion.div>
 
       <Row justify="center" style={{ marginTop: 48 }}>
-        <ButtonNextPage onClick={showPageProduct}>Xem thêm</ButtonNextPage>
+        <ButtonNextPage onClick={showPageProduct}>
+          {t("MES-077")}
+        </ButtonNextPage>
       </Row>
     </Container>
   );

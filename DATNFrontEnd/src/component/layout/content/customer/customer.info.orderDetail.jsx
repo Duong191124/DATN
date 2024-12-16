@@ -8,18 +8,21 @@ import {
   Card,
   Divider,
   Table,
+  message,
 } from "antd";
 import {
   colorFindById,
   fetchDataOrderForCustomerIdByOrderId,
   fetchDataOrderStatusByCustomerId,
   orderFindByCode,
+  productFindById,
+  retryPayment,
   sizeFindById,
 } from "../../../../service/api.service";
 import { NavLink, useLocation } from "react-router-dom";
 import moment from "moment";
 import { LeftOutlined } from "@ant-design/icons";
-
+import { useTranslation } from "react-i18next";
 const { Step } = Steps;
 const { Title, Text } = Typography;
 
@@ -33,13 +36,34 @@ const CustomerInfoOrderDetail = () => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const code = params.get("code");
+  const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
   const cardStyle = {
     borderRadius: 8,
     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
     padding: 16,
     marginBottom: 16,
   };
-
+  const handleRetryPayment = async (orderCode) => {
+    try {
+      if (orderCode) {
+        const retryResponse = await retryPayment(orderCode);
+        const paymentUrl = retryResponse.data.paymentUrl;
+        if (paymentUrl) {
+          window.location.href = paymentUrl;
+        } else {
+          message.info("Không nhận được liên kết thanh toán mới.");
+        }
+      } else {
+        message.info("Không tìm thấy đơn hàng để thanh toán.");
+      }
+    } catch (error) {
+      message.error("Thanh toán lại thất bại. Vui lòng thử lại.");
+    }
+  };
   const stepStyle = {
     marginBottom: 32,
   };
@@ -126,42 +150,57 @@ const CustomerInfoOrderDetail = () => {
 
   const productColumns = [
     {
-      title: "Sản phẩm",
+      title: t("MES-131"),
       dataIndex: "product",
       key: "product",
       render: (text, record) => (
-        console.log("re", record),
-        (
-          <Row align="middle">
-            <Col span={4}>
-              <img
-                src={record.image}
-                alt={record.productName}
-                style={{ width: "100%", borderRadius: 8 }}
-              />
-            </Col>
-            <Col span={20}>
-              <Text strong>{record.productName}</Text>
-              <br />
-              <Text type="secondary">{record.options}</Text>
-            </Col>
-          </Row>
-        )
+        <Row
+          align="middle"
+          style={{ display: "flex", justifyContent: "space-between" }}
+        >
+          <Col span={4}>
+            <img
+              src={record.image}
+              alt={record.productName}
+              style={{ width: "100%", borderRadius: 8 }}
+            />
+          </Col>
+          <Col span={19}>
+            <Text strong>{record.productName}</Text>
+            <br />
+            <Text type="secondary">{record.options}</Text>
+          </Col>
+        </Row>
       ),
     },
     {
-      title: "Đơn giá",
-      dataIndex: "price",
-      key: "price",
-      render: (price) => `₫${price.toLocaleString()}`,
+      title: t("MES-132"),
+      render: (text, record) => {
+        const discountPrice = record?.price?.discountPrice;
+        const defaultPrice = record?.price?.defaultPrice;
+        if (discountPrice > 0) {
+          return (
+            <>
+              <span style={{ textDecoration: "line-through", color: "gray" }}>
+                ₫{defaultPrice?.toLocaleString()}
+              </span>
+              <br />
+              <span style={{ color: "red" }}>
+                ₫{discountPrice?.toLocaleString()}
+              </span>
+            </>
+          );
+        }
+        return `₫${defaultPrice?.toLocaleString()}`;
+      },
     },
     {
-      title: "Số lượng",
+      title: t("MES-133"),
       dataIndex: "quantity",
       key: "quantity",
     },
     {
-      title: "Thành tiền",
+      title: t("MES-134"),
       dataIndex: "total",
       key: "total",
       render: (total) => (
@@ -175,20 +214,26 @@ const CustomerInfoOrderDetail = () => {
   useEffect(() => {
     const fetchProductData = async () => {
       // Map qua danh sách orderDetailResponses và thêm tên màu sắc từ colorId
-      const mappedData = await Promise.all(
+      const mappedData = await Promise?.all(
         dataInfoOrder?.orderDetailResponses?.map(async (item) => {
           const color = await colorFindById(item.productDetailId.colorId);
           const size = await sizeFindById(item.productDetailId.sizeId);
+          const product = await productFindById(item.productDetailId.productId);
           return {
             key: item.id,
-            productName: item.productDetailId.code,
+            productName: product?.data?.data?.name,
             options: `Phân loại hàng: Size-${size?.data?.data.name}, Màu sắc-${color?.data?.data.name}`, // Lấy tên màu
             image: item.productDetailId.image,
-            price: `${item.productDetailId.discountPrice.toLocaleString()}`, // Hiển thị giá
+            price: {
+              discountPrice: item?.productDetailId?.discountPrice,
+              defaultPrice: item?.productDetailId?.defaultPrice,
+            },
             quantity: item.quantity,
             total: `${(
-              item.productDetailId.discountPrice * item.quantity
-            ).toLocaleString()}`, // Tính tổng
+              (item.productDetailId.discountPrice > 0
+                ? item.productDetailId.discountPrice
+                : item.productDetailId.defaultPrice) * item.quantity
+            ).toLocaleString()}`,
           };
         })
       );
@@ -198,21 +243,24 @@ const CustomerInfoOrderDetail = () => {
     fetchProductData();
   }, [dataInfoOrder]);
   const stepData = [
-    { title: "Đơn hàng đã đặt", status: "pending" },
-    { title: "Đã xác nhận", status: "confirmed" },
-    { title: "Đang giao", status: "shipping" },
-    { title: "Đã nhận được hàng", status: "delivered" },
-    { title: "Đơn hàng đã hoàn thành", status: "completed" },
+    { title: t("MES-124"), status: "pending" },
+    { title: t("MES-125"), status: "confirmed" },
+    { title: t("MES-126"), status: "shipping" },
+    { title: t("MES-127"), status: "delivered" },
+    { title: t("MES-128"), status: "completed" },
   ];
   const relevantSteps =
     dataInfoOrder.status === "cancelled"
       ? [
-          { title: "Đơn hàng đã đặt", status: "pending" },
-          ...(dataInfoOrder.status.includes("confirmed")
-            ? [{ title: "Đã xác nhận", status: "confirmed" }]
-            : []),
-          { title: "Đơn hàng đã hủy", status: "cancelled" },
-        ]
+        { title: t("MES-124"), status: "pending" },
+        ...(dataInfoOrder.status.includes("confirmed")
+          ? [{ title: t("MES-125"), status: "confirmed" }]
+          : []),
+        ...(dataInfoOrder.status.includes("shipping")
+          ? [{ title: t("MES-125"), status: "shipping" }]
+          : []),
+        { title: t("MES-129"), status: "cancelled" },
+      ]
       : stepData;
   const currentStep = relevantSteps.findIndex(
     (step) => step.status === dataInfoOrder.status
@@ -220,30 +268,94 @@ const CustomerInfoOrderDetail = () => {
   const updatedAtFormatted = moment(dataInfoOrder.updatedAt).format(
     "DD-MM-YYYY HH:mm:ss"
   );
+  console.log("daa", dataInfoOrder);
   return (
     <div style={{ padding: 16, marginTop: "80px" }}>
       <Row
         style={{
           backgroundColor: "#ffff",
-          padding: "5px 0px",
+          padding: "15px 20px", // Điều chỉnh padding để làm cho nó đẹp hơn
           borderRadius: 8,
           alignItems: "center",
           border: "1px solid #ddd",
           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
           marginBottom: "28px",
+          display: "flex", // Dùng flex để căn chỉnh các phần tử
+          justifyContent:
+            dataInfoOrder?.paymentResponses?.length > 0 &&
+              dataInfoOrder?.paymentResponses[0]?.status !== 0
+              ? "flex-end"
+              : "space-between", // Căn giữa các phần tử
         }}
       >
-        <NavLink
-          to={"/info-order"}
+        {userId !== "1" && (
+          <NavLink
+            to={"/info-order"}
+            style={{
+              color: "gray",
+              padding: "6px 20px",
+              borderRadius: 8,
+              alignItems: "center",
+              fontSize: "16px",
+              display: "flex",
+            }}
+          >
+            <LeftOutlined />{" "}
+            <span style={{ fontSize: "18px" }}>{t("MES-135")}</span>
+          </NavLink>
+        )}
+        {userId === "1" && // Kiểm tra nếu userId là "1"
+          dataInfoOrder?.paymentResponses?.length > 0 && // Kiểm tra nếu paymentResponses có phần tử
+          dataInfoOrder?.paymentResponses[0]?.paymentMethod === "VNP" && // Kiểm tra paymentMethod của phần tử đầu tiên
+          dataInfoOrder?.paymentResponses[0]?.status === 0 && ( // Kiểm tra status của phần tử đầu tiên
+            <Button
+              type="default"
+              onClick={() => handleRetryPayment(dataInfoOrder?.code)} // Gọi hàm khi nhấn nút
+              key="retry"
+              style={{
+                color: "gray",
+                padding: "6px 20px",
+                borderRadius: 8,
+                alignItems: "center",
+                fontSize: "16px",
+                display: "flex",
+              }}
+            >
+              {t("MES-232")} {/* Hiển thị thông điệp */}
+            </Button>
+          )}
+
+        <Text
           style={{
-            color: "gray",
-            padding: "6px 20px",
-            borderRadius: 8,
-            alignItems: "center",
+            fontSize: "18px",
+            fontWeight: "bold",
+            color:
+              dataInfoOrder?.paymentResponses?.length > 0 &&
+                dataInfoOrder?.paymentResponses[0]?.status === 0
+                ? "#ff4d4f"
+                : "#52c41a",
+            padding: "8px 16px",
+            borderRadius: "12px",
+            backgroundColor:
+              dataInfoOrder?.paymentResponses?.length > 0 &&
+                dataInfoOrder?.paymentResponses[0]?.status === 0
+                ? "#fff1f0"
+                : "#f6ffed",
+            border:
+              dataInfoOrder?.paymentResponses?.length > 0 &&
+                dataInfoOrder?.paymentResponses[0]?.status === 0
+                ? "1px solid #ff4d4f"
+                : "1px solid #52c41a",
+            textAlign: "center",
+            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+            display: "inline-block",
           }}
         >
-          <LeftOutlined /> <span style={{ fontSize: "18px" }}>Quay lại</span>
-        </NavLink>
+          {dataInfoOrder?.paymentResponses?.length > 0 &&
+            dataInfoOrder?.paymentResponses[0]?.status === 0
+            ? t("MES-136")
+            : t("MES-137")}
+        </Text>
       </Row>
       <Row style={stepStyle}>
         <Steps current={currentStep} style={{ width: "100%" }}>
@@ -263,22 +375,28 @@ const CustomerInfoOrderDetail = () => {
         </Steps>
       </Row>
       <div style={addressSectionStyle}>
-        <Title level={5}>Địa Chỉ Nhận Hàng</Title>
+        <Title level={5}>{t("MES-138")}</Title>
         <Text strong>{dataInfoOrder?.address?.name}</Text>
         <br />
-        <Text>Số điện thoại:{dataInfoOrder?.address?.phoneNumber}</Text>
+        <Text>
+          {t("MES-139")}:{dataInfoOrder?.address?.phoneNumber}
+        </Text>
         <br />
-        <Text>Địa chỉ: {dataInfoOrder?.address?.addressDetail}</Text>
+        <Text>
+          {t("MES-140")}: {dataInfoOrder?.address?.addressDetail}
+        </Text>
         <Divider />
         {dataInfoOrder.status === "completed" && (
           <div>
-            <Text>{updatedAtFormatted} - Giao hàng thành công</Text>
+            <Text>
+              {updatedAtFormatted} - {t("MES-141")}
+            </Text>
           </div>
         )}
       </div>
 
       {/* Sản phẩm */}
-      <Card title="Chi Tiết Sản Phẩm" style={cardStyle}>
+      <Card title={t("MES-142")} style={cardStyle}>
         <Table
           columns={productColumns}
           dataSource={productData}
@@ -286,24 +404,24 @@ const CustomerInfoOrderDetail = () => {
           bordered
         />
       </Card>
-
-      {/* Tổng tiền */}
       <div style={cardStyle}>
         <Row justify="space-between">
-          <Text>Tổng tiền hàng:</Text>
+          <Text>{t("MES-143")}:</Text>
           <Text>
             ₫{" "}
-            {dataInfoOrder?.orderDetailResponses?.map((item) => (
-              <span key={item.id}>
-                {(
-                  item.productDetailId.discountPrice * item.quantity
-                ).toLocaleString()}
-              </span>
-            ))}
+            {dataInfoOrder?.orderDetailResponses
+              ?.reduce((total, item) => {
+                const itemTotal =
+                  item.productDetailId.discountPrice > 0
+                    ? item.productDetailId.discountPrice * item.quantity
+                    : item.productDetailId.defaultPrice * item.quantity;
+                return total + itemTotal;
+              }, 0)
+              .toLocaleString()}
           </Text>
         </Row>
         <Row justify="space-between">
-          <Text>Phí vận chuyển:</Text>
+          <Text>{t("MES-144")}:</Text>
           <Text>
             ₫
             {dataInfoOrder?.deliveryFee != null
@@ -339,11 +457,12 @@ const CustomerInfoOrderDetail = () => {
                     {dataInfoOrder?.voucherId ? (
                       dataInfoOrder?.voucherId.discountPercent > 0 ? (
                         <span style={{ color: "#fff" }}>
-                          Giảm giá {dataInfoOrder?.voucherId.discountPercent}%
+                          {t("MES-144")}{" "}
+                          {dataInfoOrder?.voucherId.discountPercent}%
                         </span>
                       ) : dataInfoOrder?.voucherId.discountAmount > 0 ? (
                         <span style={{ color: "#fff" }}>
-                          Giảm giá{" "}
+                          {t("MES-196")}{" "}
                           {new Intl.NumberFormat("vi-VN").format(
                             dataInfoOrder?.voucherId.discountAmount
                           )}
@@ -363,7 +482,7 @@ const CustomerInfoOrderDetail = () => {
         )}
         <Divider />
         <Row justify="space-between" align="middle">
-          <Title level={5}>Thành tiền:</Title>
+          <Title level={5}>{t("MES-134")}:</Title>
           <Title level={5} style={{ color: "#ff4d4f" }}>
             ₫{" "}
             {dataInfoOrder.totalAmount

@@ -26,13 +26,15 @@ public interface StaffRepo extends JpaRepository<Staff, Integer> {
     public Staff findByEmail(String email);
 
     @Query(value = "SELECT " +
-            "SUM(CASE WHEN p.id = 1 THEN 1 ELSE 0 END) AS adminCount, " +
-            "SUM(CASE WHEN p.id = 2 THEN 1 ELSE 0 END) AS managerCount, " +
-            "COUNT(s.id) - COUNT(p.id) AS normalEmployeeCount " +
-            "FROM staff s " +
-            "LEFT JOIN staff_permission sp ON s.id = sp.staff_id " +
-            "LEFT JOIN permission p ON sp.permission_id = p.id",
+            "SUM(CASE WHEN permissionCount = (SELECT COUNT(*) FROM permission) THEN 1 ELSE 0 END) AS adminCount, " +
+            "SUM(CASE WHEN permissionCount >= 20 AND permissionCount < 35 THEN 1 ELSE 0 END) AS managerCount, " +
+            "SUM(CASE WHEN permissionCount < 20 THEN 1 ELSE 0 END) AS normalEmployeeCount " +
+            "FROM ( " +
+            "  SELECT s.id, COUNT(sp.permission_id) AS permissionCount " +
+            "  FROM staff s " +
+            "  LEFT JOIN staff_permission sp ON s.id = sp.staff_id " +
+            "  GROUP BY s.id " +
+            ") AS staff_permissions",
             nativeQuery = true)
     List<Object[]> getStaffStatistics();
-
 }

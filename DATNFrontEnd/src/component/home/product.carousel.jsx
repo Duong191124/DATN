@@ -4,8 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { fetchTopFeaturedProducts } from "../../service/api.service";
 import ProductDetailCard from "./product.detail.card";
 import { useNavigate } from "react-router-dom";
-
+import { useTranslation } from "react-i18next";
 const ProductCarousel = () => {
+  const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
   const responsive = {
     desktop: {
       breakpoint: { max: 3000, min: 1024 },
@@ -91,7 +96,7 @@ const ProductCarousel = () => {
   }, []);
   return (
     <div style={styles.container}>
-      <div style={styles.title}>Sản phẩm Sale</div>
+      <div style={styles.title}>{t("MES-057")}</div>
       <div
         style={styles.carouselWrapper}
         onMouseEnter={(e) => {

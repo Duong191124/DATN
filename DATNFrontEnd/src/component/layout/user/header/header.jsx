@@ -75,6 +75,27 @@ const Header = () => {
   const navigate = useNavigate();
   const { cartItems, setCartItems } = useCart();
 
+  const handleLanguageChange = (value) => {
+    setLanguage(value);
+    localStorage.setItem("i18nextLng", value); 
+    i18n.changeLanguage(value); 
+  };
+
+  useEffect(() => {
+    const loggedIn = !!localStorage.getItem("access_token");
+    setIsLoggedIn(loggedIn);
+
+    const savedLanguage = localStorage.getItem("i18nextLng"); 
+    if (savedLanguage) {
+      setLanguage(savedLanguage); 
+      i18n.changeLanguage(savedLanguage); 
+    } else {
+      const defaultLanguage = i18n.language || "en"; 
+      setLanguage(defaultLanguage); 
+      localStorage.setItem("i18nextLng", defaultLanguage);
+    }
+  }, []);
+
   const items = category.map((cat) => {
     const categoryProducts = product.filter(
       (prod) => prod.category.id === cat.id
@@ -200,10 +221,6 @@ const Header = () => {
       console.error(error);
     }
   };
-  const handleLanguageChange = (value) => {
-    setLanguage(value);
-    i18n.changeLanguage(value); // Thay đổi ngôn ngữ cho toàn bộ ứng dụng
-  };
   const userMenu = (
     <Menu>
       {isLoggedIn ? (
@@ -273,7 +290,7 @@ const Header = () => {
             </div>
           </div>
           <div className="input-search">
-            <ProductSearch data={dataProduct} />
+            <ProductSearch data={dataProduct} t={t} />
             <div className="icon-right">
               <Badge
                 onClick={() => setOpenCart(true)}
@@ -296,7 +313,7 @@ const Header = () => {
               {/* Tùy chọn ngôn ngữ */}
               <Select
                 value={language}
-                style={{ width: 100, marginLeft: 16 }}
+                style={{ width: 110, marginLeft: 16 }}
                 onChange={handleLanguageChange}
                 suffixIcon={<GlobalOutlined />}
               >
@@ -311,10 +328,7 @@ const Header = () => {
       {location.pathname === "/" && (
         <div className="marquee-container">
           <div className="marquee">
-            <p>
-              Chào mừng đến với cửa hàng của chúng tôi! Ưu đãi lớn hôm nay: Giảm
-              giá 20% cho các sản phẩm!
-            </p>
+            <p>{t("MES-096")}</p>
           </div>
         </div>
       )}

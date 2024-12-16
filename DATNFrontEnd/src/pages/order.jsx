@@ -136,7 +136,7 @@ const OrderPage = () => {
       status: "",
       orderCode: "",
       staffName: "",
-      orderStyle: "",
+      orderType: "",
     }));
     updateUrl({
       staffName: "",
@@ -144,7 +144,7 @@ const OrderPage = () => {
       endDate: null,
       status: "",
       orderCode: "",
-      orderStyle: "",
+      orderType: "",
     }); // Cập nhật URL khi reset
   };
   // Khi giá trị trong filters thay đổi, load lại danh sách đơn hàng

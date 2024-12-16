@@ -3,6 +3,7 @@ package com.example.demo.dto;
 import com.example.demo.entity.Orders;
 import com.example.demo.request.OrderDetailOnlineRequest;
 import com.example.demo.response.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -24,10 +25,20 @@ public class OrderOnlineDTO {
     private AddressOrderDTO address;
     private List<OrderDetailOnlineRequest> orderDetailRequests;
     public static OrderResponse convertOrderResponse(Orders orders){
+        AddressOrderDTO addressDTO = null;
+        if (orders.getAddress() != null) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                addressDTO = objectMapper.readValue(orders.getAddress(), AddressOrderDTO.class);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return OrderResponse.builder()
                 .id(orders.getId())
                 .code(orders.getCode())
                 .status(orders.getStatus())
+                .address(addressDTO)
                 .orderDate(orders.getOrderDate())
                 .staffResponse(orders.getStaff() != null ? StaffResponse.fromStaffResponse(orders.getStaff()) : null)
                 .deliveryFee(orders.getDeliveryFee())

@@ -73,10 +73,7 @@ const ProductTable = (props) => {
       title: 'Mô tả',
       dataIndex: 'description'
     },
-    {
-      title: 'Ngày tạo',
-      dataIndex: 'createdAt'
-    },
+
     {
       title: 'Hành động',
       key: 'action',

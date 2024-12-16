@@ -75,8 +75,8 @@ instance.interceptors.response.use(
         });
         return;
       }
-      else {
-        notification.warning({
+      else if(status === 400) {
+        notification.error({
           message: 'Warring',
           description: error.response.data.message,
           duration: 2

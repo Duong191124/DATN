@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { Col, Row, Space, Typography } from "antd";
 import {
@@ -13,7 +13,7 @@ import {
 import styled from "styled-components";
 import ChatBox from "../../content/chat/chat";
 import BackToTop from "../backtotop/backtotop";
-
+import { useTranslation } from "react-i18next";
 const { Title, Text } = Typography;
 
 const FooterWrapper = styled.footer`
@@ -142,6 +142,11 @@ const CertificationImage = styled.img`
 `;
 
 const Footer = () => {
+  const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
   return (
     <FooterWrapper>
       <BackToTop />
@@ -150,42 +155,42 @@ const Footer = () => {
         <Row gutter={[48, 32]}>
           <Col xs={24} sm={12} md={6}>
             <FooterSection>
-              <FooterTitle level={4}>About Us</FooterTitle>
+              <FooterTitle level={4}>{t("MES-078")}</FooterTitle>
               <Space direction="vertical" size={0}>
-                <FooterLink to="/">Our Story</FooterLink>
-                <FooterLink to="/">Careers</FooterLink>
-                <FooterLink to="/">Company History</FooterLink>
-                <FooterLink to="/">Branches</FooterLink>
+                <FooterLink to="/">{t("MES-079")}</FooterLink>
+                <FooterLink to="/">{t("MES-080")}</FooterLink>
+                <FooterLink to="/">{t("MES-081")}</FooterLink>
+                <FooterLink to="/">{t("MES-082")}</FooterLink>
               </Space>
             </FooterSection>
           </Col>
 
           <Col xs={24} sm={12} md={6}>
             <FooterSection>
-              <FooterTitle level={4}>Customer Support</FooterTitle>
+              <FooterTitle level={4}>{t("MES-083")}</FooterTitle>
               <Space direction="vertical" size={0}>
-                <FooterLink to="/">Customer Service</FooterLink>
-                <FooterLink to="/">Order Guide</FooterLink>
-                <FooterLink to="/">Return Process</FooterLink>
-                <FooterLink to="/">Shipping Methods</FooterLink>
+                <FooterLink to="/">{t("MES-084")}</FooterLink>
+                <FooterLink to="/">{t("MES-085")}</FooterLink>
+                <FooterLink to="/">{t("MES-086")}</FooterLink>
+                <FooterLink to="/">{t("MES-087")}</FooterLink>
               </Space>
             </FooterSection>
           </Col>
 
           <Col xs={24} sm={12} md={6}>
             <FooterSection>
-              <FooterTitle level={4}>Contact</FooterTitle>
+              <FooterTitle level={4}>{t("MES-088")}</FooterTitle>
               <Space direction="vertical" size={4}>
                 <ContactInfo>
                   <PhoneOutlined />
                   <span>
-                    Support: <strong>0999.99.99.99</strong>
+                    {t("MES-089")}: <strong>0999.99.99.99</strong>
                   </span>
                 </ContactInfo>
                 <ContactInfo>
                   <PhoneOutlined />
                   <span>
-                    Warranty: <strong>022.2222.2222</strong>
+                    {t("MES-090")}: <strong>022.2222.2222</strong>
                   </span>
                 </ContactInfo>
                 <ContactInfo>
@@ -197,7 +202,7 @@ const Footer = () => {
                 <ContactInfo>
                   <ClockCircleOutlined />
                   <span>
-                    Hours: <strong>Mon-Sat 9:00 - 18:00</strong>
+                    {t("MES-091")}: <strong>Mon-Sat 9:00 - 18:00</strong>
                   </span>
                 </ContactInfo>
               </Space>
@@ -206,7 +211,7 @@ const Footer = () => {
 
           <Col xs={24} sm={12} md={6}>
             <FooterSection>
-              <FooterTitle level={4}>Connect with Us</FooterTitle>
+              <FooterTitle level={4}>{t("MES-092")}</FooterTitle>
               <div>
                 <SocialLink href="https://twitter.com" target="_blank">
                   <TwitterOutlined />
@@ -229,9 +234,9 @@ const Footer = () => {
       <BottomBar>
         <FooterContainer>
           <Copyright>
-            <span>© 2024 SPORTS SHIRT. All rights reserved.</span>
-            <NavLink to="/">Terms of Service</NavLink>
-            <NavLink to="/">Privacy Policy</NavLink>
+            <span>© 2024 SPORTS SHIRT. {t("MES-093")}</span>
+            <NavLink to="/">{t("MES-094")}</NavLink>
+            <NavLink to="/">{t("MES-095")}</NavLink>
             <CertificationImage
               src="https://theme.hstatic.net/200000174405/1001111911/14/logo_bct.png?v=1275"
               alt="Certification"

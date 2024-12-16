@@ -26,7 +26,7 @@ public class CustomerController {
     private final CustomerServiceImpl customerService;
     private final NoticeServiceImpl noticeService;
 
-
+    @PreAuthorize("hasAuthority('READ_CUSTOMER')")
     @GetMapping("/getAll")
     public ResponseEntity<MessageReponse> getAll(
             @RequestParam(name = "page", defaultValue = "1")int page,
@@ -69,8 +69,8 @@ public class CustomerController {
                     .build()
             );
         }catch(Exception e){
-            return ResponseEntity.internalServerError().body(MessageReponse.builder()
-                            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            return ResponseEntity.badRequest().body(MessageReponse.builder()
+                            .status(HttpStatus.BAD_REQUEST.value())
                             .data(null)
                             .message(e.getMessage())
                             .build());
@@ -99,7 +99,6 @@ public class CustomerController {
                 .status(HttpStatus.OK.value())
                 .build());
     }
-
 
     @GetMapping("{id}")
     public ResponseEntity<?> getById(@PathVariable("id") Integer id)throws Exception{

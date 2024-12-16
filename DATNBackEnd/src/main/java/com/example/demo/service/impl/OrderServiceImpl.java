@@ -39,6 +39,7 @@ public class OrderServiceImpl implements OrderService {
     private final  VoucherRepo voucherRepo;
     private final ProductDetailRepo productDetailRepo;
     private final CustomerRepo customerRepo;
+    private final PaymentRepo paymentRepo;
 
     @Override
     public List<OrderResponse> getAll() {
@@ -60,14 +61,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderBuyerResponseDTO> getAllOrderByOrderId(Integer customerId, OrderStatus status, Integer orderId){
+    public List<OrderResponse> getAllOrderByOrderId(Integer customerId, OrderStatus status, Integer orderId){
         Customer customer = customerRepo.findById(customerId).orElse(null);
         Orders order = orderRepo.findById(orderId).orElse(null);
         if(customer == null || order == null){
             return null;
         }
         List<Orders> ordersList = orderRepo.pageAllByOrderIdAndCustomerId(status, orderId, customerId);
-        return ordersList.stream().map(OrderBuyerResponseDTO::convertOrderResponse).collect(Collectors.toList());
+        return ordersList.stream().map(OrderResponse::convertOrderResponse).collect(Collectors.toList());
     }
 
     @Override
@@ -122,7 +123,8 @@ public class OrderServiceImpl implements OrderService {
         order.setCode(orderDTO.getCode());
         order.setDeliveryFee(orderDTO.getDeliveryFee());
         order.setOrderDate(orderDTO.getOrderDate());
-
+        Customer customer = customerRepo.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Not found customer with id: " + order.getCustomer().getId()));
         // Serialize địa chỉ
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -141,9 +143,29 @@ public class OrderServiceImpl implements OrderService {
         if (orderDTO.getVoucherId() != null) {
             Voucher voucher = voucherRepo.findById(orderDTO.getVoucherId())
                     .orElseThrow(() -> new RuntimeException("Voucher not found"));
-            order.setVoucher(voucher);
-        }
 
+            // Kiểm tra xem khách hàng đã sử dụng voucher này chưa
+            if (hasCustomerExitVoucher(customer.getId(), orderDTO.getVoucherId())) {
+                throw new RuntimeException("Khách hàng đã sử dụng voucher này.");
+            }
+
+            // Kiểm tra tính hợp lệ của voucher (hạn sử dụng, số lượng, v.v.)
+            if (voucher.getExpirationDate().isBefore(LocalDateTime.now())) {
+                throw new RuntimeException("Voucher has expired");
+            }
+
+            if (voucher.getQuantity() <= 0) {
+                throw new RuntimeException("Voucher is no longer available");
+            }
+
+            // Giảm số lượng voucher và lưu lại
+            voucher.setQuantity(voucher.getQuantity() - 1);
+            voucherRepo.save(voucher);
+
+            // Cập nhật voucher cho đơn hàng và khách hàng
+            order.setVoucher(voucher);
+            customerRepo.save(customer);
+        }
         // Gán khách hàng
         order.setCustomer(customerRepo.findById(customerId).orElse(null));
 
@@ -324,6 +346,7 @@ public class OrderServiceImpl implements OrderService {
         Orders orders = orderRepo.findById(id).orElseThrow(() ->
                 new RuntimeException("Not found order with id: " + id)
         );
+        Payment payment = paymentRepo.findByOrdersId(orders.getId());
         // Chuyển đổi trạng thái từ String thành OrderStatus enum
         OrderStatus orderStatus = OrderStatus.valueOf(status.toLowerCase());
 
@@ -346,16 +369,28 @@ public class OrderServiceImpl implements OrderService {
             if (note == null || note.trim().isEmpty()) {
                 throw new IllegalArgumentException("Note is required when cancelling the order.");
             }
-
+            if(orders.getStatus().equals(OrderStatus.pending) || orders.getStatus().equals(OrderStatus.pending_payment)){
+                orders.setNote(note);
+                // Duyệt qua các chi tiết đơn hàng để cập nhật số lượng sản phẩm
+                for (OrderDetail orderDetail : orders.getOrderDetails()) {
+                    ProductDetail productDetail = orderDetail.getProductDetail();
+                    productDetailRepo.save(productDetail);
+                }
+            }else {
+                for (OrderDetail orderDetail : orders.getOrderDetails()) {
+                    ProductDetail productDetail = orderDetail.getProductDetail();
+                    int quantityOrdered = orderDetail.getQuantity();
+                    productDetail.setQuantity(productDetail.getQuantity() + quantityOrdered);
+                    productDetailRepo.save(productDetail);
+                }
+            }
             // Cập nhật ghi chú cho đơn hàng
             orders.setNote(note);
-            // Duyệt qua các chi tiết đơn hàng để cập nhật số lượng sản phẩm
-            for (OrderDetail orderDetail : orders.getOrderDetails()) {
-                ProductDetail productDetail = orderDetail.getProductDetail();
-                int quantityOrdered = orderDetail.getQuantity();
-                // Cập nhật lại số lượng sản phẩm trong kho (tăng lại số lượng)
-                productDetail.setQuantity(productDetail.getQuantity() + quantityOrdered);
-                productDetailRepo.save(productDetail);
+        }
+        if (orderStatus == OrderStatus.completed) {
+            if(payment.getOrders().equals(orders)){
+                payment.setStatus(1);
+                paymentRepo.save(payment);
             }
         }
         // Cập nhật trạng thái đơn hàng
@@ -493,10 +528,6 @@ public class OrderServiceImpl implements OrderService {
         // Trả về phản hồi đơn hàng đã cập nhật
         return OrderResponse.convertOrderResponse(order);
     }
-
-
-
-
 
     @Override
     public Page<OrderResponse> pageAll(String staffName, LocalDate startDate, LocalDate endDate, OrderStatus orderStatus, String orderCode,OrderType orderType ,Pageable pageable) {

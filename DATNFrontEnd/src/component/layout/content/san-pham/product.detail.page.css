@@ -123,7 +123,7 @@
 }
 
 .product-detail-page .quantity input {
-  width: 50px;
+  width: 80px;
   height: 35px;
   text-align: center;
   font-size: 1rem;
@@ -131,9 +131,9 @@
 }
 
 .product-detail-page .add-to-cart {
-  width: 150px;
+  min-width: 150px;
   margin-top: 1.5rem;
-  padding: 0.8rem 2rem;
+  padding: 1rem 2rem;
   font-size: 1rem;
   background-color: black;
   color: #fff;

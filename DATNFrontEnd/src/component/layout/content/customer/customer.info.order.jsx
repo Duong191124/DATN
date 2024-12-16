@@ -1,9 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { Tabs, Input, Button, Card, Row, Col, Typography, Tag } from "antd";
+import {
+  Tabs,
+  Input,
+  Button,
+  Card,
+  Row,
+  Col,
+  Typography,
+  Tag,
+  message,
+} from "antd";
 import { NavLink } from "react-router-dom";
-import { fetchDataOrderStatusByCustomerId } from "../../../../service/api.service";
+import {
+  fetchDataOrderStatusByCustomerId,
+  retryPayment,
+} from "../../../../service/api.service";
 import { useCheckout } from "../../../context/checkout.context";
-
+import CancelOrder from "./customer.info.order.canceled.child";
+import { useTranslation } from "react-i18next";
 const { TabPane } = Tabs;
 const { Text } = Typography;
 
@@ -17,6 +31,11 @@ const CustomerInfoOrder = () => {
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
   const { formatCurrency } = useCheckout();
+  const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
   const cardStyle = {
     marginBottom: 16,
     borderRadius: 8,
@@ -55,8 +74,8 @@ const CustomerInfoOrder = () => {
 
   const secondaryButtonStyle = {
     padding: "20px 20px",
-    background: secondaryHover ? " #999" : "#d9d9d9",
-    color: secondaryHover ? "#000" : "#000000D9",
+    background: "#000",
+    color: "#fff",
     cursor: "pointer",
     transition: "color 0.3s ease, background 0.1s ease-in",
     border: "1px solid #ddd",
@@ -97,12 +116,12 @@ const CustomerInfoOrder = () => {
   }, [activeTab]);
 
   const statusOptions = [
-    { value: "pending", label: "Chờ xử lý" },
-    { value: "confirmed", label: "Đã xác nhận" },
-    { value: "shipping", label: "Đang giao hàng" },
-    { value: "delivered", label: "Đã giao" },
-    { value: "completed", label: "Đã hoàn thành" },
-    { value: "cancelled", label: "Đã hủy" },
+    { value: "pending", label: t("MES-124") },
+    { value: "confirmed", label: t("MES-125") },
+    { value: "shipping", label: t("MES-126") },
+    { value: "delivered", label: t("MES-127") },
+    { value: "completed", label: t("MES-128") },
+    { value: "cancelled", label: t("MES-129") },
   ];
 
   // Hàm để lấy label theo orderStatus
@@ -110,16 +129,43 @@ const CustomerInfoOrder = () => {
     const status = statusOptions.find((option) => option.value === orderStatus);
     return status ? status.label : "Unknown Status";
   };
-
+  const handleCancelSuccess = (cancelledOrderId) => {
+    setData((prevData) =>
+      prevData.map((order) =>
+        order.id === cancelledOrderId
+          ? { ...order, status: "cancelled" }
+          : order
+      )
+    );
+  };
+  const handleRetryPayment = async (orderCode) => {
+    try {
+      if (orderCode) {
+        const retryResponse = await retryPayment(orderCode);
+        const paymentUrl = retryResponse.data.paymentUrl;
+        if (paymentUrl) {
+          window.location.href = paymentUrl;
+        } else {
+          message.info("Không nhận được liên kết thanh toán mới.");
+        }
+      } else {
+        message.info("Không tìm thấy đơn hàng để thanh toán.");
+      }
+    } catch (error) {
+      message.error("Thanh toán lại thất bại. Vui lòng thử lại.");
+    }
+  };
   const renderOrderCard = () => {
     return data.map((order) => {
       const orderId = order.id; // Lấy id của đơn hàng
       const orderStatus = order.status; // Lấy status của đơn hàng
       const orderCode = order.code;
-      // Lặp qua orderDetailResponses để lấy chi tiết sản phẩm
+      const trackingId = order.trackingId;
+      const vnp = order?.paymentResponses[0]?.paymentMethod;
+      const vnpStatus = order?.paymentResponses[0]?.status;
       const productDetails =
         order.orderDetailResponses?.map((detail) => {
-          const productDetail = detail.productDetailId || {}; // Bảo vệ khi productDetailId là null hoặc undefined
+          const productDetail = detail.productDetailId || {};
           return {
             code: productDetail.code || "Mã sản phẩm",
             image: productDetail.image || "default-image-url.jpg", // Giá trị mặc định khi không có ảnh
@@ -128,6 +174,7 @@ const CustomerInfoOrder = () => {
             size: productDetail.sizeName || "N/A",
             price: detail.price || 0, // Giá mặc định nếu không có giá
             quantity: detail.quantity || 1, // Số lượng mặc định nếu không có
+            name: productDetail?.productDTO?.name || "",
           };
         }) || []; // Nếu không có orderDetailResponses, trả về mảng rỗng
 
@@ -145,7 +192,7 @@ const CustomerInfoOrder = () => {
           <NavLink
             to={
               activeTab === "7"
-                ? "/info-order-cancelled"
+                ? `/info-order-cancelled?code=${orderCode}`
                 : `/info-order-detail?code=${orderCode}`
             }
           >
@@ -163,7 +210,12 @@ const CustomerInfoOrder = () => {
                   <Col
                     key={index}
                     span={24}
-                    style={{ display: "flex", gap: "10px" }}
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      paddingTop: "12px",
+                      paddingBottom: "12px",
+                    }}
                   >
                     {/* Hình ảnh sản phẩm */}
                     <div style={{ width: "100px" }}>
@@ -176,7 +228,7 @@ const CustomerInfoOrder = () => {
 
                     {/* Chi tiết sản phẩm */}
                     <div>
-                      <Text strong>{product.code}</Text>
+                      <Text strong>{product.name}</Text>
                       <div style={{ display: "flex", alignItems: "center" }}>
                         <Text type="secondary" style={{ marginRight: "10px" }}>
                           Phân loại hàng:
@@ -195,11 +247,12 @@ const CustomerInfoOrder = () => {
                         <Text type="secondary">{`Size: ${product.size}`}</Text>
                       </div>
                       <div style={{ marginTop: "10px" }}>
-                        <Text delete style={{ marginRight: 8 }}>
-                          {formatCurrency(product.defaultPrice)
-                            ? `${formatCurrency(product.defaultPrice)}`
-                            : ""}
-                        </Text>
+                        {product.defaultPrice &&
+                          product.price < product.defaultPrice && (
+                            <Text delete style={{ marginRight: 8 }}>
+                              {formatCurrency(product.defaultPrice)}
+                            </Text>
+                          )}
                         <Text
                           style={{
                             fontWeight: 500,
@@ -222,7 +275,7 @@ const CustomerInfoOrder = () => {
             <Text
               style={{ fontSize: 14, fontWeight: 600, marginRight: "10px" }}
             >
-              Phí ship:
+              {t("MES-144")}:
             </Text>
             <Text style={priceStyle}>
               {formatCurrency(order.deliveryFee) || 0}
@@ -234,30 +287,41 @@ const CustomerInfoOrder = () => {
             <Text
               style={{ fontSize: 14, fontWeight: 600, marginRight: "10px" }}
             >
-              Thành tiền:
+              {t("MES-134")}:
             </Text>
             <Text style={priceStyle}>
               {formatCurrency(order.totalAmount) || 0}
             </Text>{" "}
             {/* Thành tiền mặc định nếu không có */}
           </Row>
-
-          {/* Các nút hành động */}
           <Row justify="end" style={{ marginTop: 16 }}>
-            <Button
-              style={primaryButtonStyle}
-              onMouseEnter={() => setPrimaryHover(true)}
-              onMouseLeave={() => setPrimaryHover(false)}
-            >
-              Mua Lại
-            </Button>
-            <Button
-              style={secondaryButtonStyle}
-              onMouseEnter={() => setSecondaryHover(true)}
-              onMouseLeave={() => setSecondaryHover(false)}
-            >
-              Liên Hệ Người Bán
-            </Button>
+            <CancelOrder
+              orderId={orderId}
+              orderStatus={orderStatus}
+              handleCancelSuccess={handleCancelSuccess}
+              t={t}
+            />
+            {orderStatus === "pending" && vnp === "VNP" && vnpStatus === 0 && (
+              <Button
+                type="default"
+                onClick={() => handleRetryPayment(orderCode)}
+                key="retry"
+              >
+                {t("MES-232")}
+              </Button>
+            )}
+            {orderStatus !== "confirmed" &&
+              orderStatus !== "pending" &&
+              trackingId && (
+                <Button
+                  style={secondaryButtonStyle}
+                  onClick={() => {
+                    window.location.href = `/tracking?tracking_code=${trackingId}`;
+                  }}
+                >
+                  TrackingOrder
+                </Button>
+              )}
           </Row>
         </Card>
       );
@@ -273,20 +337,20 @@ const CustomerInfoOrder = () => {
           activeKey={activeTab}
           onChange={setActiveTab}
         >
-          <TabPane tab="Tất cả" key="1"></TabPane>
-          <TabPane tab="Chờ thanh toán" key="2"></TabPane>
-          <TabPane tab="Đã xác nhận" key="3"></TabPane>
-          <TabPane tab="Đang giao hàng" key="4"></TabPane>
-          <TabPane tab="Đã giao" key="5"></TabPane>
-          <TabPane tab="Đã hoàn thành" key="6"></TabPane>
-          <TabPane tab="Đã hủy" key="7"></TabPane>
+          <TabPane tab={t("MES-123")} key="1"></TabPane>
+          <TabPane tab={t("MES-124")} key="2"></TabPane>
+          <TabPane tab={t("MES-125")} key="3"></TabPane>
+          <TabPane tab={t("MES-126")} key="4"></TabPane>
+          <TabPane tab={t("MES-127")} key="5"></TabPane>
+          <TabPane tab={t("MES-128")} key="6"></TabPane>
+          <TabPane tab={t("MES-129")} key="7"></TabPane>
         </Tabs>
       </div>
       <div>
         {data.length > 0 ? (
           renderOrderCard()
         ) : (
-          <Text type="secondary">Không có đơn hàng nào.</Text>
+          <Text type="secondary">{t("MES-130")}</Text>
         )}
       </div>
     </div>
