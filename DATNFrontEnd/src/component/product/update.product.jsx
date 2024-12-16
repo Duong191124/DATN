@@ -18,28 +18,34 @@ const UpdateProduct = (props) => {
 
   useEffect(() => {
     if (dataUpdate) {
+      console.log(dataUpdate);
       // Set các giá trị của form khi dữ liệu cập nhật thay đổi
       form.setFieldsValue({
         id: dataUpdate.id,
         code: dataUpdate.code,
         name: dataUpdate.name,
         description: dataUpdate.description,
-        collar: dataUpdate.collarName,
-        brand: dataUpdate.brandName,
+        collar: dataUpdate.id,
+        brand: dataUpdate.id,
         category: dataUpdate.categoryName,
         status: dataUpdate.status,
-        sleeve: dataUpdate.sleeveName,
+        sleeve: dataUpdate.id,
       });
     }
   }, [dataUpdate, form]);
 
+  console.log(dataCollar);
+
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields(); // Lấy và validate dữ liệu form
+      // console.log("check data submit nek: ", values);
       const collar = dataCollar.find((item) => item.name === values.collar);
       const brand = dataBrand.find((item) => item.name === values.brand);
       const category = dataCategory.find((item) => item.name === values.category);
       const sleeve = dataSleeve.find((item) => item.name === values.sleeve);
+
+      console.log(collar)
 
       const res = await updateProductAPI(
         values.id,

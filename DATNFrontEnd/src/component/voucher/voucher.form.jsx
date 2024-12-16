@@ -38,35 +38,43 @@ const VoucherForm = (props) => {
       discountPercent: values.discountPercent?.toString(),
       minPurchaseAmount: values.minPurchaseAmount?.toString(),
       maxDiscountAmount: values.maxDiscountAmount?.toString(),
-      expirationDate: values.expirationDate ? moment(values.expirationDate).format("YYYY-MM-DDTHH:mm:ss") : null,
+      expirationDate: values.expirationDate ? values.expirationDate.format("YYYY-MM-DDTHH:mm:ss") : null, // Đảm bảo định dạng chính xác từ DatePicker
       customers: null,
       status: 1, // Đặt status tự động là 1
     };
 
-    const res = await createVoucher(
-      formattedValues.code,
-      formattedValues.quantity,
-      formattedValues.discountAmount,
-      formattedValues.discountPercent,
-      formattedValues.expirationDate,
-      formattedValues.minPurchaseAmount,
-      formattedValues.maxDiscountAmount,
-      formattedValues.termsAndConditions,
-      formattedValues.customers
-    );
+    try {
+      const res = await createVoucher(
+        formattedValues.code,
+        formattedValues.quantity,
+        formattedValues.discountAmount,
+        formattedValues.discountPercent,
+        formattedValues.expirationDate,
+        formattedValues.minPurchaseAmount,
+        formattedValues.maxDiscountAmount,
+        formattedValues.termsAndConditions,
+        formattedValues.customers
+      );
 
-    if (res && res.data) {
-      notification.success({
-        message: "Tạo Voucher",
-        description: "Tạo voucher thành công"
-      });
-      resetCloseModal();
-      onCreate(formattedValues);
-      loadData(); // Gọi lại hàm loadData để tải lại trang
-    } else {
+      if (res && res.data) {
+        notification.success({
+          message: "Tạo Voucher",
+          description: "Tạo voucher thành công"
+        });
+        resetCloseModal();
+        onCreate(formattedValues);
+        loadData();
+      } else {
+        notification.error({
+          message: "Tạo Voucher",
+          description: JSON.stringify(res.message)
+        });
+      }
+    } catch (error) {
+      console.error("Error creating voucher:", error);
       notification.error({
         message: "Tạo Voucher",
-        description: JSON.stringify(res.message)
+        description: "Có lỗi xảy ra khi tạo voucher."
       });
     }
   };
@@ -97,7 +105,6 @@ const VoucherForm = (props) => {
             discountAmount: null,
             discountPercent: null,
             maxDiscountAmount: null,
-            expirationDate: moment().startOf('day').add(1, 'days'),
             status: 1,
           }}
           onValuesChange={(changedValues, allValues) => {
@@ -168,10 +175,10 @@ const VoucherForm = (props) => {
                       if (value === null || value === undefined) {
                         return Promise.reject(new Error('Vui lòng nhập phần trăm giảm giá!'));
                       }
-                      if (value > 0 && value <= 50) {
+                      if (value > 0 && value <= 70) {
                         return Promise.resolve();
                       }
-                      return Promise.reject(new Error('Phần trăm giảm giá phải lớn hơn 0 và không được vượt quá 50!'));
+                      return Promise.reject(new Error('Phần trăm giảm giá phải lớn hơn 0 và không được vượt quá 70!'));
                     }
                     return Promise.resolve(); // Không bắt lỗi khi loại giảm giá không phải là phần trăm
                   },
@@ -183,7 +190,7 @@ const VoucherForm = (props) => {
                 style={{ width: '100%' }}
                 placeholder="Nhập phần trăm giảm giá"
                 min={0}
-                max={50}
+                max={70}
                 disabled={discountType === 'amount'} // Disable khi loại giảm giá là tiền
               />
             </Form.Item>
@@ -250,20 +257,10 @@ const VoucherForm = (props) => {
               style={{ width: '48%' }}
             >
               <DatePicker
-                showTime
+                
                 style={{ width: '100%' }}
-                format={"DD-MM-YYYY HH:mm:ss"}
+                format="YYYY-MM-DD "
                 disabledDate={(current) => current && current < moment().startOf("day")}
-                disabledTime={(current) => {
-                  if (moment().isSame(current, "day")) {
-                    return {
-                      disabledHours: () => [...Array(moment().hour()).keys()],
-                      disabledMinutes: () => [...Array(moment().minute() + 1).keys()],
-                      disabledSeconds: () => [...Array(moment().second() + 1).keys()],
-                    };
-                  }
-                  return {};
-                }}
               />
             </Form.Item>
           </div>

@@ -155,17 +155,17 @@ const Payment = () => {
               </span>
             </div>
             {couponDiscount > 0 && (
-              <div style={{ color: "#f5222d" }}>
+              <div >
                 <span style={{ fontWeight: "bold" }}>{t('MES-975')}:</span>
-                <span style={{ marginLeft: "8px" }}>
+                <span style={{ marginLeft: "8px", color: "#f5222d" }}>
                   - {formatCurrency(couponDiscount)}
                 </span>
               </div>
             )}
             {totalShippingFee > 0 && (
-              <div style={{ color: "#f5222d" }}>
+              <div>
                 <span style={{ fontWeight: "bold" }}>{t('MES-946')}:</span>
-                <span style={{ marginLeft: "8px" }}>
+                <span style={{ marginLeft: "8px", color:"green" }}>
                   + {formatCurrency(totalShippingFee)}
                 </span>
               </div>

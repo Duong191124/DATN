@@ -456,7 +456,7 @@ const CustomerInfoOrderDetail = () => {
                     {dataInfoOrder?.voucherId ? (
                       dataInfoOrder?.voucherId.discountPercent > 0 ? (
                         <span style={{ color: "#fff" }}>
-                          {t("MES-144")}{" "}
+                          {t("MES-145")}{" "}
                           {dataInfoOrder?.voucherId.discountPercent}%
                         </span>
                       ) : dataInfoOrder?.voucherId.discountAmount > 0 ? (
