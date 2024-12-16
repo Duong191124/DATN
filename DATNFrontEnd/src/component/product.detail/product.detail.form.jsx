@@ -8,16 +8,16 @@ const ProductDetailForm = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [sizes, setSizes] = useState([]);       // Dữ liệu danh sách size
     const [colors, setColors] = useState([]);     // Dữ liệu danh sách màu
-    const [weight, setWeight] = useState([]);     // Dữ liệu danh sách màu
 
     const { productId, loadProductDetail } = props;  // Lấy productId từ props
 
     const [form] = Form.useForm();  // Khởi tạo form từ Ant Design
 
     const handleSubmit = async (values) => {
-        const { code, quantity, defaultPrice, size, color, weight } = values;
+        const { quantity, defaultPrice, size, color, weight } = values;
+        const randomCode = `SPCT-${Math.floor(Math.random() * 100000).toString()}`;
         const res = await createProductDetailAPi(
-            code, quantity, defaultPrice, productId, size, color, weight  // Truyền productId từ props
+            randomCode, quantity, defaultPrice, productId, size, color, weight  // Truyền productId từ props
         );
         if (res.data) {
             notification.success({
@@ -46,47 +46,13 @@ const ProductDetailForm = (props) => {
         loadDataSize();
     }, []);
 
-    // Automatically generate a random numeric code when the modal opens
-    useEffect(() => {
-        if (isModalOpen) {
-            const randomCode = `SPCT-${Math.floor(Math.random() * 100000).toString()}`; // Random number format (5 digits)
-            form.setFieldsValue({ code: randomCode });  // Set the generated code as the default value for 'code' field
-        }
-    }, [isModalOpen]);
 
     const resetCloseModal = () => {
         form.resetFields();  // Reset lại các trường trong form
         setIsModalOpen(false);
     };
 
-    const debounceCheckDuplicateCode = useCallback(
-        debounce(async (value, callback) => {
-            const res = await checkDuplicateProductDetailAPI("code", value);
-            if (res.data.exists) {
-                callback(new Error("Code already exists"));
-            } else {
-                callback();
-            }
-        }, 1000),
-        []
-    );
 
-    // Sử dụng hàm validator với debounce
-    const checkDuplicateCode = (rule, value) => {
-        return new Promise((resolve, reject) => {
-            if (!value) {
-                resolve(); // Nếu không có giá trị thì không kiểm tra
-            } else {
-                debounceCheckDuplicateCode(value, (error) => {
-                    if (error) {
-                        reject(error);
-                    } else {
-                        resolve();
-                    }
-                });
-            }
-        });
-    };
 
     return (
         <>
