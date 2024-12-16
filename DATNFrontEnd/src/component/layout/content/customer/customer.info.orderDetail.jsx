@@ -83,6 +83,15 @@ const CustomerInfoOrderDetail = () => {
     backgroundColor: "#D03E1D",
   };
 
+  const secondaryButtonStyle = {
+    padding: "20px 20px",
+    background: "#000",
+    color: "#fff",
+    cursor: "pointer",
+    transition: "color 0.3s ease, background 0.1s ease-in",
+    border: "1px solid #ddd",
+  };
+
   const addressSectionStyle = {
     marginBottom: 16,
     padding: 16,
@@ -484,6 +493,20 @@ const CustomerInfoOrderDetail = () => {
               ? dataInfoOrder.totalAmount.toLocaleString()
               : "0"}
           </Title>
+        </Row>
+        <Row justify="end" align="middle" style={{ display: 'flex', paddingTop: '15px' }}>
+          {dataInfoOrder.status !== "confirmed" &&
+            dataInfoOrder.status !== "pending" &&
+            dataInfoOrder.trackingId && (
+              <Button
+                style={secondaryButtonStyle}
+                onClick={() => {
+                  window.location.href = `/tracking?tracking_code=${dataInfoOrder.trackingId}`;
+                }}
+              >
+                TrackingOrder
+              </Button>
+            )}
         </Row>
       </div>
     </div>
