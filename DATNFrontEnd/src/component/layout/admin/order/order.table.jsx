@@ -158,30 +158,32 @@ const OrderTable = (props) => {
         });
         return;
       }
-      if (!handleCheckQuantity(order?.orderDetailResponses)) {
-        return; // Dừng nếu không đủ số lượng
-      }
-      const nextStatus = statusOptions[currentStatusIndex + 1]?.value; // Trạng thái tiếp theo
-      if (nextStatus) {
-        const res = await updateStatusOrder(currentOrderId, nextStatus);
-        if (res.status === 200) {
-          notification.success({
-            message: "Cập nhật trạng thái",
-            description: "Cập nhật trạng thái thành công!",
-          });
-          setIsModalVisible(false);
-          setSelectedStatus(nextStatus); // Cập nhật trạng thái đã chọn
-          setDataOrder((prevDataOrder) =>
-            prevDataOrder.map((order) =>
-              order.id === currentOrderId
-                ? { ...order, status: nextStatus }
-                : order
-            )
-          );
+      const nextStatus = statusOptions[currentStatusIndex + 1]?.value;
+      if (selectedStatus === "pending" && nextStatus === "confirmed") {
+        if (!handleCheckQuantity(order?.orderDetailResponses)) {
+          return;
         }
+      }
+      // Trạng thái tiếp theo
+      console.log("adđ", nextStatus);
+      if (nextStatus) {
+        await updateStatusOrder(currentOrderId, nextStatus);
+        notification.success({
+          message: "Cập nhật trạng thái",
+          description: "Cập nhật trạng thái thành công!",
+        });
+        setIsModalVisible(false);
+        setSelectedStatus(nextStatus); // Cập nhật trạng thái đã chọn
+        setDataOrder((prevDataOrder) =>
+          prevDataOrder.map((order) =>
+            order.id === currentOrderId
+              ? { ...order, status: nextStatus }
+              : order
+          )
+        );
+
         if (nextStatus === "shipping") {
           const order = dataOrder.find((order) => order.id === currentOrderId);
-
           if (!order) {
             notification.error({
               message: "Lỗi",
@@ -279,13 +281,7 @@ const OrderTable = (props) => {
         });
       }
     } catch (error) {
-      let errorMessage = error?.message || t("MES-985");
-
-      if (error?.message?.includes("Insufficient stock")) {
-        errorMessage = "MES-986";
-      }
-      notification.error(errorMessage);
-      return;
+      console.error(error);
     }
   };
   const handleCheckQuantity = (orderDetails) => {
