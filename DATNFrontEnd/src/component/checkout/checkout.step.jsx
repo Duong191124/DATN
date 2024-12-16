@@ -313,6 +313,19 @@ const CheckoutStep = () => {
     }
   };
 
+  const isShippingDataInvalid = (data) => {
+    // Kiểm tra từng trường trong shippingData
+    return (
+      !data.name.trim() || // Tên không được để trống
+      !data.phoneNumber.trim() || // Số điện thoại không được để trống
+      !data.email.trim() || // Email không được để trống
+      data.toProvide === null || // Tỉnh/Thành phố không được để null
+      data.toDistrict === null || // Quận/Huyện không được để null
+      data.toWard === null || // Phường/Xã không được để null
+      !data.addressDetail.trim() // Địa chỉ chi tiết không được để trống
+    );
+  };
+
   const items = steps.map((item) => ({
     key: item.title,
     title: item.title,
@@ -370,7 +383,7 @@ const CheckoutStep = () => {
               if (current === 1) {
                 if (
                   (userId !== "1" && selectAddress === null) ||
-                  (userId === "1" && shippingData === null)
+                  (userId === "1" && isShippingDataInvalid(shippingData))
                 ) {
                   message.error(t("MES-980"));
                   return;

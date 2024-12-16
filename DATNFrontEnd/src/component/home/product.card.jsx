@@ -210,15 +210,10 @@ const ProductCard = ({
   const { addToCart } = useCart();
   const [availableQuantity, setAvailableQuantity] = useState(0);
   const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("i18nextLng");
-    if (savedLanguage) {
-      i18n.changeLanguage(savedLanguage); // Đảm bảo ngôn ngữ được thay đổi khi khởi tạo
-    } else {
-      const defaultLang = i18n.language || "vi"; // Ngôn ngữ mặc định
-      i18n.changeLanguage(defaultLang);
-    }
-  }, [i18n.language]);
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
   const min = (minPrice || 0).toLocaleString("vi-VN", {
     style: "currency",
     currency: "VND",
@@ -408,13 +403,11 @@ const ProductCard = ({
                       .map((size) => (
                         <button
                           key={size.id}
-                          className={`size-button ${
-                            selectedSize === size.name ? "selected" : ""
-                          } ${
-                            !availableSizes.includes(size.name)
+                          className={`size-button ${selectedSize === size.name ? "selected" : ""
+                            } ${!availableSizes.includes(size.name)
                               ? "disabled-size"
                               : ""
-                          }`}
+                            }`}
                           onClick={() => handleSizeChange(size.name)}
                           disabled={!availableSizes.includes(size.name)}
                         >
@@ -436,13 +429,11 @@ const ProductCard = ({
                       .map((color) => (
                         <button
                           key={color.id}
-                          className={`color-button ${
-                            selectedColor === color.name ? "selected" : ""
-                          } ${
-                            !availableColors.includes(color.name)
+                          className={`color-button ${selectedColor === color.name ? "selected" : ""
+                            } ${!availableColors.includes(color.name)
                               ? "disabled-color"
                               : ""
-                          }`}
+                            }`}
                           onClick={() => handleColorChange(color.name)}
                           disabled={!availableColors.includes(color.name)}
                         >
@@ -565,9 +556,9 @@ ProductCard.propTypes = {
 };
 
 ProductCard.defaultProps = {
-  onAddToCart: () => {},
-  onAddToWishlist: () => {},
-  onQuickView: () => {},
+  onAddToCart: () => { },
+  onAddToWishlist: () => { },
+  onQuickView: () => { },
 };
 
 export default ProductCard;

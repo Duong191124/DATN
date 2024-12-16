@@ -26,7 +26,7 @@ const CollarPage = () => {
     }, [])
     return (
         <div style={{ margin: "20px" }}>
-            <h1 style={{ textAlign: "center" }}>COLLAR MANAGEMENT</h1>
+            <h1 style={{ textAlign: "center" }}>QUẢN LÝ CỔ ÁO</h1>
             <CollarForm
                 loadCollar={loadCollar}
                 listCollarName={listCollarName}

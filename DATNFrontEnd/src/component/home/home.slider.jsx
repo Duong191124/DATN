@@ -107,16 +107,11 @@ const SlideImage = styled.div`
 
 const HomeSlider = () => {
   const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
   const [activeIndex, setActiveIndex] = useState(0);
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("i18nextLng");
-    if (savedLanguage) {
-      i18n.changeLanguage(savedLanguage); // Đảm bảo ngôn ngữ được thay đổi khi khởi tạo
-    } else {
-      const defaultLang = i18n.language || "vi"; // Ngôn ngữ mặc định
-      i18n.changeLanguage(defaultLang);
-    }
-  }, [i18n.language]); // Theo dõi khi i18n.language thay đổi
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
 
   const slideData = [
     {

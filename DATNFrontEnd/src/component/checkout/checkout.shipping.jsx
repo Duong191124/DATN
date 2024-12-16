@@ -32,6 +32,7 @@ const Shipping = () => {
         ward,
         selectAddress,
         setSelectAddress,
+        shippingData,
         setShippingData
     } = useCheckout();
 
@@ -113,7 +114,7 @@ const Shipping = () => {
         });
     };
 
-
+    console.log(shippingData);
 
     useEffect(() => {
         const fetchProvinces = async () => {
