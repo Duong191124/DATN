@@ -64,14 +64,7 @@ public class VoucherServiceImpl implements VoucherService {
     public VoucherResponse update(Integer id, VoucherDTO voucherDTO) throws Exception {
         Voucher existingVoucher = getById(id); // Kiểm tra nếu voucher tồn tại
 
-        // Kiểm tra và chuyển đổi thời gian sang UTC (nếu cần)
-        if (voucherDTO.getExpirationDate() != null) {
-            // Đảm bảo chuyển đổi thời gian của ngày hết hạn sang UTC
-            voucherDTO.setExpirationDate(voucherDTO.getExpirationDate()
-                    .atZone(ZoneId.systemDefault()) // Chuyển sang múi giờ hệ thống (hoặc một múi giờ cố định)
-                    .withZoneSameInstant(ZoneId.of("UTC")) // Chuyển sang UTC
-                    .toLocalDateTime());
-        }
+
 
         // Cập nhật thông tin voucher
         existingVoucher.setCode(voucherDTO.getCode());

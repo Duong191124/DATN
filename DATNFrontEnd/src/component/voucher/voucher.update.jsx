@@ -26,7 +26,7 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                         maxDiscountAmount: res.data.data.maxDiscountAmount,
                         termsAndConditions: res.data.data.termsAndConditions,
                         expirationDate: res.data.data.expirationDate
-                            ? moment(res.data.data.expirationDate) // Chuyển đổi sang đối tượng moment
+                            ? moment.utc(res.data.data.expirationDate).local() // Xử lý múi giờ
                             : null,
                     });
                     setDiscountType(res.data.data.discountAmount > 0 ? "amount" : "percent");
@@ -65,23 +65,25 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
 
     const handleSubmit = async () => {
         try {
-            // Kiểm tra toàn bộ form, nếu không hợp lệ sẽ hiển thị lỗi.
             await form.validateFields();
-
+    
             const values = form.getFieldsValue();
             const formattedValues = {
                 ...values,
-                discountAmount: Number(values.discountAmount),
-                discountPercent: Number(values.discountPercent),
-                minPurchaseAmount: Number(values.minPurchaseAmount),
-                maxDiscountAmount: Number(values.maxDiscountAmount),
+                discountAmount: values.discountAmount?.toString(),
+                discountPercent: values.discountPercent?.toString(),
+                minPurchaseAmount: values.minPurchaseAmount?.toString(),
+                maxDiscountAmount: values.maxDiscountAmount?.toString(),
                 expirationDate: values.expirationDate
-                    ? moment.utc(values.expirationDate).toISOString() // Sử dụng UTC để tránh vấn đề múi giờ
+                    ? values.expirationDate.format("YYYY-MM-DDTHH:mm:ss") // Không dùng .utc()
                     : null,
-                status: 1, // Luôn là 'active'
+                customers: null,
+                status: 1,
             };
+    
+            console.log("Formatted values:", formattedValues);
+    
             setLoading(true);
-
             const res = await updateVoucher(voucherId, formattedValues);
             if (res && res.data) {
                 notification.success({
@@ -97,7 +99,6 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                 });
             }
         } catch (error) {
-            // Hiển thị lỗi nếu form không hợp lệ.
             notification.error({
                 message: "Cập nhật Voucher",
                 description: "Có lỗi xảy ra, vui lòng kiểm tra lại thông tin!",
@@ -106,9 +107,7 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
             setLoading(false);
         }
     };
-
-
-
+    
     return (
         <Modal
             title="Cập nhật Voucher"
@@ -187,7 +186,7 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                             },
                         ]}
                     >
-                        <InputNumber min={10} max={50} />
+                        <InputNumber min={10} max={70} />
                     </Form.Item>
                 )}
                 <Row gutter={16}>
@@ -241,28 +240,16 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                     </Col>
                 </Row>
                 <Form.Item
-                    name="expirationDate"
                     label="Ngày hết hạn"
+                    name="expirationDate"
                     rules={[{ required: true, message: 'Vui lòng chọn ngày hết hạn!' }]}
+                    style={{ width: '48%' }}
                 >
                     <DatePicker
-                        showTime
-                        format="YYYY-MM-DD HH:mm:ss"
+
+                        style={{ width: '100%' }}
+                        format="YYYY-MM-DD "
                         disabledDate={(current) => current && current < moment().startOf("day")}
-                        disabledTime={(current) => {
-                            if (current && current.isSame(moment(), "day")) {
-                                const now = moment();
-                                return {
-                                    disabledHours: () => Array.from({ length: now.hour() }, (_, i) => i),
-                                    disabledMinutes: () => Array.from({ length: now.minute() }, (_, i) => i),
-                                    disabledSeconds: () => Array.from({ length: now.second() }, (_, i) => i),
-                                };
-                            }
-                            return {};
-                        }}                        
-                        onChange={(date) => {
-                            form.setFieldsValue({ expirationDate: date ? date.utc() : null });
-                        }}                        
                     />
                 </Form.Item>
                 <Form.Item name="termsAndConditions" label="Điều khoản và điều kiện">

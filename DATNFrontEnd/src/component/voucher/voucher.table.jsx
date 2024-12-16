@@ -307,6 +307,9 @@ const VoucherTable = ({ refreshData }) => {
         {
             title: "Ngày hết hạn",
             dataIndex: "expirationDate",
+            render: (text) => {
+                return moment(text).format("DD/MM/YYYY"); // Hiển thị ngày theo định dạng DD/MM/YYYY
+            },
             filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
                 <div style={{ padding: 8 }}>
                     <DatePicker.RangePicker
