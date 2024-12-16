@@ -60,9 +60,10 @@ public class ProductServiceImpl implements ProductService {
         Sleeve sleeve = sleeveRepo.findById(productDTO.getSleeveId()).orElseThrow(() -> new RuntimeException("not found sleeve's id:" + productDTO.getSleeveId()));
         product.setCode(productDTO.getCode());
         product.setName(productDTO.getName());
-        product.setImage(productDTO.getImage());
+        product.setImage(product.getImage());
         product.setCollar(collar);
         product.setSleeve(sleeve);
+        product.setImage(product.getImage());
         product.setDescription(productDTO.getDescription());
         product.setStatus(productDTO.getStatus());
         Optional<Brand> brand = brandRepo.findById(productDTO.getBrandId());
