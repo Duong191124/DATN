@@ -251,20 +251,9 @@ const VoucherForm = (props) => {
               style={{ width: '48%' }}
             >
               <DatePicker
-                showTime
                 style={{ width: '100%' }}
-                format={"DD-MM-YYYY HH:mm:ss"}
+                format={"DD-MM-YYYY"}
                 disabledDate={(current) => current && current < moment().startOf("day")}
-                disabledTime={(current) => {
-                  if (moment().isSame(current, "day")) {
-                    return {
-                      disabledHours: () => [...Array(moment().hour()).keys()],
-                      disabledMinutes: () => [...Array(moment().minute() + 1).keys()],
-                      disabledSeconds: () => [...Array(moment().second() + 1).keys()],
-                    };
-                  }
-                  return {};
-                }}
               />
             </Form.Item>
           </div>
