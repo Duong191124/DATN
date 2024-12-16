@@ -135,6 +135,7 @@ const ProductDetailUpdate = (props) => {
                     rules={[{ required: true, message: 'Please select a product!' }]}
                 >
                     <Select
+                    disabled
                         showSearch
                         placeholder="Select a product"
                         filterOption={(input, option) =>
