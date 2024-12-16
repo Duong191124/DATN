@@ -17,22 +17,22 @@ const CollarTable = (props) => {
             dataIndex: 'id',
         },
         {
-            title: 'Code',
+            title: 'Mã',
             dataIndex: 'code',
         },
         {
-            title: 'Name',
+            title: 'Tên',
             dataIndex: 'name',
         },
         {
-            title: 'Status',
+            title: 'Trạng Thái',
             dataIndex: 'status',
             render: (status) => {
                 return status === 1 ? 'Đang hoạt động' : 'Ngưng hoạt động';
             },
         },
         {
-            title: 'Action',
+            title: 'Hành Động',
             key: 'action',
             render: (_, record) => {
                 return (

@@ -163,20 +163,22 @@ const OrderTable = (props) => {
       }
       const nextStatus = statusOptions[currentStatusIndex + 1]?.value; // Trạng thái tiếp theo
       if (nextStatus) {
-        await updateStatusOrder(currentOrderId, nextStatus);
-        notification.success({
-          message: "Cập nhật trạng thái",
-          description: "Cập nhật trạng thái thành công!",
-        });
-        setIsModalVisible(false);
-        setSelectedStatus(nextStatus); // Cập nhật trạng thái đã chọn
-        setDataOrder((prevDataOrder) =>
-          prevDataOrder.map((order) =>
-            order.id === currentOrderId
-              ? { ...order, status: nextStatus }
-              : order
-          )
-        );
+        const res = await updateStatusOrder(currentOrderId, nextStatus);
+        if (res.status === 200) {
+          notification.success({
+            message: "Cập nhật trạng thái",
+            description: "Cập nhật trạng thái thành công!",
+          });
+          setIsModalVisible(false);
+          setSelectedStatus(nextStatus); // Cập nhật trạng thái đã chọn
+          setDataOrder((prevDataOrder) =>
+            prevDataOrder.map((order) =>
+              order.id === currentOrderId
+                ? { ...order, status: nextStatus }
+                : order
+            )
+          );
+        }
         if (nextStatus === "shipping") {
           const order = dataOrder.find((order) => order.id === currentOrderId);
 
@@ -277,11 +279,13 @@ const OrderTable = (props) => {
         });
       }
     } catch (error) {
-      notification.error({
-        message: "Lỗi khi cập nhật trạng thái",
-        description: JSON.stringify(error.message),
-        placement: "top",
-      });
+      let errorMessage = error?.message || t("MES-985");
+
+      if (error?.message?.includes("Insufficient stock")) {
+        errorMessage = "MES-986";
+      }
+      notification.error(errorMessage);
+      return;
     }
   };
   const handleCheckQuantity = (orderDetails) => {

@@ -57,17 +57,17 @@ const PermissionTable = ({
         <Space size="middle">
           <EditOutlined
             onClick={() => {
-              // handleUpdate(record);
-              message.warning("cannot modifi, please contact develop to maintain project");
+              handleUpdate(record);
+              // message.warning("cannot modifi, please contact develop to maintain project");
             }}
           />
           <Popconfirm
             title="Are you sure to delete this task?"
             onConfirm={() => {
-              // hanleDelete(record.id);
-              notification.warning({
-                message: "cannot modifi, please contact develop to maintain project"
-              })
+              hanleDelete(record.id);
+              // notification.warning({
+              //   message: "cannot modifi, please contact develop to maintain project"
+              // })
             }}
             okText="Yes"
             cancelText="No"

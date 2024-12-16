@@ -1,18 +1,14 @@
 import { Button, Input, Modal, notification, Select, Form } from "antd";
 import { useCallback, useEffect, useState } from "react";
-import { checkDuplicateProductDetailAPI, createProductDetailAPi, fetchDataColorAPI, fetchDataSize, fetchDataWeight } from "../../service/api.service";
-import { Link } from "react-router-dom";
-import { DoubleLeftOutlined, PlusOutlined } from "@ant-design/icons";
+import { checkDuplicateProductDetailAPI, createProductDetailAPi, fetchDataColorAPI, fetchDataSize } from "../../service/api.service";
+import { PlusOutlined } from "@ant-design/icons";
 import { debounce } from "lodash";
 
-const ProDuctDetailForm = (props) => {
+const ProductDetailForm = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [sizes, setSizes] = useState([]);       // Dữ liệu danh sách size
     const [colors, setColors] = useState([]);     // Dữ liệu danh sách màu
     const [weight, setWeight] = useState([]);     // Dữ liệu danh sách màu
-
-
-
 
     const { productId, loadProductDetail } = props;  // Lấy productId từ props
 
@@ -35,28 +31,33 @@ const ProDuctDetailForm = (props) => {
 
     const loadDataColor = async () => {
         const res = await fetchDataColorAPI();
-        const activeColor = res.data.data.filter(colors => colors.status != 0)
-        setColors(activeColor)
+        const activeColor = res.data.data.filter(colors => colors.status !== 0);
+        setColors(activeColor);
     };
 
     const loadDataSize = async () => {
         const res = await fetchDataSize();
-        const activeSize = res.data.data.filter(sizes => sizes.status != 0)
-        setSizes(activeSize)
+        const activeSize = res.data.data.filter(sizes => sizes.status !== 0);
+        setSizes(activeSize);
     };
-
-
 
     useEffect(() => {
         loadDataColor();
         loadDataSize();
     }, []);
 
+    // Automatically generate a random numeric code when the modal opens
+    useEffect(() => {
+        if (isModalOpen) {
+            const randomCode = `SPCT-${Math.floor(Math.random() * 100000).toString()}`; // Random number format (5 digits)
+            form.setFieldsValue({ code: randomCode });  // Set the generated code as the default value for 'code' field
+        }
+    }, [isModalOpen]);
+
     const resetCloseModal = () => {
         form.resetFields();  // Reset lại các trường trong form
         setIsModalOpen(false);
     };
-
 
     const debounceCheckDuplicateCode = useCallback(
         debounce(async (value, callback) => {
@@ -89,17 +90,10 @@ const ProDuctDetailForm = (props) => {
 
     return (
         <>
-            <div>
-                <Link to={"/admin/products"}>
-                    <Button icon={<DoubleLeftOutlined />} style={{ color: "blue" }}>
-                        Go to product
-                    </Button>
-                </Link>
-                <Button
-                    style={{ color: "green" }}
-                    icon={<PlusOutlined />}
-                    onClick={() => setIsModalOpen(true)} >Create Product-Detail</Button>
-            </div >
+            <Button
+                style={{ color: "green" }}
+                icon={<PlusOutlined />}
+                onClick={() => setIsModalOpen(true)} >Create Product-Detail</Button>
 
             <Modal
                 title="Create Product Detail"
@@ -114,51 +108,30 @@ const ProDuctDetailForm = (props) => {
                     onFinish={handleSubmit}  // Xử lý submit form
                 >
                     <Form.Item
-                        label="Code"
-                        name="code"
-                        rules={[
-                            {
-                                required: true, message: "Please input product code!"
-                            },
-                            {
-                                validator: checkDuplicateCode
-                            }
-                        ]}
-
-                    >
-                        <Input />
-                    </Form.Item>
-
-                    <Form.Item
                         label="Quantity"
                         name="quantity"
-                        rules={[{ required: true, message: "Please input quantity!" }]}
-                    >
+                        rules={[{ required: true, message: "Please input quantity!" }]}>
                         <Input />
                     </Form.Item>
 
                     <Form.Item
-                        label="DefaultPrice"
+                        label="Default Price"
                         name="defaultPrice"
-                        rules={[{ required: true, message: "Please input price!" }]}
-                    >
+                        rules={[{ required: true, message: "Please input price!" }]}>
                         <Input />
                     </Form.Item>
 
-
                     <Form.Item
-                        label="Weight"
+                        label="Weight(g)"
                         name="weight"
-                        rules={[{ required: true, message: "Please input weight!" }]}
-                    >
+                        rules={[{ required: true, message: "Please input weight!" }]}>
                         <Input />
                     </Form.Item>
 
                     <Form.Item
                         label="Color"
                         name="color"
-                        rules={[{ required: true, message: "Please select a color!" }]}
-                    >
+                        rules={[{ required: true, message: "Please select a color!" }]}>
                         <Select
                             showSearch
                             placeholder="Select a color"
@@ -173,8 +146,7 @@ const ProDuctDetailForm = (props) => {
                     <Form.Item
                         label="Size"
                         name="size"
-                        rules={[{ required: true, message: "Please select a size!" }]}
-                    >
+                        rules={[{ required: true, message: "Please select a size!" }]}>
                         <Select
                             showSearch
                             placeholder="Select a size"
@@ -186,11 +158,10 @@ const ProDuctDetailForm = (props) => {
                         />
                     </Form.Item>
 
-
                 </Form>
             </Modal>
         </>
     );
 };
 
-export default ProDuctDetailForm;
+export default ProductDetailForm;

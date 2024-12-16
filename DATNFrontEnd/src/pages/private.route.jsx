@@ -5,7 +5,7 @@ import { AuthContext } from "../component/context/auth.context";
 
 const PrivateRoute = (props) => {
   const { user, loginStatus, role } = useContext(AuthContext);
-  if (loginStatus === "200") {
+  if (role === "customer") {
     return (
       <Result
         status="403"

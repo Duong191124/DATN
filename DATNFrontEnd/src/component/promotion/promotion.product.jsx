@@ -264,6 +264,7 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             title="Chọn Chi Tiết Sản Phẩm"
             visible={isVisible}
             onCancel={onClose}
+            width={4000}
             footer={[
                 <Button key="cancel" onClick={onClose}>
                     Hủy

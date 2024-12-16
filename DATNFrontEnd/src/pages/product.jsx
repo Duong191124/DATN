@@ -59,7 +59,7 @@ const ProductPage = () => {
 
   return (
     <>
-      <h1 style={{ textAlign: "center" }}>PRODUCT MANAGEMENT</h1>
+      <h1 style={{ textAlign: "center" }}>QUẢN LÝ SẢN PHẨM</h1>
       <div style={{ margin: "20px" }}>
         <ProductForm loadProduct={loadProduct} />
 
