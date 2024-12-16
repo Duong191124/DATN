@@ -42,7 +42,6 @@ export const CartProvider = ({ children }) => {
   const updateLocalStorage = (items) => {
     localStorage.setItem(getCartKey(), JSON.stringify(items));
   };
-  console.log("carrrtttt", cartItems);
   const fetchAllProductDetail = async () => {
     const response = await fetchProductsByProductDetails(0, 1000);
     if (response?.data?.data) {
@@ -52,15 +51,18 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     fetchAllProductDetail();
   }, []);
-  console.log("dataProductDetail", dataProductDetail);
   const addToCart = (cartItem) => {
     const existingProduct = cartItems.find((item) => item.id === cartItem.id);
-    const productDetail = dataProductDetail.find((item) =>
+    const productDetail = dataProductDetail?.find((item) =>
       item.details.some((detail) => detail.id === cartItem.id)
     );
-    const productDetails = productDetail.details.find(
+    const productDetails = productDetail?.details?.find(
       (detail) => detail.id === cartItem.id
     );
+    if (!productDetails) {
+      message.info("Không tìm thấy thông tin số lượng của sản phẩm.");
+      return;
+    }
     const totalInCart = existingProduct ? existingProduct.quantity : 0;
     const totalRequested = totalInCart + cartItem.quantity;
     if (totalRequested > productDetails.quantity) {

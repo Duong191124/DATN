@@ -25,7 +25,9 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                         minPurchaseAmount: res.data.data.minPurchaseAmount,
                         maxDiscountAmount: res.data.data.maxDiscountAmount,
                         termsAndConditions: res.data.data.termsAndConditions,
-                        expirationDate: res.data.data.expirationDate ? moment(res.data.data.expirationDate) : null,
+                        expirationDate: res.data.data.expirationDate
+                            ? moment(res.data.data.expirationDate) // Chuyển đổi sang đối tượng moment
+                            : null,
                     });
                     setDiscountType(res.data.data.discountAmount > 0 ? "amount" : "percent");
                 } else {
@@ -74,11 +76,10 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                 minPurchaseAmount: Number(values.minPurchaseAmount),
                 maxDiscountAmount: Number(values.maxDiscountAmount),
                 expirationDate: values.expirationDate
-                    ? values.expirationDate.format("YYYY-MM-DDTHH:mm:ss")
+                    ? moment.utc(values.expirationDate).toISOString() // Sử dụng UTC để tránh vấn đề múi giờ
                     : null,
                 status: 1, // Luôn là 'active'
             };
-
             setLoading(true);
 
             const res = await updateVoucher(voucherId, formattedValues);
@@ -105,6 +106,7 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
             setLoading(false);
         }
     };
+
 
 
     return (
@@ -177,15 +179,15 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                             { required: true, message: "Vui lòng nhập phần trăm giảm giá!" },
                             {
                                 validator: (_, value) => {
-                                    if (value < 0 || value > 50) {
-                                        return Promise.reject(new Error("Phần trăm giảm giá không được vượt quá 0 và thấp hơn 50!"));
+                                    if (value < 0 || value > 70) {
+                                        return Promise.reject(new Error("Phần trăm giảm giá không được vượt quá 0 và thấp hơn 70!"));
                                     }
                                     return Promise.resolve();
                                 },
                             },
                         ]}
                     >
-                        <InputNumber min={10} max={50}/>
+                        <InputNumber min={10} max={50} />
                     </Form.Item>
                 )}
                 <Row gutter={16}>
@@ -241,21 +243,26 @@ const VoucherUpdateModal = ({ visible, voucherId, onClose, onSuccess }) => {
                 <Form.Item
                     name="expirationDate"
                     label="Ngày hết hạn"
-                    rules={[{ required: true, message: 'Vui lòng chọn ngày hết hạn!' }]}>
+                    rules={[{ required: true, message: 'Vui lòng chọn ngày hết hạn!' }]}
+                >
                     <DatePicker
                         showTime
                         format="YYYY-MM-DD HH:mm:ss"
                         disabledDate={(current) => current && current < moment().startOf("day")}
                         disabledTime={(current) => {
-                            if (moment().isSame(current, "day")) {
+                            if (current && current.isSame(moment(), "day")) {
+                                const now = moment();
                                 return {
-                                    disabledHours: () => [...Array(moment().hour()).keys()],
-                                    disabledMinutes: () => [...Array(moment().minute() + 1).keys()],
-                                    disabledSeconds: () => [...Array(moment().second() + 1).keys()],
+                                    disabledHours: () => Array.from({ length: now.hour() }, (_, i) => i),
+                                    disabledMinutes: () => Array.from({ length: now.minute() }, (_, i) => i),
+                                    disabledSeconds: () => Array.from({ length: now.second() }, (_, i) => i),
                                 };
                             }
                             return {};
-                        }}
+                        }}                        
+                        onChange={(date) => {
+                            form.setFieldsValue({ expirationDate: date ? date.utc() : null });
+                        }}                        
                     />
                 </Form.Item>
                 <Form.Item name="termsAndConditions" label="Điều khoản và điều kiện">

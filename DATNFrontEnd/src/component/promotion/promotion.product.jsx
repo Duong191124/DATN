@@ -1,4 +1,4 @@
-import { Modal, Button, Table, Checkbox, notification, Select } from 'antd';
+import { Modal, Button, Table, Checkbox, notification, Select, Tooltip } from 'antd';
 import { useState, useEffect } from 'react';
 import { fetchDataProductDetail, updatePromotionProduct, detailPromotion } from '../../service/api.service';
 
@@ -12,6 +12,9 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
     const [promotion, setPromotion] = useState(null);
     const [selectedSize, setSelectedSize] = useState(null);
     const [allSelected, setAllSelected] = useState(false);
+    const [selectedColor, setSelectedColor] = useState(null);
+    const [searchKeyword, setSearchKeyword] = useState('');
+    const [filterStatus, setFilterStatus] = useState('all'); // Trạng thái lọc, mặc định là tất cả
 
     useEffect(() => {
         const fetchProductDetailsAndPromotion = async () => {
@@ -19,7 +22,7 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 const productDetailsRes = await fetchDataProductDetail();
                 if (productDetailsRes?.data?.data) {
                     const fetchedProductDetails = productDetailsRes.data.data;
-        
+
                     // Ensure each product detail has the activePromotionId, either from the product or by applying your logic
                     const availableProductDetails = fetchedProductDetails.map(item => {
                         // If the item has a promotion, set the activePromotionId accordingly
@@ -31,10 +34,10 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                         }
                         return item;
                     });
-        
+
                     setProductDetails(availableProductDetails);
                 }
-        
+
                 if (id) {
                     const promotionRes = await detailPromotion(id);
                     if (promotionRes?.data?.data) {
@@ -71,10 +74,10 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             if (!id) {
                 throw new Error("Promotion ID không hợp lệ.");
             }
-    
+
             const currentDate = new Date(); // Lấy ngày hiện tại
             const promotionExpirationDate = new Date(promotion?.expirationDate); // Ngày hết hạn của khuyến mãi
-    
+
             // Kiểm tra nếu khuyến mãi đã hết hạn
             if (promotionExpirationDate < currentDate) {
                 notification.warning({
@@ -84,25 +87,25 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 // Hủy áp dụng khuyến mãi logic ở đây
                 return;
             }
-    
+
             // Kiểm tra nếu giá trị giảm giá vượt quá giá của sản phẩm
             const invalidProducts = selectedDetails.filter((productId) => {
                 const product = productDetails.find((item) => item.id === productId);
                 if (!product) return false;
-    
+
                 const discountAmount = promotion.discountAmount || 0; // Giảm giá cố định
                 const discountPercent = promotion.discountPercent || 0; // Giảm giá phần trăm
-    
+
                 // Tính giá sau giảm
                 const calculatedDiscountPrice =
                     discountPercent > 0
                         ? product.defaultPrice * (1 - discountPercent / 100)
                         : product.defaultPrice - discountAmount;
-    
+
                 // Nếu giá sau giảm nhỏ hơn 0, sản phẩm không hợp lệ
                 return calculatedDiscountPrice < 0;
             });
-    
+
             if (invalidProducts.length > 0) {
                 notification.error({
                     message: "Lỗi Áp Dụng",
@@ -110,15 +113,15 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 });
                 return;
             }
-    
+
             // Nếu tất cả hợp lệ, tiến hành áp dụng khuyến mãi
             const payload = {
                 productDetailsIds: selectedDetails,
                 applyPromotion: selectedDetails.length > 0,
             };
-    
+
             const res = await updatePromotionProduct(id, payload);
-    
+
             if (res) {
                 notification.success({
                     message: "Thành công",
@@ -126,25 +129,25 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                         ? "Áp dụng khuyến mãi thành công!"
                         : "Đã hủy áp dụng khuyến mãi.",
                 });
-    
+
                 // Fetch lại dữ liệu sản phẩm sau khi áp dụng khuyến mãi
                 const updatedProductDetails = await fetchDataProductDetail();
                 if (updatedProductDetails?.data?.data) {
                     let restoredDetails = updatedProductDetails.data.data;
-    
+
                     if (!payload.applyPromotion) {
                         restoredDetails = restoredDetails.map(product => ({
                             ...product,
                             discountPrice: product.defaultPrice,
                         }));
                     }
-    
+
                     setProductDetails(restoredDetails);
                 }
-    
+
                 onApply(selectedDetails);
                 onClose();
-    
+
                 if (loadData) {
                     loadData();
                 }
@@ -159,7 +162,7 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             });
         }
     };
-    
+
 
 
     const handleSelectAll = () => {
@@ -167,7 +170,7 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
         const availableIds = filteredData
             .filter(item => item.activePromotionId === null || item.activePromotionId === id) // chỉ chọn sản phẩm không có khuyến mãi khác
             .map(item => item.id);
-    
+
         // Kiểm tra nếu tất cả các sản phẩm hợp lệ chưa được chọn, chọn tất cả, nếu đã chọn thì bỏ chọn
         setSelectedDetails(prev =>
             allSelected
@@ -176,19 +179,30 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
         );
         setAllSelected(prev => !prev);
     };
-    
+
 
     const handleSizeChange = (size) => {
         setSelectedSize(size);
         setAllSelected(false);
     };
 
-    const filteredData = productDetails.filter(item => {
-        // Lọc theo size (nếu có), nhưng không lọc các sản phẩm đã có khuyến mãi khác
-        return selectedSize === null || item.size?.name === selectedSize;
+    const filteredData = productDetails
+    .filter(item => {
+        const sizeMatch = selectedSize === null || item.size?.name === selectedSize;
+        const colorMatch = selectedColor === null || item.color?.name === selectedColor;
+        const searchMatch = searchKeyword === '' || item.code.toLowerCase().includes(searchKeyword.toLowerCase());
+        return sizeMatch && colorMatch && searchMatch;
+    })
+    .sort((a, b) => {
+        // So sánh để những sản phẩm chưa áp dụng khuyến mãi sẽ lên đầu
+        if (a.activePromotionId === null && b.activePromotionId !== null) {
+            return -1; // a lên trước b
+        }
+        if (a.activePromotionId !== null && b.activePromotionId === null) {
+            return 1; // b lên trước a
+        }
+        return 0; // Giữ nguyên thứ tự nếu cả hai đều có hoặc không có khuyến mãi
     });
-    
-
 
     const columns = [
         {
@@ -206,9 +220,16 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             render: (text, record) => record.size?.name || "Chưa có size",
         },
         {
+            title: "Color",
+            dataIndex: "color",
+            render: (text, record) => record.color?.name || "Chưa có color",
+        },
+        {
             title: "Giá Gốc",
             dataIndex: "defaultPrice",
-            render: (price) => <span>{price} VND</span>,
+            render: (price) => (
+                <span>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)}</span>
+            ),
         },
         {
             title: "Giá Sau Khuyến Mãi",
@@ -220,16 +241,22 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
         {
             title: 'Chọn',
             key: 'select',
-            render: (_, record) => {
-                return (
+            render: (_, record) => (
+                <Tooltip
+                    title={
+                        record.activePromotionId !== null && record.activePromotionId !== id
+                            ? "Sản phẩm đang thuộc khuyến mãi khác"
+                            : ""
+                    }
+                >
                     <Checkbox
                         checked={selectedDetails.includes(record.id)}
                         onChange={() => handleSelect(record.id)}
-                        disabled={record.activePromotionId !== null && record.activePromotionId !== id} // Disable if product has a different active promotion
+                        disabled={record.activePromotionId !== null && record.activePromotionId !== id}
                     />
-                );
-            },
-        }
+                </Tooltip>
+            ),
+        },
     ];
 
     return (
@@ -246,19 +273,34 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 </Button>,
             ]}
         >
-            <Select
-                placeholder="Chọn Size"
-                style={{ width: 200, marginBottom: 16 }}
-                onChange={handleSizeChange}
-                allowClear
-            >
-                <Option key="all" value={null}>Tất cả</Option>
-                {[...new Set(productDetails.map(item => item.size?.name).filter(Boolean))].map(size => (
-                    <Option key={size} value={size}>
-                        {size}
-                    </Option>
-                ))}
-            </Select>
+            <div style={{ display: 'flex', gap: '16px' }}>
+                <Select
+                    placeholder="Chọn Size"
+                    style={{ width: 200, marginBottom: 16 }}
+                    onChange={handleSizeChange}
+                    allowClear
+                >
+                    <Option key="all" value={null}>Tất cả</Option>
+                    {[...new Set(productDetails.map(item => item.size?.name).filter(Boolean))].map(size => (
+                        <Option key={size} value={size}>
+                            {size}
+                        </Option>
+                    ))}
+                </Select>
+                <Select
+                    placeholder="Chọn màu sắc"
+                    style={{ width: 200, marginBottom: 16 }}
+                    onChange={(value) => setSelectedColor(value)}
+                    allowClear
+                >
+                    <Option key="all" value={null}>Tất cả</Option>
+                    {[...new Set(productDetails.map(item => item.color?.name).filter(Boolean))].map((color) => (
+                        <Option key={color} value={color}>
+                            {color}
+                        </Option>
+                    ))}
+                </Select>
+            </div>
             <Button onClick={handleSelectAll} style={{ marginBottom: 16, marginLeft: 8 }}>
                 {allSelected ? "Bỏ Chọn Tất Cả" : "Chọn Tất Cả"}
             </Button>

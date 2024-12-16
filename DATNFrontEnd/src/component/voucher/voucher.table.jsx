@@ -3,7 +3,6 @@ import { Table, Space, Modal, notification, DatePicker, Button, Input } from 'an
 import { EditOutlined, DeleteOutlined, SearchOutlined, PlusCircleOutlined, RetweetOutlined } from "@ant-design/icons"; // hoặc ExclamationCircleOutlined
 import { fetchDataVoucher, deleteVoucher, fetchCustomerList, chandleStatus } from "../../service/api.service";
 import VoucherUpdateModal from "./voucher.update";
-import VoucherCustomer from "./voucher.customer";
 import moment from 'moment'; // Đảm bảo bạn có cài moment.js để xử lý ngày tháng
 
 
@@ -19,24 +18,6 @@ const VoucherTable = ({ refreshData }) => {
         pageSize: 5,
     });
 
-    // Lấy danh sách khách hàng khi component mount
-    useEffect(() => {
-        const fetchCustomers = async () => {
-            try {
-                const res = await fetchCustomerList();
-                if (res && res.data && res.data.data) {
-                    setCustomers(res.data.data.content);
-                }
-            } catch (error) {
-                notification.error({
-                    message: "Lỗi",
-                    description: "Không thể tải danh sách khách hàng",
-                });
-            }
-        };
-        fetchCustomers();
-    }, []);
-
     const loadData = async (dateRange = []) => {
         try {
             const response = await fetchDataVoucher();
@@ -44,22 +25,27 @@ const VoucherTable = ({ refreshData }) => {
                 const currentDate = new Date();
                 const updatedVouchers = response.data.data.map((voucher) => {
                     const expirationDate = new Date(voucher.expirationDate);
-                    return {
-                        ...voucher,
-                        status: expirationDate < currentDate ? 0 : voucher.status, // Nếu quá hạn, đặt status = 0
-                    };
+    
+                    // Nếu số lượng bằng 0, chuyển trạng thái sang Hết hạn
+                    if (voucher.quantity === 0) {
+                        voucher.status = 0; // Hết hạn
+                    } else if (expirationDate < currentDate) {
+                        voucher.status = 0; // Nếu quá hạn, cũng chuyển sang Hết hạn
+                    }
+    
+                    return voucher;
                 });
-
+    
                 const filteredVouchers = updatedVouchers.filter((voucher) => {
                     if (dateRange.length === 0) return true;
                     const expirationDate = moment(voucher.expirationDate);
                     const [startDate, endDate] = dateRange;
                     return expirationDate.isBetween(startDate, endDate, null, "[]");
                 });
-
+    
                 // Sắp xếp danh sách theo ID giảm dần
                 filteredVouchers.sort((a, b) => b.id - a.id);
-
+    
                 setDataVoucher(filteredVouchers);
             }
         } catch (error) {
@@ -74,7 +60,15 @@ const VoucherTable = ({ refreshData }) => {
         loadData();
     }, [refreshData]);
 
-    const handleDelete = (id, customers) => {
+    const handleDelete = (id, status) => {
+        if (status === 1) { // Kiểm tra trạng thái hoạt động (1 là Hoạt động)
+            notification.warning({
+                message: "Xóa Voucher",
+                description: "Không thể xóa voucher đang ở trạng thái hoạt động.",
+            });
+            return;
+        }
+    
         Modal.confirm({
             title: "Xác nhận xóa",
             content: "Bạn có chắc chắn muốn xóa voucher này?",
@@ -84,25 +78,24 @@ const VoucherTable = ({ refreshData }) => {
                     if (res.status === 200 || res.status === 204) {
                         notification.success({
                             message: "Xóa Voucher",
-                            description: "Xóa voucher thành công."
+                            description: "Xóa voucher thành công.",
                         });
                         loadData();
                     } else {
                         notification.error({
                             message: "Xóa Voucher",
-                            description: "Đã có lỗi xảy ra khi xóa voucher."
+                            description: "Đã có lỗi xảy ra khi xóa voucher.",
                         });
                     }
                 } catch (error) {
                     notification.error({
                         message: "Xóa Voucher",
-                        description: "Đã có lỗi xảy ra khi xóa voucher."
+                        description: "Đã có lỗi xảy ra khi xóa voucher.",
                     });
                 }
-            }
+            },
         });
-    };
-
+    };    
 
     const handleEdit = (voucher) => {
         setSelectedVoucherId(voucher.id);
@@ -121,7 +114,15 @@ const VoucherTable = ({ refreshData }) => {
     const handleChangeStatus = async (voucher) => {
         const expirationDate = new Date(voucher.expirationDate);
         const currentDate = new Date();
-
+    
+        if (voucher.quantity === 0) {
+            notification.warning({
+                message: "Không thể kích hoạt lại voucher",
+                description: "Voucher đã hết số lượng, không thể kích hoạt lại.",
+            });
+            return;
+        }
+    
         if (expirationDate < currentDate) {
             notification.warning({
                 message: "Không thể kích hoạt lại voucher",
@@ -129,7 +130,7 @@ const VoucherTable = ({ refreshData }) => {
             });
             return;
         }
-
+    
         try {
             const res = await chandleStatus(voucher.id);
             if (res.status === 200 || res.status === 204) {
@@ -151,7 +152,7 @@ const VoucherTable = ({ refreshData }) => {
             });
         }
     };
-
+    
     const columns = [
         {
             title: 'STT',
@@ -366,13 +367,9 @@ const VoucherTable = ({ refreshData }) => {
                         style={{ color: "blue", cursor: "pointer" }}
                         onClick={() => handleEdit(record)}
                     />
-                    <DeleteOutlined
+                    {/* <DeleteOutlined
                         style={{ color: "red", cursor: "pointer" }}
                         onClick={() => handleDelete(record.id, record.customers)}
-                    />
-                    {/* <PlusCircleOutlined
-                        style={{ color: "green", cursor: "pointer" }}
-                        onClick={() => handleShowCustomerDetail(record.customers, record)} // Truyền đúng đối tượng record
                     /> */}
                     <RetweetOutlined
                         style={{ color: "aqua", cursor: "pointer" }}

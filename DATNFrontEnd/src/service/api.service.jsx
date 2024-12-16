@@ -921,8 +921,15 @@ const createVoucher = async (
 };
 const deleteVoucher = async (id) => {
   const URL_BACKEND = `/api/v1/voucher/${id}`;
-  return axios.delete(URL_BACKEND);
+  try {
+    const response = await axios.delete(URL_BACKEND);
+    return response; // Trả về phản hồi từ server nếu thành công
+  } catch (error) {
+    // Xử lý lỗi
+    throw error.response ? error.response.data : error;
+  }
 };
+
 const fetchVoucherById = (id) => {
   const URL_BACKEND = `/api/v1/voucher/detail/${id}`;
   return axios.get(URL_BACKEND);

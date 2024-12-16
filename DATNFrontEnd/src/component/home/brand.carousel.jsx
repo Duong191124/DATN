@@ -193,26 +193,10 @@ const BrandCarousel = () => {
   const [brand, setBrand] = useState([]);
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("i18nextLng");
-    if (savedLanguage) {
-      i18n.changeLanguage(savedLanguage);
-    } else {
-      const defaultLang = i18n.language || "vi";
-      i18n.changeLanguage(defaultLang);
-    }
-  }, [i18n.language]);
-  useEffect(() => {
-    const handleLanguageChange = () => {
-      getBrands(); // Gọi lại hàm lấy dữ liệu khi ngôn ngữ thay đổi
-    };
-
-    i18n.on("languageChanged", handleLanguageChange);
-
-    return () => {
-      i18n.off("languageChanged", handleLanguageChange);
-    };
-  }, [i18n]);
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
   const getBrands = async () => {
     const response = await fetchDataBrand();
     if (response?.data?.data) {

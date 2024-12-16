@@ -1,27 +1,15 @@
-// src/context/DarkModeContext.jsx
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useContext } from 'react';
 
-// Tạo Context cho Dark Mode
+// Tạo Context
 export const DarkModeContext = createContext();
 
+// Tạo Provider
 export const DarkModeProvider = ({ children }) => {
-  const [darkMode, setDarkMode] = useState(() => {
-    const savedMode = localStorage.getItem('darkMode');
-    return savedMode ? JSON.parse(savedMode) : false;
-  });
+  const [darkMode, setDarkMode] = useState(false);
 
-  // Cập nhật trạng thái dark mode trong localStorage và body class
-  useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(darkMode));
-    if (darkMode) {
-      document.body.classList.add('dark-mode');
-    } else {
-      document.body.classList.remove('dark-mode');
-    }
-  }, [darkMode]);
-
+  // Hàm toggle để chuyển đổi chế độ tối
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
+    setDarkMode((prevMode) => !prevMode);
   };
 
   return (
@@ -29,4 +17,9 @@ export const DarkModeProvider = ({ children }) => {
       {children}
     </DarkModeContext.Provider>
   );
+};
+
+// Tạo hook useDarkMode
+export const useDarkMode = () => {
+  return useContext(DarkModeContext);
 };

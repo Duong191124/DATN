@@ -92,15 +92,10 @@ const ProductDetailPage = () => {
   const [sizeError, setSizeError] = useState(false);
   const [availableQuantity, setAvailableQuantity] = useState(0);
   const { t, i18n } = useTranslation();
+  const language = localStorage.getItem("i18nextLng") || "vi";
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("i18nextLng");
-    if (savedLanguage) {
-      i18n.changeLanguage(savedLanguage);
-    } else {
-      const defaultLang = i18n.language || "vi";
-      i18n.changeLanguage(defaultLang);
-    }
-  }, [i18n.language]);
+    i18n.changeLanguage(language);
+  }, [i18n, language]);
   const initSize = async () => {
     const res = await fetchDataSize();
     setSize(res.data.data);
@@ -343,7 +338,7 @@ const ProductDetailPage = () => {
               </div>
             </div>
             {sizeError && (
-              <p style={{ color: "red", marginTop: "8px" }}>{t("MES-0116")}</p>
+              <p style={{ color: "red", marginTop: "8px" }}>{t("MES-116")}</p>
             )}
             <div className="select-color" style={{ flexWrap: "wrap" }}>
               <label>{t("MES-015")}:</label>
