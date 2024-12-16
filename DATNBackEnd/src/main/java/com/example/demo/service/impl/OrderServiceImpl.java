@@ -353,16 +353,26 @@ public class OrderServiceImpl implements OrderService {
         if (orderStatus == OrderStatus.confirmed) {
             List<OrderDetail> orderDetails = orderDetailRepo.findByOrders(orders);
 
+            List<ProductDetail> productDetailsToUpdate = new ArrayList<>();
+
             for (OrderDetail orderDetail : orderDetails) {
                 ProductDetail productDetail = orderDetail.getProductDetail();
 
+                // Kiểm tra số lượng còn lại trong kho
                 if (productDetail.getQuantity() < orderDetail.getQuantity()) {
-                    throw new RuntimeException("Insufficient stock for product: " + productDetail.getProduct().getName());
+                    throw new RuntimeException("Insufficient stock for product: "
+                            + productDetail.getProduct().getName()
+                            + " (Requested: " + orderDetail.getQuantity()
+                            + ", Available: " + productDetail.getQuantity() + ")");
                 }
 
+                // Giảm số lượng sản phẩm
                 productDetail.setQuantity(productDetail.getQuantity() - orderDetail.getQuantity());
-                productDetailRepo.save(productDetail); // Lưu lại sản phẩm sau khi trừ số lượng
+                productDetailsToUpdate.add(productDetail);
             }
+
+            // Lưu danh sách sản phẩm đã cập nhật
+            productDetailRepo.saveAll(productDetailsToUpdate);
         }
         // Kiểm tra nếu trạng thái là "hủy"
         if (orderStatus == OrderStatus.cancelled) {

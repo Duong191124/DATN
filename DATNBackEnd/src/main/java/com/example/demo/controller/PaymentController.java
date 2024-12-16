@@ -7,6 +7,7 @@ import com.example.demo.repository.OrderRepo;
 import com.example.demo.repository.PaymentRepo;
 import com.example.demo.repository.ProductDetailRepo;
 import com.example.demo.response.MessageReponse;
+import com.example.demo.response.OrderDataPaymentResponse;
 import com.example.demo.response.PaymentResponse;
 import com.example.demo.service.OrderService;
 import com.example.demo.service.PaymentService;
@@ -57,8 +58,14 @@ public class PaymentController {
                 return ResponseEntity.badRequest().body(messageError);
             }
             PaymentResponse paymentResponse = paymentService.createdPayment(paymentDTO);
-            if (paymentResponse.getOrderDataPaymentResponse().getCustomerResponse().getId() == 1 && paymentResponse.getOrderDataPaymentResponse().getAddress().getMail() != null) {
-                mailService.sendOrderCode(paymentResponse.getOrderDataPaymentResponse().getAddress().getMail(), paymentResponse.getOrderDataPaymentResponse().getCode());
+            OrderDataPaymentResponse orderData = paymentResponse.getOrderDataPaymentResponse();
+            if (orderData != null
+                    && orderData.getCustomerResponse() != null
+                    && orderData.getCustomerResponse().getId() == 1
+                    && orderData.getAddress() != null
+                    && orderData.getAddress().getMail() != null) {
+
+                mailService.sendOrderCode(orderData.getAddress().getMail(), orderData.getCode());
             }
             return ResponseEntity.status(HttpStatus.CREATED).body(new MessageReponse("added successfully",201,paymentResponse));
         }catch (Exception e){

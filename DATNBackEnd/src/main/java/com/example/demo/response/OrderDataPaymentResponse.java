@@ -41,6 +41,7 @@ public class OrderDataPaymentResponse {
                 ObjectMapper objectMapper = new ObjectMapper();
                 addressDTO = objectMapper.readValue(orders.getAddress(), AddressOrderDTO.class);
             } catch (Exception e) {
+                System.err.println("Lỗi khi chuyển đổi AddressOrderDTO: " + e.getMessage());
                 e.printStackTrace();
             }
         }
