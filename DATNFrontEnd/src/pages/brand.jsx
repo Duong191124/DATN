@@ -18,7 +18,7 @@ const BrandPage = () => {
   }, []);
   return (
     <div style={{ margin: "20px" }}>
-      <h1 style={{ textAlign: "center" }}>BRAND MANAGEMENT</h1>
+      <h1 style={{ textAlign: "center" }}>QUẢN LÝ THƯƠNG HIỆU</h1>
       <BrandForm
         loadBrand={loadBrand}
       />

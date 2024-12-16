@@ -15,6 +15,11 @@ const ProductForm = (props) => {
   const [categories, setCategories] = useState([]);
   const [collars, setCollars] = useState([]);
 
+  // Hàm tạo mã ngẫu nhiên
+  const generateRandomCode = () => {
+    return `SP-${Math.floor(Math.random() * 1000000)}`; // Generates a random number between 0 and 999999
+  };
+
   const handleSubmit = async () => {
     const values = form.getFieldsValue(); // Lấy tất cả giá trị từ form
     const res = await createProductAPI(
@@ -77,6 +82,7 @@ const ProductForm = (props) => {
     setIsModalOpen(false);
     form.resetFields();
   };
+
   const debounceCheckDuplicateCode = useCallback(
     debounce(async (value, callback) => {
       const res = await checkDuplicateProductAPI("code", value);
@@ -93,7 +99,7 @@ const ProductForm = (props) => {
     debounce(async (value, callback) => {
       const res = await checkDuplicateProductAPI("name", value);
       if (res.data.exists) {
-        callback(new Error("name already exists"));
+        callback(new Error("Name already exists"));
       } else {
         callback();
       }
@@ -134,13 +140,20 @@ const ProductForm = (props) => {
     });
   };
 
+  // Mở modal và tự động điền mã ngẫu nhiên
+  const openModal = () => {
+    setIsModalOpen(true);
+    form.setFieldsValue({
+      code: generateRandomCode(), // Tự động tạo mã ngẫu nhiên khi mở modal
+    });
+  };
 
   return (
     <>
       <div>
         <Button
           icon={<PlusOutlined />}
-          onClick={() => setIsModalOpen(true)}
+          onClick={openModal} // Gọi hàm mở modal và tạo mã ngẫu nhiên
           style={{ color: "green" }}
         >Create Product</Button>
       </div >
@@ -155,63 +168,37 @@ const ProductForm = (props) => {
         okText="Create"
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          <Form.Item
-            label="Code"
-            name="code"
-            rules={[
-              {
-                required: true,
-                message: "Please input the code!",
-              },
-              {
-                validator: (rule, value) => {
-                  if (value && value.length > 50) {
-                    return Promise.reject(
-                      new Error("length must be < 50 characters")
-                    );
-                  }
-                  return Promise.resolve();
-                },
-              },
-              {
-                validator: checkDuplicateCode,
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
+
 
 
           <Form.Item
-            label="Name"
+            label="Mã"
             name="name"
             rules={[
               {
                 required: true,
                 message: "Please input the name!",
               },
+              // {
+              //   validator: checkDuplicateName, // Duplicate check for name
+              // },
               {
                 validator: (rule, value) => {
                   if (value && value.length > 50) {
                     return Promise.reject(
-                      new Error("length must be < 50 characters")
+                      new Error("Length must be < 50 characters")
                     );
                   }
                   return Promise.resolve();
                 },
-              },
-              {
-                validator: checkDuplicateName,
               },
             ]}
           >
             <Input />
           </Form.Item>
 
-
-
           <Form.Item
-            label="Collar"
+            label="Cổ Áo"
             name="selectedCollar"
             rules={[
               {
@@ -234,7 +221,7 @@ const ProductForm = (props) => {
           </Form.Item>
 
           <Form.Item
-            label="Sleeve"
+            label="Tay Áo"
             name="selectedSleeve"
             rules={[
               {
@@ -257,7 +244,7 @@ const ProductForm = (props) => {
           </Form.Item>
 
           <Form.Item
-            label="Category"
+            label="Loại Áo"
             name="selectedCategory"
             rules={[
               {
@@ -280,7 +267,7 @@ const ProductForm = (props) => {
           </Form.Item>
 
           <Form.Item
-            label="Brand"
+            label="Thương Hiệu"
             name="selectedBrand"
             rules={[
               {
@@ -302,7 +289,7 @@ const ProductForm = (props) => {
             />
           </Form.Item>
 
-          <Form.Item label="Description" name="description">
+          <Form.Item label="Mô tả" name="description">
             <Input.TextArea />
           </Form.Item>
         </Form>

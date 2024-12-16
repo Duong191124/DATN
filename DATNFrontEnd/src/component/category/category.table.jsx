@@ -17,11 +17,11 @@ const CategoryTable = (props) => {
             dataIndex: 'id',
         },
         {
-            title: 'Name',
+            title: 'Tên',
             dataIndex: 'name',
         },
         {
-            title: 'Action',
+            title: 'Hành Động',
             key: 'action',
             render: (_, record) => {
                 return (
