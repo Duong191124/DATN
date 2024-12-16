@@ -169,7 +169,7 @@ const ProductDetailUpdate = (props) => {
                     />
                 </Form.Item>
 
-                <Form.Item label="Weight" name="weight" rules={[{ required: true, message: 'Please select a Weight!' }]}>
+                <Form.Item label="Weight(g)" name="weight" rules={[{ required: true, message: 'Please select a Weight!' }]}>
                     <Input />
                 </Form.Item>
             </Form>

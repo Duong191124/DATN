@@ -168,7 +168,7 @@ const HeaderAdmin = ({ collapsed, setCollapsed }) => {
             </Tooltip>
           </Sell>
           <IconWrapper>
-            <Badge count={5} onClick={showNotice} offset={[-2, 2]}>
+            <Badge onClick={showNotice} offset={[-2, 2]}>
               <BellOutlined
                 style={{
                   fontSize: 20,

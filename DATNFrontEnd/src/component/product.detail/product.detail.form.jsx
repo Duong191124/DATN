@@ -108,21 +108,6 @@ const ProductDetailForm = (props) => {
                     onFinish={handleSubmit}  // Xử lý submit form
                 >
                     <Form.Item
-                        label="Code"
-                        name="code"
-                        rules={[
-                            {
-                                required: true, message: "Please input product code!"
-                            },
-                            {
-                                validator: checkDuplicateCode
-                            }
-                        ]}
-                    >
-                        <Input disabled />  {/* Disable the input field as code is generated automatically */}
-                    </Form.Item>
-
-                    <Form.Item
                         label="Quantity"
                         name="quantity"
                         rules={[{ required: true, message: "Please input quantity!" }]}>
@@ -137,7 +122,7 @@ const ProductDetailForm = (props) => {
                     </Form.Item>
 
                     <Form.Item
-                        label="Weight"
+                        label="Weight(g)"
                         name="weight"
                         rules={[{ required: true, message: "Please input weight!" }]}>
                         <Input />

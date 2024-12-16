@@ -23,7 +23,7 @@ const ProductForm = (props) => {
   const handleSubmit = async () => {
     const values = form.getFieldsValue(); // Lấy tất cả giá trị từ form
     const res = await createProductAPI(
-      values.code,
+      generateRandomCode(),
       values.name,
       values.description,
       values.selectedSleeve,
@@ -172,7 +172,7 @@ const ProductForm = (props) => {
 
 
           <Form.Item
-            label="Mã"
+            label="Tên"
             name="name"
             rules={[
               {

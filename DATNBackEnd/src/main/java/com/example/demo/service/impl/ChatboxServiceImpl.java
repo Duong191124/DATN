@@ -13,7 +13,7 @@ public class ChatboxServiceImpl implements ChatboxService {
     private RestTemplate restTemplate;
     @Override
     public ChatboxResponse callChatbot(ChatboxRequest chatboxRequest){
-        String url = "http://127.0.0.1:5001/chat";
+        String url = "http://127.0.0.1:5000/chat";
         return restTemplate.postForObject(url, chatboxRequest, ChatboxResponse.class);
     }
 }

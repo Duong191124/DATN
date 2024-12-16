@@ -24,6 +24,9 @@ const PromotionPage = () => {
 
     return (
         <>
+        <div>
+            <h1>Quản lý khuyến mãi</h1>
+        </div>
             <PromotionForm
                 loadData={loadData} // Truyền hàm load lại dữ liệu sau khi thêm/sửa
                 promotion={selectedPromotion} // Truyền khuyến mãi cần chỉnh sửa

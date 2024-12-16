@@ -12,6 +12,9 @@ const VoucherPage = () => {
 
     return (
         <>
+            <div>
+                <h1>Quản lý phiếu giảm giá</h1>
+            </div>
             <VoucherForm loadData={() => setRefreshData(true)} onCreate={handleCreateVoucher} />
             <VoucherTable refreshData={refreshData} />
         </>
