@@ -12,7 +12,7 @@ import {
   Tabs,
   TimePicker,
 } from "antd";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import {
   updateStatusOrder,
   colorFindById,
@@ -20,6 +20,8 @@ import {
   sizeFindById,
   getCreateOrderGhn,
   cancelOrderGhn,
+  fetchProductsByProductDetails,
+  fetchDataProductDetail,
 } from "../../../../service/api.service";
 import Highlighter from "react-highlight-words";
 import html2pdf from "html2pdf.js";
@@ -51,6 +53,7 @@ const OrderTable = (props) => {
   const [currentOrderId, setCurrentOrderId] = useState(null);
   const [isModalVisibleCancel, setIsModalVisibleCancel] = useState(false); // Trạng thái modal
   const [cancelNote, setCancelNote] = useState("");
+  const [quantityProductDetail, setQuantityProductDetail] = useState([]);
   useEffect(() => {
     const fetchData = async (orderDetailResponses) => {
       if (orderDetailResponses) {
@@ -133,14 +136,36 @@ const OrderTable = (props) => {
     setIsModalVisibleCancel(false);
     setCancelNote("");
   };
-
+  const fetchAllProductDetail = async () => {
+    const response = await fetchDataProductDetail();
+    if (response?.data?.data) {
+      setQuantityProductDetail(response?.data?.data);
+    }
+  };
+  useEffect(() => {
+    fetchAllProductDetail();
+  }, []);
   const handleUpdateStatus = async () => {
     try {
       const currentStatusIndex = statusOptions.findIndex(
         (option) => option.value === selectedStatus
       );
-      const nextStatus = statusOptions[currentStatusIndex + 1]?.value; // Trạng thái tiếp theo
-
+      const order = dataOrder.find((order) => order.id === currentOrderId);
+      if (!order) {
+        notification.warning({
+          message: "Lỗi",
+          description: "Không tìm thấy đơn hàng để xử lý.",
+        });
+        return;
+      }
+      const nextStatus = statusOptions[currentStatusIndex + 1]?.value;
+      if (selectedStatus === "pending" && nextStatus === "confirmed") {
+        if (!handleCheckQuantity(order?.orderDetailResponses)) {
+          return;
+        }
+      }
+      // Trạng thái tiếp theo
+      console.log("adđ", nextStatus);
       if (nextStatus) {
         await updateStatusOrder(currentOrderId, nextStatus);
         notification.success({
@@ -156,9 +181,9 @@ const OrderTable = (props) => {
               : order
           )
         );
+
         if (nextStatus === "shipping") {
           const order = dataOrder.find((order) => order.id === currentOrderId);
-
           if (!order) {
             notification.error({
               message: "Lỗi",
@@ -249,19 +274,31 @@ const OrderTable = (props) => {
           }
         }
       } else {
-        notification.error({
+        notification.info({
           message: "Lỗi",
           description: "Không thể chuyển đến trạng thái tiếp theo.",
           placement: "top",
         });
       }
     } catch (error) {
-      notification.error({
-        message: "Lỗi khi cập nhật trạng thái",
-        description: JSON.stringify(error.message),
-        placement: "top",
-      });
+      console.error(error);
     }
+  };
+  const handleCheckQuantity = (orderDetails) => {
+    for (const detail of orderDetails) {
+      const productId = detail.productDetailId.code;
+      const product = quantityProductDetail.find(
+        (product) => product.code === productId
+      );
+      if (product && product.quantity < detail.quantity) {
+        notification.warning({
+          message: "Số lượng không đủ",
+          description: `Sản phẩm không đủ số lượng để xử lý.`,
+        });
+        return false;
+      }
+    }
+    return true;
   };
 
   const canceledOrder = async (orderId, status, cancelNote) => {
@@ -519,8 +556,8 @@ const OrderTable = (props) => {
         return discountPrice
           ? `${discountPrice.toLocaleString()} VNĐ`
           : defaultPrice
-            ? `${defaultPrice.toLocaleString()} VNĐ`
-            : "Chưa có giá";
+          ? `${defaultPrice.toLocaleString()} VNĐ`
+          : "Chưa có giá";
       },
     },
     {
@@ -601,21 +638,24 @@ const OrderTable = (props) => {
       .map(
         (record) => `
           <tr>
-            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${record.id
-          }</td>
-            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${record.productDetailId?.code || "N/A"
-          }</td>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${
+              record.id
+            }</td>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${
+              record.productDetailId?.code || "N/A"
+            }</td>
             <td style="border: 1px solid #000; padding: 10px; text-align:center;">${getProductName(
-            record.productDetailId?.productId
-          )}</td>
-            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${record.quantity || "N/A"
-          }</td>
+              record.productDetailId?.productId
+            )}</td>
+            <td style="border: 1px solid #000; padding: 10px; text-align:center;">${
+              record.quantity || "N/A"
+            }</td>
             <td style="border: 1px solid #000; padding: 10px; text-align:center;">${getSizeName(
-            record.productDetailId?.sizeId
-          )}</td>
+              record.productDetailId?.sizeId
+            )}</td>
             <td style="border: 1px solid #000; padding: 10px; text-align:center;">${getColorName(
-            record.productDetailId?.colorId
-          )}</td>
+              record.productDetailId?.colorId
+            )}</td>
             <td style="border: 1px solid #000; padding: 10px; text-align:center;">${record.price.toLocaleString()} VND</td>
           </tr>
         `
@@ -633,12 +673,15 @@ const OrderTable = (props) => {
         <h2 style="text-align: center; font-size: 24px; font-weight: bold;">HÓA ĐƠN BÁN HÀNG</h2>
         <p style="font-size: 16px;">Mã hóa đơn: ${orderDetails.code}</p>
         <p style="font-size: 16px;">Ngày: ${orderDetails.orderDate}</p>
-        <p style="font-size: 16px;">Nhân viên: ${orderDetails?.staffResponse?.name ?? "Không có nhân viên"
-      }</p>
-        <p style="font-size: 16px;">Khách hàng: ${orderDetails.customerResponse.name
-      }</p>
-        <p style="font-size: 16px;">SĐT: ${orderDetails.customerResponse.phoneNumber
-      }</p>
+        <p style="font-size: 16px;">Nhân viên: ${
+          orderDetails?.staffResponse?.name ?? "Không có nhân viên"
+        }</p>
+        <p style="font-size: 16px;">Khách hàng: ${
+          orderDetails.customerResponse.name
+        }</p>
+        <p style="font-size: 16px;">SĐT: ${
+          orderDetails.customerResponse.phoneNumber
+        }</p>
         <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
           <thead>
             <tr>
@@ -659,12 +702,13 @@ const OrderTable = (props) => {
           <div style="width: 250px; border: 1px solid #ddd; padding: 10px;">
             <div className="result_order_detail">
               <span>Giảm giá hóa đơn:</span>
-            ${orderDetails.voucherId
-        ? orderDetails.voucherId.discountAmount !== "0"
-          ? `${orderDetails.voucherId.discountAmount} VND`
-          : `${orderDetails.voucherId.discountPercent}%`
-        : "0 VND (0%)"
-      }
+            ${
+              orderDetails.voucherId
+                ? orderDetails.voucherId.discountAmount !== "0"
+                  ? `${orderDetails.voucherId.discountAmount} VND`
+                  : `${orderDetails.voucherId.discountPercent}%`
+                : "0 VND (0%)"
+            }
             </div>
             <div className="result_order_detail">
               <span>Tổng số lượng:</span>
@@ -678,18 +722,18 @@ const OrderTable = (props) => {
               <span>Trạng thái:</span>
               <span>
                 ${(() => {
-        const statusOptions = [
-          { value: "pending", label: "Chờ xử lý" },
-          { value: "process", label: "Đang xử lý" },
-          { value: "delivery", label: "Đang giao" },
-          { value: "shipped", label: "Đã giao" },
-          { value: "cancelled", label: "Đã hủy" },
-        ];
-        const currentStatus = statusOptions.find(
-          (option) => option.value === orderDetails.status
-        );
-        return currentStatus ? currentStatus.label : "";
-      })()}
+                  const statusOptions = [
+                    { value: "pending", label: "Chờ xử lý" },
+                    { value: "process", label: "Đang xử lý" },
+                    { value: "delivery", label: "Đang giao" },
+                    { value: "shipped", label: "Đã giao" },
+                    { value: "cancelled", label: "Đã hủy" },
+                  ];
+                  const currentStatus = statusOptions.find(
+                    (option) => option.value === orderDetails.status
+                  );
+                  return currentStatus ? currentStatus.label : "";
+                })()}
               </span>
             </div>
           </div>
@@ -1084,9 +1128,9 @@ const OrderTable = (props) => {
                 status.value === "shipped" ||
                 status.value === "cancelled" ||
                 index <=
-                statusOptions.findIndex(
-                  (option) => option.value === selectedStatus
-                )
+                  statusOptions.findIndex(
+                    (option) => option.value === selectedStatus
+                  )
               }
             />
           ))}

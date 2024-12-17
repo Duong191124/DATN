@@ -322,11 +322,13 @@ const ProductDetailPage = () => {
                   .map((size) => (
                     <button
                       key={size.id}
-                      className={`size-button ${selectedSize === size.name ? "selected" : ""
-                        } ${!availableSizes.includes(size.name)
+                      className={`size-button ${
+                        selectedSize === size.name ? "selected" : ""
+                      } ${
+                        !availableSizes.includes(size.name)
                           ? "disabled-size"
                           : ""
-                        }`}
+                      }`}
                       onClick={() => handleSizeChange(size.name)}
                       disabled={!availableSizes.includes(size.name)}
                     >
@@ -336,7 +338,7 @@ const ProductDetailPage = () => {
               </div>
             </div>
             {sizeError && (
-              <p style={{ color: "red", marginTop: "8px" }}>{t("MES-0116")}</p>
+              <p style={{ color: "red", marginTop: "8px" }}>{t("MES-116")}</p>
             )}
             <div className="select-color" style={{ flexWrap: "wrap" }}>
               <label>{t("MES-015")}:</label>
@@ -346,11 +348,13 @@ const ProductDetailPage = () => {
                   .map((color) => (
                     <button
                       key={color.id}
-                      className={`color-button ${selectedColor === color.name ? "selected" : ""
-                        } ${!availableColors.includes(color.name)
+                      className={`color-button ${
+                        selectedColor === color.name ? "selected" : ""
+                      } ${
+                        !availableColors.includes(color.name)
                           ? "disabled-color"
                           : ""
-                        }`}
+                      }`}
                       onClick={() => handleColorChange(color.name)}
                       disabled={!availableColors.includes(color.name)}
                     >

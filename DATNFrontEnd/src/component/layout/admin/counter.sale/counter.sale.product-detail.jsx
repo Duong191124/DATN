@@ -2,6 +2,7 @@ import {
   Button,
   Col,
   Input,
+  InputNumber,
   message,
   Modal,
   notification,
@@ -11,8 +12,9 @@ import {
   Slider,
   Table,
 } from "antd";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./product-detail.css";
+import { SearchOutlined } from "@ant-design/icons";
 const { Option } = Select;
 
 const CounterSalesProductDetail = ({
@@ -150,7 +152,6 @@ const CounterSalesProductDetail = ({
       });
       return;
     }
-    debugger;
     if (record) {
       const productToAdd = {
         ...record,
@@ -170,6 +171,25 @@ const CounterSalesProductDetail = ({
       });
     }
   };
+  const handlePriceInputChange = (key, value) => {
+    if (value < 0 || value > 10000000) {
+      notification.warning({
+        message: "Giới hạn giá",
+        description: "Giá trị phải nằm trong khoảng từ 0 đến 10,000,000 đ.",
+      });
+      return;
+    }
+
+    const newFilters = {
+      ...filter,
+      [key]: value,
+    };
+
+    setFilter(newFilters);
+
+    // Cập nhật Slider
+    handlePriceChange([newFilters.minPrice, newFilters.maxPrice]);
+  };
 
   const handlePriceChange = (value) => {
     const newFilters = {
@@ -177,8 +197,52 @@ const CounterSalesProductDetail = ({
       minPrice: value[0],
       maxPrice: value[1],
     };
+
     setFilter(newFilters);
     updateUrl(newFilters);
+  };
+  const [tempFilterPrice, setTempFilterPrice] = useState({
+    minPrice: 0,
+    maxPrice: 10000000,
+  });
+  // Hàm format giá trị với dấu phân cách hàng nghìn
+  const formatPrice = (value) => {
+    // Kiểm tra nếu giá trị là hợp lệ
+    if (value || value === 0) {
+      return new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
+        maximumFractionDigits: 0,
+      }).format(value);
+    }
+    return "";
+  };
+
+  const handlePriceInput = (key, value) => {
+    // Kiểm tra giá trị có hợp lệ không, nếu không thì không thay đổi
+    if (value < 0 || value > 10000000) return;
+
+    // Chuyển đổi giá trị vào để cập nhật filter
+    setTempFilterPrice({
+      ...tempFilterPrice,
+      [key]: value,
+    });
+  };
+
+  const blockInvalidChars = (e) => {
+    // Chặn ký tự không hợp lệ
+    if (
+      ["e", "E", "+", "-", "."].includes(e.key) ||
+      ((e.key < "0" || e.key > "9") && e.key.length === 1)
+    ) {
+      e.preventDefault();
+    }
+
+    // Chặn nhiều dấu chấm
+    const currentValue = e.target.value;
+    if (e.key === "." && currentValue.includes(".")) {
+      e.preventDefault();
+    }
   };
 
   const resetFilters = async () => {
@@ -223,6 +287,19 @@ const CounterSalesProductDetail = ({
   const toggleFilter = () => {
     setExpanded(!expanded);
   };
+  const [tempFilter, setTempFilter] = React.useState({
+    productName: "",
+    productCode: "",
+  });
+  const updateTempFilter = (key, value) => {
+    setTempFilter((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+  const handleSearch = () => {
+    setFilter(tempFilter); // Cập nhật filter chính
+  };
   return (
     <>
       <div id="product">
@@ -265,22 +342,40 @@ const CounterSalesProductDetail = ({
                     <p style={{ marginBottom: "10px", fontSize: "16px" }}>
                       Sản phẩm
                     </p>
-                    <div style={{ display: "flex", gap: "20px" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "20px",
+                        alignItems: "center",
+                      }}
+                    >
                       <Input
                         placeholder="Tên sản phẩm"
-                        value={filter.productName}
+                        value={tempFilter.productName}
                         onChange={(e) =>
-                          updateFilter("productName", e.target.value)
+                          updateTempFilter("productName", e.target.value)
                         }
-                        style={{ marginBottom: "10px" }}
+                        suffix={
+                          <SearchOutlined
+                            onClick={() => handleSearch("productName")}
+                            style={{ cursor: "pointer" }}
+                          />
+                        }
+                        style={{ marginBottom: "10px", width: "50%" }}
                       />
                       <Input
                         placeholder="Mã sản phẩm"
-                        value={filter.productCode}
+                        value={tempFilter.productCode}
                         onChange={(e) =>
-                          updateFilter("productCode", e.target.value)
+                          updateTempFilter("productCode", e.target.value)
                         }
-                        style={{ marginBottom: "10px" }}
+                        suffix={
+                          <SearchOutlined
+                            onClick={() => handleSearch("productCode")}
+                            style={{ cursor: "pointer" }}
+                          />
+                        }
+                        style={{ marginBottom: "10px", width: "50%" }}
                       />
                     </div>
                   </Col>
@@ -350,10 +445,47 @@ const CounterSalesProductDetail = ({
                         filter.minPrice || 0,
                         filter.maxPrice || 10000000,
                       ]}
-                      onChange={handlePriceChange}
+                      onChange={(value) => handlePriceChange(value)}
                       style={{ width: "100%", marginBottom: "10px" }}
                       tooltipVisible={false}
                     />
+                    <div style={{ display: "flex", gap: "10px" }}>
+                      <InputNumber
+                        min={0}
+                        max={10000000}
+                        value={tempFilterPrice.minPrice}
+                        onChange={(value) =>
+                          handlePriceInput("minPrice", value)
+                        }
+                        onKeyDown={blockInvalidChars}
+                        style={{ width: "50%" }}
+                        placeholder="Từ"
+                        formatter={(value) => formatPrice(value)}
+                        parser={(value) => value.replace(/[^\d]/g, "")}
+                      />
+                      <InputNumber
+                        min={0}
+                        max={10000000}
+                        value={tempFilterPrice.maxPrice}
+                        onChange={(value) =>
+                          handlePriceInput("maxPrice", value)
+                        }
+                        onKeyDown={blockInvalidChars}
+                        style={{ width: "50%" }}
+                        placeholder="Đến"
+                        formatter={(value) => formatPrice(value)}
+                        parser={(value) => value.replace(/[^\d]/g, "")}
+                      />
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          setFilter(tempFilterPrice); // Áp dụng giá trị tạm thời vào filter chính
+                          updateUrl(tempFilterPrice); // Cập nhật URL nếu cần
+                        }}
+                      >
+                        Lọc giá
+                      </Button>
+                    </div>
                   </Col>
                 </Row>
                 <div style={{ marginTop: "10px", textAlign: "end" }}>
