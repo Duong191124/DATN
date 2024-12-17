@@ -151,6 +151,7 @@ const OrderPage = () => {
   useEffect(() => {
     loadOrder(currentPage, pageSize);
   }, [filters, currentPage, pageSize]);
+  console.log("filters", filters.orderType);
   return (
     <>
       <div style={{ textAlign: "center", margin: "28px 0" }}>
@@ -183,19 +184,35 @@ const OrderPage = () => {
               value={filters.status}
               onChange={handleStatusChange}
             >
-              <Radio value="pending_payment" style={{ marginBottom: "15px" }}>
+              <Radio value="pending_payment" style={{ marginBottom: "15px" }} disabled={filters.orderType === "online"}>
                 Chờ thanh toán
               </Radio>
-              <Radio value="pending" style={{ marginBottom: "15px" }}>
+              <Radio
+                value="pending"
+                style={{ marginBottom: "15px" }}
+                disabled={filters.orderType === "offline"}
+              >
                 Chờ xử lý
               </Radio>
-              <Radio value="confirmed" style={{ marginBottom: "15px" }}>
+              <Radio
+                value="confirmed"
+                style={{ marginBottom: "15px" }}
+                disabled={filters.orderType === "offline"}
+              >
                 Xác nhận
               </Radio>
-              <Radio value="shipping" style={{ marginBottom: "15px" }}>
+              <Radio
+                value="shipping"
+                style={{ marginBottom: "15px" }}
+                disabled={filters.orderType === "offline"}
+              >
                 Đang giao
               </Radio>
-              <Radio value="delivered" style={{ marginBottom: "15px" }}>
+              <Radio
+                value="delivered"
+                style={{ marginBottom: "15px" }}
+                disabled={filters.orderType === "offline"}
+              >
                 Đã giao
               </Radio>
               <Radio value="completed" style={{ marginBottom: "15px" }}>

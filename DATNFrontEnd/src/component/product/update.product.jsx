@@ -46,11 +46,6 @@ const UpdateProduct = (props) => {
       const category = dataCategory.find((item) => item.name === values?.category);
       const sleeve = dataSleeve.find((item) => item.name === values?.sleeve);
 
-      console.log(values, "values")
-      console.log(collar, "collar")
-      console.log(brand, "brand")
-      console.log(category, "category")
-      console.log(sleeve, "sleeve")
 
       const res = await updateProductAPI(
         values.id,
