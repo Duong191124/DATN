@@ -1,4 +1,4 @@
-import { Modal, Button, Table, Checkbox, notification, Select, Tooltip } from 'antd';
+import { Modal, Button, Table, Checkbox, notification, Select, Tooltip, Input } from 'antd';
 import { useState, useEffect } from 'react';
 import { fetchDataProductDetail, updatePromotionProduct, detailPromotion } from '../../service/api.service';
 
@@ -13,29 +13,18 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
     const [selectedSize, setSelectedSize] = useState(null);
     const [allSelected, setAllSelected] = useState(false);
     const [selectedColor, setSelectedColor] = useState(null);
-    const [searchKeyword, setSearchKeyword] = useState('');
-    const [filterStatus, setFilterStatus] = useState('all'); // Trạng thái lọc, mặc định là tất cả
+    const [searchKeyword, setSearchKeyword] = useState(''); // Thêm state cho thanh tìm kiếm
 
     useEffect(() => {
         const fetchProductDetailsAndPromotion = async () => {
             try {
                 const productDetailsRes = await fetchDataProductDetail();
                 if (productDetailsRes?.data?.data) {
-                    const fetchedProductDetails = productDetailsRes.data.data;
-
-                    // Ensure each product detail has the activePromotionId, either from the product or by applying your logic
-                    const availableProductDetails = fetchedProductDetails.map(item => {
-                        // If the item has a promotion, set the activePromotionId accordingly
-                        if (item.promotions && item.promotions.length > 0) {
-                            // Assuming that we can get the active promotion ID from the product's promotions
-                            item.activePromotionId = item.promotions[0].id; // Modify according to your data structure
-                        } else {
-                            item.activePromotionId = null; // Set as null if no active promotion
-                        }
-                        return item;
-                    });
-
-                    setProductDetails(availableProductDetails);
+                    const fetchedProductDetails = productDetailsRes.data.data.map(item => ({
+                        ...item,
+                        activePromotionId: item.promotions?.length > 0 ? item.promotions[0].id : null,
+                    }));
+                    setProductDetails(fetchedProductDetails);
                 }
 
                 if (id) {
@@ -56,11 +45,8 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             fetchProductDetailsAndPromotion();
             setSelectedDetails(selectedProductDetails || []);
         }
-        const validIds = filteredData.map(item => item.id);
-        setSelectedDetails(prev => prev.filter(id => validIds.includes(id)));
     }, [isVisible, id, selectedProductDetails]);
 
-    // Chỉnh sửa cột 'Chọn' để vô hiệu hóa checkbox cho các product detail đã có khuyến mãi khác
     const handleSelect = (productId) => {
         setSelectedDetails((prevSelected) =>
             prevSelected.includes(productId)
@@ -75,46 +61,6 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                 throw new Error("Promotion ID không hợp lệ.");
             }
 
-            const currentDate = new Date(); // Lấy ngày hiện tại
-            const promotionExpirationDate = new Date(promotion?.expirationDate); // Ngày hết hạn của khuyến mãi
-
-            // Kiểm tra nếu khuyến mãi đã hết hạn
-            if (promotionExpirationDate < currentDate) {
-                notification.warning({
-                    message: "Khuyến Mãi Hết Hạn",
-                    description: "Khuyến mãi này đã hết hạn và không thể áp dụng.",
-                });
-                // Hủy áp dụng khuyến mãi logic ở đây
-                return;
-            }
-
-            // Kiểm tra nếu giá trị giảm giá vượt quá giá của sản phẩm
-            const invalidProducts = selectedDetails.filter((productId) => {
-                const product = productDetails.find((item) => item.id === productId);
-                if (!product) return false;
-
-                const discountAmount = promotion.discountAmount || 0; // Giảm giá cố định
-                const discountPercent = promotion.discountPercent || 0; // Giảm giá phần trăm
-
-                // Tính giá sau giảm
-                const calculatedDiscountPrice =
-                    discountPercent > 0
-                        ? product.defaultPrice * (1 - discountPercent / 100)
-                        : product.defaultPrice - discountAmount;
-
-                // Nếu giá sau giảm nhỏ hơn 0, sản phẩm không hợp lệ
-                return calculatedDiscountPrice < 0;
-            });
-
-            if (invalidProducts.length > 0) {
-                notification.error({
-                    message: "Lỗi Áp Dụng",
-                    description: "Giá trị giảm giá vượt quá giá của một hoặc nhiều sản phẩm đã chọn.",
-                });
-                return;
-            }
-
-            // Nếu tất cả hợp lệ, tiến hành áp dụng khuyến mãi
             const payload = {
                 productDetailsIds: selectedDetails,
                 applyPromotion: selectedDetails.length > 0,
@@ -129,33 +75,13 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
                         ? "Áp dụng khuyến mãi thành công!"
                         : "Đã hủy áp dụng khuyến mãi.",
                 });
-
-                // Fetch lại dữ liệu sản phẩm sau khi áp dụng khuyến mãi
-                const updatedProductDetails = await fetchDataProductDetail();
-                if (updatedProductDetails?.data?.data) {
-                    let restoredDetails = updatedProductDetails.data.data;
-
-                    if (!payload.applyPromotion) {
-                        restoredDetails = restoredDetails.map(product => ({
-                            ...product,
-                            discountPrice: product.defaultPrice,
-                        }));
-                    }
-
-                    setProductDetails(restoredDetails);
-                }
-
                 onApply(selectedDetails);
                 onClose();
-
-                if (loadData) {
-                    loadData();
-                }
+                if (loadData) loadData();
             } else {
                 throw new Error("Không thể cập nhật khuyến mãi.");
             }
         } catch (error) {
-            console.error("Error applying promotion:", error);
             notification.error({
                 message: "Lỗi",
                 description: error.response?.data?.message || "Không thể áp dụng khuyến mãi",
@@ -163,46 +89,31 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
         }
     };
 
-
-
     const handleSelectAll = () => {
-        // Lọc các sản phẩm không bị dính khuyến mãi khác
         const availableIds = filteredData
-            .filter(item => item.activePromotionId === null || item.activePromotionId === id) // chỉ chọn sản phẩm không có khuyến mãi khác
+            .filter(item => item.activePromotionId === null || item.activePromotionId === id)
             .map(item => item.id);
 
-        // Kiểm tra nếu tất cả các sản phẩm hợp lệ chưa được chọn, chọn tất cả, nếu đã chọn thì bỏ chọn
         setSelectedDetails(prev =>
             allSelected
-                ? prev.filter(id => !availableIds.includes(id)) // Bỏ chọn các sản phẩm hợp lệ
-                : [...new Set([...prev, ...availableIds])] // Chọn tất cả các sản phẩm hợp lệ
+                ? prev.filter(id => !availableIds.includes(id))
+                : [...new Set([...prev, ...availableIds])]
         );
         setAllSelected(prev => !prev);
     };
 
-
-    const handleSizeChange = (size) => {
-        setSelectedSize(size);
-        setAllSelected(false);
-    };
-
     const filteredData = productDetails
-    .filter(item => {
-        const sizeMatch = selectedSize === null || item.size?.name === selectedSize;
-        const colorMatch = selectedColor === null || item.color?.name === selectedColor;
-        const searchMatch = searchKeyword === '' || item.code.toLowerCase().includes(searchKeyword.toLowerCase());
-        return sizeMatch && colorMatch && searchMatch;
-    })
-    .sort((a, b) => {
-        // So sánh để những sản phẩm chưa áp dụng khuyến mãi sẽ lên đầu
-        if (a.activePromotionId === null && b.activePromotionId !== null) {
-            return -1; // a lên trước b
-        }
-        if (a.activePromotionId !== null && b.activePromotionId === null) {
-            return 1; // b lên trước a
-        }
-        return 0; // Giữ nguyên thứ tự nếu cả hai đều có hoặc không có khuyến mãi
-    });
+        .filter(item => {
+            const sizeMatch = selectedSize === null || item.size?.name === selectedSize;
+            const colorMatch = selectedColor === null || item.color?.name === selectedColor;
+            const searchMatch = searchKeyword === '' || item.code.toLowerCase().includes(searchKeyword.toLowerCase());
+            return sizeMatch && colorMatch && searchMatch;
+        })
+        .sort((a, b) => {
+            if (a.activePromotionId === null && b.activePromotionId !== null) return -1;
+            if (a.activePromotionId !== null && b.activePromotionId === null) return 1;
+            return 0;
+        });
 
     const columns = [
         {
@@ -217,12 +128,12 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
         {
             title: "Size",
             dataIndex: "size",
-            render: (text, record) => record.size?.name || "Chưa có size",
+            render: (_, record) => record.size?.name || "Chưa có size",
         },
         {
             title: "Color",
             dataIndex: "color",
-            render: (text, record) => record.color?.name || "Chưa có color",
+            render: (_, record) => record.color?.name || "Chưa có color",
         },
         {
             title: "Giá Gốc",
@@ -243,11 +154,8 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             key: 'select',
             render: (_, record) => (
                 <Tooltip
-                    title={
-                        record.activePromotionId !== null && record.activePromotionId !== id
-                            ? "Sản phẩm đang thuộc khuyến mãi khác"
-                            : ""
-                    }
+                    title={record.activePromotionId !== null && record.activePromotionId !== id
+                        ? "Sản phẩm đang thuộc khuyến mãi khác" : ""}
                 >
                     <Checkbox
                         checked={selectedDetails.includes(record.id)}
@@ -264,57 +172,52 @@ const ProductDetailModal = ({ isVisible, onClose, selectedProductDetails, onAppl
             title="Chọn Chi Tiết Sản Phẩm"
             visible={isVisible}
             onCancel={onClose}
-            width={4000}
+            width={1200}
             footer={[
-                <Button key="cancel" onClick={onClose}>
-                    Hủy
-                </Button>,
-                <Button key="apply" type="primary" onClick={handleApply}>
-                    Áp Dụng
-                </Button>,
+                <Button key="cancel" onClick={onClose}>Hủy</Button>,
+                <Button key="apply" type="primary" onClick={handleApply}>Áp Dụng</Button>,
             ]}
         >
-            <div style={{ display: 'flex', gap: '16px' }}>
+            <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+                <Input.Search
+                    placeholder="Tìm kiếm theo tên sản phẩm"
+                    onChange={(e) => setSearchKeyword(e.target.value)}
+                    style={{ width: 300 }}
+                />
                 <Select
                     placeholder="Chọn Size"
-                    style={{ width: 200, marginBottom: 16 }}
-                    onChange={handleSizeChange}
+                    style={{ width: 200 }}
+                    onChange={(size) => setSelectedSize(size)}
                     allowClear
                 >
-                    <Option key="all" value={null}>Tất cả</Option>
                     {[...new Set(productDetails.map(item => item.size?.name).filter(Boolean))].map(size => (
-                        <Option key={size} value={size}>
-                            {size}
-                        </Option>
+                        <Option key={size} value={size}>{size}</Option>
                     ))}
                 </Select>
                 <Select
                     placeholder="Chọn màu sắc"
-                    style={{ width: 200, marginBottom: 16 }}
-                    onChange={(value) => setSelectedColor(value)}
+                    style={{ width: 200 }}
+                    onChange={(color) => setSelectedColor(color)}
                     allowClear
                 >
-                    <Option key="all" value={null}>Tất cả</Option>
-                    {[...new Set(productDetails.map(item => item.color?.name).filter(Boolean))].map((color) => (
-                        <Option key={color} value={color}>
-                            {color}
-                        </Option>
+                    {[...new Set(productDetails.map(item => item.color?.name).filter(Boolean))].map(color => (
+                        <Option key={color} value={color}>{color}</Option>
                     ))}
                 </Select>
+                <Button onClick={handleSelectAll}>
+                    {allSelected ? "Bỏ Chọn Tất Cả" : "Chọn Tất Cả"}
+                </Button>
             </div>
-            <Button onClick={handleSelectAll} style={{ marginBottom: 16, marginLeft: 8 }}>
-                {allSelected ? "Bỏ Chọn Tất Cả" : "Chọn Tất Cả"}
-            </Button>
             <Table
-                dataSource={filteredData} // filteredData dựa trên productDetails đã lọc
+                dataSource={filteredData}
                 columns={columns}
                 pagination={{
                     current: currentPage,
                     pageSize: pageSize,
                     total: filteredData.length,
-                    onChange: (page, pageSize) => {
+                    onChange: (page, size) => {
                         setCurrentPage(page);
-                        setPageSize(pageSize);
+                        setPageSize(size);
                     },
                 }}
                 rowKey="id"

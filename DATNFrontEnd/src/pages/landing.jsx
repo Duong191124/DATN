@@ -15,7 +15,7 @@ const LandingPage = () => {
         { name: 'Flask RESTful', category: 'API' },
     ];
 
-    const teamMembers = ['Dan Robert', 'Duongdzvippro', 'Dark Fan', 'Drink Ruy', 'Peach All'];
+    const teamMembers = ['Huu Dung', 'Dinh Duong', 'Duc Phan', 'Dinh Duy', 'Duy Toan'];
 
     return (
         <div style={{ minHeight: '100vh', backgroundColor: 'white', color: 'black', padding: '0', margin: '0', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>

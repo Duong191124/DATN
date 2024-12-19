@@ -283,9 +283,9 @@ const Header = () => {
                 <li>
                   <NavLink to={"/about-us"}>{t("MES-046")}</NavLink>
                 </li>
-                <li>
+                {/* <li>
                   <NavLink to={"/contact"}>{t("MES-047")}</NavLink>
-                </li>
+                </li> */}
               </ul>
             </div>
           </div>
